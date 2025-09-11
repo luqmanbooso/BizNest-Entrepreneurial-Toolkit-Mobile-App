@@ -1,54 +1,41 @@
 import 'package:flutter/material.dart';
-import 'package:animate_do/animate_do.dart';
 import 'package:get/get.dart';
-import '../../utils/modern_theme.dart';
-import '../../utils/advanced_animations.dart';
 
 class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
+
   @override
-  _LoginScreenState createState() => _LoginScreenState();
+  State<LoginScreen> createState() => _LoginScreenState();
 }
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  bool _isPasswordVisible = false;
   bool _isLoading = false;
-  bool _obscurePassword = true;
-
-  @override
-  void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: WaveAnimation(
-        waveColor: AppTheme.primaryColor,
-        child: Container(
-          decoration: const BoxDecoration(
-            gradient: AppTheme.backgroundGradient,
-          ),
-          child: SafeArea(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 60),
-                  _buildHeader(),
-                  const SizedBox(height: 50),
-                  _buildLoginForm(),
-                  const SizedBox(height: 30),
-                  _buildSocialLogin(),
-                  const SizedBox(height: 30),
-                  _buildSignUpPrompt(),
-                ],
-              ),
-            ),
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 40),
+              _buildHeader(),
+              const SizedBox(height: 40),
+              _buildLoginForm(),
+              const SizedBox(height: 20),
+              _buildLoginButton(),
+              const SizedBox(height: 30),
+              _buildSocialLogin(),
+              const SizedBox(height: 20),
+              _buildSignUpLink(),
+            ],
           ),
         ),
       ),
@@ -56,256 +43,267 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Widget _buildHeader() {
-    return FadeInDown(
-      duration: const Duration(milliseconds: 800),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [Color(0xFFF59E0B), Color(0xFFEC4899)],
+            ),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: const Icon(
+            Icons.business_center,
+            color: Colors.white,
+            size: 32,
+          ),
+        ),
+        const SizedBox(height: 24),
+        const Text(
+          'Welcome Back!',
+          style: TextStyle(
+            fontSize: 32,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF0F172A),
+          ),
+        ),
+        const SizedBox(height: 8),
+        const Text(
+          'Sign in to your entrepreneur account',
+          style: TextStyle(
+            fontSize: 16,
+            color: Color(0xFF64748B),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLoginForm() {
+    return Form(
+      key: _formKey,
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          PulseAnimation(
-            child: Container(
-              width: 80,
-              height: 80,
-              decoration: BoxDecoration(
-                gradient: AppTheme.primaryGradient,
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: AppTheme.modernShadow,
-              ),
-              child: const Icon(
-                Icons.rocket_launch_rounded,
-                color: Colors.white,
-                size: 40,
-              ),
-            ),
-          ),
-          const SizedBox(height: 30),
-          ShimmerEffect(
-            child: const Text(
-              'Welcome\nBack!',
-              style: TextStyle(
-                fontSize: 36,
-                fontWeight: FontWeight.w900,
-                color: Color(0xFF0F172A),
-                letterSpacing: -1,
-                height: 1.1,
-              ),
-            ),
-          ),
-          const SizedBox(height: 12),
-          const Text(
-            'Sign in to continue your entrepreneurial journey',
-            style: TextStyle(
-              fontSize: 16,
-              color: Color(0xFF64748B),
-              fontWeight: FontWeight.w500,
-            ),
-          ),
+          _buildEmailField(),
+          const SizedBox(height: 16),
+          _buildPasswordField(),
+          const SizedBox(height: 16),
+          _buildForgotPassword(),
         ],
       ),
     );
   }
 
-  Widget _buildLoginForm() {
-    return FadeInUp(
-      delay: const Duration(milliseconds: 400),
-      child: ModernCard(
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              TextFormField(
-                controller: _emailController,
-                decoration: InputDecoration(
-                  labelText: 'Email Address',
-                  prefixIcon: Container(
-                    margin: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: AppTheme.primaryColor.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: const Icon(
-                      Icons.email_rounded,
-                      color: AppTheme.primaryColor,
-                      size: 20,
-                    ),
-                  ),
-                ),
-                validator: (value) {
-                  if (value?.isEmpty ?? true) {
-                    return 'Please enter your email';
-                  }
-                  if (!GetUtils.isEmail(value!)) {
-                    return 'Please enter a valid email';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 20),
-              TextFormField(
-                controller: _passwordController,
-                obscureText: _obscurePassword,
-                decoration: InputDecoration(
-                  labelText: 'Password',
-                  prefixIcon: Container(
-                    margin: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: AppTheme.primaryColor.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: const Icon(
-                      Icons.lock_rounded,
-                      color: AppTheme.primaryColor,
-                      size: 20,
-                    ),
-                  ),
-                  suffixIcon: IconButton(
-                    onPressed: () {
-                      setState(() {
-                        _obscurePassword = !_obscurePassword;
-                      });
-                    },
-                    icon: Icon(
-                      _obscurePassword ? Icons.visibility_off_rounded : Icons.visibility_rounded,
-                      color: const Color(0xFF94A3B8),
-                    ),
-                  ),
-                ),
-                validator: (value) {
-                  if (value?.isEmpty ?? true) {
-                    return 'Please enter your password';
-                  }
-                  if (value!.length < 6) {
-                    return 'Password must be at least 6 characters';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-              Align(
-                alignment: Alignment.centerRight,
-                child: TextButton(
-                  onPressed: () => _forgotPassword(),
-                  child: const Text(
-                    'Forgot Password?',
-                    style: TextStyle(
-                      color: AppTheme.primaryColor,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 30),
-              SizedBox(
-                width: double.infinity,
-                child: MorphingButton(
-                  text: _isLoading ? 'Signing In...' : 'Sign In',
-                  onPressed: _isLoading ? () {} : _signIn,
-                  gradient: AppTheme.primaryGradient,
-                ),
-              ),
-            ],
+  Widget _buildEmailField() {
+    return TextFormField(
+      controller: _emailController,
+      keyboardType: TextInputType.emailAddress,
+      decoration: InputDecoration(
+        labelText: 'Email',
+        hintText: 'Enter your email',
+        prefixIcon: const Icon(Icons.email_outlined),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.grey.shade300),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.grey.shade300),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Color(0xFFF59E0B)),
+        ),
+      ),
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Please enter your email';
+        }
+        if (!GetUtils.isEmail(value)) {
+          return 'Please enter a valid email';
+        }
+        return null;
+      },
+    );
+  }
+
+  Widget _buildPasswordField() {
+    return TextFormField(
+      controller: _passwordController,
+      obscureText: !_isPasswordVisible,
+      decoration: InputDecoration(
+        labelText: 'Password',
+        hintText: 'Enter your password',
+        prefixIcon: const Icon(Icons.lock_outlined),
+        suffixIcon: IconButton(
+          icon: Icon(
+            _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+          ),
+          onPressed: () {
+            setState(() {
+              _isPasswordVisible = !_isPasswordVisible;
+            });
+          },
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.grey.shade300),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.grey.shade300),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Color(0xFFF59E0B)),
+        ),
+      ),
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Please enter your password';
+        }
+        if (value.length < 6) {
+          return 'Password must be at least 6 characters';
+        }
+        return null;
+      },
+    );
+  }
+
+  Widget _buildForgotPassword() {
+    return Align(
+      alignment: Alignment.centerRight,
+      child: TextButton(
+        onPressed: () {
+          Get.snackbar(
+            'Forgot Password',
+            'Password reset link sent to your email',
+            backgroundColor: const Color(0xFFF59E0B),
+            colorText: Colors.white,
+          );
+        },
+        child: const Text(
+          'Forgot Password?',
+          style: TextStyle(
+            color: Color(0xFFF59E0B),
+            fontWeight: FontWeight.w600,
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildLoginButton() {
+    return SizedBox(
+      width: double.infinity,
+      height: 50,
+      child: ElevatedButton(
+        onPressed: _isLoading ? null : _handleLogin,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0xFFF59E0B),
+          foregroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          elevation: 2,
+        ),
+        child: _isLoading
+            ? const SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(
+                  color: Colors.white,
+                  strokeWidth: 2,
+                ),
+              )
+            : const Text(
+                'Sign In',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
       ),
     );
   }
 
   Widget _buildSocialLogin() {
-    return FadeInUp(
-      delay: const Duration(milliseconds: 600),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Expanded(child: Divider(color: Colors.grey[300])),
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16),
-                child: Text(
-                  'or continue with',
-                  style: TextStyle(
-                    color: Color(0xFF64748B),
-                    fontSize: 14,
-                  ),
-                ),
-              ),
-              Expanded(child: Divider(color: Colors.grey[300])),
-            ],
-          ),
-          const SizedBox(height: 24),
-          Row(
-            children: [
-              Expanded(
-                child: _buildSocialButton(
-                  'Google',
-                  Icons.g_mobiledata_rounded,
-                  const Color(0xFF4285F4),
-                  () => _signInWithGoogle(),
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: _buildSocialButton(
-                  'Apple',
-                  Icons.apple_rounded,
-                  const Color(0xFF000000),
-                  () => _signInWithApple(),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSocialButton(String label, IconData icon, Color color, VoidCallback onPressed) {
-    return OutlinedButton.icon(
-      onPressed: onPressed,
-      icon: Icon(icon, color: color, size: 20),
-      label: Text(
-        label,
-        style: const TextStyle(
-          color: Color(0xFF0F172A),
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-      style: OutlinedButton.styleFrom(
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        side: const BorderSide(color: Color(0xFFE2E8F0)),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSignUpPrompt() {
-    return FadeInUp(
-      delay: const Duration(milliseconds: 800),
-      child: Center(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+    return Column(
+      children: [
+        Row(
           children: [
-            const Text(
-              "Don't have an account? ",
-              style: TextStyle(
-                color: Color(0xFF64748B),
-                fontSize: 14,
+            Expanded(child: Divider(color: Colors.grey.shade300)),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              child: Text(
+                'or continue with',
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontSize: 14,
+                ),
               ),
             ),
-            TextButton(
-              onPressed: () => Get.toNamed('/register'),
-              style: TextButton.styleFrom(
-                padding: EdgeInsets.zero,
-                minimumSize: Size.zero,
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              ),
-              child: const Text(
-                'Sign Up',
-                style: TextStyle(
-                  color: AppTheme.primaryColor,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                ),
+            Expanded(child: Divider(color: Colors.grey.shade300)),
+          ],
+        ),
+        const SizedBox(height: 20),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            _buildSocialButton(
+              'Google',
+              Icons.login,
+              Colors.red,
+            ),
+            const SizedBox(width: 16),
+            _buildSocialButton(
+              'Apple',
+              Icons.apple,
+              Colors.black,
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSocialButton(String text, IconData icon, Color color) {
+    return GestureDetector(
+      onTap: () {
+        Get.snackbar(
+          'Social Login',
+          'Login with $text coming soon!',
+          backgroundColor: color,
+          colorText: Colors.white,
+        );
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.grey.shade300),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, color: color, size: 20),
+            const SizedBox(width: 8),
+            Text(
+              text,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: Colors.black87,
               ),
             ),
           ],
@@ -314,8 +312,39 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  void _signIn() async {
-    if (_formKey.currentState?.validate() ?? false) {
+  Widget _buildSignUpLink() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        const Text(
+          "Don't have an account? ",
+          style: TextStyle(
+            color: Color(0xFF64748B),
+          ),
+        ),
+        GestureDetector(
+          onTap: () {
+            Get.snackbar(
+              'Sign Up',
+              'Registration page coming soon!',
+              backgroundColor: const Color(0xFFF59E0B),
+              colorText: Colors.white,
+            );
+          },
+          child: const Text(
+            'Sign Up',
+            style: TextStyle(
+              color: Color(0xFFF59E0B),
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _handleLogin() async {
+    if (_formKey.currentState!.validate()) {
       setState(() {
         _isLoading = true;
       });
@@ -327,41 +356,22 @@ class _LoginScreenState extends State<LoginScreen> {
         _isLoading = false;
       });
 
-      Get.offAllNamed('/dashboard');
       Get.snackbar(
         'Success',
-        'Welcome back to Entrepreneur Toolkit!',
-        backgroundColor: AppTheme.successColor,
+        'Login successful!',
+        backgroundColor: const Color(0xFF10B981),
         colorText: Colors.white,
-        duration: const Duration(seconds: 3),
       );
+
+      // Navigate to home screen
+      Get.offAllNamed('/dashboard');
     }
   }
 
-  void _forgotPassword() {
-    Get.snackbar(
-      'Forgot Password',
-      'Password reset link will be sent to your email',
-      backgroundColor: AppTheme.infoColor,
-      colorText: Colors.white,
-    );
-  }
-
-  void _signInWithGoogle() {
-    Get.snackbar(
-      'Google Sign In',
-      'Google authentication integration coming soon',
-      backgroundColor: AppTheme.warningColor,
-      colorText: Colors.white,
-    );
-  }
-
-  void _signInWithApple() {
-    Get.snackbar(
-      'Apple Sign In',
-      'Apple authentication integration coming soon',
-      backgroundColor: AppTheme.infoColor,
-      colorText: Colors.white,
-    );
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
   }
 }

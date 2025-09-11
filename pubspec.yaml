@@ -1,8 +1,7 @@
 name: entrepreneur_toolkit
-description: A comprehensive toolkit for entrepreneurs with business planning, market research, financial tools, and networking features.
+description: A comprehensive toolkit for entrepreneurs
 
 publish_to: 'none'
-
 version: 1.0.0+1
 
 environment:
@@ -11,61 +10,13 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  
-  # State Management
+  cupertino_icons: ^1.0.2
   get: ^4.6.6
-  
-  # UI Components and Animations
-  animate_do: ^3.1.2
-  fl_chart: ^0.65.0
-  lottie: ^2.7.0
-  
-  # Network and Data
-  dio: ^5.3.3
-  cached_network_image: ^3.3.0
-  
-  # Storage and Persistence
-  shared_preferences: ^2.2.2
-  hive: ^2.2.3
-  hive_flutter: ^1.1.0
-  
-  # File and Document Handling
-  file_picker: ^6.1.1
-  path_provider: ^2.1.1
-  pdf: ^3.10.6
-  
-  # Utils
-  intl: ^0.18.1
-  uuid: ^4.2.1
-  url_launcher: ^6.2.1
-  
-  # Icons and Fonts
-  cupertino_icons: ^1.0.6
-  google_fonts: ^6.1.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^3.0.0
-  hive_generator: ^2.0.1
-  build_runner: ^2.4.7
 
 flutter:
   uses-material-design: true
-
-  assets:
-    - assets/images/
-    - assets/icons/
-    - assets/animations/
-    - assets/documents/
-
-  fonts:
-    - family: Inter
-      fonts:
-        - asset: assets/fonts/Inter-Regular.ttf
-        - asset: assets/fonts/Inter-Medium.ttf
-          weight: 500
-        - asset: assets/fonts/Inter-SemiBold.ttf
-          weight: 600
-        - asset: assets/fonts/Inter-Bold.ttf
-          weight: 700

@@ -1,126 +1,133 @@
 import 'package:flutter/material.dart';
 
 class AppTheme {
-  // Colors
-  static const Color primaryColor = Color(0xFF6366F1);
-  static const Color secondaryColor = Color(0xFF8B5CF6);
-  static const Color accentColor = Color(0xFF8B5CF6);
-  static const Color tertiaryColor = Color(0xFFEC4899);
+  // Primary Colors
+  static const Color primaryColor = Color(0xFFF59E0B);
+  static const Color secondaryColor = Color(0xFFEC4899);
+  static const Color backgroundColor = Color(0xFFF8FAFC);
+  static const Color surfaceColor = Colors.white;
+  static const Color textColor = Color(0xFF0F172A);
+  static const Color subtitleColor = Color(0xFF64748B);
+  static const Color accentColor = Color(0xFF6366F1);
+
+  // Status Colors
   static const Color successColor = Color(0xFF10B981);
   static const Color warningColor = Color(0xFFF59E0B);
   static const Color errorColor = Color(0xFFEF4444);
-  static const Color infoColor = Color(0xFF3B82F6);
+  static const Color infoColor = Color(0xFF06B6D4);
+
+  // Theme Data
+  static ThemeData lightTheme = ThemeData(
+    colorScheme: ColorScheme.fromSeed(
+      seedColor: primaryColor,
+      brightness: Brightness.light,
+    ),
+    useMaterial3: true,
+    fontFamily: 'System',
+    appBarTheme: const AppBarTheme(
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      titleTextStyle: TextStyle(
+        fontSize: 20,
+        fontWeight: FontWeight.bold,
+        color: textColor,
+      ),
+      iconTheme: IconThemeData(color: textColor),
+    ),
+  );
 
   // Gradients
   static const LinearGradient primaryGradient = LinearGradient(
-    colors: [primaryColor, accentColor],
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-  );
-
-  static const LinearGradient accentGradient = LinearGradient(
-    colors: [accentColor, tertiaryColor],
+    colors: [primaryColor, secondaryColor],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
 
   static const LinearGradient backgroundGradient = LinearGradient(
-    colors: [Color(0xFFF8FAFC), Color(0xFFF1F5F9)],
+    colors: [backgroundColor, Color(0xFFF1F5F9)],
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
   );
 
-  // Shadows
-  static List<BoxShadow> modernShadow = [
-    BoxShadow(
-      color: Colors.black.withOpacity(0.1),
-      blurRadius: 20,
-      offset: const Offset(0, 10),
+  static const LinearGradient successGradient = LinearGradient(
+    colors: [successColor, Color(0xFF059669)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  static const LinearGradient warningGradient = LinearGradient(
+    colors: [warningColor, Color(0xFFD97706)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  // Box Decorations
+  static BoxDecoration cardDecoration = BoxDecoration(
+    color: surfaceColor,
+    borderRadius: BorderRadius.circular(20),
+    boxShadow: [
+      BoxShadow(
+        color: Colors.black.withOpacity(0.1),
+        blurRadius: 20,
+        offset: const Offset(0, 10),
+      ),
+    ],
+  );
+
+  static BoxDecoration inputDecoration = BoxDecoration(
+    color: surfaceColor,
+    borderRadius: BorderRadius.circular(12),
+    border: Border.all(color: Colors.grey.shade300),
+  );
+
+  // Text Styles
+  static const TextStyle headingStyle = TextStyle(
+    fontSize: 24,
+    fontWeight: FontWeight.bold,
+    color: textColor,
+  );
+
+  static const TextStyle subheadingStyle = TextStyle(
+    fontSize: 20,
+    fontWeight: FontWeight.w600,
+    color: textColor,
+  );
+
+  static const TextStyle bodyStyle = TextStyle(
+    fontSize: 16,
+    color: subtitleColor,
+    height: 1.5,
+  );
+
+  static const TextStyle captionStyle = TextStyle(
+    fontSize: 12,
+    color: subtitleColor,
+  );
+
+  static const TextStyle buttonTextStyle = TextStyle(
+    fontSize: 16,
+    fontWeight: FontWeight.w600,
+    color: surfaceColor,
+  );
+
+  // Button Styles
+  static ButtonStyle primaryButtonStyle = ElevatedButton.styleFrom(
+    backgroundColor: primaryColor,
+    foregroundColor: surfaceColor,
+    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(12),
     ),
-  ];
+    elevation: 2,
+  );
 
-  // Themes
-  static ThemeData get lightTheme {
-    return ThemeData(
-      primarySwatch: Colors.indigo,
-      primaryColor: primaryColor,
-      scaffoldBackgroundColor: const Color(0xFFF8FAFC),
-      appBarTheme: const AppBarTheme(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        iconTheme: IconThemeData(color: Color(0xFF0F172A)),
-        titleTextStyle: TextStyle(
-          color: Color(0xFF0F172A),
-          fontSize: 18,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-      cardTheme: const CardThemeData(
-        elevation: 0,
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(16))),
-        color: Colors.white,
-      ),
-      elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: primaryColor,
-          foregroundColor: Colors.white,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        ),
-      ),
-    );
-  }
-
-  static ThemeData get darkTheme {
-    return ThemeData(
-      primarySwatch: Colors.indigo,
-      primaryColor: primaryColor,
-      scaffoldBackgroundColor: const Color(0xFF0F172A),
-      appBarTheme: const AppBarTheme(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        iconTheme: IconThemeData(color: Colors.white),
-        titleTextStyle: TextStyle(
-          color: Colors.white,
-          fontSize: 18,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-    );
-  }
-}
-
-// Modern Card Widget
-class ModernCard extends StatelessWidget {
-  final Widget child;
-  final Gradient? gradient;
-  final EdgeInsets? padding;
-
-  const ModernCard({
-    Key? key,
-    required this.child,
-    this.gradient,
-    this.padding,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: padding ?? const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: gradient,
-        color: gradient == null ? Colors.white : null,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: AppTheme.modernShadow,
-        border: gradient == null
-            ? Border.all(
-                color: const Color(0xFFE2E8F0),
-                width: 1,
-              )
-            : null,
-      ),
-      child: child,
-    );
-  }
+  static ButtonStyle secondaryButtonStyle = ElevatedButton.styleFrom(
+    backgroundColor: accentColor,
+    foregroundColor: surfaceColor,
+    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(12),
+    ),
+    elevation: 2,
+  );
 }

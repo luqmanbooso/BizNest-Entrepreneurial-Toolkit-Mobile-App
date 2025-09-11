@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class ProfileScreen extends StatefulWidget {
-  @override
-  _ProfileScreenState createState() => _ProfileScreenState();
-}
+class ProfileScreen extends StatelessWidget {
+  const ProfileScreen({super.key});
 
-class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -24,162 +21,56 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         ),
         child: SafeArea(
-          child: SingleChildScrollView(
+          child: Padding(
             padding: const EdgeInsets.all(20),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildProfileHeader(),
-                const SizedBox(height: 30),
-                _buildProfileOptions(),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildProfileHeader() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)],
-        ),
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          CircleAvatar(
-            radius: 40,
-            backgroundColor: Colors.white.withOpacity(0.2),
-            child: const Icon(
-              Icons.person_rounded,
-              color: Colors.white,
-              size: 40,
-            ),
-          ),
-          const SizedBox(width: 20),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'John Entrepreneur',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
+                const CircleAvatar(
+                  radius: 50,
+                  backgroundColor: Color(0xFFF59E0B),
+                  child: Icon(
+                    Icons.person,
+                    size: 50,
                     color: Colors.white,
                   ),
                 ),
+                const SizedBox(height: 20),
+                const Text(
+                  'John Entrepreneur',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF0F172A),
+                  ),
+                ),
+                const SizedBox(height: 8),
                 const Text(
                   'Startup Founder',
                   style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.white70,
+                    fontSize: 16,
+                    color: Color(0xFF64748B),
                   ),
                 ),
-                const SizedBox(height: 10),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: const Text(
-                    'Premium Member',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.white,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
+                const SizedBox(height: 40),
+                _buildProfileOption('Edit Profile', Icons.edit),
+                _buildProfileOption('Settings', Icons.settings),
+                _buildProfileOption('Help & Support', Icons.help),
+                _buildProfileOption('About', Icons.info),
               ],
             ),
           ),
-        ],
+        ),
       ),
     );
   }
 
-  Widget _buildProfileOptions() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Account Settings',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.w900,
-            color: Color(0xFF0F172A),
-            letterSpacing: -0.5,
-          ),
-        ),
-        const SizedBox(height: 20),
-        _buildOptionCard('Edit Profile', 'Update your personal information',
-            Icons.edit_rounded),
-        _buildOptionCard(
-            'Settings', 'App preferences and privacy', Icons.settings_rounded),
-        _buildOptionCard('Help & Support', 'Get help and contact support',
-            Icons.help_rounded),
-        _buildOptionCard(
-            'About', 'App version and legal information', Icons.info_rounded),
-        const SizedBox(height: 20),
-        _buildLogoutButton(),
-      ],
-    );
-  }
-
-  Widget _buildOptionCard(String title, String description, IconData icon) {
+  Widget _buildProfileOption(String title, IconData icon) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
+      margin: const EdgeInsets.only(bottom: 12),
       child: ListTile(
-        leading: Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: const Color(0xFF6366F1).withOpacity(0.1),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Icon(
-            icon,
-            color: const Color(0xFF6366F1),
-            size: 20,
-          ),
-        ),
-        title: Text(
-          title,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: Color(0xFF0F172A),
-          ),
-        ),
-        subtitle: Text(
-          description,
-          style: const TextStyle(
-            fontSize: 12,
-            color: Color(0xFF64748B),
-          ),
-        ),
-        trailing: const Icon(
-          Icons.arrow_forward_ios_rounded,
-          color: Color(0xFF64748B),
-          size: 16,
-        ),
-        tileColor: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        leading: Icon(icon, color: const Color(0xFFF59E0B)),
+        title: Text(title),
+        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
         onTap: () {
           Get.snackbar(
             title,
@@ -188,37 +79,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
             colorText: Colors.white,
           );
         },
-      ),
-    );
-  }
-
-  Widget _buildLogoutButton() {
-    return Container(
-      width: double.infinity,
-      child: ElevatedButton(
-        onPressed: () {
-          Get.snackbar(
-            'Logout',
-            'Signing out...',
-            backgroundColor: const Color(0xFFEF4444),
-            colorText: Colors.white,
-          );
-        },
-        style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFFEF4444),
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
         ),
-        child: const Text(
-          'Logout',
-          style: TextStyle(
-            fontSize: 16,
-            color: Colors.white,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
+        tileColor: Colors.white,
       ),
     );
   }
