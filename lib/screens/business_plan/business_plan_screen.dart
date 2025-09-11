@@ -1,570 +1,592 @@
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:get/get.dart';
-import '../../utils/theme.dart';
+import '../../utils/modern_theme.dart';
+import '../../utils/advanced_animations.dart';
 
 class BusinessPlanScreen extends StatefulWidget {
-  const BusinessPlanScreen({super.key});
-
   @override
   _BusinessPlanScreenState createState() => _BusinessPlanScreenState();
 }
 
-class _BusinessPlanScreenState extends State<BusinessPlanScreen>
-    with TickerProviderStateMixin {
-  late TabController _tabController;
-  final int _currentStep = 0;
-
-  final List<BusinessPlanSection> _sections = [
-    BusinessPlanSection(
-      'Executive Summary',
-      'Overview of your business concept',
-      Icons.summarize,
-      AppTheme.primaryColor,
-      75,
+class _BusinessPlanScreenState extends State<BusinessPlanScreen> {
+  int _currentStep = 0;
+  
+  final List<PlanSection> _planSections = [
+    PlanSection(
+      title: 'Executive Summary',
+      description: 'Overview of your business concept and goals',
+      progress: 0.8,
+      isCompleted: false,
     ),
-    BusinessPlanSection(
-      'Market Analysis',
-      'Research your target market',
-      Icons.analytics,
-      AppTheme.accentColor,
-      60,
+    PlanSection(
+      title: 'Market Analysis',
+      description: 'Research your target market and competitors',
+      progress: 0.6,
+      isCompleted: false,
     ),
-    BusinessPlanSection(
-      'Organization',
-      'Management and company structure',
-      Icons.business,
-      AppTheme.successColor,
-      40,
+    PlanSection(
+      title: 'Products & Services',
+      description: 'Detail what you\'re offering to customers',
+      progress: 0.4,
+      isCompleted: false,
     ),
-    BusinessPlanSection(
-      'Products & Services',
-      'What you\'re offering to customers',
-      Icons.inventory,
-      AppTheme.warningColor,
-      80,
+    PlanSection(
+      title: 'Marketing Strategy',
+      description: 'How you\'ll reach and attract customers',
+      progress: 0.2,
+      isCompleted: false,
     ),
-    BusinessPlanSection(
-      'Marketing & Sales',
-      'How you\'ll reach customers',
-      Icons.campaign,
-      AppTheme.infoColor,
-      30,
-    ),
-    BusinessPlanSection(
-      'Financial Projections',
-      'Revenue, costs, and funding needs',
-      Icons.attach_money,
-      AppTheme.errorColor,
-      90,
+    PlanSection(
+      title: 'Financial Projections',
+      description: 'Revenue forecasts and funding requirements',
+      progress: 0.0,
+      isCompleted: false,
     ),
   ];
 
   @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(length: 2, vsync: this);
-  }
-
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Business Plan'),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          onPressed: () => Get.back(),
-          icon: const Icon(Icons.arrow_back_ios),
+      body: ParticleAnimation(
+        particleCount: 25,
+        particleColor: AppTheme.accentColor.withOpacity(0.4),
+        child: Container(
+          decoration: const BoxDecoration(
+            gradient: AppTheme.backgroundGradient,
+          ),
+          child: SafeArea(
+            child: CustomScrollView(
+              slivers: [
+                _buildModernAppBar(),
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Column(
+                      children: [
+                        _buildProgressOverview(),
+                        const SizedBox(height: 30),
+                        _buildPlanSections(),
+                        const SizedBox(height: 30),
+                        _buildAIAssistant(),
+                        const SizedBox(height: 30),
+                        _buildTemplates(),
+                        const SizedBox(height: 100),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
-        actions: [
-          IconButton(
-            onPressed: () => _showTemplates(),
-            icon: const Icon(Icons.template_outlined),
+      ),
+      floatingActionButton: _buildModernFAB(),
+    );
+  }
+
+  Widget _buildModernAppBar() {
+    return SliverAppBar(
+      expandedHeight: 140,
+      floating: true,
+      pinned: false,
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      flexibleSpace: FlexibleSpaceBar(
+        background: Container(
+          padding: const EdgeInsets.fromLTRB(20, 40, 20, 20),
+          child: FadeInDown(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    IconButton(
+                      onPressed: () => Get.back(),
+                      icon: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Icon(
+                          Icons.arrow_back_ios_rounded,
+                          color: Color(0xFF0F172A),
+                          size: 20,
+                        ),
+                      ),
+                    ),
+                    const Spacer(),
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Icon(
+                        Icons.download_rounded,
+                        color: Color(0xFF0F172A),
+                        size: 20,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                ShimmerEffect(
+                  child: const Text(
+                    'Business\nPlan Builder',
+                    style: TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.w900,
+                      color: Color(0xFF0F172A),
+                      letterSpacing: -1,
+                      height: 1.1,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
-          IconButton(
-            onPressed: () => _exportPlan(),
-            icon: const Icon(Icons.download),
-          ),
-        ],
-        bottom: TabBar(
-          controller: _tabController,
-          labelColor: AppTheme.primaryColor,
-          unselectedLabelColor: Colors.grey,
-          indicatorColor: AppTheme.primaryColor,
-          tabs: const [
-            Tab(text: 'Build Plan'),
-            Tab(text: 'Templates'),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProgressOverview() {
+    return FadeInUp(
+      delay: const Duration(milliseconds: 200),
+      child: ModernCard(
+        gradient: AppTheme.accentGradient,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(
+                    Icons.description_rounded,
+                    color: Colors.white,
+                    size: 24,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                const Expanded(
+                  child: Text(
+                    'Plan Progress',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Text(
+                    '40%',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+            Row(
+              children: [
+                _buildProgressStat('Sections', '2/5'),
+                _buildProgressStat('Words', '1,247'),
+                _buildProgressStat('Pages', '4'),
+              ],
+            ),
+            const SizedBox(height: 20),
+            Container(
+              height: 8,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(4),
+                color: Colors.white.withOpacity(0.3),
+              ),
+              child: FractionallySizedBox(
+                alignment: Alignment.centerLeft,
+                widthFactor: 0.4,
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(4),
+                    gradient: const LinearGradient(
+                      colors: [Colors.white, Colors.white70],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              '2 of 5 sections completed',
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.white70,
+              ),
+            ),
           ],
         ),
       ),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [AppTheme.primaryColor.withOpacity(0.05), Colors.white],
-          ),
-        ),
-        child: TabBarView(
-          controller: _tabController,
-          children: [_buildPlanBuilder(), _buildTemplates()],
-        ),
-      ),
     );
   }
 
-  Widget _buildPlanBuilder() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
+  Widget _buildProgressStat(String label, String value) {
+    return Expanded(
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          FadeInDown(child: _buildProgressHeader()),
-          const SizedBox(height: 30),
-          FadeInUp(
-            delay: const Duration(milliseconds: 200),
-            child: _buildSectionsList(),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildProgressHeader() {
-    final completedSections = _sections.where((s) => s.progress >= 70).length;
-    final totalProgress =
-        _sections.fold<double>(0, (sum, s) => sum + s.progress) /
-        _sections.length;
-
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [AppTheme.primaryColor, AppTheme.accentColor],
-        ),
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: AppTheme.primaryColor.withOpacity(0.3),
-            blurRadius: 15,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Icon(Icons.rocket_launch, color: Colors.white, size: 28),
-              const SizedBox(width: 12),
-              const Expanded(
-                child: Text(
-                  'Your Business Plan',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  '${totalProgress.round()}% Complete',
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
           Text(
-            '$completedSections of ${_sections.length} sections completed',
-            style: const TextStyle(fontSize: 14, color: Colors.white70),
+            value,
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
           ),
-          const SizedBox(height: 12),
-          LinearProgressIndicator(
-            value: totalProgress / 100,
-            backgroundColor: Colors.white.withOpacity(0.3),
-            valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
-          ),
-          const SizedBox(height: 20),
-          Row(
-            children: [
-              Expanded(
-                child: _buildProgressMetric(
-                  'Sections',
-                  '$completedSections/${_sections.length}',
-                ),
-              ),
-              Expanded(child: _buildProgressMetric('Est. Time', '2-4 hours')),
-              Expanded(child: _buildProgressMetric('Last Updated', 'Today')),
-            ],
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 10,
+              color: Colors.white70,
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildProgressMetric(String label, String value) {
+  Widget _buildPlanSections() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          value,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-        ),
-        Text(
-          label,
-          style: const TextStyle(fontSize: 10, color: Colors.white70),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildSectionsList() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Business Plan Sections',
-          style: TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
-            color: Colors.black87,
+        FadeInLeft(
+          delay: const Duration(milliseconds: 400),
+          child: const Text(
+            'Plan Sections',
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.w900,
+              color: Color(0xFF0F172A),
+              letterSpacing: -0.5,
+            ),
           ),
         ),
         const SizedBox(height: 20),
-        ...List.generate(_sections.length, (index) {
+        ...List.generate(_planSections.length, (index) {
           return FadeInUp(
-            delay: Duration(milliseconds: 400 + (index * 100)),
-            child: _buildSectionCard(_sections[index], index),
+            delay: Duration(milliseconds: 600 + (index * 100)),
+            child: _buildSectionCard(_planSections[index], index),
           );
         }),
       ],
     );
   }
 
-  Widget _buildSectionCard(BusinessPlanSection section, int index) {
+  Widget _buildSectionCard(PlanSection section, int index) {
+    final isActive = index == _currentStep;
+    
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: section.color.withOpacity(0.1),
-            blurRadius: 10,
-            offset: const Offset(0, 5),
+      child: GestureDetector(
+        onTap: () {
+          setState(() {
+            _currentStep = index;
+          });
+          _editSection(section);
+        },
+        child: ModernCard(
+          gradient: isActive ? AppTheme.primaryGradient : null,
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 50,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      color: section.isCompleted 
+                          ? AppTheme.successColor 
+                          : (isActive ? Colors.white.withOpacity(0.2) : AppTheme.accentColor.withOpacity(0.1)),
+                      borderRadius: BorderRadius.circular(25),
+                    ),
+                    child: Icon(
+                      section.isCompleted ? Icons.check_rounded : Icons.edit_rounded,
+                      color: section.isCompleted 
+                          ? Colors.white 
+                          : (isActive ? Colors.white : AppTheme.accentColor),
+                      size: 24,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          section.title,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: isActive ? Colors.white : const Color(0xFF0F172A),
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          section.description,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: isActive ? Colors.white70 : const Color(0xFF64748B),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Icon(
+                    Icons.arrow_forward_ios_rounded,
+                    size: 16,
+                    color: isActive ? Colors.white70 : const Color(0xFF94A3B8),
+                  ),
+                ],
+              ),
+              if (section.progress > 0) ...[
+                const SizedBox(height: 16),
+                Container(
+                  height: 4,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(2),
+                    color: isActive 
+                        ? Colors.white.withOpacity(0.3) 
+                        : const Color(0xFFE2E8F0),
+                  ),
+                  child: FractionallySizedBox(
+                    alignment: Alignment.centerLeft,
+                    widthFactor: section.progress,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(2),
+                        color: isActive ? Colors.white : AppTheme.accentColor,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  '${(section.progress * 100).toInt()}% complete',
+                  style: TextStyle(
+                    fontSize: 10,
+                    color: isActive ? Colors.white70 : const Color(0xFF64748B),
+                  ),
+                ),
+              ],
+            ],
           ),
-        ],
+        ),
       ),
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(20),
-            child: Row(
+    );
+  }
+
+  Widget _buildAIAssistant() {
+    return FadeInUp(
+      delay: const Duration(milliseconds: 1000),
+      child: ModernCard(
+        gradient: LinearGradient(
+          colors: [AppTheme.primaryColor, AppTheme.tertiaryColor],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
               children: [
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: section.color.withOpacity(0.1),
+                    color: Colors.white.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Icon(section.icon, color: section.color, size: 24),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        section.title,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black87,
-                        ),
-                      ),
-                      Text(
-                        section.description,
-                        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: _getStatusColor(section.progress).withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    '${section.progress}%',
-
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: _getStatusColor(section.progress),
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: LinearProgressIndicator(
-              value: section.progress / 100,
-              backgroundColor: Colors.grey[200],
-              valueColor: AlwaysStoppedAnimation<Color>(section.color),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(20),
-            child: Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () => _viewSection(section),
-                    style: OutlinedButton.styleFrom(
-                      side: BorderSide(color: section.color),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    child: Text('View', style: TextStyle(color: section.color)),
+                  child: const Icon(
+                    Icons.psychology_rounded,
+                    color: Colors.white,
+                    size: 24,
                   ),
                 ),
                 const SizedBox(width: 12),
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () => _editSection(section),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: section.color,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
+                const Expanded(
+                  child: Text(
+                    'AI Business Assistant',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
                     ),
-                    child: const Text(
-                      'Edit',
-                      style: TextStyle(color: Colors.white),
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Text(
+                    'AI',
+                    style: TextStyle(
+                      fontSize: 10,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
               ],
             ),
-          ),
-        ],
+            const SizedBox(height: 16),
+            const Text(
+              'Get AI-powered suggestions for your business plan. Our assistant can help with market research, financial projections, and strategic planning.',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.white,
+                height: 1.5,
+              ),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton.icon(
+              onPressed: () => _openAIAssistant(),
+              icon: const Icon(Icons.chat_bubble_rounded, size: 16),
+              label: const Text('Chat with AI Assistant'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white,
+                foregroundColor: AppTheme.primaryColor,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildTemplates() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          FadeInDown(
-            child: const Text(
-              'Business Plan Templates',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Colors.black87,
-              ),
-            ),
-          ),
-          const SizedBox(height: 10),
-          FadeInDown(
-            delay: const Duration(milliseconds: 200),
-            child: Text(
-              'Choose from professional templates to get started quickly',
-              style: TextStyle(fontSize: 16, color: Colors.grey[600]),
-            ),
-          ),
-          const SizedBox(height: 30),
-          FadeInUp(
-            delay: const Duration(milliseconds: 400),
-            child: _buildTemplateCard(
-              'Tech Startup Template',
-              'Perfect for technology and software companies',
-              'SaaS, Mobile Apps, AI/ML',
-              AppTheme.primaryColor,
-              true,
-            ),
-          ),
-          const SizedBox(height: 16),
-          FadeInUp(
-            delay: const Duration(milliseconds: 600),
-            child: _buildTemplateCard(
-              'E-commerce Business',
-              'For online retail and marketplace businesses',
-              'Retail, Marketplace, Dropshipping',
-              AppTheme.accentColor,
-              true,
-            ),
-          ),
-          const SizedBox(height: 16),
-          FadeInUp(
-            delay: const Duration(milliseconds: 800),
-            child: _buildTemplateCard(
-              'Service Business',
-              'For consulting and service-based companies',
-              'Consulting, Agency, Professional Services',
-              AppTheme.successColor,
-              false,
-            ),
-          ),
-          const SizedBox(height: 16),
-          FadeInUp(
-            delay: const Duration(milliseconds: 1000),
-            child: _buildTemplateCard(
-              'Restaurant & Food',
-              'For restaurants, cafes, and food businesses',
-              'Restaurant, Food Truck, Catering',
-              AppTheme.warningColor,
-              false,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTemplateCard(
-    String title,
-    String description,
-    String categories,
-    Color color,
-    bool isFree,
-  ) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: color.withOpacity(0.1),
-            blurRadius: 10,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        FadeInLeft(
+          delay: const Duration(milliseconds: 1200),
+          child: Row(
             children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
+              const Text(
+                'Business Plan Templates',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w900,
+                  color: Color(0xFF0F172A),
+                  letterSpacing: -0.5,
                 ),
-                child: Icon(Icons.description, color: color, size: 24),
+              ),
+              const Spacer(),
+              TextButton(
+                onPressed: () {},
+                child: const Text('View All'),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 20),
+        FadeInUp(
+          delay: const Duration(milliseconds: 1400),
+          child: Row(
+            children: [
+              Expanded(
+                child: _buildTemplateCard(
+                  'Tech Startup',
+                  'Perfect for SaaS and tech companies',
+                  AppTheme.primaryGradient,
+                  Icons.computer_rounded,
+                ),
               ),
               const SizedBox(width: 16),
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
-                      ),
-                    ),
-                    Text(
-                      description,
-                      style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: isFree ? AppTheme.successColor : AppTheme.warningColor,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  isFree ? 'FREE' : 'PRO',
-                  style: const TextStyle(
-                    fontSize: 10,
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
+                child: _buildTemplateCard(
+                  'E-commerce',
+                  'Retail and online store businesses',
+                  AppTheme.successGradient,
+                  Icons.shopping_cart_rounded,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 16),
-          Text(
-            'Best for: $categories',
-            style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTemplateCard(String title, String description, Gradient gradient, IconData icon) {
+    return ModernCard(
+      gradient: gradient,
+      child: Column(
+        children: [
+          Icon(
+            icon,
+            color: Colors.white,
+            size: 32,
           ),
-          const SizedBox(height: 16),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () => _useTemplate(title),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: color,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              child: const Text(
-                'Use Template',
-                style: TextStyle(color: Colors.white),
-              ),
+          const SizedBox(height: 12),
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: Colors.white,
             ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 4),
+          Text(
+            description,
+            style: const TextStyle(
+              fontSize: 10,
+              color: Colors.white70,
+            ),
+            textAlign: TextAlign.center,
           ),
         ],
       ),
     );
   }
 
-  Color _getStatusColor(double progress) {
-    if (progress >= 70) return AppTheme.successColor;
-    if (progress >= 40) return AppTheme.warningColor;
-    return AppTheme.errorColor;
+  Widget _buildModernFAB() {
+    return ModernFAB(
+      onPressed: () => _exportPlan(),
+      icon: Icons.download_rounded,
+      gradient: AppTheme.accentGradient,
+    );
   }
 
-  void _showTemplates() {
+  void _editSection(PlanSection section) {
     Get.snackbar(
-      'Templates',
-      'Opening template gallery...',
+      'Edit Section',
+      'Opening ${section.title} editor...',
+      backgroundColor: AppTheme.accentColor,
+      colorText: Colors.white,
+    );
+  }
+
+  void _openAIAssistant() {
+    Get.snackbar(
+      'AI Assistant',
+      'Starting AI business planning session...',
       backgroundColor: AppTheme.primaryColor,
       colorText: Colors.white,
     );
@@ -573,52 +595,23 @@ class _BusinessPlanScreenState extends State<BusinessPlanScreen>
   void _exportPlan() {
     Get.snackbar(
       'Export Plan',
-      'Preparing your business plan for download...',
+      'Generating PDF business plan...',
       backgroundColor: AppTheme.successColor,
-      colorText: Colors.white,
-    );
-  }
-
-  void _viewSection(BusinessPlanSection section) {
-    Get.snackbar(
-      'View Section',
-      'Opening ${section.title}...',
-      backgroundColor: section.color,
-      colorText: Colors.white,
-    );
-  }
-
-  void _editSection(BusinessPlanSection section) {
-    Get.snackbar(
-      'Edit Section',
-      'Editing ${section.title}...',
-      backgroundColor: section.color,
-      colorText: Colors.white,
-    );
-  }
-
-  void _useTemplate(String templateName) {
-    Get.snackbar(
-      'Template Selected',
-      'Creating business plan from $templateName...',
-      backgroundColor: AppTheme.primaryColor,
       colorText: Colors.white,
     );
   }
 }
 
-class BusinessPlanSection {
+class PlanSection {
   final String title;
   final String description;
-  final IconData icon;
-  final Color color;
   final double progress;
+  final bool isCompleted;
 
-  BusinessPlanSection(
-    this.title,
-    this.description,
-    this.icon,
-    this.color,
-    this.progress,
-  );
+  PlanSection({
+    required this.title,
+    required this.description,
+    required this.progress,
+    required this.isCompleted,
+  });
 }

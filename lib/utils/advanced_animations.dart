@@ -273,8 +273,7 @@ class WavePainter extends CustomPainter {
     path.moveTo(0, size.height);
 
     for (double x = 0; x <= size.width; x++) {
-      final y =
-          size.height -
+      final y = size.height -
           100 +
           math.sin((x / waveLength + animationValue) * 2 * math.pi) *
               waveHeight;
@@ -358,8 +357,7 @@ class _MorphingButtonState extends State<MorphingButton>
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
               decoration: BoxDecoration(
-                gradient:
-                    widget.gradient ??
+                gradient: widget.gradient ??
                     const LinearGradient(
                       colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)],
                     ),
@@ -443,20 +441,16 @@ class _PulseAnimationState extends State<PulseAnimation>
   }
 }
 
-// Shimmer Effect
+// Shimmer Effect Widget
 class ShimmerEffect extends StatefulWidget {
   final Widget child;
-  final Color baseColor;
-  final Color highlightColor;
   final Duration duration;
 
   const ShimmerEffect({
-    super.key,
+    Key? key,
     required this.child,
-    this.baseColor = const Color(0xFFE0E0E0),
-    this.highlightColor = const Color(0xFFF5F5F5),
     this.duration = const Duration(milliseconds: 1500),
-  });
+  }) : super(key: key);
 
   @override
   _ShimmerEffectState createState() => _ShimmerEffectState();
@@ -465,18 +459,14 @@ class ShimmerEffect extends StatefulWidget {
 class _ShimmerEffectState extends State<ShimmerEffect>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
-  late Animation<double> _animation;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(duration: widget.duration, vsync: this)
-      ..repeat();
-
-    _animation = Tween<double>(
-      begin: -1.0,
-      end: 2.0,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+    _controller = AnimationController(
+      duration: widget.duration,
+      vsync: this,
+    )..repeat();
   }
 
   @override
@@ -488,29 +478,115 @@ class _ShimmerEffectState extends State<ShimmerEffect>
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
-      animation: _animation,
+      animation: _controller,
       builder: (context, child) {
         return ShaderMask(
-          blendMode: BlendMode.srcATop,
           shaderCallback: (bounds) {
             return LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                widget.baseColor,
-                widget.highlightColor,
-                widget.baseColor,
-              ],
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
               stops: [
-                _animation.value - 0.3,
-                _animation.value,
-                _animation.value + 0.3,
+                _controller.value - 0.3,
+                _controller.value,
+                _controller.value + 0.3,
+              ].map((stop) => stop.clamp(0.0, 1.0)).toList(),
+              colors: const [
+                Colors.transparent,
+                Colors.white24,
+                Colors.transparent,
               ],
             ).createShader(bounds);
           },
           child: widget.child,
         );
       },
+    );
+  }
+}
+
+// Modern FAB Widget
+class ModernFAB extends StatelessWidget {
+  final VoidCallback onPressed;
+  final IconData icon;
+  final Gradient? gradient;
+
+  const ModernFAB({
+    Key? key,
+    required this.onPressed,
+    required this.icon,
+    this.gradient,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: gradient ??
+            const LinearGradient(
+              colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)],
+            ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: FloatingActionButton(
+        onPressed: onPressed,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        child: Icon(
+          icon,
+          color: Colors.white,
+          size: 24,
+        ),
+      ),
+    );
+  }
+}
+
+// Glass Container Widget
+class GlassContainer extends StatelessWidget {
+  final Widget child;
+  final double? width;
+  final double? height;
+  final EdgeInsets? padding;
+  final BorderRadius? borderRadius;
+
+  const GlassContainer({
+    Key? key,
+    required this.child,
+    this.width,
+    this.height,
+    this.padding,
+    this.borderRadius,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: width,
+      height: height,
+      padding: padding ?? const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.1),
+        borderRadius: borderRadius ?? BorderRadius.circular(20),
+        border: Border.all(
+          color: Colors.white.withOpacity(0.2),
+          width: 1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: child,
     );
   }
 }

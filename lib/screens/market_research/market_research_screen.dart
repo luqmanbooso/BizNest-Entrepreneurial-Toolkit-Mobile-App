@@ -1,506 +1,296 @@
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:get/get.dart';
-import '../../utils/theme.dart';
+import '../../utils/modern_theme.dart';
+import '../../utils/advanced_animations.dart';
 
 class MarketResearchScreen extends StatefulWidget {
-  const MarketResearchScreen({super.key});
-
   @override
   _MarketResearchScreenState createState() => _MarketResearchScreenState();
 }
 
-class _MarketResearchScreenState extends State<MarketResearchScreen>
-    with TickerProviderStateMixin {
-  late TabController _tabController;
+class _MarketResearchScreenState extends State<MarketResearchScreen> {
+  final List<ResearchData> _marketData = [
+    ResearchData(
+      title: 'Market Size',
+      value: '\$45.2B',
+      change: '+12.5%',
+      isPositive: true,
+    ),
+    ResearchData(
+      title: 'Growth Rate',
+      value: '8.3%',
+      change: '+2.1%',
+      isPositive: true,
+    ),
+    ResearchData(
+      title: 'Competition',
+      value: '247',
+      change: '+15',
+      isPositive: false,
+    ),
+    ResearchData(
+      title: 'Opportunity',
+      value: 'High',
+      change: 'Trending',
+      isPositive: true,
+    ),
+  ];
 
-  @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(length: 3, vsync: this);
-  }
-
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
-  }
+  final List<Competitor> _competitors = [
+    Competitor(
+      name: 'TechCorp Inc.',
+      marketShare: 0.35,
+      strength: 'Technology',
+      weakness: 'Customer Service',
+      score: 8.5,
+    ),
+    Competitor(
+      name: 'InnovatePro',
+      marketShare: 0.28,
+      strength: 'Innovation',
+      weakness: 'Pricing',
+      score: 7.8,
+    ),
+    Competitor(
+      name: 'StartupXYZ',
+      marketShare: 0.18,
+      strength: 'Marketing',
+      weakness: 'Product Quality',
+      score: 6.9,
+    ),
+  ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Market Research'),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          onPressed: () => Get.back(),
-          icon: const Icon(Icons.arrow_back_ios),
-        ),
-        bottom: TabBar(
-          controller: _tabController,
-          labelColor: AppTheme.primaryColor,
-          unselectedLabelColor: Colors.grey,
-          indicatorColor: AppTheme.primaryColor,
-          tabs: const [
-            Tab(text: 'Overview'),
-            Tab(text: 'Competitors'),
-            Tab(text: 'Trends'),
-          ],
-        ),
-      ),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              AppTheme.accentColor.withOpacity(0.05),
-              Colors.white,
-            ],
+      body: WaveAnimation(
+        waveColor: AppTheme.accentColor,
+        child: Container(
+          decoration: const BoxDecoration(
+            gradient: AppTheme.backgroundGradient,
           ),
-        ),
-        child: TabBarView(
-          controller: _tabController,
-          children: [
-            _buildOverviewTab(),
-            _buildCompetitorsTab(),
-            _buildTrendsTab(),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildOverviewTab() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        children: [
-          FadeInDown(
-            child: _buildMarketOverview(),
-          ),
-          const SizedBox(height: 30),
-          FadeInUp(
-            delay: const Duration(milliseconds: 200),
-            child: _buildTargetAudience(),
-          ),
-          const SizedBox(height: 30),
-          FadeInUp(
-            delay: const Duration(milliseconds: 400),
-            child: _buildMarketSize(),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildMarketOverview() {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [AppTheme.accentColor, AppTheme.primaryColor],
-        ),
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: AppTheme.accentColor.withOpacity(0.3),
-            blurRadius: 15,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Icon(
-                Icons.analytics,
-                color: Colors.white,
-                size: 28,
-              ),
-              const SizedBox(width: 12),
-              const Expanded(
-                child: Text(
-                  'Market Analysis',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Text(
-                  'Updated',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          Row(
-            children: [
-              Expanded(
-                child: _buildMarketMetric('Market Size', '\$50B'),
-              ),
-              Expanded(
-                child: _buildMarketMetric('Growth Rate', '+12%'),
-              ),
-              Expanded(
-                child: _buildMarketMetric('Competition', 'Medium'),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildMarketMetric(String label, String value) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          value,
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-        ),
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: 12,
-            color: Colors.white70,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildTargetAudience() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 10,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Target Audience',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
-            ),
-          ),
-          const SizedBox(height: 20),
-          _buildAudienceSegment(
-            'Primary Segment',
-            'Tech Entrepreneurs',
-            '25-40 years old, Urban professionals',
-            AppTheme.primaryColor,
-            45,
-          ),
-          const SizedBox(height: 15),
-          _buildAudienceSegment(
-            'Secondary Segment',
-            'Small Business Owners',
-            '30-50 years old, Various industries',
-            AppTheme.accentColor,
-            35,
-          ),
-          const SizedBox(height: 15),
-          _buildAudienceSegment(
-            'Tertiary Segment',
-            'Students & Aspiring Entrepreneurs',
-            '18-30 years old, Education focused',
-            AppTheme.successColor,
-            20,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAudienceSegment(
-    String category,
-    String title,
-    String description,
-    Color color,
-    double percentage,
-  ) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.05),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.2)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      category,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: color,
-                        fontWeight: FontWeight.w600,
-                      ),
+          child: SafeArea(
+            child: CustomScrollView(
+              slivers: [
+                _buildModernAppBar(),
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Column(
+                      children: [
+                        _buildMarketOverview(),
+                        const SizedBox(height: 30),
+                        _buildResearchTools(),
+                        const SizedBox(height: 30),
+                        _buildCompetitorAnalysis(),
+                        const SizedBox(height: 30),
+                        _buildTrendAnalysis(),
+                        const SizedBox(height: 100),
+                      ],
                     ),
-                    Text(
-                      title,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
-                      ),
-                    ),
-                    Text(
-                      description,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey[600],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Text(
-                '${percentage.round()}%',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: color,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          LinearProgressIndicator(
-            value: percentage / 100,
-            backgroundColor: Colors.grey[200],
-            valueColor: AlwaysStoppedAnimation<Color>(color),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildMarketSize() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 10,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Market Size Analysis',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
-            ),
-          ),
-          const SizedBox(height: 20),
-          _buildMarketSizeItem(
-            'Total Addressable Market (TAM)',
-            '\$500 Billion',
-            'Global business tools market',
-            AppTheme.primaryColor,
-          ),
-          _buildMarketSizeItem(
-            'Serviceable Addressable Market (SAM)',
-            '\$50 Billion',
-            'Entrepreneur tools segment',
-            AppTheme.accentColor,
-          ),
-          _buildMarketSizeItem(
-            'Serviceable Obtainable Market (SOM)',
-            '\$500 Million',
-            'Realistic market capture',
-            AppTheme.successColor,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildMarketSizeItem(
-    String title,
-    String value,
-    String description,
-    Color color,
-  ) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 15),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.05),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(Icons.pie_chart, color: color, size: 20),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black87,
-                  ),
-                ),
-                Text(
-                  description,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey[600],
                   ),
                 ),
               ],
             ),
           ),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: color,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCompetitorsTab() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        children: [
-          FadeInDown(
-            child: _buildCompetitorOverview(),
-          ),
-          const SizedBox(height: 30),
-          FadeInUp(
-            delay: const Duration(milliseconds: 200),
-            child: _buildCompetitorCard(
-              'BusinessPlan Pro',
-              'Direct Competitor',
-              'Comprehensive business planning software',
-              '\$199/year',
-              4.2,
-              ['Business Planning', 'Financial Modeling', 'Reporting'],
-              AppTheme.errorColor,
-            ),
-          ),
-          const SizedBox(height: 15),
-          FadeInUp(
-            delay: const Duration(milliseconds: 400),
-            child: _buildCompetitorCard(
-              'LivePlan',
-              'Direct Competitor',
-              'Business planning with pitch tools',
-              '\$20/month',
-              4.0,
-              ['Planning', 'Pitching', 'Tracking'],
-              AppTheme.warningColor,
-            ),
-          ),
-          const SizedBox(height: 15),
-          FadeInUp(
-            delay: const Duration(milliseconds: 600),
-            child: _buildCompetitorCard(
-              'Upmetrics',
-              'Indirect Competitor',
-              'AI-powered business planning',
-              '\$15/month',
-              4.5,
-              ['AI Planning', 'Forecasting', 'Collaboration'],
-              AppTheme.accentColor,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCompetitorOverview() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [AppTheme.errorColor, AppTheme.warningColor],
         ),
-        borderRadius: BorderRadius.circular(20),
+      ),
+      floatingActionButton: _buildModernFAB(),
+    );
+  }
+
+  Widget _buildModernAppBar() {
+    return SliverAppBar(
+      expandedHeight: 140,
+      floating: true,
+      pinned: false,
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      flexibleSpace: FlexibleSpaceBar(
+        background: Container(
+          padding: const EdgeInsets.fromLTRB(20, 40, 20, 20),
+          child: FadeInDown(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    IconButton(
+                      onPressed: () => Get.back(),
+                      icon: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Icon(
+                          Icons.arrow_back_ios_rounded,
+                          color: Color(0xFF0F172A),
+                          size: 20,
+                        ),
+                      ),
+                    ),
+                    const Spacer(),
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Icon(
+                        Icons.refresh_rounded,
+                        color: Color(0xFF0F172A),
+                        size: 20,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                ShimmerEffect(
+                  child: const Text(
+                    'Market\nResearch',
+                    style: TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.w900,
+                      color: Color(0xFF0F172A),
+                      letterSpacing: -1,
+                      height: 1.1,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMarketOverview() {
+    return FadeInUp(
+      delay: const Duration(milliseconds: 200),
+      child: ModernCard(
+        gradient: LinearGradient(
+          colors: [AppTheme.accentColor, AppTheme.tertiaryColor],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(
+                    Icons.analytics_rounded,
+                    color: Colors.white,
+                    size: 24,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                const Expanded(
+                  child: Text(
+                    'Market Overview',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Text(
+                    'Updated',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+            GridView.count(
+              crossAxisCount: 2,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              crossAxisSpacing: 16,
+              mainAxisSpacing: 16,
+              childAspectRatio: 1.5,
+              children:
+                  _marketData.map((data) => _buildDataCard(data)).toList(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDataCard(ResearchData data) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.15),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: Colors.white.withOpacity(0.2),
+          width: 1,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Competitive Landscape',
-            style: TextStyle(
-              fontSize: 20,
+          Text(
+            data.title,
+            style: const TextStyle(
+              fontSize: 12,
+              color: Colors.white70,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            data.value,
+            style: const TextStyle(
+              fontSize: 18,
               fontWeight: FontWeight.bold,
               color: Colors.white,
             ),
           ),
-          const SizedBox(height: 20),
+          const Spacer(),
           Row(
             children: [
-              _buildCompetitorStat('Direct Competitors', '12'),
-              _buildCompetitorStat('Indirect Competitors', '25'),
-              _buildCompetitorStat('Market Leaders', '3'),
+              Icon(
+                data.isPositive
+                    ? Icons.trending_up_rounded
+                    : Icons.trending_down_rounded,
+                size: 16,
+                color: data.isPositive
+                    ? AppTheme.successColor
+                    : AppTheme.errorColor,
+              ),
+              const SizedBox(width: 4),
+              Text(
+                data.change,
+                style: TextStyle(
+                  fontSize: 10,
+                  color: data.isPositive
+                      ? AppTheme.successColor
+                      : AppTheme.errorColor,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ],
           ),
         ],
@@ -508,394 +298,432 @@ class _MarketResearchScreenState extends State<MarketResearchScreen>
     );
   }
 
-  Widget _buildCompetitorStat(String label, String value) {
-    return Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
+  Widget _buildResearchTools() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        FadeInLeft(
+          delay: const Duration(milliseconds: 400),
+          child: const Text(
+            'Research Tools',
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.w900,
+              color: Color(0xFF0F172A),
+              letterSpacing: -0.5,
             ),
           ),
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 12,
-              color: Colors.white70,
+        ),
+        const SizedBox(height: 20),
+        GridView.count(
+          crossAxisCount: 2,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          crossAxisSpacing: 16,
+          mainAxisSpacing: 16,
+          childAspectRatio: 1.1,
+          children: [
+            _buildToolCard(
+              'Survey Builder',
+              'Create customer surveys',
+              Icons.quiz_rounded,
+              AppTheme.primaryGradient,
+              () => _openSurveyBuilder(),
+              0,
             ),
+            _buildToolCard(
+              'Trend Analysis',
+              'Market trend insights',
+              Icons.show_chart_rounded,
+              AppTheme.accentGradient,
+              () => _openTrendAnalysis(),
+              1,
+            ),
+            _buildToolCard(
+              'SWOT Analysis',
+              'Strengths & weaknesses',
+              Icons.balance_rounded,
+              AppTheme.successGradient,
+              () => _openSWOTAnalysis(),
+              2,
+            ),
+            _buildToolCard(
+              'Industry Reports',
+              'Download reports',
+              Icons.article_rounded,
+              LinearGradient(
+                colors: [AppTheme.warningColor, AppTheme.tertiaryColor],
+              ),
+              () => _openReports(),
+              3,
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildToolCard(
+    String title,
+    String subtitle,
+    IconData icon,
+    Gradient gradient,
+    VoidCallback onTap,
+    int index,
+  ) {
+    return FadeInUp(
+      delay: Duration(milliseconds: 600 + (index * 100)),
+      child: GestureDetector(
+        onTap: onTap,
+        child: ModernCard(
+          gradient: gradient,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                icon,
+                color: Colors.white,
+                size: 32,
+              ),
+              const SizedBox(height: 12),
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 4),
+              Text(
+                subtitle,
+                style: const TextStyle(
+                  fontSize: 10,
+                  color: Colors.white70,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
 
-  Widget _buildCompetitorCard(
-    String name,
-    String type,
-    String description,
-    String pricing,
-    double rating,
-    List<String> features,
-    Color color,
-  ) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: color.withOpacity(0.1),
-            blurRadius: 10,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+  Widget _buildCompetitorAnalysis() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        FadeInLeft(
+          delay: const Duration(milliseconds: 800),
+          child: Row(
             children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(Icons.business, color: color, size: 24),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      name,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
-                      ),
-                    ),
-                    Text(
-                      type,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: color,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
+              const Text(
+                'Competitor Analysis',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w900,
+                  color: Color(0xFF0F172A),
+                  letterSpacing: -0.5,
                 ),
               ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
+              const Spacer(),
+              TextButton(
+                onPressed: () {},
+                child: const Text('View All'),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 20),
+        ...List.generate(_competitors.length, (index) {
+          return FadeInUp(
+            delay: Duration(milliseconds: 1000 + (index * 100)),
+            child: _buildCompetitorCard(_competitors[index]),
+          );
+        }),
+      ],
+    );
+  }
+
+  Widget _buildCompetitorCard(Competitor competitor) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      child: ModernCard(
+        child: Row(
+          children: [
+            CircleAvatar(
+              radius: 25,
+              backgroundColor: AppTheme.primaryColor.withOpacity(0.1),
+              child: Text(
+                competitor.name[0],
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.primaryColor,
+                ),
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     children: [
-                      Icon(Icons.star, color: Colors.amber, size: 16),
-                      const SizedBox(width: 4),
                       Text(
-                        rating.toString(),
+                        competitor.name,
                         style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF0F172A),
+                        ),
+                      ),
+                      const Spacer(),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 2),
+                        decoration: BoxDecoration(
+                          color:
+                              _getScoreColor(competitor.score).withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          '${competitor.score}/10',
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: _getScoreColor(competitor.score),
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
                     ],
                   ),
+                  const SizedBox(height: 4),
                   Text(
-                    pricing,
-                    style: TextStyle(
+                    'Market Share: ${(competitor.marketShare * 100).toInt()}%',
+                    style: const TextStyle(
                       fontSize: 12,
-                      color: Colors.grey[600],
-                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF64748B),
                     ),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Strength',
+                              style: TextStyle(
+                                fontSize: 10,
+                                color: AppTheme.successColor,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            Text(
+                              competitor.strength,
+                              style: const TextStyle(
+                                fontSize: 11,
+                                color: Color(0xFF64748B),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Weakness',
+                              style: TextStyle(
+                                fontSize: 10,
+                                color: AppTheme.errorColor,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            Text(
+                              competitor.weakness,
+                              style: const TextStyle(
+                                fontSize: 11,
+                                color: Color(0xFF64748B),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Text(
-            description,
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey[700],
             ),
-          ),
-          const SizedBox(height: 16),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: features.map((feature) {
-              return Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  feature,
-                  style: TextStyle(
-                    fontSize: 10,
-                    color: color,
-                    fontWeight: FontWeight.w600,
-                  ),
-                );
-            }).toList(),
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: OutlinedButton(
-                  onPressed: () => _viewCompetitor(name),
-                  style: OutlinedButton.styleFrom(
-                    side: BorderSide(color: color),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  child: Text(
-                    'View Details',
-                    style: TextStyle(color: color, fontSize: 12),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: () => _analyzeCompetitor(name),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: color,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  child: const Text(
-                    'Analyze',
-                    style: TextStyle(color: Colors.white, fontSize: 12),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTrendsTab() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        children: [
-          FadeInDown(
-            child: _buildTrendsOverview(),
-          ),
-          const SizedBox(height: 30),
-          FadeInUp(
-            delay: const Duration(milliseconds: 200),
-            child: _buildTrendCard(
-              'AI-Powered Business Tools',
-              'Rising Trend',
-              'Integration of AI in business planning and analysis tools is growing rapidly',
-              '+45% growth',
-              AppTheme.successColor,
-            ),
-          ),
-          const SizedBox(height: 15),
-          FadeInUp(
-            delay: const Duration(milliseconds: 400),
-            child: _buildTrendCard(
-              'Remote Work Solutions',
-              'Stable Trend',
-              'Continued demand for tools supporting remote entrepreneurship',
-              '+12% growth',
-              AppTheme.primaryColor,
-            ),
-          ),
-          const SizedBox(height: 15),
-          FadeInUp(
-            delay: const Duration(milliseconds: 600),
-            child: _buildTrendCard(
-              'Sustainability Focus',
-              'Emerging Trend',
-              'Growing emphasis on sustainable business practices and ESG',
-              '+28% growth',
-              AppTheme.accentColor,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTrendsOverview() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [AppTheme.successColor, AppTheme.infoColor],
+          ],
         ),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Market Trends',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
-          ),
-          const SizedBox(height: 20),
-          Row(
-            children: [
-              _buildTrendStat('Positive Trends', '8'),
-              _buildTrendStat('Stable Trends', '12'),
-              _buildTrendStat('Declining Trends', '2'),
-            ],
-          ),
-        ],
       ),
     );
   }
 
-  Widget _buildTrendStat(String label, String value) {
-    return Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
-          ),
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 12,
-              color: Colors.white70,
-            ),
-          ),
-        ],
-      ),
-    );
+  Color _getScoreColor(double score) {
+    if (score >= 8.0) return AppTheme.successColor;
+    if (score >= 6.0) return AppTheme.warningColor;
+    return AppTheme.errorColor;
   }
 
-  Widget _buildTrendCard(
-    String title,
-    String status,
-    String description,
-    String growth,
-    Color color,
-  ) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: color.withOpacity(0.1),
-            blurRadius: 10,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(Icons.trending_up, color: color, size: 24),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
-                      ),
-                    ),
-                    Text(
-                      status,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: color,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  growth,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: color,
-                    fontWeight: FontWeight.w600,
+  Widget _buildTrendAnalysis() {
+    return FadeInUp(
+      delay: const Duration(milliseconds: 1300),
+      child: ModernCard(
+        gradient: LinearGradient(
+          colors: [AppTheme.infoColor, AppTheme.primaryColor],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(
+                    Icons.trending_up_rounded,
+                    color: Colors.white,
+                    size: 20,
                   ),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Text(
-            description,
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey[700],
+                const SizedBox(width: 12),
+                const Text(
+                  'Market Trends',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
             ),
-          ),
-        ],
+            const SizedBox(height: 16),
+            const Text(
+              'AI and automation are driving significant growth in your target market. Consider positioning your product to leverage these trends for competitive advantage.',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.white,
+                height: 1.5,
+              ),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton.icon(
+              onPressed: () => _viewDetailedTrends(),
+              icon: const Icon(Icons.analytics_rounded, size: 16),
+              label: const Text('View Detailed Analysis'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white,
+                foregroundColor: AppTheme.infoColor,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  void _viewCompetitor(String name) {
+  Widget _buildModernFAB() {
+    return ModernFAB(
+      onPressed: () => _generateReport(),
+      icon: Icons.assessment_rounded,
+      gradient: AppTheme.accentGradient,
+    );
+  }
+
+  void _openSurveyBuilder() {
     Get.snackbar(
-      'Competitor Analysis',
-      'Viewing detailed analysis of $name...',
+      'Survey Builder',
+      'Opening customer survey creation tool...',
+      backgroundColor: AppTheme.primaryColor,
+      colorText: Colors.white,
+    );
+  }
+
+  void _openTrendAnalysis() {
+    Get.snackbar(
+      'Trend Analysis',
+      'Loading market trend insights...',
       backgroundColor: AppTheme.accentColor,
       colorText: Colors.white,
     );
   }
 
-  void _analyzeCompetitor(String name) {
+  void _openSWOTAnalysis() {
     Get.snackbar(
-      'Deep Analysis',
-      'Running competitive analysis for $name...',
-      backgroundColor: AppTheme.primaryColor,
+      'SWOT Analysis',
+      'Opening SWOT analysis framework...',
+      backgroundColor: AppTheme.successColor,
       colorText: Colors.white,
     );
   }
+
+  void _openReports() {
+    Get.snackbar(
+      'Industry Reports',
+      'Accessing industry research reports...',
+      backgroundColor: AppTheme.warningColor,
+      colorText: Colors.white,
+    );
+  }
+
+  void _viewDetailedTrends() {
+    Get.snackbar(
+      'Detailed Trends',
+      'Loading comprehensive trend analysis...',
+      backgroundColor: AppTheme.infoColor,
+      colorText: Colors.white,
+    );
+  }
+
+  void _generateReport() {
+    Get.snackbar(
+      'Generate Report',
+      'Creating market research report...',
+      backgroundColor: AppTheme.accentColor,
+      colorText: Colors.white,
+    );
+  }
+}
+
+class ResearchData {
+  final String title;
+  final String value;
+  final String change;
+  final bool isPositive;
+
+  ResearchData({
+    required this.title,
+    required this.value,
+    required this.change,
+    required this.isPositive,
+  });
+}
+
+class Competitor {
+  final String name;
+  final double marketShare;
+  final String strength;
+  final String weakness;
+  final double score;
+
+  Competitor({
+    required this.name,
+    required this.marketShare,
+    required this.strength,
+    required this.weakness,
+    required this.score,
+  });
 }
