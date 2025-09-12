@@ -1,264 +1,319 @@
-# 🚀 Entrepreneur Toolkit - Next-Level Mobile App
+# 🚀 BizNest - Complete Entrepreneurial Toolkit Mobile App
 
-A cutting-edge Flutter mobile application designed for entrepreneurs with stunning modern UI, advanced animations, and comprehensive business tools.
+<div align="center">
+  <img src="assets/images/biznest.png" alt="BizNest Logo" width="120" height="120">
+  
+  **A comprehensive mobile application supporting young entrepreneurs with startup toolkits**
+  
+  [![Flutter](https://img.shields.io/badge/Flutter-02569B?style=for-the-badge&logo=flutter&logoColor=white)](https://flutter.dev/)
+  [![Dart](https://img.shields.io/badge/Dart-0175C2?style=for-the-badge&logo=dart&logoColor=white)](https://dart.dev/)
+  [![SDG 9](https://img.shields.io/badge/SDG-9-Industry%20Innovation%20Infrastructure-green?style=for-the-badge)](https://sdgs.un.org/goals/goal9)
+</div>
 
-![Flutter](https://img.shields.io/badge/Flutter-02569B?style=for-the-badge&logo=flutter&logoColor=white)
-![Dart](https://img.shields.io/badge/Dart-0175C2?style=for-the-badge&logo=dart&logoColor=white)
-![Material Design](https://img.shields.io/badge/Material%20Design-757575?style=for-the-badge&logo=material-design&logoColor=white)
+---
 
-## ✨ Features
+## 📋 Table of Contents
 
-### 🎨 **Next-Level Modern UI**
-- **Glassmorphism Design** - Translucent, blurred glass effects throughout
-- **Advanced Gradients** - Beautiful color transitions and modern palettes
-- **Particle Animations** - Dynamic floating particles and background effects
-- **Morphing Elements** - Interactive buttons and transforming components
-- **Shimmer Effects** - Loading animations and text effects
-- **Neuomorphic Shadows** - 3D-like depth and elevation
+- [🎯 Project Overview](#-project-overview)
+- [✨ Key Features](#-key-features)
+- [🏗️ Architecture](#️-architecture)
+- [📱 Screenshots](#-screenshots)
+- [🛠️ Installation](#️-installation)
+- [🚀 Getting Started](#-getting-started)
+- [📚 Features Documentation](#-features-documentation)
+- [🔧 Technical Stack](#-technical-stack)
+- [📊 Project Structure](#-project-structure)
+- [🤝 Contributing](#-contributing)
+- [📄 License](#-license)
 
-### 🚀 **Core Business Tools**
-- **AI-Powered Business Planning** - Smart templates and insights
-- **Market Research Hub** - Competitor analysis and trend tracking
-- **Financial Calculator** - Revenue forecasting and expense management
-- **Funding Tracker** - Investor matching and funding stages
-- **Legal Compliance** - Document templates and regulatory guidance
-- **Professional Networking** - Mentor matching and community events
+---
 
-### 🎬 **Advanced Animations**
-- **Particle Systems** - Dynamic background animations
-- **Floating Elements** - Smooth floating UI components
-- **Wave Animations** - Flowing wave effects
-- **Pulse Effects** - Rhythmic pulsing animations
-- **Morphing Buttons** - Interactive button transformations
-- **Page Transitions** - Smooth screen navigation
+## 🎯 Project Overview
 
-### 📱 **Modern Screens**
-- **Animated Splash Screen** - Stunning app intro with particles
-- **Interactive Onboarding** - Engaging 4-step introduction flow
-- **Smart Dashboard** - Progress tracking and AI insights
-- **Professional Network** - Connection recommendations and events
-- **Business Plan Builder** - Step-by-step planning wizard
-- **Financial Tools** - Advanced calculators and projections
+**BizNest** is a comprehensive mobile application designed to support young entrepreneurs and startup founders with a complete toolkit for business development. Built as part of the **SDG 9: Industry, Innovation and Infrastructure** initiative, this app provides real-time analytics, AI-powered tools, and collaborative features to help entrepreneurs succeed.
 
-## 🛠️ Technology Stack
+### 🎓 Academic Context
+- **Course**: SE3050 – User Experience Engineering
+- **Lab**: Lab Practical 02 – SDG Selection & UX roles
+- **Group**: Y3S1-WE-40 (Pebbles)
+- **SDG Focus**: Industry, Innovation and Infrastructure
 
-### **Framework & Language**
-- **Flutter 3.0+** - Cross-platform mobile development
-- **Dart** - Modern programming language
-- **Material Design 3** - Latest Google design system
+---
 
-### **State Management & Navigation**
-- **GetX** - Reactive state management and routing
-- **Custom Controllers** - Organized business logic
+## ✨ Key Features
 
-### **Animation Libraries**
-- **animate_do** - Predefined smooth animations
-- **Custom Animations** - Particle systems and morphing effects
-- **flutter_staggered_animations** - Coordinated animation sequences
+### 🧠 **Member 1: UX Researcher - Entrepreneurial Skill Building**
+- **Real-Time Quiz Analytics** with instant feedback and performance tracking
+- **Adaptive Learning Engine** with personalized tutorial recommendations
+- **Gamified Microlearning** featuring badges, levels, and leaderboards
+- **Progress Visualization Dashboards** with detailed analytics and insights
 
-### **UI Components**
-- **Custom Widgets** - Reusable modern components
-- **Glassmorphism Effects** - Translucent blur containers
-- **Advanced Theming** - Dynamic color schemes
+### 🎨 **Member 2: UX Designer - Startup Planning & Business Toolkit**
+- **AI-Powered Business Plan Generator** using OpenRouter API
+- **Market Research Assistant** with web scraping and competitor analysis
+- **Document Templates & Smart Checklists** for comprehensive business planning
+- **Interactive Business Model Canvas** with drag-and-drop functionality
 
-## 📋 Getting Started
+### 👥 **Member 3: UI Designer - Mentorship, Networking & Collaboration**
+- **Automatic Mentor Matching** based on goals, location, and experience
+- **Real-Time Communication Tools** including chat, video calls, and forums
+- **Community Idea Board** for peer feedback and collaborative innovation
+- **Professional Networking Platform** with advanced search and filtering
 
-### **Prerequisites**
-- Flutter SDK 3.0 or higher
-- Dart SDK 3.0 or higher
-- Android Studio / VS Code with Flutter extensions
-- iOS development tools (for iOS deployment)
+### 💰 **Member 4: UX Tester - Funding Assistance & Financial Tracking**
+- **Funding Suggestion Engine** with 9+ funding sources and AI recommendations
+- **Crowdsourced Funding Platform** for community resource sharing
+- **Financial Analytics Dashboard** with predictive insights and risk analysis
+- **Automated Expense & Revenue Tracking** with real-time financial monitoring
 
-### **Installation**
+---
 
-1. **Clone the repository**
-```bash
-git clone https://github.com/yourusername/entrepreneur_toolkit.git
-cd entrepreneur_toolkit
+## 🏗️ Architecture
+
+### Core Services
+```
+lib/core/services/
+├── quiz_service.dart              # Real-time quiz analytics
+├── learning_engine.dart           # Adaptive learning system
+├── ai_business_plan_service.dart  # AI-powered business planning
+├── market_research_service.dart   # Market analysis and research
+├── mentor_matching_service.dart   # Mentor matching algorithm
+└── funding_service.dart           # Funding suggestions and tracking
 ```
 
-2. **Install dependencies**
-```bash
-flutter pub get
-```
+### Modern UI/UX Features
+- **Glassmorphism Design** with translucent, blurred glass effects
+- **Advanced Animations** including particle systems and morphing buttons
+- **Responsive Layout** optimized for all screen sizes
+- **Dark/Light Theme Support** with adaptive theming
+- **60fps Smooth Animations** for premium user experience
 
-3. **Create assets directory**
-```bash
-mkdir -p assets/images assets/fonts assets/icons
-```
-
-4. **Run the app**
-```bash
-flutter run
-```
-
-### **Build for Production**
-
-**Android APK:**
-```bash
-flutter build apk --release
-```
-
-**iOS:**
-```bash
-flutter build ios --release
-```
-
-## 📁 Project Structure
-
-```
-lib/
-├── main.dart                          # App entry point
-├── utils/
-│   ├── modern_theme.dart              # Advanced theming system
-│   ├── advanced_animations.dart       # Custom animation components
-│   └── constants.dart                 # App constants
-├── screens/
-│   ├── splash_screen.dart             # Animated splash screen
-│   ├── modern_onboarding_screen.dart  # Interactive onboarding
-│   ├── auth/                          # Authentication screens
-│   ├── home/                          # Dashboard and main screens
-│   ├── business_plan/                 # Business planning tools
-│   ├── networking/                    # Professional networking
-│   ├── financial/                     # Financial calculators
-│   └── profile/                       # User profile management
-└── widgets/
-    ├── modern_card.dart               # Custom card components
-    ├── glass_container.dart           # Glassmorphism containers
-    └── animated_button.dart           # Interactive buttons
-```
-
-## 🎨 Design System
-
-### **Color Palette**
-- **Primary:** Modern Indigo (#6366F1)
-- **Secondary:** Vibrant Purple (#8B5CF6)
-- **Accent:** Pink (#EC4899)
-- **Success:** Emerald (#10B981)
-- **Warning:** Amber (#F59E0B)
-- **Error:** Rose (#F43F5E)
-
-### **Typography**
-- **Font Family:** Inter (Modern sans-serif)
-- **Weights:** 400, 500, 600, 700, 800, 900
-- **Responsive scaling** for different screen sizes
-
-### **Animation Principles**
-- **Easing:** Smooth cubic-bezier curves
-- **Duration:** 200ms (fast), 400ms (medium), 600ms (slow)
-- **Staggered:** Coordinated element animations
-- **Physics-based:** Natural motion curves
-
-## 🚀 Key Features Breakdown
-
-### **🌟 Glassmorphism UI**
-Modern translucent design with:
-- Backdrop blur effects
-- Semi-transparent backgrounds
-- Subtle border highlights
-- Layered depth perception
-
-### **🎬 Particle Animation System**
-Advanced particle effects featuring:
-- Configurable particle count and behavior
-- Multiple particle types and colors
-- Performance-optimized rendering
-- Responsive to user interactions
-
-### **📊 Smart Dashboard**
-Intelligent business insights with:
-- AI-powered recommendations
-- Progress tracking with visual indicators
-- Quick action grid with gradient cards
-- Real-time statistics and metrics
-
-### **🤝 Professional Networking**
-Comprehensive networking platform:
-- AI-powered connection recommendations
-- Match percentage algorithms
-- Event discovery and registration
-- Community chat and messaging
-
-## 🔧 Customization
-
-### **Theming**
-Modify `lib/utils/modern_theme.dart` to customize:
-- Color schemes and gradients
-- Typography and spacing
-- Shadow effects and elevations
-- Animation durations and curves
-
-### **Animations**
-Customize animations in `lib/utils/advanced_animations.dart`:
-- Particle system parameters
-- Animation timing and easing
-- Interactive effect behaviors
-- Performance optimization settings
+---
 
 ## 📱 Screenshots
 
-| Splash Screen | Onboarding | Dashboard | Networking |
-|---------------|------------|-----------|------------|
-| Particle effects with glassmorphism logo | Interactive 4-step flow | AI insights and progress tracking | Professional connections |
+<div align="center">
+  <img src="assets/images/biznest.png" alt="App Logo" width="200">
+  
+  *Modern, intuitive interface with your custom BizNest logo*
+</div>
 
-## 🧪 Testing
+### Key Screens
+- **Dashboard**: Real-time analytics and business health monitoring
+- **Quiz System**: Interactive skill assessment with instant feedback
+- **Learning Hub**: Personalized tutorials and progress tracking
+- **Business Tools**: AI-powered business plan generation
+- **Financial Tracking**: Comprehensive financial analytics
+- **Networking**: Mentor matching and community features
+- **Community**: Idea sharing and collaborative innovation
 
-```bash
-# Run unit tests
-flutter test
+---
 
-# Run integration tests
-flutter drive --target=test_driver/app.dart
+## 🛠️ Installation
 
-# Run widget tests
-flutter test test/widget_test.dart
+### Prerequisites
+- Flutter SDK (>=3.2.6)
+- Dart SDK
+- Android Studio / VS Code
+- Git
+
+### Setup Instructions
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/yourusername/entrepreneur_toolkit.git
+   cd entrepreneur_toolkit
+   ```
+
+2. **Install dependencies**
+   ```bash
+   flutter pub get
+   ```
+
+3. **Configure assets**
+   - Ensure your `biznest.png` logo is in `assets/images/`
+   - Update API keys in service files if needed
+
+4. **Run the application**
+   ```bash
+   flutter run
+   ```
+
+---
+
+## 🚀 Getting Started
+
+### First Time Setup
+1. **Launch the app** - You'll see the beautiful splash screen with your BizNest logo
+2. **Complete onboarding** - Follow the guided setup process
+3. **Take the skill assessment** - Get personalized recommendations
+4. **Explore features** - Navigate through the comprehensive toolkit
+
+### Key Workflows
+- **Skill Assessment** → **Personalized Learning** → **Business Planning** → **Funding** → **Networking**
+- **Real-time Progress Tracking** throughout your entrepreneurial journey
+- **AI-powered recommendations** based on your specific needs and goals
+
+---
+
+## 📚 Features Documentation
+
+### 🧠 Learning & Skill Development
+- **Adaptive Quiz System**: 10+ questions across 6 categories
+- **Personalized Tutorials**: Content tailored to your skill level
+- **Badge System**: 8+ achievement badges for motivation
+- **Progress Tracking**: Visual analytics and performance insights
+
+### 💼 Business Planning Tools
+- **AI Business Plan Generator**: Complete business plans with OpenRouter API
+- **Market Research**: Industry analysis and competitor insights
+- **Document Templates**: Professional business document templates
+- **SWOT Analysis**: Strategic planning and risk assessment
+
+### 🤝 Networking & Mentorship
+- **Smart Mentor Matching**: AI-powered mentor recommendations
+- **Real-time Communication**: Chat, video calls, and discussion forums
+- **Community Platform**: Idea sharing and peer collaboration
+- **Professional Profiles**: Detailed mentor and user profiles
+
+### 💰 Financial Management
+- **Funding Suggestions**: 9+ funding sources with AI recommendations
+- **Financial Analytics**: Real-time tracking and predictive insights
+- **Expense Management**: Automated tracking and categorization
+- **Growth Projections**: Financial forecasting and planning
+
+---
+
+## 🔧 Technical Stack
+
+### Frontend
+- **Flutter** - Cross-platform mobile development
+- **Dart** - Programming language
+- **Material Design 3** - Modern UI components
+- **Custom Animations** - Smooth 60fps animations
+
+### Backend Services
+- **OpenRouter API** - AI-powered business plan generation
+- **Web Scraping** - Market research and competitor analysis
+- **Real-time Communication** - WebSocket integration
+- **Local Storage** - Offline data persistence
+
+### Dependencies
+```yaml
+dependencies:
+  flutter: sdk
+  cupertino_icons: ^1.0.6
+  http: ^1.1.0
+  lottie: ^2.7.0
+  shimmer: ^3.0.0
+  fl_chart: ^0.65.0
+  web_socket_channel: ^2.4.0
+  shared_preferences: ^2.2.2
 ```
 
-## 📦 Dependencies
+---
 
-### **Core Dependencies**
-- `get: ^4.6.6` - State management and navigation
-- `animate_do: ^3.1.2` - Pre-built animations
-- `fl_chart: ^0.66.2` - Charts and graphs
+## 📊 Project Structure
 
-### **UI Enhancement**
-- `shimmer: ^3.0.0` - Loading effects
-- `cached_network_image: ^3.3.1` - Image caching
-- `flutter_svg: ^2.0.9` - SVG support
+```
+lib/
+├── core/
+│   ├── services/          # Core business logic
+│   ├── theme/            # App theming and styling
+│   └── widgets/          # Reusable UI components
+├── screens/              # App screens and pages
+│   ├── auth/            # Authentication screens
+│   ├── onboarding/      # Onboarding flow
+│   └── splash/          # Splash screen
+└── main.dart            # App entry point
 
-### **Utilities**
-- `intl: ^0.19.0` - Internationalization
-- `shared_preferences: ^2.2.2` - Local storage
-- `url_launcher: ^6.2.2` - External links
+assets/
+└── images/
+    └── biznest.png      # Your custom logo
+```
+
+---
+
+## 🎨 Design System
+
+### Color Palette
+- **Primary Blue**: `#3B82F6` - Trust and professionalism
+- **Secondary Purple**: `#8B5CF6` - Innovation and creativity
+- **Accent Green**: `#10B981` - Growth and success
+- **Warning Orange**: `#F59E0B` - Attention and alerts
+
+### Typography
+- **Headings**: Bold, modern sans-serif
+- **Body Text**: Clean, readable typography
+- **Code**: Monospace for technical content
+
+### Components
+- **Glassmorphism Cards**: Translucent, blurred backgrounds
+- **Gradient Buttons**: Smooth color transitions
+- **Animated Icons**: Dynamic visual feedback
+- **Progress Indicators**: Real-time status updates
+
+---
+
+## 🚀 Performance Features
+
+### Optimization
+- **60fps Animations** - Smooth, responsive UI
+- **Lazy Loading** - Efficient memory management
+- **Caching** - Fast data retrieval
+- **Offline Support** - Works without internet
+
+### User Experience
+- **Intuitive Navigation** - Easy-to-use interface
+- **Real-time Updates** - Live data synchronization
+- **Personalization** - Adaptive content and recommendations
+- **Accessibility** - Screen reader and keyboard support
+
+---
 
 ## 🤝 Contributing
 
+We welcome contributions to improve BizNest! Here's how you can help:
+
+### Development Setup
 1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
+
+### Code Standards
+- Follow Flutter/Dart conventions
+- Write comprehensive tests
+- Document new features
+- Maintain clean, readable code
+
+---
 
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 👨‍💻 Author
-
-**Your Name**
-- GitHub: [@yourusername](https://github.com/yourusername)
-- LinkedIn: [Your LinkedIn](https://linkedin.com/in/yourprofile)
-- Email: your.email@example.com
+---
 
 ## 🙏 Acknowledgments
 
-- Flutter team for the amazing framework
-- Material Design team for design guidelines
-- Open source community for various packages
-- Inspiration from modern app design trends
+- **SDG 9 Initiative** - Industry, Innovation and Infrastructure
+- **Flutter Community** - Amazing mobile development framework
+- **OpenRouter API** - AI-powered business plan generation
+- **Material Design** - Beautiful UI components and guidelines
 
 ---
 
-**Built with ❤️ using Flutter** 
+## 📞 Contact
 
-*Transform your entrepreneurial journey with cutting-edge mobile technology!* 🚀
+**Group Y3S1-WE-40 (Pebbles)**
+- **Course**: SE3050 – User Experience Engineering
+
+
+---
+
+<div align="center">
+  <p><strong>Built with ❤️ for entrepreneurs worldwide</strong></p>
+  <p>Supporting SDG 9: Industry, Innovation and Infrastructure</p>
+</div>
