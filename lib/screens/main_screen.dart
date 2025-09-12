@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:ui' as ui;
 import '../core/theme/modern_theme.dart';
-import 'advanced_dashboard_screen.dart';
+import 'ultra_modern_dashboard_screen.dart';
 import 'business_screen.dart';
 import 'financial_screen.dart';
 import 'networking_screen.dart';
@@ -27,7 +27,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
 
   final List<MainTab> _tabs = [
     MainTab(
-      page: const AdvancedDashboardScreen(),
+      page: const UltraModernDashboardScreen(),
       icon: Icons.dashboard_rounded,
       label: 'Dashboard',
       color: ModernTheme.primaryBlue,
@@ -112,33 +112,33 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
           return Transform.scale(
             scale: _tabAnimation.value,
             child: Container(
-              margin: const EdgeInsets.all(16),
+              margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: [
-                    Colors.white.withOpacity(0.95),
-                    Colors.white.withOpacity(0.85),
+                    Colors.white.withOpacity(0.1),
+                    Colors.white.withOpacity(0.05),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(28),
                 border: Border.all(
-                  color: Colors.white.withOpacity(0.3),
+                  color: Colors.white.withOpacity(0.2),
                   width: 1.5,
                 ),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withOpacity(0.1),
-                    blurRadius: 30,
-                    offset: const Offset(0, 10),
-                    spreadRadius: -5,
+                    blurRadius: 32,
+                    offset: const Offset(0, 16),
+                    spreadRadius: -8,
                   ),
                   BoxShadow(
-                    color: ModernTheme.primaryBlue.withOpacity(0.1),
+                    color: const Color(0xFF00D4FF).withOpacity(0.1),
                     blurRadius: 20,
-                    offset: const Offset(0, 5),
-                    spreadRadius: -3,
+                    offset: const Offset(0, 10),
+                    spreadRadius: -5,
                   ),
                 ],
               ),
@@ -148,8 +148,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                   filter: ui.ImageFilter.blur(sigmaX: 20, sigmaY: 20),
                   child: SafeArea(
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 20, vertical: 12),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: _tabs.asMap().entries.map((entry) {
@@ -165,7 +164,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                               HapticFeedback.lightImpact();
                             },
                             child: AnimatedContainer(
-                              duration: const Duration(milliseconds: 300),
+                              duration: const Duration(milliseconds: 600),
                               curve: Curves.easeInOutCubic,
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 16,
@@ -186,21 +185,21 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                                 boxShadow: isSelected
                                     ? [
                                         BoxShadow(
-                                          color: tab.color.withOpacity(0.3),
-                                          blurRadius: 15,
-                                          offset: const Offset(0, 5),
-                                          spreadRadius: -2,
+                                          color: tab.color.withOpacity(0.4),
+                                          blurRadius: 24,
+                                          offset: const Offset(0, 12),
+                                          spreadRadius: -6,
                                         ),
                                       ]
                                     : null,
                               ),
-                              child: Column(
+                              child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   AnimatedContainer(
-                                    duration: const Duration(milliseconds: 300),
+                                    duration: const Duration(milliseconds: 600),
                                     curve: Curves.easeInOutCubic,
-                                    padding: const EdgeInsets.all(10),
+                                    padding: const EdgeInsets.all(8),
                                     decoration: BoxDecoration(
                                       color: isSelected
                                           ? Colors.white.withOpacity(0.2)
@@ -211,24 +210,33 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                                       tab.icon,
                                       color: isSelected
                                           ? Colors.white
-                                          : ModernTheme.mediumGray,
-                                      size: 22,
+                                          : Colors.white.withOpacity(0.7),
+                                      size: 20,
                                     ),
                                   ),
-                                  const SizedBox(height: 6),
-                                  Text(
-                                    tab.label,
-                                    style: TextStyle(
-                                      color: isSelected
-                                          ? Colors.white
-                                          : ModernTheme.mediumGray,
-                                      fontSize: 11,
-                                      fontWeight: isSelected
-                                          ? FontWeight.w700
-                                          : FontWeight.w500,
-                                      letterSpacing: 0.3,
+                                  if (isSelected) ...[
+                                    const SizedBox(width: 8),
+                                    Flexible(
+                                      child: Text(
+                                        tab.label,
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w900,
+                                          letterSpacing: 0.3,
+                                          shadows: [
+                                            Shadow(
+                                              color: Colors.black26,
+                                              blurRadius: 6,
+                                              offset: Offset(0, 3),
+                                            ),
+                                          ],
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                        maxLines: 1,
+                                      ),
                                     ),
-                                  ),
+                                  ],
                                 ],
                               ),
                             ),
@@ -252,19 +260,26 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    ModernTheme.primaryBlue,
-                    ModernTheme.teal,
+                    const Color(0xFF00D4FF),
+                    const Color(0xFF7C3AED),
+                    const Color(0xFF10B981),
                   ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(36),
                 boxShadow: [
                   BoxShadow(
-                    color: ModernTheme.primaryBlue.withOpacity(0.3),
-                    blurRadius: 20,
-                    offset: const Offset(0, 8),
-                    spreadRadius: -3,
+                    color: const Color(0xFF00D4FF).withOpacity(0.4),
+                    blurRadius: 40,
+                    offset: const Offset(0, 20),
+                    spreadRadius: -10,
+                  ),
+                  BoxShadow(
+                    color: const Color(0xFF7C3AED).withOpacity(0.3),
+                    blurRadius: 24,
+                    offset: const Offset(0, 12),
+                    spreadRadius: -6,
                   ),
                 ],
               ),
@@ -274,14 +289,22 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                 foregroundColor: Colors.white,
                 elevation: 0,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(36),
                 ),
-                icon: const Icon(Icons.flash_on_rounded, size: 20),
+                icon: const Icon(Icons.rocket_launch_rounded, size: 28),
                 label: const Text(
                   'Quick Action',
                   style: TextStyle(
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 0.5,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 0.8,
+                    fontSize: 18,
+                    shadows: [
+                      Shadow(
+                        color: Colors.black26,
+                        blurRadius: 8,
+                        offset: Offset(0, 4),
+                      ),
+                    ],
                   ),
                 ),
               ),
