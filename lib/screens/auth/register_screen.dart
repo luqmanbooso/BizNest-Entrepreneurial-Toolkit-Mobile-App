@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/modern_theme.dart';
+import '../../core/widgets/modern_animations.dart';
 import '../../core/services/auth_service.dart';
 import '../main_screen.dart';
 
@@ -227,7 +228,16 @@ class _RegisterScreenState extends State<RegisterScreen>
                 const SizedBox(height: 32),
 
                 // Register Button
-                _buildRegisterButton(),
+                AnimatedGradientBorder(
+                  borderRadius: 20,
+                  borderWidth: 2,
+                  colors: const [
+                    Color(0xFF28A745),
+                    Color(0xFF20C997),
+                    Color(0xFFFFC107),
+                  ],
+                  child: _buildRegisterButton(),
+                ),
 
                 const SizedBox(height: 32),
 

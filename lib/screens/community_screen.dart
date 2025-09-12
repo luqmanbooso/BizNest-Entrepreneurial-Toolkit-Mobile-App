@@ -128,7 +128,7 @@ class _CommunityScreenState extends State<CommunityScreen>
             end: Alignment.bottomRight,
             colors: [
               ModernTheme.primaryBlue,
-              ModernTheme.secondaryPurple,
+              ModernTheme.teal,
             ],
           ),
         ),

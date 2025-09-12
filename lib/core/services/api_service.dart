@@ -10,6 +10,32 @@ class ApiService {
 
   static const Duration timeoutDuration = Duration(seconds: 30);
 
+  // Simple in-app mock database persisted for app session
+  static final Map<String, Map<String, dynamic>> _usersDb = {
+    'demo@biznest.com': {
+      'id': '1',
+      'name': 'Demo User',
+      'email': 'demo@biznest.com',
+      'password': 'demo123',
+      'role': 'entrepreneur',
+      'company': 'Demo Company',
+      'avatar': 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150',
+      'created_at': '2024-01-01T00:00:00Z',
+      'is_verified': true,
+    },
+    'test@biznest.com': {
+      'id': '2',
+      'name': 'Test User',
+      'email': 'test@biznest.com',
+      'password': 'test123',
+      'role': 'entrepreneur',
+      'company': 'Test Startup',
+      'avatar': 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150',
+      'created_at': '2024-01-15T00:00:00Z',
+      'is_verified': true,
+    },
+  };
+
   // HTTP Headers
   static Map<String, String> get _baseHeaders => {
         'Content-Type': 'application/json',
@@ -139,33 +165,8 @@ class ApiService {
       };
     }
 
-    // Mock user database
-    final mockUsers = {
-      'demo@biznest.com': {
-        'id': '1',
-        'name': 'Demo User',
-        'email': 'demo@biznest.com',
-        'password': 'demo123', // In real app, this would be hashed
-        'role': 'entrepreneur',
-        'company': 'Demo Company',
-        'avatar': 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150',
-        'created_at': '2024-01-01T00:00:00Z',
-        'is_verified': true,
-      },
-      'test@biznest.com': {
-        'id': '2',
-        'name': 'Test User',
-        'email': 'test@biznest.com',
-        'password': 'test123',
-        'role': 'entrepreneur',
-        'company': 'Test Startup',
-        'avatar': 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150',
-        'created_at': '2024-01-15T00:00:00Z',
-        'is_verified': true,
-      },
-    };
-
-    final user = mockUsers[email];
+    // Lookup from in-memory mock DB (populated by registration)
+    final user = _usersDb[email];
     if (user == null || user['password'] != password) {
       return {
         'success': false,
@@ -239,9 +240,8 @@ class ApiService {
       };
     }
 
-    // Check if user already exists (mock)
-    final existingEmails = ['demo@biznest.com', 'test@biznest.com'];
-    if (existingEmails.contains(email)) {
+    // Check if user already exists
+    if (_usersDb.containsKey(email)) {
       return {
         'success': false,
         'message': 'An account with this email already exists',
@@ -262,6 +262,12 @@ class ApiService {
       'avatar': 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150',
       'created_at': DateTime.now().toIso8601String(),
       'is_verified': false,
+    };
+
+    // Persist to in-memory database
+    _usersDb[email] = {
+      ...newUser,
+      'password': password,
     };
 
     return {

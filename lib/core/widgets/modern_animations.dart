@@ -495,3 +495,70 @@ class _FloatingElementsAnimationState extends State<FloatingElementsAnimation>
   }
 }
 
+// Animated Gradient Border Wrapper
+class AnimatedGradientBorder extends StatefulWidget {
+  final Widget child;
+  final double borderWidth;
+  final double borderRadius;
+  final List<Color> colors;
+  final Duration duration;
+
+  const AnimatedGradientBorder({
+    super.key,
+    required this.child,
+    this.borderWidth = 2,
+    this.borderRadius = 16,
+    this.colors = const [Color(0xFF007BFF), Color(0xFF20C997), Color(0xFFFFC107)],
+    this.duration = const Duration(seconds: 3),
+  });
+
+  @override
+  State<AnimatedGradientBorder> createState() => _AnimatedGradientBorderState();
+}
+
+class _AnimatedGradientBorderState extends State<AnimatedGradientBorder>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(vsync: this, duration: widget.duration)
+      ..repeat();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        return Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(widget.borderRadius),
+            gradient: SweepGradient(
+              colors: widget.colors,
+              stops: const [0.0, 0.5, 1.0],
+              transform: GradientRotation(_controller.value * 6.28318530718),
+            ),
+          ),
+          child: Container(
+            margin: EdgeInsets.all(widget.borderWidth),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(widget.borderRadius - widget.borderWidth),
+              color: Colors.transparent,
+            ),
+            child: child,
+          ),
+        );
+      },
+      child: widget.child,
+    );
+  }
+}
+

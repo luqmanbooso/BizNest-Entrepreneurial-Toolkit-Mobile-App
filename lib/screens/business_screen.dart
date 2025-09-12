@@ -155,8 +155,8 @@ class _BusinessScreenState extends State<BusinessScreen>
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              ModernTheme.backgroundLight,
-              Color(0xFFF1F5F9),
+              ModernTheme.lightGray,
+              Colors.white,
             ],
           ),
         ),
@@ -306,7 +306,7 @@ class _BusinessScreenState extends State<BusinessScreen>
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [ModernTheme.primaryBlue, ModernTheme.secondaryPurple],
+          colors: [ModernTheme.primaryBlue, ModernTheme.teal],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),

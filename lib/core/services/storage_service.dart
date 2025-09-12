@@ -1,8 +1,10 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class StorageService {
-  static final Map<String, dynamic> _storage = {};
+  static final Map<String, dynamic> _memoryFallback = {};
+  static SharedPreferences? _prefs;
   static bool _initialized = false;
 
   // Initialize storage service
@@ -10,88 +12,96 @@ class StorageService {
     if (_initialized) return;
 
     try {
-      // In a real app, you would use shared_preferences or secure_storage
-      // For this demo, we'll use in-memory storage
+      _prefs = await SharedPreferences.getInstance();
       _initialized = true;
-
       if (kDebugMode) {
-        print('Storage service initialized');
+        print('Storage service initialized (shared_preferences)');
       }
     } catch (e) {
       if (kDebugMode) {
         print('Storage init error: $e');
       }
+      // Fall back to in-memory map so app still works
+      _initialized = true;
     }
   }
 
   // String operations
   static Future<String?> getString(String key) async {
     await _ensureInitialized();
-    return _storage[key] as String?;
+    if (_prefs != null) return _prefs!.getString(key);
+    return _memoryFallback[key] as String?;
   }
 
   static Future<bool> setString(String key, String value) async {
     await _ensureInitialized();
-    _storage[key] = value;
+    if (_prefs != null) return _prefs!.setString(key, value);
+    _memoryFallback[key] = value;
     return true;
   }
 
   // Boolean operations
   static Future<bool?> getBool(String key) async {
     await _ensureInitialized();
-    return _storage[key] as bool?;
+    if (_prefs != null) return _prefs!.getBool(key);
+    return _memoryFallback[key] as bool?;
   }
 
   static Future<bool> setBool(String key, bool value) async {
     await _ensureInitialized();
-    _storage[key] = value;
+    if (_prefs != null) return _prefs!.setBool(key, value);
+    _memoryFallback[key] = value;
     return true;
   }
 
   // Integer operations
   static Future<int?> getInt(String key) async {
     await _ensureInitialized();
-    return _storage[key] as int?;
+    if (_prefs != null) return _prefs!.getInt(key);
+    return _memoryFallback[key] as int?;
   }
 
   static Future<bool> setInt(String key, int value) async {
     await _ensureInitialized();
-    _storage[key] = value;
+    if (_prefs != null) return _prefs!.setInt(key, value);
+    _memoryFallback[key] = value;
     return true;
   }
 
   // Double operations
   static Future<double?> getDouble(String key) async {
     await _ensureInitialized();
-    return _storage[key] as double?;
+    if (_prefs != null) return _prefs!.getDouble(key);
+    return _memoryFallback[key] as double?;
   }
 
   static Future<bool> setDouble(String key, double value) async {
     await _ensureInitialized();
-    _storage[key] = value;
+    if (_prefs != null) return _prefs!.setDouble(key, value);
+    _memoryFallback[key] = value;
     return true;
   }
 
   // List operations
   static Future<List<String>?> getStringList(String key) async {
     await _ensureInitialized();
-    final value = _storage[key];
-    if (value is List) {
-      return value.cast<String>();
-    }
+    if (_prefs != null) return _prefs!.getStringList(key);
+    final value = _memoryFallback[key];
+    if (value is List) return value.cast<String>();
     return null;
   }
 
   static Future<bool> setStringList(String key, List<String> value) async {
     await _ensureInitialized();
-    _storage[key] = value;
+    if (_prefs != null) return _prefs!.setStringList(key, value);
+    _memoryFallback[key] = value;
     return true;
   }
 
   // JSON operations
   static Future<Map<String, dynamic>?> getJson(String key) async {
     await _ensureInitialized();
-    final value = _storage[key] as String?;
+    final value = _prefs != null ? _prefs!.getString(key) : _memoryFallback[key] as String?;
     if (value != null) {
       try {
         return json.decode(value) as Map<String, dynamic>;
@@ -107,7 +117,9 @@ class StorageService {
   static Future<bool> setJson(String key, Map<String, dynamic> value) async {
     await _ensureInitialized();
     try {
-      _storage[key] = json.encode(value);
+      final encoded = json.encode(value);
+      if (_prefs != null) return _prefs!.setString(key, encoded);
+      _memoryFallback[key] = encoded;
       return true;
     } catch (e) {
       if (kDebugMode) {
@@ -120,26 +132,30 @@ class StorageService {
   // Remove operations
   static Future<bool> remove(String key) async {
     await _ensureInitialized();
-    _storage.remove(key);
+    if (_prefs != null) return _prefs!.remove(key);
+    _memoryFallback.remove(key);
     return true;
   }
 
   static Future<bool> clear() async {
     await _ensureInitialized();
-    _storage.clear();
+    if (_prefs != null) return _prefs!.clear();
+    _memoryFallback.clear();
     return true;
   }
 
   // Check if key exists
   static Future<bool> containsKey(String key) async {
     await _ensureInitialized();
-    return _storage.containsKey(key);
+    if (_prefs != null) return _prefs!.containsKey(key);
+    return _memoryFallback.containsKey(key);
   }
 
   // Get all keys
   static Future<Set<String>> getKeys() async {
     await _ensureInitialized();
-    return _storage.keys.toSet();
+    if (_prefs != null) return _prefs!.getKeys();
+    return _memoryFallback.keys.toSet();
   }
 
   // Private methods

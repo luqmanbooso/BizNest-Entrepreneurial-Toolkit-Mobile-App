@@ -36,37 +36,25 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       page: const BusinessScreen(),
       icon: Icons.business_center_rounded,
       label: 'Business',
-      color: ModernTheme.secondaryPurple,
+      color: ModernTheme.freshGreen,
     ),
     MainTab(
       page: const FinancialScreen(),
       icon: Icons.account_balance_wallet_rounded,
       label: 'Financial',
-      color: ModernTheme.accentGreen,
-    ),
-    MainTab(
-      page: const NetworkingScreen(),
-      icon: Icons.people_rounded,
-      label: 'Network',
-      color: ModernTheme.warningOrange,
+      color: ModernTheme.teal,
     ),
     MainTab(
       page: const LearningScreen(),
       icon: Icons.school_rounded,
       label: 'Learn',
-      color: ModernTheme.infoCyan,
-    ),
-    MainTab(
-      page: const CommunityScreen(),
-      icon: Icons.forum_rounded,
-      label: 'Community',
-      color: ModernTheme.primaryBlue,
+      color: ModernTheme.goldenYellow,
     ),
     MainTab(
       page: const ProfileScreen(),
       icon: Icons.person_rounded,
       label: 'Profile',
-      color: ModernTheme.errorRed,
+      color: ModernTheme.sunsetOrange,
     ),
   ];
 
@@ -124,23 +112,44 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
           return Transform.scale(
             scale: _tabAnimation.value,
             child: Container(
+              margin: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.6),
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Colors.white.withOpacity(0.95),
+                    Colors.white.withOpacity(0.85),
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(28),
+                border: Border.all(
+                  color: Colors.white.withOpacity(0.3),
+                  width: 1.5,
+                ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.08),
-                    blurRadius: 16,
-                    offset: const Offset(0, -6),
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 30,
+                    offset: const Offset(0, 10),
+                    spreadRadius: -5,
+                  ),
+                  BoxShadow(
+                    color: ModernTheme.primaryBlue.withOpacity(0.1),
+                    blurRadius: 20,
+                    offset: const Offset(0, 5),
+                    spreadRadius: -3,
                   ),
                 ],
               ),
               child: ClipRRect(
+                borderRadius: BorderRadius.circular(28),
                 child: BackdropFilter(
-                  filter: ui.ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+                  filter: ui.ImageFilter.blur(sigmaX: 20, sigmaY: 20),
                   child: SafeArea(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 8),
+                          horizontal: 20, vertical: 12),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: _tabs.asMap().entries.map((entry) {
@@ -156,48 +165,68 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                               HapticFeedback.lightImpact();
                             },
                             child: AnimatedContainer(
-                              duration: const Duration(milliseconds: 200),
+                              duration: const Duration(milliseconds: 300),
+                              curve: Curves.easeInOutCubic,
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 16,
-                                vertical: 8,
+                                vertical: 12,
                               ),
                               decoration: BoxDecoration(
-                                color: isSelected
-                                    ? tab.color.withOpacity(0.1)
-                                    : Colors.transparent,
+                                gradient: isSelected
+                                    ? LinearGradient(
+                                        colors: [
+                                          tab.color,
+                                          tab.color.withOpacity(0.8),
+                                        ],
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                      )
+                                    : null,
                                 borderRadius: BorderRadius.circular(20),
+                                boxShadow: isSelected
+                                    ? [
+                                        BoxShadow(
+                                          color: tab.color.withOpacity(0.3),
+                                          blurRadius: 15,
+                                          offset: const Offset(0, 5),
+                                          spreadRadius: -2,
+                                        ),
+                                      ]
+                                    : null,
                               ),
                               child: Column(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   AnimatedContainer(
-                                    duration: const Duration(milliseconds: 200),
-                                    padding: const EdgeInsets.all(8),
+                                    duration: const Duration(milliseconds: 300),
+                                    curve: Curves.easeInOutCubic,
+                                    padding: const EdgeInsets.all(10),
                                     decoration: BoxDecoration(
                                       color: isSelected
-                                          ? tab.color
+                                          ? Colors.white.withOpacity(0.2)
                                           : Colors.transparent,
-                                      borderRadius: BorderRadius.circular(12),
+                                      borderRadius: BorderRadius.circular(16),
                                     ),
                                     child: Icon(
                                       tab.icon,
                                       color: isSelected
                                           ? Colors.white
-                                          : Colors.grey[600],
-                                      size: 20,
+                                          : ModernTheme.mediumGray,
+                                      size: 22,
                                     ),
                                   ),
-                                  const SizedBox(height: 4),
+                                  const SizedBox(height: 6),
                                   Text(
                                     tab.label,
                                     style: TextStyle(
                                       color: isSelected
-                                          ? tab.color
-                                          : Colors.grey[600],
-                                      fontSize: 12,
+                                          ? Colors.white
+                                          : ModernTheme.mediumGray,
+                                      fontSize: 11,
                                       fontWeight: isSelected
-                                          ? FontWeight.w600
+                                          ? FontWeight.w700
                                           : FontWeight.w500,
+                                      letterSpacing: 0.3,
                                     ),
                                   ),
                                 ],
@@ -219,19 +248,41 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
         builder: (context, child) {
           return Transform.scale(
             scale: _fabAnimation.value,
-            child: FloatingActionButton.extended(
-              onPressed: _showQuickActions,
-              backgroundColor: ModernTheme.primaryBlue,
-              foregroundColor: Colors.white,
-              elevation: 8,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    ModernTheme.primaryBlue,
+                    ModernTheme.teal,
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: ModernTheme.primaryBlue.withOpacity(0.3),
+                    blurRadius: 20,
+                    offset: const Offset(0, 8),
+                    spreadRadius: -3,
+                  ),
+                ],
               ),
-              icon: const Icon(Icons.add_rounded),
-              label: const Text(
-                'Quick Action',
-                style: TextStyle(
-                  fontWeight: FontWeight.w600,
+              child: FloatingActionButton.extended(
+                onPressed: _showQuickActions,
+                backgroundColor: Colors.transparent,
+                foregroundColor: Colors.white,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                icon: const Icon(Icons.flash_on_rounded, size: 20),
+                label: const Text(
+                  'Quick Action',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.5,
+                  ),
                 ),
               ),
             ),
@@ -267,7 +318,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                   height: 4,
                   margin: const EdgeInsets.only(top: 12),
                   decoration: BoxDecoration(
-                    color: Colors.grey[300],
+                    color: ModernTheme.mediumGray.withOpacity(0.3),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -350,23 +401,25 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                         'Find Mentors',
                         'Connect with industry experts',
                         Icons.people_alt_rounded,
-                        ModernTheme.warningOrange,
+                        ModernTheme.sunsetOrange,
                         () {
                           Navigator.pop(context);
-                          setState(() {
-                            _currentIndex = 3; // Networking tab
-                          });
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Networking features coming soon'),
+                            ),
+                          );
                         },
                       ),
                       _buildQuickAction(
                         'Start Learning',
                         'Access courses and resources',
                         Icons.play_circle_rounded,
-                        ModernTheme.infoCyan,
+                        ModernTheme.goldenYellow,
                         () {
                           Navigator.pop(context);
                           setState(() {
-                            _currentIndex = 4; // Learning tab
+                            _currentIndex = 3; // Learning tab
                           });
                         },
                       ),
@@ -374,20 +427,28 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                         'Create Pitch Deck',
                         'Build professional presentations',
                         Icons.slideshow_rounded,
-                        ModernTheme.secondaryPurple,
+                        ModernTheme.teal,
                         () {
                           Navigator.pop(context);
-                          // TODO: Navigate to pitch deck builder
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Pitch Deck Builder coming soon'),
+                            ),
+                          );
                         },
                       ),
                       _buildQuickAction(
                         'Market Research',
                         'Analyze market trends and competition',
                         Icons.analytics_rounded,
-                        ModernTheme.errorRed,
+                        ModernTheme.sunsetOrange,
                         () {
                           Navigator.pop(context);
-                          // TODO: Navigate to market research
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Market Research coming soon'),
+                            ),
+                          );
                         },
                       ),
                     ],

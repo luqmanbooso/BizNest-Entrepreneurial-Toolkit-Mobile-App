@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../core/theme/modern_theme.dart';
 import '../core/widgets/biznest_logo.dart';
+import 'package:flutter/services.dart';
 
 class FinancialScreen extends StatefulWidget {
   const FinancialScreen({super.key});
@@ -52,6 +53,28 @@ class _FinancialScreenState extends State<FinancialScreen>
       features: ['Tax Estimation', 'Deduction Finder', 'Filing Assistance'],
     ),
   ];
+
+  void _openROICalculator() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.85,
+        maxChildSize: 0.95,
+        minChildSize: 0.6,
+        builder: (context, controller) {
+          return Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(24),
+            ),
+            child: _ROICalculator(scrollController: controller),
+          );
+        },
+      ),
+    );
+  }
 
   @override
   void initState() {
@@ -118,8 +141,8 @@ class _FinancialScreenState extends State<FinancialScreen>
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              ModernTheme.backgroundLight,
-              Color(0xFFF1F5F9),
+              ModernTheme.lightGray,
+              Colors.white,
             ],
           ),
         ),
@@ -269,7 +292,7 @@ class _FinancialScreenState extends State<FinancialScreen>
                                         '26.4%',
                                         '+5.2%',
                                         Icons.percent_rounded,
-                                        ModernTheme.secondaryPurple,
+                                        ModernTheme.teal,
                                       ),
                                     ),
                                   ],
@@ -479,6 +502,10 @@ class _FinancialScreenState extends State<FinancialScreen>
   }
 
   void _openTool(FinancialTool tool) {
+    if (tool.title == 'ROI Calculator') {
+      _openROICalculator();
+      return;
+    }
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('${tool.title} coming soon!'),
@@ -506,4 +533,133 @@ class FinancialTool {
     required this.color,
     required this.features,
   });
+}
+
+class _ROICalculator extends StatefulWidget {
+  final ScrollController scrollController;
+  const _ROICalculator({required this.scrollController});
+
+  @override
+  State<_ROICalculator> createState() => _ROICalculatorState();
+}
+
+class _ROICalculatorState extends State<_ROICalculator> {
+  final _investmentController = TextEditingController();
+  final _returnController = TextEditingController();
+  double? _roi;
+
+  @override
+  void dispose() {
+    _investmentController.dispose();
+    _returnController.dispose();
+    super.dispose();
+  }
+
+  void _calculate() {
+    final inv = double.tryParse(_investmentController.text) ?? 0;
+    final ret = double.tryParse(_returnController.text) ?? 0;
+    if (inv <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Enter a valid investment amount')),
+      );
+      return;
+    }
+    setState(() {
+      _roi = ((ret - inv) / inv) * 100.0;
+      HapticFeedback.lightImpact();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: SingleChildScrollView(
+        controller: widget.scrollController,
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: ModernTheme.primaryBlue.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(Icons.calculate, color: ModernTheme.primaryBlue),
+                ),
+                const SizedBox(width: 12),
+                const Text(
+                  'ROI Calculator',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                    color: ModernTheme.textPrimary,
+                  ),
+                ),
+                const Spacer(),
+                IconButton(
+                  onPressed: () => Navigator.pop(context),
+                  icon: const Icon(Icons.close_rounded),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: _investmentController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(
+                labelText: 'Initial Investment',
+                prefixIcon: Icon(Icons.savings_outlined),
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _returnController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(
+                labelText: 'Final Return',
+                prefixIcon: Icon(Icons.trending_up_rounded),
+              ),
+            ),
+            const SizedBox(height: 20),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: _calculate,
+                child: const Text('Calculate ROI'),
+              ),
+            ),
+            const SizedBox(height: 16),
+            if (_roi != null)
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: ModernTheme.primaryBlue.withOpacity(0.06),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: ModernTheme.primaryBlue.withOpacity(0.2)),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.percent_rounded, color: ModernTheme.primaryBlue),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        'ROI: ${_roi!.toStringAsFixed(2)}%',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          color: ModernTheme.textPrimary,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
 }

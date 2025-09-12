@@ -50,8 +50,8 @@ class _NetworkingScreenState extends State<NetworkingScreen>
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              ModernTheme.backgroundLight,
-              Color(0xFFF1F5F9),
+              ModernTheme.lightGray,
+              Colors.white,
             ],
           ),
         ),

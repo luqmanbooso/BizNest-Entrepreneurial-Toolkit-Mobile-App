@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../core/theme/modern_theme.dart';
 import '../core/widgets/biznest_logo.dart';
+import '../core/widgets/modern_animations.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -49,8 +50,8 @@ class _ProfileScreenState extends State<ProfileScreen>
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              ModernTheme.backgroundLight,
-              Color(0xFFF1F5F9),
+              ModernTheme.lightGray,
+              Colors.white,
             ],
           ),
         ),
@@ -103,13 +104,9 @@ class _ProfileScreenState extends State<ProfileScreen>
                     // Profile Header
                     FadeTransition(
                       opacity: _fadeAnimation,
-                      child: Container(
+                      child: GlassContainer(
                         padding: const EdgeInsets.all(24),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(20),
-                          boxShadow: ModernTheme.modernShadow,
-                        ),
+                        borderRadius: BorderRadius.circular(20),
                         child: Column(
                           children: [
                             // Profile Picture
@@ -120,7 +117,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                                 gradient: const LinearGradient(
                                   colors: [
                                     ModernTheme.primaryBlue,
-                                    ModernTheme.secondaryPurple
+                                    ModernTheme.teal
                                   ],
                                 ),
                                 borderRadius: BorderRadius.circular(40),
@@ -286,19 +283,9 @@ class _ProfileScreenState extends State<ProfileScreen>
         child: InkWell(
           onTap: onTap,
           borderRadius: BorderRadius.circular(12),
-          child: Container(
+          child: GlassContainer(
             padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 10,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
+            borderRadius: BorderRadius.circular(12),
             child: Row(
               children: [
                 Container(

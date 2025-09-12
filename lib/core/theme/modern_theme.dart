@@ -4,19 +4,19 @@ import 'package:flutter/services.dart';
 class ModernTheme {
   // Primary Colors - Professional & Modern
   static const Color electricBlue =
-      Color(0xFF007BFF); // Trust, innovation, technology
+      Color(0xFF00A2FF); // Electric Cyan-Blue
   static const Color freshGreen =
-      Color(0xFF28A745); // Growth, success, sustainability
+      Color(0xFF22C55E); // Emerald
 
   // Secondary Colors
   static const Color teal =
-      Color(0xFF20C997); // Balance between business and growth
-  static const Color navy = Color(0xFF0D1B2A); // Stability, professionalism
+      Color(0xFF14B8A6); // Teal
+  static const Color navy = Color(0xFF0B1220); // Deep Navy
 
   // Accent Colors
-  static const Color sunsetOrange = Color(0xFFFF6B35); // Highlights, CTAs
+  static const Color sunsetOrange = Color(0xFFFF6A3D); // Neon Orange
   static const Color goldenYellow =
-      Color(0xFFFFC107); // Motivation, achievements, badges
+      Color(0xFFFACC15); // Vibrant Yellow
 
   // Neutral / Background Colors
   static const Color lightGray = Color(0xFFF8F9FA); // Clean background
@@ -26,6 +26,8 @@ class ModernTheme {
 
   // Legacy compatibility
   static const Color primaryBlue = electricBlue;
+  static const Color secondaryTeal = teal;
+  // Backward compatibility alias
   static const Color secondaryPurple = teal;
   static const Color accentGreen = freshGreen;
   static const Color warningOrange = sunsetOrange;
@@ -34,14 +36,14 @@ class ModernTheme {
   static const Color backgroundLight = lightGray;
   static const Color backgroundDark = navy;
   static const Color surfaceLight = white;
-  static const Color surfaceDark = Color(0xFF1E293B);
+  static const Color surfaceDark = Color(0xFF101826);
   static const Color textPrimary = navy;
   static const Color textSecondary = mediumGray;
   static const Color textTertiary = Color(0xFF94A3B8);
 
   // Modern Gradients
   static const LinearGradient primaryGradient = LinearGradient(
-    colors: [electricBlue, teal],
+    colors: [electricBlue, teal, freshGreen],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
@@ -377,7 +379,7 @@ class ModernTheme {
       brightness: Brightness.light,
       colorScheme: const ColorScheme.light(
         primary: primaryBlue,
-        secondary: secondaryPurple,
+        secondary: secondaryTeal,
         surface: surfaceLight,
         error: errorRed,
         onPrimary: Colors.white,
@@ -434,7 +436,7 @@ class ModernTheme {
       brightness: Brightness.dark,
       colorScheme: const ColorScheme.dark(
         primary: primaryBlue,
-        secondary: secondaryPurple,
+        secondary: secondaryTeal,
         surface: surfaceDark,
         error: errorRed,
         onPrimary: Colors.white,

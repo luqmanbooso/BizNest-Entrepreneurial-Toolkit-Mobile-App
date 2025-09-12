@@ -3,6 +3,7 @@ import '../../core/theme/modern_theme.dart';
 import '../../core/services/auth_service.dart';
 import 'register_screen.dart';
 import '../main_screen.dart';
+import '../../core/widgets/modern_animations.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -263,24 +264,27 @@ class _LoginScreenState extends State<LoginScreen>
                   builder: (context, child) {
                     return Transform.rotate(
                       angle: _rotationAnimation.value,
-                      child: Container(
-                        width: 100,
-                        height: 100,
-                        decoration: BoxDecoration(
-                          gradient: ModernTheme.electricGradient,
-                          borderRadius: BorderRadius.circular(25),
-                          boxShadow: [
-                            BoxShadow(
-                              color: ModernTheme.electricBlue.withOpacity(0.3),
-                              blurRadius: 20,
-                              offset: const Offset(0, 10),
-                            ),
-                          ],
-                        ),
-                        child: const Icon(
-                          Icons.rocket_launch,
-                          size: 50,
-                          color: Colors.white,
+                      child: Hero(
+                        tag: 'app_logo',
+                        child: Container(
+                          width: 100,
+                          height: 100,
+                          decoration: BoxDecoration(
+                            gradient: ModernTheme.electricGradient,
+                            borderRadius: BorderRadius.circular(25),
+                            boxShadow: [
+                              BoxShadow(
+                                color: ModernTheme.electricBlue.withOpacity(0.3),
+                                blurRadius: 20,
+                                offset: const Offset(0, 10),
+                              ),
+                            ],
+                          ),
+                          child: const Icon(
+                            Icons.rocket_launch,
+                            size: 50,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                     );
@@ -365,7 +369,16 @@ class _LoginScreenState extends State<LoginScreen>
                       const SizedBox(height: 32),
 
                       // Login Button
-                      _buildLoginButton(),
+                      AnimatedGradientBorder(
+                        borderRadius: 20,
+                        borderWidth: 2,
+                        colors: const [
+                          Color(0xFF007BFF),
+                          Color(0xFF20C997),
+                          Color(0xFFFFC107),
+                        ],
+                        child: _buildLoginButton(),
+                      ),
                     ],
                   ),
                 ),

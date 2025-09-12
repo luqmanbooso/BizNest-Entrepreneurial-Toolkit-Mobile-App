@@ -91,7 +91,7 @@ class _LearningScreenState extends State<LearningScreen>
             end: Alignment.bottomRight,
             colors: [
               ModernTheme.primaryBlue,
-              ModernTheme.secondaryPurple,
+              ModernTheme.teal,
             ],
           ),
         ),
@@ -256,7 +256,7 @@ class _LearningScreenState extends State<LearningScreen>
                         'Badges',
                         '${_statistics['total_badges'] ?? 0}',
                         Icons.emoji_events,
-                        ModernTheme.secondaryPurple,
+                        ModernTheme.goldenYellow,
                       ),
                     ),
                     Expanded(
@@ -264,7 +264,7 @@ class _LearningScreenState extends State<LearningScreen>
                         'Streak',
                         '${_statistics['current_streak'] ?? 0}',
                         Icons.local_fire_department,
-                        Colors.orange,
+                        ModernTheme.sunsetOrange,
                       ),
                     ),
                   ],

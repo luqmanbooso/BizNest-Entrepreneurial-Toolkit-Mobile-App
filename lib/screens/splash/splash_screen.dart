@@ -3,6 +3,7 @@ import '../../core/theme/modern_theme.dart';
 import '../../core/services/auth_service.dart';
 import '../onboarding/onboarding_screen.dart';
 import '../main_screen.dart';
+import '../../core/widgets/modern_animations.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -199,28 +200,33 @@ class _SplashScreenState extends State<SplashScreen>
           ),
         ),
         child: SafeArea(
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // Animated Logo
-                _buildAnimatedLogo(),
+          child: ParticleAnimation(
+            particleCount: 60,
+            particleColor: Colors.white,
+            particleSpeed: 0.6,
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // Animated Logo
+                  _buildAnimatedLogo(),
 
-                const SizedBox(height: 40),
+                  const SizedBox(height: 40),
 
-                // App Name
-                _buildAppName(),
+                  // App Name
+                  _buildAppName(),
 
-                const SizedBox(height: 16),
+                  const SizedBox(height: 16),
 
-                // Tagline
-                _buildTagline(),
+                  // Tagline
+                  _buildTagline(),
 
-                const SizedBox(height: 60),
+                  const SizedBox(height: 60),
 
-                // Loading Indicator
-                _buildLoadingIndicator(),
-              ],
+                  // Loading Indicator
+                  _buildLoadingIndicator(),
+                ],
+              ),
             ),
           ),
         ),
@@ -243,24 +249,27 @@ class _SplashScreenState extends State<SplashScreen>
                 builder: (context, child) {
                   return Transform.rotate(
                     angle: _rotationAnimation.value,
-                    child: Container(
-                      width: 120,
-                      height: 120,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(30),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.2),
-                            blurRadius: 30,
-                            offset: const Offset(0, 15),
-                          ),
-                        ],
-                      ),
-                      child: const Icon(
-                        Icons.rocket_launch,
-                        size: 60,
-                        color: ModernTheme.electricBlue,
+                    child: Hero(
+                      tag: 'app_logo',
+                      child: Container(
+                        width: 120,
+                        height: 120,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(30),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.2),
+                              blurRadius: 30,
+                              offset: const Offset(0, 15),
+                            ),
+                          ],
+                        ),
+                        child: const Icon(
+                          Icons.rocket_launch,
+                          size: 60,
+                          color: ModernTheme.electricBlue,
+                        ),
                       ),
                     ),
                   );

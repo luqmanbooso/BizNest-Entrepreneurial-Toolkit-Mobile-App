@@ -37,7 +37,7 @@ class BizNestLogo extends StatelessWidget {
             children: [
               ShaderMask(
                 shaderCallback: (bounds) => const LinearGradient(
-                  colors: [Color(0xFF10B981), Color(0xFF34D399)],
+                  colors: [Color(0xFF28A745), Color(0xFF20C997)],
                   begin: Alignment.centerLeft,
                   end: Alignment.centerRight,
                 ).createShader(bounds),
@@ -53,7 +53,7 @@ class BizNestLogo extends StatelessWidget {
               ),
               ShaderMask(
                 shaderCallback: (bounds) => const LinearGradient(
-                  colors: [Color(0xFF3B82F6), Color(0xFF60A5FA)],
+                  colors: [Color(0xFF007BFF), Color(0xFF20C997)],
                   begin: Alignment.centerLeft,
                   end: Alignment.centerRight,
                 ).createShader(bounds),

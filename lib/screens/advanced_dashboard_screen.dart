@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
+import 'dart:ui' as ui;
+import 'dart:math' as math;
 import 'package:fl_chart/fl_chart.dart';
 import 'package:shimmer/shimmer.dart';
 import '../core/theme/modern_theme.dart';
 import '../core/services/analytics_service.dart';
 import '../core/services/realtime_service.dart';
 import '../core/services/business_intelligence_service.dart';
+import '../core/widgets/modern_animations.dart';
+import 'business_screen.dart';
+import 'learning_screen.dart';
 
 class AdvancedDashboardScreen extends StatefulWidget {
   const AdvancedDashboardScreen({super.key});
@@ -20,12 +25,14 @@ class _AdvancedDashboardScreenState extends State<AdvancedDashboardScreen>
   late AnimationController _pulseController;
   late AnimationController _shimmerController;
   late AnimationController _chartController;
+  late AnimationController _floatingController;
 
   late Animation<double> _fadeAnimation;
   late Animation<double> _slideAnimation;
   late Animation<double> _pulseAnimation;
   late Animation<double> _shimmerAnimation;
   late Animation<double> _chartAnimation;
+  late Animation<double> _floatingAnimation;
 
   // Data variables
   Map<String, dynamic> _insights = {};
@@ -33,6 +40,8 @@ class _AdvancedDashboardScreenState extends State<AdvancedDashboardScreen>
   bool _isLoading = true;
   final String _selectedTimeRange = '7d';
   int _selectedTabIndex = 0;
+  final ScrollController _scrollController = ScrollController();
+  double _headerOffset = 0.0;
 
   @override
   void initState() {
@@ -40,6 +49,12 @@ class _AdvancedDashboardScreenState extends State<AdvancedDashboardScreen>
     _setupAnimations();
     _loadDashboardData();
     _setupRealtimeUpdates();
+
+    _scrollController.addListener(() {
+      setState(() {
+        _headerOffset = (_scrollController.offset).clamp(0, 60);
+      });
+    });
   }
 
   void _setupAnimations() {
@@ -60,6 +75,11 @@ class _AdvancedDashboardScreenState extends State<AdvancedDashboardScreen>
 
     _chartController = AnimationController(
       duration: const Duration(milliseconds: 2000),
+      vsync: this,
+    );
+
+    _floatingController = AnimationController(
+      duration: const Duration(seconds: 8),
       vsync: this,
     );
 
@@ -103,10 +123,19 @@ class _AdvancedDashboardScreenState extends State<AdvancedDashboardScreen>
       curve: Curves.easeOutCubic,
     ));
 
+    _floatingAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _floatingController,
+      curve: Curves.linear,
+    ));
+
     _animationController.forward();
     _pulseController.repeat(reverse: true);
     _shimmerController.repeat();
     _chartController.forward();
+    _floatingController.repeat();
   }
 
   Future<void> _loadDashboardData() async {
@@ -142,20 +171,92 @@ class _AdvancedDashboardScreenState extends State<AdvancedDashboardScreen>
 
   @override
   void dispose() {
+    _scrollController.dispose();
     _animationController.dispose();
     _pulseController.dispose();
     _shimmerController.dispose();
     _chartController.dispose();
+    _floatingController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: ModernTheme.backgroundColor,
-      body: SafeArea(
-        child: _isLoading ? _buildLoadingState() : _buildDashboard(),
+      backgroundColor: ModernTheme.lightGray,
+      body: Stack(
+        children: [
+          _buildBackgroundEffects(),
+          SafeArea(
+            child: _isLoading
+                ? _buildLoadingState()
+                : FloatingElementsAnimation(
+                    elementCount: 10,
+                    child: _buildDashboard(),
+                  ),
+          ),
+        ],
       ),
+    );
+  }
+
+  Widget _buildBackgroundEffects() {
+    return AnimatedBuilder(
+      animation: _floatingAnimation,
+      builder: (context, child) {
+        return Stack(
+          children: [
+            Positioned(
+              top: -100 + 20 * math.sin(_floatingAnimation.value * math.pi * 2),
+              left: -100 + 20 * math.cos(_floatingAnimation.value * math.pi),
+              child: Container(
+                width: 300,
+                height: 300,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: RadialGradient(
+                    colors: [
+                      ModernTheme.primaryBlue.withOpacity(0.15),
+                      Colors.transparent,
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            Positioned(
+              bottom: -150 + 30 * math.sin(_floatingAnimation.value * math.pi),
+              right:
+                  -100 + 25 * math.cos(_floatingAnimation.value * math.pi * 2),
+              child: Container(
+                width: 350,
+                height: 350,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: RadialGradient(
+                    colors: [
+                      ModernTheme.teal.withOpacity(0.12),
+                      Colors.transparent,
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            // Subtle grid pattern
+            Container(
+              width: double.infinity,
+              height: double.infinity,
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: NetworkImage(
+                      'https://transparenttextures.com/patterns/grid-me.png'),
+                  repeat: ImageRepeat.repeat,
+                  opacity: 0.05,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -185,11 +286,11 @@ class _AdvancedDashboardScreenState extends State<AdvancedDashboardScreen>
 
   Widget _buildShimmerHeader() {
     return Container(
-      height: 120,
+      height: 140,
       margin: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(28),
       ),
     );
   }
@@ -199,7 +300,7 @@ class _AdvancedDashboardScreenState extends State<AdvancedDashboardScreen>
       height: 200,
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(28),
       ),
     );
   }
@@ -207,7 +308,13 @@ class _AdvancedDashboardScreenState extends State<AdvancedDashboardScreen>
   Widget _buildDashboard() {
     return Column(
       children: [
-        _buildHeader(),
+        Transform.translate(
+          offset: Offset(0, -_headerOffset * 0.3),
+          child: Transform.scale(
+            scale: 1.0 - (_headerOffset / 600),
+            child: _buildHeader(),
+          ),
+        ),
         _buildTabBar(),
         Expanded(
           child: _buildTabContent(),
@@ -226,76 +333,109 @@ class _AdvancedDashboardScreenState extends State<AdvancedDashboardScreen>
             opacity: _fadeAnimation.value,
             child: Container(
               margin: const EdgeInsets.all(20),
-              padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    ModernTheme.primaryColor,
-                    ModernTheme.primaryColor.withOpacity(0.8),
-                  ],
-                ),
-                borderRadius: BorderRadius.circular(24),
+                borderRadius: BorderRadius.circular(28),
                 boxShadow: [
                   BoxShadow(
-                    color: ModernTheme.primaryColor.withOpacity(0.3),
-                    blurRadius: 20,
-                    offset: const Offset(0, 10),
+                    color: ModernTheme.primaryBlue.withOpacity(0.3),
+                    blurRadius: 30,
+                    offset: const Offset(0, 15),
+                    spreadRadius: -5,
                   ),
                 ],
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Welcome back!',
-                            style:
-                                ModernTheme.textTheme.headlineSmall?.copyWith(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w300,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'Here\'s your business overview',
-                            style: ModernTheme.textTheme.bodyLarge?.copyWith(
-                              color: Colors.white.withOpacity(0.9),
-                            ),
-                          ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(28),
+                child: BackdropFilter(
+                  filter: ui.ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                  child: Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          ModernTheme.primaryBlue.withOpacity(0.95),
+                          ModernTheme.teal.withOpacity(0.9),
+                          ModernTheme.freshGreen.withOpacity(0.85),
                         ],
+                        stops: const [0.1, 0.6, 0.9],
                       ),
-                      AnimatedBuilder(
-                        animation: _pulseAnimation,
-                        builder: (context, child) {
-                          return Transform.scale(
-                            scale: _pulseAnimation.value,
-                            child: Container(
-                              padding: const EdgeInsets.all(12),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.2),
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              child: const Icon(
-                                Icons.trending_up,
-                                color: Colors.white,
-                                size: 28,
-                              ),
+                      borderRadius: BorderRadius.circular(28),
+                      border: Border.all(
+                        color: Colors.white.withOpacity(0.2),
+                        width: 1.5,
+                      ),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Welcome back!',
+                                  style: ModernTheme.textTheme.headlineSmall
+                                      ?.copyWith(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w300,
+                                    letterSpacing: 0.5,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  'Here\'s your business overview',
+                                  style:
+                                      ModernTheme.textTheme.bodyLarge?.copyWith(
+                                    color: Colors.white.withOpacity(0.9),
+                                    letterSpacing: 0.2,
+                                  ),
+                                ),
+                              ],
                             ),
-                          );
-                        },
-                      ),
-                    ],
+                            AnimatedBuilder(
+                              animation: _pulseAnimation,
+                              builder: (context, child) {
+                                return Transform.scale(
+                                  scale: _pulseAnimation.value,
+                                  child: Container(
+                                    padding: const EdgeInsets.all(12),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withOpacity(0.15),
+                                      borderRadius: BorderRadius.circular(16),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: ModernTheme.primaryBlue
+                                              .withOpacity(0.3),
+                                          blurRadius: 15,
+                                          spreadRadius: -2,
+                                        ),
+                                      ],
+                                      border: Border.all(
+                                        color: Colors.white.withOpacity(0.25),
+                                        width: 1,
+                                      ),
+                                    ),
+                                    child: const Icon(
+                                      Icons.trending_up,
+                                      color: Colors.white,
+                                      size: 28,
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 28),
+                        _buildQuickStats(),
+                      ],
+                    ),
                   ),
-                  const SizedBox(height: 24),
-                  _buildQuickStats(),
-                ],
+                ),
               ),
             ),
           ),
@@ -310,69 +450,152 @@ class _AdvancedDashboardScreenState extends State<AdvancedDashboardScreen>
     final completedPlans = overview['completed_plans'] ?? 0;
     final completionRate = overview['completion_rate'] ?? 0;
 
-    return Row(
-      children: [
-        Expanded(
-          child: _buildStatCard(
+    return Container(
+      height: 200, // Fixed height to prevent overflow
+      child: GridView.count(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        crossAxisCount: 2,
+        crossAxisSpacing: 12,
+        mainAxisSpacing: 12,
+        childAspectRatio: 1.8, // Adjusted aspect ratio
+        children: [
+          _buildStatCard(
             'Business Plans',
             totalPlans.toString(),
-            Icons.business_center,
+            Icons.business_center_rounded,
             Colors.white,
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => BusinessScreen()),
+              );
+            },
           ),
-        ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: _buildStatCard(
+          _buildStatCard(
             'Completed',
             completedPlans.toString(),
-            Icons.check_circle,
-            Colors.green,
+            Icons.verified_rounded,
+            ModernTheme.freshGreen,
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => BusinessScreen()),
+              );
+            },
           ),
-        ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: _buildStatCard(
+          _buildStatCard(
             'Progress',
             '$completionRate%',
-            Icons.trending_up,
-            Colors.orange,
+            Icons.trending_up_rounded,
+            ModernTheme.goldenYellow,
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => LearningScreen()),
+              );
+            },
           ),
-        ),
-      ],
+          _buildStatCard(
+            'Health',
+            _getHealthLevel(_insights['business_health']?['health_score'] ?? 0),
+            Icons.favorite_rounded,
+            ModernTheme.teal,
+            onTap: () {
+              setState(() {
+                _selectedTabIndex = 1; // Analytics tab
+              });
+            },
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _buildStatCard(
-      String title, String value, IconData icon, Color color) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.15),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: Colors.white.withOpacity(0.2),
-          width: 1,
-        ),
-      ),
-      child: Column(
-        children: [
-          Icon(icon, color: color, size: 24),
-          const SizedBox(height: 8),
-          Text(
-            value,
-            style: ModernTheme.textTheme.headlineMedium?.copyWith(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
+  Widget _buildStatCard(String title, String value, IconData icon, Color color,
+      {VoidCallback? onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: TweenAnimationBuilder<double>(
+        tween: Tween<double>(begin: 0.8, end: 1.0),
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeOutCubic,
+        builder: (context, scale, child) {
+          return Transform.scale(
+            scale: scale,
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Colors.white.withOpacity(0.15),
+                    Colors.white.withOpacity(0.08),
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(
+                  color: Colors.white.withOpacity(0.2),
+                  width: 1,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: color.withOpacity(0.15),
+                    blurRadius: 20,
+                    offset: const Offset(0, 10),
+                    spreadRadius: -5,
+                  ),
+                ],
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          color.withOpacity(0.2),
+                          color.withOpacity(0.1),
+                        ],
+                      ),
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: color.withOpacity(0.3),
+                          blurRadius: 15,
+                          spreadRadius: -3,
+                        ),
+                      ],
+                    ),
+                    child: Icon(icon, color: Colors.white, size: 24),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    value,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    title,
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.9),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 0.3,
+                    ),
+                    textAlign: TextAlign.center,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
             ),
-          ),
-          Text(
-            title,
-            style: ModernTheme.textTheme.bodySmall?.copyWith(
-              color: Colors.white.withOpacity(0.8),
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ],
+          );
+        },
       ),
     );
   }
@@ -380,63 +603,127 @@ class _AdvancedDashboardScreenState extends State<AdvancedDashboardScreen>
   Widget _buildTabBar() {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 5),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: BackdropFilter(
+          filter: ui.ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.8),
+              borderRadius: BorderRadius.circular(20),
+              border:
+                  Border.all(color: Colors.white.withOpacity(0.4), width: 1.5),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.08),
+                  blurRadius: 15,
+                  offset: const Offset(0, 8),
+                  spreadRadius: -3,
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                _buildTabButton('Overview', 0),
+                _buildTabButton('Analytics', 1),
+                _buildTabButton('Insights', 2),
+                _buildTabButton('Trends', 3),
+              ],
+            ),
           ),
-        ],
+        ),
       ),
-      child: TabBar(
-        controller: TabController(
-            length: 4, vsync: this, initialIndex: _selectedTabIndex),
-        onTap: (index) {
+    );
+  }
+
+  Widget _buildTabButton(String text, int index) {
+    final isSelected = _selectedTabIndex == index;
+    return Expanded(
+      child: GestureDetector(
+        onTap: () {
           setState(() {
             _selectedTabIndex = index;
           });
         },
-        indicator: BoxDecoration(
-          color: ModernTheme.primaryColor,
-          borderRadius: BorderRadius.circular(12),
+        child: Container(
+          margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          decoration: BoxDecoration(
+            gradient: isSelected
+                ? LinearGradient(
+                    colors: [
+                      ModernTheme.primaryBlue,
+                      ModernTheme.teal.withOpacity(0.85)
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  )
+                : null,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: isSelected
+                ? [
+                    BoxShadow(
+                      color: ModernTheme.primaryBlue.withOpacity(0.3),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                      spreadRadius: -2,
+                    ),
+                  ]
+                : null,
+          ),
+          child: Text(
+            text,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontWeight: FontWeight.w700,
+              fontSize: 15,
+              letterSpacing: 0.5,
+              color:
+                  isSelected ? Colors.white : ModernTheme.navy.withOpacity(0.7),
+            ),
+          ),
         ),
-        labelColor: Colors.white,
-        unselectedLabelColor: Colors.grey[600],
-        labelStyle: const TextStyle(fontWeight: FontWeight.w600),
-        tabs: const [
-          Tab(text: 'Overview'),
-          Tab(text: 'Analytics'),
-          Tab(text: 'Insights'),
-          Tab(text: 'Trends'),
-        ],
       ),
     );
   }
 
   Widget _buildTabContent() {
-    switch (_selectedTabIndex) {
-      case 0:
-        return _buildOverviewTab();
-      case 1:
-        return _buildAnalyticsTab();
-      case 2:
-        return _buildInsightsTab();
-      case 3:
-        return _buildTrendsTab();
-      default:
-        return _buildOverviewTab();
-    }
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 500),
+      switchInCurve: Curves.easeOutCubic,
+      switchOutCurve: Curves.easeInCubic,
+      transitionBuilder: (child, anim) {
+        final offset = Tween<Offset>(
+                begin: const Offset(0.05, 0), end: Offset.zero)
+            .animate(CurvedAnimation(parent: anim, curve: Curves.easeOutCubic));
+        return FadeTransition(
+          opacity: anim,
+          child: SlideTransition(position: offset, child: child),
+        );
+      },
+      child: IndexedStack(
+        key: ValueKey(_selectedTabIndex),
+        index: _selectedTabIndex,
+        children: [
+          _buildOverviewTab(),
+          _buildAnalyticsTab(),
+          _buildInsightsTab(),
+          _buildTrendsTab(),
+        ],
+      ),
+    );
   }
 
   Widget _buildOverviewTab() {
     return RefreshIndicator(
       onRefresh: _loadDashboardData,
+      color: ModernTheme.primaryColor,
+      backgroundColor: Colors.white,
+      strokeWidth: 2.5,
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.all(20),
+        controller: _scrollController,
         child: Column(
           children: [
             _isLoading
@@ -448,6 +735,7 @@ class _AdvancedDashboardScreenState extends State<AdvancedDashboardScreen>
                 : _buildRecentActivityCard(),
             const SizedBox(height: 20),
             _buildQuickActionsCard(),
+            const SizedBox(height: 30),
           ],
         ),
       ),
@@ -469,13 +757,21 @@ class _AdvancedDashboardScreenState extends State<AdvancedDashboardScreen>
             child: Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                gradient: ModernTheme.primaryGradient,
-                borderRadius: BorderRadius.circular(20),
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    ModernTheme.primaryBlue.withOpacity(0.85),
+                    ModernTheme.teal.withOpacity(0.75),
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(28),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.12),
-                    blurRadius: 24,
-                    offset: const Offset(0, 12),
+                    color: ModernTheme.primaryBlue.withOpacity(0.25),
+                    blurRadius: 30,
+                    offset: const Offset(0, 15),
+                    spreadRadius: -10,
                   ),
                 ],
               ),
@@ -490,28 +786,42 @@ class _AdvancedDashboardScreenState extends State<AdvancedDashboardScreen>
                         style: ModernTheme.headingMedium.copyWith(
                           fontWeight: FontWeight.w800,
                           color: Colors.white,
+                          letterSpacing: 0.5,
                         ),
                       ),
                       Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 6),
+                            horizontal: 14, vertical: 8),
                         decoration: BoxDecoration(
                           color: Colors.white.withOpacity(0.18),
                           borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: Colors.white.withOpacity(0.3),
+                            width: 1,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.1),
+                              blurRadius: 10,
+                              offset: const Offset(0, 5),
+                              spreadRadius: -3,
+                            ),
+                          ],
                         ),
                         child: Text(
                           healthLevel,
                           style: const TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.w700,
+                            letterSpacing: 0.5,
                           ),
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 20),
-                  _buildHealthScoreChart(healthScore),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 30),
+                  Center(child: _buildHealthScoreChart(healthScore)),
+                  const SizedBox(height: 30),
                   _buildHealthMetrics(health),
                 ],
               ),
@@ -526,31 +836,61 @@ class _AdvancedDashboardScreenState extends State<AdvancedDashboardScreen>
     return AnimatedBuilder(
       animation: _chartAnimation,
       builder: (context, child) {
-        return SizedBox(
-          height: 120,
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              SizedBox(
-                height: 120,
-                width: 120,
-                child: CircularProgressIndicator(
-                  value: (score / 100) * _chartAnimation.value,
-                  strokeWidth: 12,
-                  backgroundColor: Colors.white.withOpacity(0.2),
-                  valueColor: AlwaysStoppedAnimation<Color>(
-                    _getHealthColor(_getHealthLevel(score)),
-                  ),
-                ),
-              ),
-              Text(
-                '$score',
-                style: ModernTheme.headingLarge.copyWith(
-                  fontWeight: FontWeight.w900,
-                  color: Colors.white,
-                ),
+        return Container(
+          height: 180,
+          width: 180,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: ModernTheme.teal.withOpacity(0.25),
+                blurRadius: 25,
+                spreadRadius: 5,
               ),
             ],
+          ),
+          child: CustomPaint(
+            painter: _HealthRingPainter(
+              progress: (score / 100) * _chartAnimation.value,
+              startColor: ModernTheme.freshGreen,
+              endColor: ModernTheme.teal,
+              trackColor: Colors.white.withOpacity(0.2),
+              tickColor: Colors.white.withOpacity(0.35),
+            ),
+            child: Center(
+              child: Container(
+                padding: const EdgeInsets.all(15),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white.withOpacity(0.12),
+                  border: Border.all(
+                    color: Colors.white.withOpacity(0.2),
+                    width: 2,
+                  ),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      '$score',
+                      style: ModernTheme.headingLarge.copyWith(
+                        fontWeight: FontWeight.w900,
+                        color: Colors.white,
+                        fontSize: 42,
+                      ),
+                    ),
+                    Text(
+                      _getHealthLevel(score),
+                      style: ModernTheme.bodySmall.copyWith(
+                        color: Colors.white.withOpacity(0.9),
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ),
         );
       },
@@ -576,65 +916,80 @@ class _AdvancedDashboardScreenState extends State<AdvancedDashboardScreen>
   }
 
   Widget _buildMetricSection(String title, List<dynamic> items, Color color) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: ModernTheme.bodyLarge.copyWith(
-            fontWeight: FontWeight.w700,
-            color: color,
-          ),
-        ),
-        const SizedBox(height: 8),
-        ...items.take(3).map((item) => Padding(
-              padding: const EdgeInsets.only(bottom: 4),
-              child: Row(
-                children: [
-                  Icon(
-                    color == Colors.green ? Icons.check_circle : Icons.info,
-                    size: 16,
-                    color: color,
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      item.toString(),
-                      style:
-                          ModernTheme.bodyMedium.copyWith(color: Colors.white),
-                    ),
-                  ),
-                ],
+    return TweenAnimationBuilder<double>(
+      tween: Tween<double>(begin: 0.8, end: 1.0),
+      duration: const Duration(milliseconds: 500),
+      curve: Curves.easeOutCubic,
+      builder: (context, scale, child) {
+        return Transform.scale(
+          scale: scale,
+          child: Container(
+            padding: const EdgeInsets.all(15),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.15),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: Colors.white.withOpacity(0.2),
+                width: 1,
               ),
-            )),
-      ],
-    );
-  }
-
-  Widget _buildSkeletonCard({double height = 220}) {
-    return Container(
-      height: height,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(
+                      color == Colors.green
+                          ? Icons.trending_up
+                          : Icons.priority_high,
+                      size: 18,
+                      color: color,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      title,
+                      style: ModernTheme.bodyLarge.copyWith(
+                        fontWeight: FontWeight.w700,
+                        color: color,
+                        letterSpacing: 0.3,
+                      ),
+                    ),
+                  ],
+                ),
+                const Divider(color: Colors.white24, height: 20),
+                ...items.take(3).map((item) => Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(top: 3),
+                            child: Icon(
+                              color == Colors.green
+                                  ? Icons.check_circle
+                                  : Icons.info_outline,
+                              size: 16,
+                              color: color,
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              item.toString(),
+                              style: ModernTheme.bodyMedium.copyWith(
+                                color: Colors.white,
+                                height: 1.3,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    )),
+              ],
+            ),
           ),
-        ],
-      ),
-      child: Shimmer.fromColors(
-        baseColor: Colors.grey.shade300,
-        highlightColor: Colors.grey.shade100,
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(20),
-          ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -650,12 +1005,13 @@ class _AdvancedDashboardScreenState extends State<AdvancedDashboardScreen>
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(28),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 20,
-                    offset: const Offset(0, 10),
+                    color: Colors.black.withOpacity(0.08),
+                    blurRadius: 30,
+                    offset: const Offset(0, 15),
+                    spreadRadius: -5,
                   ),
                 ],
               ),
@@ -664,31 +1020,31 @@ class _AdvancedDashboardScreenState extends State<AdvancedDashboardScreen>
                 children: [
                   Text(
                     'Recent Activity',
-                    style: ModernTheme.textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
+                    style: ModernTheme.headingMedium.copyWith(
+                      fontWeight: FontWeight.w800,
                     ),
                   ),
                   const SizedBox(height: 20),
                   _buildActivityItem(
-                    'Business Plan Updated',
-                    'AI SaaS Startup plan completed',
-                    Icons.business_center,
-                    Colors.blue,
+                    'Business Plan Created',
+                    'New plan for Tech Startup',
                     '2 hours ago',
+                    ModernTheme.primaryBlue,
+                    Icons.business_center,
                   ),
                   _buildActivityItem(
-                    'Financial Calculation',
-                    'ROI calculation completed',
-                    Icons.calculate,
-                    Colors.green,
-                    '4 hours ago',
-                  ),
-                  _buildActivityItem(
-                    'New Connection',
-                    'Connected with Sarah Wilson',
-                    Icons.people,
-                    Colors.purple,
+                    'Learning Module Completed',
+                    'Marketing Fundamentals',
                     '1 day ago',
+                    ModernTheme.freshGreen,
+                    Icons.school,
+                  ),
+                  _buildActivityItem(
+                    'Milestone Achieved',
+                    'Market Research Complete',
+                    '3 days ago',
+                    ModernTheme.goldenYellow,
+                    Icons.flag,
                   ),
                 ],
               ),
@@ -700,33 +1056,33 @@ class _AdvancedDashboardScreenState extends State<AdvancedDashboardScreen>
   }
 
   Widget _buildActivityItem(
-      String title, String subtitle, IconData icon, Color color, String time) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
+      String title, String subtitle, String time, Color color, IconData icon) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: color.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(16),
             ),
             child: Icon(icon, color: color, size: 20),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   title,
-                  style: ModernTheme.textTheme.titleSmall?.copyWith(
+                  style: ModernTheme.bodyLarge.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 Text(
                   subtitle,
-                  style: ModernTheme.textTheme.bodySmall?.copyWith(
+                  style: ModernTheme.bodyMedium.copyWith(
                     color: Colors.grey[600],
                   ),
                 ),
@@ -735,7 +1091,7 @@ class _AdvancedDashboardScreenState extends State<AdvancedDashboardScreen>
           ),
           Text(
             time,
-            style: ModernTheme.textTheme.bodySmall?.copyWith(
+            style: ModernTheme.bodySmall.copyWith(
               color: Colors.grey[500],
             ),
           ),
@@ -756,12 +1112,13 @@ class _AdvancedDashboardScreenState extends State<AdvancedDashboardScreen>
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(28),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 20,
-                    offset: const Offset(0, 10),
+                    color: Colors.black.withOpacity(0.08),
+                    blurRadius: 30,
+                    offset: const Offset(0, 15),
+                    spreadRadius: -5,
                   ),
                 ],
               ),
@@ -770,51 +1127,46 @@ class _AdvancedDashboardScreenState extends State<AdvancedDashboardScreen>
                 children: [
                   Text(
                     'Quick Actions',
-                    style: ModernTheme.textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
+                    style: ModernTheme.headingMedium.copyWith(
+                      fontWeight: FontWeight.w800,
                     ),
                   ),
                   const SizedBox(height: 20),
-                  Row(
+                  GridView.count(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 16,
+                    mainAxisSpacing: 16,
+                    childAspectRatio: 1.5,
                     children: [
-                      Expanded(
-                        child: _buildActionButton(
-                          'Create Plan',
-                          Icons.add_circle,
-                          Colors.blue,
-                          () {},
+                      _buildActionCard(
+                        'New Plan',
+                        Icons.add_business,
+                        ModernTheme.primaryBlue,
+                        () => Navigator.of(context).push(
+                          MaterialPageRoute(builder: (_) => BusinessScreen()),
                         ),
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: _buildActionButton(
-                          'Calculate ROI',
-                          Icons.calculate,
-                          Colors.green,
-                          () {},
+                      _buildActionCard(
+                        'Learn',
+                        Icons.school,
+                        ModernTheme.freshGreen,
+                        () => Navigator.of(context).push(
+                          MaterialPageRoute(builder: (_) => LearningScreen()),
                         ),
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _buildActionButton(
-                          'Find Contacts',
-                          Icons.people,
-                          Colors.purple,
-                          () {},
-                        ),
+                      _buildActionCard(
+                        'Analytics',
+                        Icons.analytics,
+                        ModernTheme.teal,
+                        () => setState(() => _selectedTabIndex = 1),
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: _buildActionButton(
-                          'Learn More',
-                          Icons.school,
-                          Colors.orange,
-                          () {},
-                        ),
+                      _buildActionCard(
+                        'Insights',
+                        Icons.lightbulb,
+                        ModernTheme.goldenYellow,
+                        () => setState(() => _selectedTabIndex = 2),
                       ),
                     ],
                   ),
@@ -827,31 +1179,32 @@ class _AdvancedDashboardScreenState extends State<AdvancedDashboardScreen>
     );
   }
 
-  Widget _buildActionButton(
+  Widget _buildActionCard(
       String title, IconData icon, Color color, VoidCallback onTap) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: color.withOpacity(0.3),
-            width: 1,
+          gradient: LinearGradient(
+            colors: [color.withOpacity(0.1), color.withOpacity(0.05)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: color.withOpacity(0.2)),
         ),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, color: color, size: 24),
+            Icon(icon, color: color, size: 32),
             const SizedBox(height: 8),
             Text(
               title,
-              style: ModernTheme.textTheme.bodySmall?.copyWith(
-                color: color,
+              style: ModernTheme.bodyMedium.copyWith(
                 fontWeight: FontWeight.w600,
+                color: color,
               ),
-              textAlign: TextAlign.center,
             ),
           ],
         ),
@@ -860,80 +1213,16 @@ class _AdvancedDashboardScreenState extends State<AdvancedDashboardScreen>
   }
 
   Widget _buildAnalyticsTab() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        children: [
-          _buildAnalyticsChart(),
-          const SizedBox(height: 20),
-          _buildFeatureUsageCard(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAnalyticsChart() {
-    return Container(
-      height: 300,
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Usage Analytics',
-            style: ModernTheme.textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 20),
-          Expanded(
-            child: _buildLineChart(),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildLineChart() {
     return AnimatedBuilder(
       animation: _chartAnimation,
       builder: (context, child) {
-        return LineChart(
-          LineChartData(
-            gridData: const FlGridData(show: false),
-            titlesData: const FlTitlesData(show: false),
-            borderData: FlBorderData(show: false),
-            lineBarsData: [
-              LineChartBarData(
-                spots: [
-                  const FlSpot(0, 3),
-                  const FlSpot(1, 1),
-                  const FlSpot(2, 4),
-                  const FlSpot(3, 2),
-                  const FlSpot(4, 5),
-                  const FlSpot(5, 3),
-                  const FlSpot(6, 6),
-                ],
-                isCurved: true,
-                color: ModernTheme.primaryColor,
-                barWidth: 3,
-                dotData: const FlDotData(show: false),
-                belowBarData: BarAreaData(
-                  show: true,
-                  color: ModernTheme.primaryColor.withOpacity(0.1),
-                ),
-              ),
+        return SingleChildScrollView(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            children: [
+              _buildUsageChart(),
+              const SizedBox(height: 20),
+              _buildPerformanceMetrics(),
             ],
           ),
         );
@@ -941,19 +1230,20 @@ class _AdvancedDashboardScreenState extends State<AdvancedDashboardScreen>
     );
   }
 
-  Widget _buildFeatureUsageCard() {
+  Widget _buildUsageChart() {
     final usage = _analytics['feature_usage'] as Map<String, int>? ?? {};
 
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(28),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 30,
+            offset: const Offset(0, 15),
+            spreadRadius: -5,
           ),
         ],
       ),
@@ -962,40 +1252,79 @@ class _AdvancedDashboardScreenState extends State<AdvancedDashboardScreen>
         children: [
           Text(
             'Feature Usage',
-            style: ModernTheme.textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.bold,
+            style: ModernTheme.headingMedium.copyWith(
+              fontWeight: FontWeight.w800,
             ),
           ),
           const SizedBox(height: 20),
-          ...usage.entries
-              .map((entry) => _buildUsageItem(entry.key, entry.value)),
+          Container(
+            height: 200,
+            child: usage.isEmpty
+                ? Center(child: Text('No usage data available'))
+                : BarChart(
+                    BarChartData(
+                      // Chart configuration would go here
+                      barGroups: [],
+                      titlesData: FlTitlesData(show: false),
+                      borderData: FlBorderData(show: false),
+                    ),
+                  ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildUsageItem(String feature, int count) {
+  Widget _buildPerformanceMetrics() {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(28),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 30,
+            offset: const Offset(0, 15),
+            spreadRadius: -5,
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Performance Metrics',
+            style: ModernTheme.headingMedium.copyWith(
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          const SizedBox(height: 20),
+          _buildMetricRow('Completion Rate', '85%', ModernTheme.freshGreen),
+          _buildMetricRow('Average Score', '78', ModernTheme.primaryBlue),
+          _buildMetricRow('Time Saved', '12h', ModernTheme.goldenYellow),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMetricRow(String label, String value, Color color) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            feature.replaceAll('_', ' ').toUpperCase(),
-            style: ModernTheme.textTheme.bodyMedium,
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-            decoration: BoxDecoration(
-              color: ModernTheme.primaryColor.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(12),
+            label,
+            style: ModernTheme.bodyLarge.copyWith(
+              fontWeight: FontWeight.w500,
             ),
-            child: Text(
-              count.toString(),
-              style: const TextStyle(
-                color: ModernTheme.primaryColor,
-                fontWeight: FontWeight.w600,
-              ),
+          ),
+          Text(
+            value,
+            style: ModernTheme.bodyLarge.copyWith(
+              fontWeight: FontWeight.w700,
+              color: color,
             ),
           ),
         ],
@@ -1004,34 +1333,33 @@ class _AdvancedDashboardScreenState extends State<AdvancedDashboardScreen>
   }
 
   Widget _buildInsightsTab() {
+    final recommendations =
+        _insights['recommendations'] as Map<String, dynamic>? ?? {};
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Column(
         children: [
-          _buildRecommendationsCard(),
+          _buildRecommendationsCard(recommendations),
           const SizedBox(height: 20),
-          _buildGrowthOpportunitiesCard(),
+          _buildTipsCard(),
         ],
       ),
     );
   }
 
-  Widget _buildRecommendationsCard() {
-    final recommendations =
-        _insights['recommendations'] as Map<String, dynamic>? ?? {};
-    final priorityRecs =
-        recommendations['priority_recommendations'] as List<dynamic>? ?? [];
-
+  Widget _buildRecommendationsCard(Map<String, dynamic> recommendations) {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(28),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 30,
+            offset: const Offset(0, 15),
+            spreadRadius: -5,
           ),
         ],
       ),
@@ -1039,97 +1367,213 @@ class _AdvancedDashboardScreenState extends State<AdvancedDashboardScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Priority Recommendations',
-            style: ModernTheme.textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.bold,
+            'AI Recommendations',
+            style: ModernTheme.headingMedium.copyWith(
+              fontWeight: FontWeight.w800,
             ),
           ),
           const SizedBox(height: 20),
-          ...priorityRecs.take(3).map((rec) => _buildRecommendationItem(rec)),
+          if (recommendations.isEmpty)
+            Center(
+              child: Text(
+                'No recommendations available',
+                style: ModernTheme.bodyMedium.copyWith(
+                  color: Colors.grey[600],
+                ),
+              ),
+            )
+          else
+            ...recommendations.entries.map((entry) => _buildRecommendationItem(
+                  entry.key,
+                  entry.value.toString(),
+                )),
         ],
       ),
     );
   }
 
-  Widget _buildRecommendationItem(Map<String, dynamic> recommendation) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: ModernTheme.primaryColor.withOpacity(0.05),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: ModernTheme.primaryColor.withOpacity(0.2),
-            width: 1,
+  Widget _buildRecommendationItem(String title, String description) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: ModernTheme.primaryBlue.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: ModernTheme.primaryBlue.withOpacity(0.1),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: ModernTheme.bodyLarge.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
           ),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              recommendation['title'] ?? 'Recommendation',
-              style: ModernTheme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
+          const SizedBox(height: 8),
+          Text(
+            description,
+            style: ModernTheme.bodyMedium.copyWith(
+              color: Colors.grey[700],
             ),
-            const SizedBox(height: 8),
-            Text(
-              recommendation['description'] ?? 'No description available',
-              style: ModernTheme.textTheme.bodyMedium?.copyWith(
-                color: Colors.grey[600],
-              ),
-            ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: _getPriorityColor(
-                        recommendation['priority'] ?? 'Medium'),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    recommendation['priority'] ?? 'Medium',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  'Timeline: ${recommendation['timeline'] ?? 'N/A'}',
-                  style: ModernTheme.textTheme.bodySmall?.copyWith(
-                    color: Colors.grey[500],
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildGrowthOpportunitiesCard() {
-    final opportunities =
+  Widget _buildTipsCard() {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(28),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 30,
+            offset: const Offset(0, 15),
+            spreadRadius: -5,
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Tips & Best Practices',
+            style: ModernTheme.headingMedium.copyWith(
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          const SizedBox(height: 20),
+          _buildTipItem(
+            'Set clear goals and milestones for your business',
+            Icons.flag,
+          ),
+          _buildTipItem(
+            'Regularly review and update your business plan',
+            Icons.refresh,
+          ),
+          _buildTipItem(
+            'Stay informed about market trends and opportunities',
+            Icons.trending_up,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTipItem(String tip, IconData icon) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: ModernTheme.freshGreen.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(
+              icon,
+              color: ModernTheme.freshGreen,
+              size: 20,
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Text(
+              tip,
+              style: ModernTheme.bodyMedium.copyWith(
+                height: 1.4,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTrendsTab() {
+    final growthOps =
         _insights['growth_opportunities'] as Map<String, dynamic>? ?? {};
-    final opps = opportunities['opportunities'] as List<dynamic>? ?? [];
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        children: [
+          _buildTrendsChart(),
+          const SizedBox(height: 20),
+          _buildGrowthOpportunities(growthOps),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTrendsChart() {
+    return AnimatedBuilder(
+      animation: _chartAnimation,
+      builder: (context, child) {
+        return Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(28),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.08),
+                blurRadius: 30,
+                offset: const Offset(0, 15),
+                spreadRadius: -5,
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Market Trends',
+                style: ModernTheme.headingMedium.copyWith(
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              const SizedBox(height: 20),
+              Container(
+                height: 200,
+                child: LineChart(
+                  LineChartData(
+                    // Chart configuration would go here
+                    lineBarsData: [],
+                    titlesData: FlTitlesData(show: false),
+                    borderData: FlBorderData(show: false),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildGrowthOpportunities(Map<String, dynamic> opportunities) {
+    final trends = _insights['trends'] as Map<String, dynamic>? ?? {};
 
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(28),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 30,
+            offset: const Offset(0, 15),
+            spreadRadius: -5,
           ),
         ],
       ),
@@ -1138,254 +1582,55 @@ class _AdvancedDashboardScreenState extends State<AdvancedDashboardScreen>
         children: [
           Text(
             'Growth Opportunities',
-            style: ModernTheme.textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.bold,
+            style: ModernTheme.headingMedium.copyWith(
+              fontWeight: FontWeight.w800,
             ),
           ),
           const SizedBox(height: 20),
-          ...opps.take(3).map((opp) => _buildOpportunityItem(opp)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildOpportunityItem(Map<String, dynamic> opportunity) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.green.withOpacity(0.05),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: Colors.green.withOpacity(0.2),
-            width: 1,
-          ),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              opportunity['title'] ?? 'Opportunity',
-              style: ModernTheme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-                color: Colors.green[700],
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              opportunity['description'] ?? 'No description available',
-              style: ModernTheme.textTheme.bodyMedium?.copyWith(
-                color: Colors.grey[600],
-              ),
-            ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                _buildPotentialBadge(opportunity['potential'] ?? 'Medium'),
-                const SizedBox(width: 8),
-                _buildEffortBadge(opportunity['effort'] ?? 'Medium'),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPotentialBadge(String potential) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: _getPotentialColor(potential),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Text(
-        'Potential: $potential',
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 12,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildEffortBadge(String effort) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: _getEffortColor(effort),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Text(
-        'Effort: $effort',
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 12,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTrendsTab() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        children: [
-          _buildTrendsChart(),
-          const SizedBox(height: 20),
-          _buildMarketTrendsCard(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTrendsChart() {
-    return Container(
-      height: 300,
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Business Trends',
-            style: ModernTheme.textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 20),
-          Expanded(
-            child: _buildBarChart(),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBarChart() {
-    return AnimatedBuilder(
-      animation: _chartAnimation,
-      builder: (context, child) {
-        return BarChart(
-          BarChartData(
-            alignment: BarChartAlignment.spaceAround,
-            maxY: 20,
-            barTouchData: BarTouchData(enabled: false),
-            titlesData: FlTitlesData(
-              show: true,
-              bottomTitles: AxisTitles(
-                sideTitles: SideTitles(
-                  showTitles: true,
-                  getTitlesWidget: (value, meta) {
-                    const titles = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
-                    return Text(
-                      titles[value.toInt()],
-                      style: const TextStyle(fontSize: 12),
-                    );
-                  },
+          if (opportunities.isEmpty && trends.isEmpty)
+            Center(
+              child: Text(
+                'No growth opportunities identified yet',
+                style: ModernTheme.bodyMedium.copyWith(
+                  color: Colors.grey[600],
                 ),
               ),
-              leftTitles: const AxisTitles(
-                sideTitles: SideTitles(showTitles: false),
-              ),
-              topTitles: const AxisTitles(
-                sideTitles: SideTitles(showTitles: false),
-              ),
-              rightTitles: const AxisTitles(
-                sideTitles: SideTitles(showTitles: false),
-              ),
-            ),
-            borderData: FlBorderData(show: false),
-            barGroups: [
-              BarChartGroupData(x: 0, barRods: [
-                BarChartRodData(toY: 8, color: ModernTheme.primaryColor)
-              ]),
-              BarChartGroupData(x: 1, barRods: [
-                BarChartRodData(toY: 12, color: ModernTheme.primaryColor)
-              ]),
-              BarChartGroupData(x: 2, barRods: [
-                BarChartRodData(toY: 6, color: ModernTheme.primaryColor)
-              ]),
-              BarChartGroupData(x: 3, barRods: [
-                BarChartRodData(toY: 15, color: ModernTheme.primaryColor)
-              ]),
-              BarChartGroupData(x: 4, barRods: [
-                BarChartRodData(toY: 18, color: ModernTheme.primaryColor)
-              ]),
-              BarChartGroupData(x: 5, barRods: [
-                BarChartRodData(toY: 14, color: ModernTheme.primaryColor)
-              ]),
-            ],
-          ),
-        );
-      },
+            )
+          else
+            ...opportunities.entries.map((entry) => _buildOpportunityItem(
+                  entry.key,
+                  entry.value.toString(),
+                )),
+        ],
+      ),
     );
   }
 
-  Widget _buildMarketTrendsCard() {
-    final trends = _insights['trends'] as Map<String, dynamic>? ?? {};
-    final industryTrends = trends['industry_trends'] as List<dynamic>? ?? [];
-
+  Widget _buildOpportunityItem(String title, String description) {
     return Container(
-      padding: const EdgeInsets.all(24),
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
+        color: ModernTheme.teal.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: ModernTheme.teal.withOpacity(0.1),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Market Trends',
-            style: ModernTheme.textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.bold,
+            title,
+            style: ModernTheme.bodyLarge.copyWith(
+              fontWeight: FontWeight.w600,
             ),
           ),
-          const SizedBox(height: 20),
-          ...industryTrends.map((trend) => _buildTrendItem(trend)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTrendItem(String trend) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Row(
-        children: [
-          Container(
-            width: 8,
-            height: 8,
-            decoration: const BoxDecoration(
-              color: ModernTheme.primaryColor,
-              shape: BoxShape.circle,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              trend,
-              style: ModernTheme.textTheme.bodyMedium,
+          const SizedBox(height: 8),
+          Text(
+            description,
+            style: ModernTheme.bodyMedium.copyWith(
+              color: Colors.grey[700],
             ),
           ),
         ],
@@ -1393,65 +1638,93 @@ class _AdvancedDashboardScreenState extends State<AdvancedDashboardScreen>
     );
   }
 
-  // Helper methods
-  Color _getHealthColor(String level) {
-    switch (level.toLowerCase()) {
-      case 'excellent':
-        return Colors.green;
-      case 'good':
-        return Colors.blue;
-      case 'fair':
-        return Colors.orange;
-      case 'poor':
-        return Colors.red;
-      default:
-        return Colors.grey;
-    }
+  Widget _buildSkeletonCard({required double height}) {
+    return Container(
+      height: height,
+      decoration: BoxDecoration(
+        color: Colors.grey[300],
+        borderRadius: BorderRadius.circular(28),
+      ),
+    );
   }
 
   String _getHealthLevel(int score) {
     if (score >= 80) return 'Excellent';
     if (score >= 60) return 'Good';
     if (score >= 40) return 'Fair';
-    return 'Poor';
+    return 'Needs Work';
   }
+}
 
-  Color _getPriorityColor(String priority) {
-    switch (priority.toLowerCase()) {
-      case 'high':
-        return Colors.red;
-      case 'medium':
-        return Colors.orange;
-      case 'low':
-        return Colors.green;
-      default:
-        return Colors.grey;
+class _HealthRingPainter extends CustomPainter {
+  final double progress;
+  final Color startColor;
+  final Color endColor;
+  final Color trackColor;
+  final Color tickColor;
+
+  _HealthRingPainter({
+    required this.progress,
+    required this.startColor,
+    required this.endColor,
+    required this.trackColor,
+    required this.tickColor,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = (size.width - 20) / 2;
+    final strokeWidth = 12.0;
+
+    // Draw track
+    final trackPaint = Paint()
+      ..color = trackColor
+      ..strokeWidth = strokeWidth
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round;
+
+    canvas.drawCircle(center, radius, trackPaint);
+
+    // Draw progress arc
+    final progressPaint = Paint()
+      ..shader = ui.Gradient.linear(
+        Offset(center.dx - radius, center.dy),
+        Offset(center.dx + radius, center.dy),
+        [startColor, endColor],
+      )
+      ..strokeWidth = strokeWidth
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round;
+
+    final sweepAngle = 2 * math.pi * progress;
+    canvas.drawArc(
+      Rect.fromCircle(center: center, radius: radius),
+      -math.pi / 2,
+      sweepAngle,
+      false,
+      progressPaint,
+    );
+
+    // Draw tick marks
+    final tickPaint = Paint()
+      ..color = tickColor
+      ..strokeWidth = 2.0;
+
+    for (int i = 0; i < 12; i++) {
+      final angle = (i * 2 * math.pi / 12) - math.pi / 2;
+      final startPoint = Offset(
+        center.dx + (radius - 8) * math.cos(angle),
+        center.dy + (radius - 8) * math.sin(angle),
+      );
+      final endPoint = Offset(
+        center.dx + (radius + 2) * math.cos(angle),
+        center.dy + (radius + 2) * math.sin(angle),
+      );
+      canvas.drawLine(startPoint, endPoint, tickPaint);
     }
   }
 
-  Color _getPotentialColor(String potential) {
-    switch (potential.toLowerCase()) {
-      case 'high':
-        return Colors.green;
-      case 'medium':
-        return Colors.orange;
-      case 'low':
-        return Colors.red;
-      default:
-        return Colors.grey;
-    }
-  }
-
-  Color _getEffortColor(String effort) {
-    switch (effort.toLowerCase()) {
-      case 'high':
-        return Colors.red;
-      case 'medium':
-        return Colors.orange;
-      case 'low':
-        return Colors.green;
-      default:
-        return Colors.grey;
-    }
-  }
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

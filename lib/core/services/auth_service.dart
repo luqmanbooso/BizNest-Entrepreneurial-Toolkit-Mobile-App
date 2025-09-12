@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'storage_service.dart';
 import 'api_service.dart';
+import 'firebase_auth_service.dart' as fb;
 
 class AuthService {
   static const String _tokenKey = 'auth_token';
@@ -53,6 +54,18 @@ class AuthService {
   // Login user
   static Future<AuthResult> login(String email, String password) async {
     try {
+      // Try Firebase first
+      final fbResult = await fb.FirebaseAuthService.login(email, password);
+      if (fbResult.success) {
+        await _saveAuthData(
+          fbResult.token ?? 'fb_token',
+          fbResult.refreshToken ?? 'fb_refresh',
+          fbResult.user ?? {},
+        );
+        return AuthResult.success(message: 'Login successful', user: fbResult.user);
+      }
+
+      // Fallback to mock ApiService
       final response = await ApiService.post('/auth/login', {
         'email': email,
         'password': password,
@@ -95,6 +108,22 @@ class AuthService {
     String? role,
   }) async {
     try {
+      // Try Firebase first
+      final fbResult = await fb.FirebaseAuthService.register(
+        name: name,
+        email: email,
+        password: password,
+      );
+      if (fbResult.success) {
+        await _saveAuthData(
+          fbResult.token ?? 'fb_token',
+          fbResult.refreshToken ?? 'fb_refresh',
+          fbResult.user ?? {},
+        );
+        return AuthResult.success(message: 'Registration successful', user: fbResult.user);
+      }
+
+      // Fallback to mock ApiService
       final response = await ApiService.post('/auth/register', {
         'name': name,
         'email': email,
