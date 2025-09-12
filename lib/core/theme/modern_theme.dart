@@ -2,44 +2,89 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class ModernTheme {
-  // Brand Colors
-  static const Color primaryBlue = Color(0xFF3B82F6);
-  static const Color secondaryPurple = Color(0xFF8B5CF6);
-  static const Color accentGreen = Color(0xFF10B981);
-  static const Color warningOrange = Color(0xFFF59E0B);
+  // Primary Colors - Professional & Modern
+  static const Color electricBlue =
+      Color(0xFF007BFF); // Trust, innovation, technology
+  static const Color freshGreen =
+      Color(0xFF28A745); // Growth, success, sustainability
+
+  // Secondary Colors
+  static const Color teal =
+      Color(0xFF20C997); // Balance between business and growth
+  static const Color navy = Color(0xFF0D1B2A); // Stability, professionalism
+
+  // Accent Colors
+  static const Color sunsetOrange = Color(0xFFFF6B35); // Highlights, CTAs
+  static const Color goldenYellow =
+      Color(0xFFFFC107); // Motivation, achievements, badges
+
+  // Neutral / Background Colors
+  static const Color lightGray = Color(0xFFF8F9FA); // Clean background
+  static const Color mediumGray =
+      Color(0xFF6C757D); // Secondary text, icons, borders
+  static const Color white = Color(0xFFFFFFFF); // Minimalism and readability
+
+  // Legacy compatibility
+  static const Color primaryBlue = electricBlue;
+  static const Color secondaryPurple = teal;
+  static const Color accentGreen = freshGreen;
+  static const Color warningOrange = sunsetOrange;
   static const Color errorRed = Color(0xFFEF4444);
   static const Color infoCyan = Color(0xFF06B6D4);
-
-  // Neutral Colors
-  static const Color backgroundLight = Color(0xFFF8FAFC);
-  static const Color backgroundDark = Color(0xFF0F172A);
-  static const Color surfaceLight = Color(0xFFFFFFFF);
+  static const Color backgroundLight = lightGray;
+  static const Color backgroundDark = navy;
+  static const Color surfaceLight = white;
   static const Color surfaceDark = Color(0xFF1E293B);
-  static const Color textPrimary = Color(0xFF0F172A);
-  static const Color textSecondary = Color(0xFF64748B);
+  static const Color textPrimary = navy;
+  static const Color textSecondary = mediumGray;
   static const Color textTertiary = Color(0xFF94A3B8);
 
-  // Gradients
+  // Modern Gradients
   static const LinearGradient primaryGradient = LinearGradient(
-    colors: [primaryBlue, secondaryPurple],
+    colors: [electricBlue, teal],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
 
   static const LinearGradient successGradient = LinearGradient(
-    colors: [accentGreen, Color(0xFF34D399)],
+    colors: [freshGreen, teal],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
 
   static const LinearGradient warningGradient = LinearGradient(
-    colors: [warningOrange, Color(0xFFFBBF24)],
+    colors: [sunsetOrange, goldenYellow],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
 
   static const LinearGradient errorGradient = LinearGradient(
     colors: [errorRed, Color(0xFFF87171)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  // New Professional Gradients
+  static const LinearGradient electricGradient = LinearGradient(
+    colors: [electricBlue, Color(0xFF0056B3)],
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+  );
+
+  static const LinearGradient growthGradient = LinearGradient(
+    colors: [freshGreen, Color(0xFF1E7E34)],
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+  );
+
+  static const LinearGradient sunsetGradient = LinearGradient(
+    colors: [sunsetOrange, Color(0xFFE55A2B)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  static const LinearGradient goldenGradient = LinearGradient(
+    colors: [goldenYellow, Color(0xFFE0A800)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
@@ -148,37 +193,113 @@ class ModernTheme {
     height: 1.4,
   );
 
-  // Button Styles
+  // Additional text styles for compatibility
+  static const TextStyle headingLarge = TextStyle(
+    fontSize: 32,
+    fontWeight: FontWeight.w900,
+    color: textPrimary,
+    letterSpacing: -1.5,
+    height: 1.1,
+  );
+
+  static const TextStyle headingMedium = TextStyle(
+    fontSize: 24,
+    fontWeight: FontWeight.w700,
+    color: textPrimary,
+    letterSpacing: -0.5,
+    height: 1.3,
+  );
+
+  static const TextStyle bodyLarge = TextStyle(
+    fontSize: 16,
+    fontWeight: FontWeight.w500,
+    color: textPrimary,
+    height: 1.5,
+  );
+
+  static const TextStyle bodyMedium = TextStyle(
+    fontSize: 14,
+    fontWeight: FontWeight.w500,
+    color: textSecondary,
+    height: 1.5,
+  );
+
+  static const TextStyle bodySmall = TextStyle(
+    fontSize: 12,
+    fontWeight: FontWeight.w500,
+    color: textTertiary,
+    height: 1.4,
+  );
+
+  // Additional properties for compatibility
+  static const Color primaryColor = electricBlue;
+  static const Color backgroundColor = lightGray;
+
+  static const TextTheme textTheme = TextTheme(
+    headlineLarge: headingLarge,
+    headlineMedium: headingMedium,
+    headlineSmall: h4,
+    titleLarge: h4,
+    titleMedium: h4,
+    titleSmall: body1,
+    bodyLarge: bodyLarge,
+    bodyMedium: bodyMedium,
+    bodySmall: bodySmall,
+  );
+
+  // Modern Button Styles
   static ButtonStyle primaryButton = ElevatedButton.styleFrom(
-    backgroundColor: primaryBlue,
-    foregroundColor: Colors.white,
-    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+    backgroundColor: electricBlue,
+    foregroundColor: white,
+    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 18),
     shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(20),
     ),
-    elevation: 0,
-    shadowColor: Colors.transparent,
+    elevation: 8,
+    shadowColor: electricBlue.withOpacity(0.3),
   );
 
   static ButtonStyle secondaryButton = ElevatedButton.styleFrom(
     backgroundColor: Colors.transparent,
-    foregroundColor: primaryBlue,
-    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+    foregroundColor: electricBlue,
+    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 18),
     shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(16),
-      side: const BorderSide(color: primaryBlue, width: 2),
+      borderRadius: BorderRadius.circular(20),
+      side: const BorderSide(color: electricBlue, width: 2),
     ),
     elevation: 0,
     shadowColor: Colors.transparent,
   );
 
-  static ButtonStyle glassButton = ElevatedButton.styleFrom(
-    backgroundColor: Colors.white.withOpacity(0.1),
-    foregroundColor: Colors.white,
-    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+  static ButtonStyle successButton = ElevatedButton.styleFrom(
+    backgroundColor: freshGreen,
+    foregroundColor: white,
+    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 18),
     shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(16),
-      side: BorderSide(color: Colors.white.withOpacity(0.2), width: 1),
+      borderRadius: BorderRadius.circular(20),
+    ),
+    elevation: 8,
+    shadowColor: freshGreen.withOpacity(0.3),
+  );
+
+  static ButtonStyle warningButton = ElevatedButton.styleFrom(
+    backgroundColor: sunsetOrange,
+    foregroundColor: white,
+    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 18),
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(20),
+    ),
+    elevation: 8,
+    shadowColor: sunsetOrange.withOpacity(0.3),
+  );
+
+  static ButtonStyle glassButton = ElevatedButton.styleFrom(
+    backgroundColor: white.withOpacity(0.15),
+    foregroundColor: white,
+    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 18),
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(20),
+      side: BorderSide(color: white.withOpacity(0.3), width: 1),
     ),
     elevation: 0,
     shadowColor: Colors.transparent,
@@ -258,12 +379,10 @@ class ModernTheme {
         primary: primaryBlue,
         secondary: secondaryPurple,
         surface: surfaceLight,
-        background: backgroundLight,
         error: errorRed,
         onPrimary: Colors.white,
         onSecondary: Colors.white,
         onSurface: textPrimary,
-        onBackground: textPrimary,
         onError: Colors.white,
       ),
       scaffoldBackgroundColor: backgroundLight,
@@ -294,9 +413,10 @@ class ModernTheme {
           borderRadius: BorderRadius.circular(16),
           borderSide: const BorderSide(color: primaryBlue, width: 2),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       ),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: surfaceLight,
         elevation: 0,
         shadowColor: Colors.transparent,
@@ -316,12 +436,10 @@ class ModernTheme {
         primary: primaryBlue,
         secondary: secondaryPurple,
         surface: surfaceDark,
-        background: backgroundDark,
         error: errorRed,
         onPrimary: Colors.white,
         onSecondary: Colors.white,
         onSurface: Colors.white,
-        onBackground: Colors.white,
         onError: Colors.white,
       ),
       scaffoldBackgroundColor: backgroundDark,
@@ -352,9 +470,10 @@ class ModernTheme {
           borderRadius: BorderRadius.circular(16),
           borderSide: const BorderSide(color: primaryBlue, width: 2),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       ),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: surfaceDark,
         elevation: 0,
         shadowColor: Colors.transparent,

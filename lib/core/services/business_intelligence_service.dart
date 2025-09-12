@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'storage_service.dart';
 import 'api_service.dart';
@@ -18,15 +17,20 @@ class BusinessIntelligenceService {
       // Generate insights
       final insights = {
         'overview': _generateOverviewInsights(userData, businessPlans),
-        'business_health': _generateBusinessHealthInsights(businessPlans, financialData),
-        'growth_opportunities': _generateGrowthOpportunities(businessPlans, networkingData),
-        'risk_assessment': _generateRiskAssessment(businessPlans, financialData),
-        'recommendations': _generateRecommendations(userData, businessPlans, financialData),
+        'business_health':
+            _generateBusinessHealthInsights(businessPlans, financialData),
+        'growth_opportunities':
+            _generateGrowthOpportunities(businessPlans, networkingData),
+        'risk_assessment':
+            _generateRiskAssessment(businessPlans, financialData),
+        'recommendations':
+            _generateRecommendations(userData, businessPlans, financialData),
         'market_analysis': _generateMarketAnalysis(businessPlans),
         'financial_forecast': _generateFinancialForecast(financialData),
         'competitor_analysis': _generateCompetitorAnalysis(businessPlans),
         'trends': _generateTrends(businessPlans, learningData),
-        'action_items': _generateActionItems(businessPlans, financialData, networkingData),
+        'action_items':
+            _generateActionItems(businessPlans, financialData, networkingData),
       };
 
       // Save insights
@@ -47,14 +51,17 @@ class BusinessIntelligenceService {
     List<Map<String, dynamic>> businessPlans,
   ) {
     final totalPlans = businessPlans.length;
-    final completedPlans = businessPlans.where((plan) => plan['status'] == 'completed').length;
-    final inProgressPlans = businessPlans.where((plan) => plan['status'] == 'in_progress').length;
-    
+    final completedPlans =
+        businessPlans.where((plan) => plan['status'] == 'completed').length;
+    final inProgressPlans =
+        businessPlans.where((plan) => plan['status'] == 'in_progress').length;
+
     return {
       'total_business_plans': totalPlans,
       'completed_plans': completedPlans,
       'in_progress_plans': inProgressPlans,
-      'completion_rate': totalPlans > 0 ? (completedPlans / totalPlans * 100).round() : 0,
+      'completion_rate':
+          totalPlans > 0 ? (completedPlans / totalPlans * 100).round() : 0,
       'user_experience_level': _determineExperienceLevel(userData),
       'business_stage': _determineBusinessStage(businessPlans),
       'key_metrics': {
@@ -70,10 +77,11 @@ class BusinessIntelligenceService {
     List<Map<String, dynamic>> businessPlans,
     Map<String, dynamic> financialData,
   ) {
-    final healthScore = _calculateBusinessHealthScore(businessPlans, financialData);
+    final healthScore =
+        _calculateBusinessHealthScore(businessPlans, financialData);
     final strengths = _identifyStrengths(businessPlans, financialData);
     final weaknesses = _identifyWeaknesses(businessPlans, financialData);
-    
+
     return {
       'health_score': healthScore,
       'health_level': _getHealthLevel(healthScore),
@@ -91,19 +99,19 @@ class BusinessIntelligenceService {
     List<Map<String, dynamic>> networkingData,
   ) {
     final opportunities = <Map<String, dynamic>>[];
-    
+
     // Market expansion opportunities
     opportunities.addAll(_getMarketExpansionOpportunities(businessPlans));
-    
+
     // Partnership opportunities
     opportunities.addAll(_getPartnershipOpportunities(networkingData));
-    
+
     // Technology opportunities
     opportunities.addAll(_getTechnologyOpportunities(businessPlans));
-    
+
     // Funding opportunities
     opportunities.addAll(_getFundingOpportunities(businessPlans));
-    
+
     return {
       'opportunities': opportunities,
       'priority_opportunities': _prioritizeOpportunities(opportunities),
@@ -118,19 +126,19 @@ class BusinessIntelligenceService {
     Map<String, dynamic> financialData,
   ) {
     final risks = <Map<String, dynamic>>[];
-    
+
     // Financial risks
     risks.addAll(_getFinancialRisks(financialData));
-    
+
     // Market risks
     risks.addAll(_getMarketRisks(businessPlans));
-    
+
     // Operational risks
     risks.addAll(_getOperationalRisks(businessPlans));
-    
+
     // Technology risks
     risks.addAll(_getTechnologyRisks(businessPlans));
-    
+
     return {
       'risks': risks,
       'risk_level': _calculateOverallRiskLevel(risks),
@@ -146,19 +154,20 @@ class BusinessIntelligenceService {
     Map<String, dynamic> financialData,
   ) {
     final recommendations = <Map<String, dynamic>>[];
-    
+
     // Business plan recommendations
     recommendations.addAll(_getBusinessPlanRecommendations(businessPlans));
-    
+
     // Financial recommendations
     recommendations.addAll(_getFinancialRecommendations(financialData));
-    
+
     // Learning recommendations
-    recommendations.addAll(_getLearningRecommendations(userData, businessPlans));
-    
+    recommendations
+        .addAll(_getLearningRecommendations(userData, businessPlans));
+
     // Networking recommendations
     recommendations.addAll(_getNetworkingRecommendations(businessPlans));
-    
+
     return {
       'recommendations': recommendations,
       'priority_recommendations': _prioritizeRecommendations(recommendations),
@@ -168,11 +177,12 @@ class BusinessIntelligenceService {
   }
 
   // Generate market analysis
-  static Map<String, dynamic> _generateMarketAnalysis(List<Map<String, dynamic>> businessPlans) {
+  static Map<String, dynamic> _generateMarketAnalysis(
+      List<Map<String, dynamic>> businessPlans) {
     final industries = _extractIndustries(businessPlans);
     final marketSizes = _getMarketSizes(industries);
     final growthRates = _getGrowthRates(industries);
-    
+
     return {
       'target_markets': industries,
       'market_sizes': marketSizes,
@@ -184,14 +194,15 @@ class BusinessIntelligenceService {
   }
 
   // Generate financial forecast
-  static Map<String, dynamic> _generateFinancialForecast(Map<String, dynamic> financialData) {
+  static Map<String, dynamic> _generateFinancialForecast(
+      Map<String, dynamic> financialData) {
     final currentRevenue = financialData['current_revenue'] ?? 0;
     final growthRate = financialData['growth_rate'] ?? 0.1;
-    final months = 12;
-    
+    const months = 12;
+
     final forecast = <Map<String, dynamic>>[];
     double revenue = currentRevenue.toDouble();
-    
+
     for (int i = 1; i <= months; i++) {
       revenue *= (1 + growthRate);
       forecast.add({
@@ -200,21 +211,23 @@ class BusinessIntelligenceService {
         'growth': (growthRate * 100).round(),
       });
     }
-    
+
     return {
       'forecast': forecast,
       'total_revenue_projection': revenue.round(),
       'growth_rate': (growthRate * 100).round(),
       'break_even_point': _calculateBreakEvenPoint(financialData),
-      'investment_requirements': _calculateInvestmentRequirements(financialData),
+      'investment_requirements':
+          _calculateInvestmentRequirements(financialData),
     };
   }
 
   // Generate competitor analysis
-  static Map<String, dynamic> _generateCompetitorAnalysis(List<Map<String, dynamic>> businessPlans) {
+  static Map<String, dynamic> _generateCompetitorAnalysis(
+      List<Map<String, dynamic>> businessPlans) {
     final industries = _extractIndustries(businessPlans);
     final competitors = _getCompetitors(industries);
-    
+
     return {
       'competitors': competitors,
       'competitive_advantages': _getCompetitiveAdvantages(businessPlans),
@@ -233,7 +246,8 @@ class BusinessIntelligenceService {
       'technology_trends': _getTechnologyTrends(learningData),
       'market_trends': _getMarketTrends(_extractIndustries(businessPlans)),
       'consumer_trends': _getConsumerTrends(businessPlans),
-      'emerging_opportunities': _getEmergingOpportunities(businessPlans, learningData),
+      'emerging_opportunities':
+          _getEmergingOpportunities(businessPlans, learningData),
     };
   }
 
@@ -244,19 +258,19 @@ class BusinessIntelligenceService {
     List<Map<String, dynamic>> networkingData,
   ) {
     final actionItems = <Map<String, dynamic>>[];
-    
+
     // Business plan actions
     actionItems.addAll(_getBusinessPlanActions(businessPlans));
-    
+
     // Financial actions
     actionItems.addAll(_getFinancialActions(financialData));
-    
+
     // Networking actions
     actionItems.addAll(_getNetworkingActions(networkingData));
-    
+
     // Learning actions
     actionItems.addAll(_getLearningActions(businessPlans));
-    
+
     return {
       'action_items': actionItems,
       'urgent_actions': _getUrgentActions(actionItems),
@@ -326,22 +340,26 @@ class BusinessIntelligenceService {
     return 'Intermediate';
   }
 
-  static String _determineBusinessStage(List<Map<String, dynamic>> businessPlans) {
+  static String _determineBusinessStage(
+      List<Map<String, dynamic>> businessPlans) {
     // Implementation for determining business stage
     return 'Growth';
   }
 
-  static int _getPlansCreatedThisMonth(List<Map<String, dynamic>> businessPlans) {
+  static int _getPlansCreatedThisMonth(
+      List<Map<String, dynamic>> businessPlans) {
     // Implementation for counting plans created this month
     return businessPlans.length;
   }
 
-  static int _getAvgPlanCompletionTime(List<Map<String, dynamic>> businessPlans) {
+  static int _getAvgPlanCompletionTime(
+      List<Map<String, dynamic>> businessPlans) {
     // Implementation for calculating average completion time
     return 30; // days
   }
 
-  static String _getMostActiveIndustry(List<Map<String, dynamic>> businessPlans) {
+  static String _getMostActiveIndustry(
+      List<Map<String, dynamic>> businessPlans) {
     // Implementation for finding most active industry
     return 'Technology';
   }
@@ -379,11 +397,13 @@ class BusinessIntelligenceService {
     return weaknesses.map((w) => 'Improve $w').toList();
   }
 
-  static Map<String, dynamic> _assessFinancialHealth(Map<String, dynamic> financialData) {
+  static Map<String, dynamic> _assessFinancialHealth(
+      Map<String, dynamic> financialData) {
     return {'score': 70, 'status': 'Stable'};
   }
 
-  static Map<String, dynamic> _assessPlanQuality(List<Map<String, dynamic>> businessPlans) {
+  static Map<String, dynamic> _assessPlanQuality(
+      List<Map<String, dynamic>> businessPlans) {
     return {'score': 80, 'status': 'High'};
   }
 
@@ -445,15 +465,18 @@ class BusinessIntelligenceService {
     return opportunities.take(3).toList();
   }
 
-  static String _calculateGrowthPotential(List<Map<String, dynamic>> opportunities) {
+  static String _calculateGrowthPotential(
+      List<Map<String, dynamic>> opportunities) {
     return 'High';
   }
 
-  static List<String> _identifyMarketGaps(List<Map<String, dynamic>> businessPlans) {
+  static List<String> _identifyMarketGaps(
+      List<Map<String, dynamic>> businessPlans) {
     return ['Sustainability solutions', 'Remote work tools'];
   }
 
-  static List<Map<String, dynamic>> _getFinancialRisks(Map<String, dynamic> financialData) {
+  static List<Map<String, dynamic>> _getFinancialRisks(
+      Map<String, dynamic> financialData) {
     return [
       {
         'type': 'Cash Flow',
@@ -464,7 +487,8 @@ class BusinessIntelligenceService {
     ];
   }
 
-  static List<Map<String, dynamic>> _getMarketRisks(List<Map<String, dynamic>> businessPlans) {
+  static List<Map<String, dynamic>> _getMarketRisks(
+      List<Map<String, dynamic>> businessPlans) {
     return [
       {
         'type': 'Market Saturation',
@@ -475,7 +499,8 @@ class BusinessIntelligenceService {
     ];
   }
 
-  static List<Map<String, dynamic>> _getOperationalRisks(List<Map<String, dynamic>> businessPlans) {
+  static List<Map<String, dynamic>> _getOperationalRisks(
+      List<Map<String, dynamic>> businessPlans) {
     return [
       {
         'type': 'Key Personnel',
@@ -486,7 +511,8 @@ class BusinessIntelligenceService {
     ];
   }
 
-  static List<Map<String, dynamic>> _getTechnologyRisks(List<Map<String, dynamic>> businessPlans) {
+  static List<Map<String, dynamic>> _getTechnologyRisks(
+      List<Map<String, dynamic>> businessPlans) {
     return [
       {
         'type': 'Cybersecurity',
@@ -501,11 +527,13 @@ class BusinessIntelligenceService {
     return 'Medium';
   }
 
-  static List<String> _getMitigationStrategies(List<Map<String, dynamic>> risks) {
+  static List<String> _getMitigationStrategies(
+      List<Map<String, dynamic>> risks) {
     return ['Implement risk monitoring', 'Diversify revenue streams'];
   }
 
-  static Map<String, dynamic> _getRiskMonitoringPlan(List<Map<String, dynamic>> risks) {
+  static Map<String, dynamic> _getRiskMonitoringPlan(
+      List<Map<String, dynamic>> risks) {
     return {'frequency': 'Monthly', 'responsibilities': 'Risk management team'};
   }
 
@@ -580,7 +608,8 @@ class BusinessIntelligenceService {
     return ['Revenue growth', 'Customer acquisition', 'Market share'];
   }
 
-  static List<String> _extractIndustries(List<Map<String, dynamic>> businessPlans) {
+  static List<String> _extractIndustries(
+      List<Map<String, dynamic>> businessPlans) {
     return ['Technology', 'Healthcare', 'Finance'];
   }
 
@@ -604,7 +633,8 @@ class BusinessIntelligenceService {
     return ['Digital transformation', 'Sustainability', 'AI adoption'];
   }
 
-  static Map<String, dynamic> _getCompetitiveLandscape(List<String> industries) {
+  static Map<String, dynamic> _getCompetitiveLandscape(
+      List<String> industries) {
     return {'competition_level': 'High', 'barriers_to_entry': 'Medium'};
   }
 
@@ -616,7 +646,8 @@ class BusinessIntelligenceService {
     return 12; // months
   }
 
-  static int _calculateInvestmentRequirements(Map<String, dynamic> financialData) {
+  static int _calculateInvestmentRequirements(
+      Map<String, dynamic> financialData) {
     return 500000; // dollars
   }
 
@@ -627,7 +658,8 @@ class BusinessIntelligenceService {
     ];
   }
 
-  static List<String> _getCompetitiveAdvantages(List<Map<String, dynamic>> businessPlans) {
+  static List<String> _getCompetitiveAdvantages(
+      List<Map<String, dynamic>> businessPlans) {
     return ['Innovation', 'Customer service', 'Pricing'];
   }
 
@@ -635,19 +667,27 @@ class BusinessIntelligenceService {
     return 'Challenger';
   }
 
-  static List<String> _getDifferentiationStrategies(List<Map<String, dynamic>> competitors) {
-    return ['Unique value proposition', 'Superior technology', 'Better customer experience'];
+  static List<String> _getDifferentiationStrategies(
+      List<Map<String, dynamic>> competitors) {
+    return [
+      'Unique value proposition',
+      'Superior technology',
+      'Better customer experience'
+    ];
   }
 
-  static List<String> _getIndustryTrends(List<Map<String, dynamic>> businessPlans) {
+  static List<String> _getIndustryTrends(
+      List<Map<String, dynamic>> businessPlans) {
     return ['AI integration', 'Remote work', 'Sustainability'];
   }
 
-  static List<String> _getTechnologyTrends(List<Map<String, dynamic>> learningData) {
+  static List<String> _getTechnologyTrends(
+      List<Map<String, dynamic>> learningData) {
     return ['Machine learning', 'Cloud computing', 'Blockchain'];
   }
 
-  static List<String> _getConsumerTrends(List<Map<String, dynamic>> businessPlans) {
+  static List<String> _getConsumerTrends(
+      List<Map<String, dynamic>> businessPlans) {
     return ['Personalization', 'Convenience', 'Sustainability'];
   }
 

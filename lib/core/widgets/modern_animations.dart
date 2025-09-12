@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
+import 'dart:ui' as ui;
 
 // Particle Animation Widget
 class ParticleAnimation extends StatefulWidget {
@@ -160,7 +161,7 @@ class GlassContainer extends StatelessWidget {
       child: ClipRRect(
         borderRadius: borderRadius ?? BorderRadius.circular(20),
         child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
+          filter: ui.ImageFilter.blur(sigmaX: blur, sigmaY: blur),
           child: child,
         ),
       ),
@@ -494,5 +495,3 @@ class _FloatingElementsAnimationState extends State<FloatingElementsAnimation>
   }
 }
 
-// Import dart:ui for ImageFilter
-import 'dart:ui' as ui;

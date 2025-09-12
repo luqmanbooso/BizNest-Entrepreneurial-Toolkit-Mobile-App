@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
-import 'package:http/http.dart' as http;
 import 'storage_service.dart';
 
 class MarketResearchService {
@@ -20,7 +19,7 @@ class MarketResearchService {
       // Fetch fresh data
       final researchData = await _fetchMarketResearchData(industry);
       await _cacheResearchData(industry, researchData);
-      
+
       return researchData;
     } catch (e) {
       if (kDebugMode) {
@@ -31,7 +30,8 @@ class MarketResearchService {
   }
 
   // Get competitor analysis
-  static Future<List<Map<String, dynamic>>> getCompetitorAnalysis(String industry) async {
+  static Future<List<Map<String, dynamic>>> getCompetitorAnalysis(
+      String industry) async {
     try {
       final competitors = await _scrapeCompetitorData(industry);
       await _cacheCompetitorData(industry, competitors);
@@ -45,7 +45,8 @@ class MarketResearchService {
   }
 
   // Get industry trends
-  static Future<List<Map<String, dynamic>>> getIndustryTrends(String industry) async {
+  static Future<List<Map<String, dynamic>>> getIndustryTrends(
+      String industry) async {
     try {
       final trends = await _scrapeIndustryTrends(industry);
       await _cacheIndustryData(industry, trends);
@@ -59,27 +60,30 @@ class MarketResearchService {
   }
 
   // Scrape competitor data (mock implementation)
-  static Future<List<Map<String, dynamic>>> _scrapeCompetitorData(String industry) async {
+  static Future<List<Map<String, dynamic>>> _scrapeCompetitorData(
+      String industry) async {
     // In a real app, this would use web scraping libraries
     // For now, return mock data
     await Future.delayed(const Duration(seconds: 2)); // Simulate API delay
-    
+
     return _getMockCompetitors(industry);
   }
 
   // Scrape industry trends (mock implementation)
-  static Future<List<Map<String, dynamic>>> _scrapeIndustryTrends(String industry) async {
+  static Future<List<Map<String, dynamic>>> _scrapeIndustryTrends(
+      String industry) async {
     // In a real app, this would scrape news sites, reports, etc.
     await Future.delayed(const Duration(seconds: 1));
-    
+
     return _getMockTrends(industry);
   }
 
   // Fetch market research data
-  static Future<Map<String, dynamic>> _fetchMarketResearchData(String industry) async {
+  static Future<Map<String, dynamic>> _fetchMarketResearchData(
+      String industry) async {
     // In a real app, this would call actual market research APIs
     await Future.delayed(const Duration(seconds: 3));
-    
+
     return _getMockMarketResearch(industry);
   }
 
@@ -102,7 +106,7 @@ class MarketResearchService {
   // Get mock competitors
   static List<Map<String, dynamic>> _getMockCompetitors(String industry) {
     final competitors = <Map<String, dynamic>>[];
-    
+
     switch (industry.toLowerCase()) {
       case 'technology':
         competitors.addAll([
@@ -111,12 +115,20 @@ class MarketResearchService {
             'website': 'https://techcorp.com',
             'market_share': '25%',
             'strengths': ['Strong R&D', 'Global presence', 'Brand recognition'],
-            'weaknesses': ['High prices', 'Slow innovation', 'Poor customer service'],
+            'weaknesses': [
+              'High prices',
+              'Slow innovation',
+              'Poor customer service'
+            ],
             'revenue': '\$2.5B',
             'employees': 15000,
             'founded': 2010,
             'headquarters': 'San Francisco, CA',
-            'key_products': ['Cloud Platform', 'AI Solutions', 'Enterprise Software'],
+            'key_products': [
+              'Cloud Platform',
+              'AI Solutions',
+              'Enterprise Software'
+            ],
             'pricing_strategy': 'Premium',
             'target_market': 'Enterprise',
           },
@@ -142,7 +154,11 @@ class MarketResearchService {
             'name': 'HealthTech Pro',
             'website': 'https://healthtechpro.com',
             'market_share': '30%',
-            'strengths': ['Regulatory compliance', 'Clinical expertise', 'Partnerships'],
+            'strengths': [
+              'Regulatory compliance',
+              'Clinical expertise',
+              'Partnerships'
+            ],
             'weaknesses': ['High costs', 'Complex implementation'],
             'revenue': '\$1.8B',
             'employees': 8000,
@@ -172,7 +188,7 @@ class MarketResearchService {
           },
         ]);
     }
-    
+
     return competitors;
   }
 
@@ -181,7 +197,8 @@ class MarketResearchService {
     return [
       {
         'title': 'Digital Transformation Accelerates',
-        'description': 'Companies are rapidly adopting digital technologies to improve efficiency and customer experience.',
+        'description':
+            'Companies are rapidly adopting digital technologies to improve efficiency and customer experience.',
         'impact': 'High',
         'timeframe': '2024-2025',
         'source': 'Industry Report 2024',
@@ -189,7 +206,8 @@ class MarketResearchService {
       },
       {
         'title': 'Sustainability Becomes Priority',
-        'description': 'Environmental considerations are increasingly important in business decisions.',
+        'description':
+            'Environmental considerations are increasingly important in business decisions.',
         'impact': 'Medium',
         'timeframe': '2024-2026',
         'source': 'Sustainability Survey',
@@ -197,7 +215,8 @@ class MarketResearchService {
       },
       {
         'title': 'Remote Work Continues to Grow',
-        'description': 'Hybrid and remote work models are becoming the new standard.',
+        'description':
+            'Hybrid and remote work models are becoming the new standard.',
         'impact': 'High',
         'timeframe': '2024-2025',
         'source': 'Workplace Trends Report',
@@ -209,21 +228,31 @@ class MarketResearchService {
   // Helper methods for mock data
   static String _getMarketSize(String industry) {
     switch (industry.toLowerCase()) {
-      case 'technology': return '\$5.2T';
-      case 'healthcare': return '\$4.3T';
-      case 'finance': return '\$3.8T';
-      case 'retail': return '\$2.1T';
-      default: return '\$1.5T';
+      case 'technology':
+        return '\$5.2T';
+      case 'healthcare':
+        return '\$4.3T';
+      case 'finance':
+        return '\$3.8T';
+      case 'retail':
+        return '\$2.1T';
+      default:
+        return '\$1.5T';
     }
   }
 
   static String _getGrowthRate(String industry) {
     switch (industry.toLowerCase()) {
-      case 'technology': return '12.5%';
-      case 'healthcare': return '8.2%';
-      case 'finance': return '6.8%';
-      case 'retail': return '4.1%';
-      default: return '5.5%';
+      case 'technology':
+        return '12.5%';
+      case 'healthcare':
+        return '8.2%';
+      case 'finance':
+        return '6.8%';
+      case 'retail':
+        return '4.1%';
+      default:
+        return '5.5%';
     }
   }
 
@@ -232,11 +261,21 @@ class MarketResearchService {
       case 'technology':
         return ['AI Integration', 'Cloud Computing', 'Cybersecurity', 'IoT'];
       case 'healthcare':
-        return ['Telemedicine', 'AI Diagnostics', 'Personalized Medicine', 'Digital Health'];
+        return [
+          'Telemedicine',
+          'AI Diagnostics',
+          'Personalized Medicine',
+          'Digital Health'
+        ];
       case 'finance':
         return ['Fintech', 'Blockchain', 'Digital Banking', 'Cryptocurrency'];
       default:
-        return ['Digitalization', 'Automation', 'Sustainability', 'Customer Experience'];
+        return [
+          'Digitalization',
+          'Automation',
+          'Sustainability',
+          'Customer Experience'
+        ];
     }
   }
 
@@ -305,30 +344,39 @@ class MarketResearchService {
   }
 
   // Caching methods
-  static Future<Map<String, dynamic>?> _getCachedResearchData(String industry) async {
-    final dataJson = await StorageService.getString('$_researchDataKey$industry');
+  static Future<Map<String, dynamic>?> _getCachedResearchData(
+      String industry) async {
+    final dataJson =
+        await StorageService.getString('$_researchDataKey$industry');
     if (dataJson != null) {
       return Map<String, dynamic>.from(json.decode(dataJson));
     }
     return null;
   }
 
-  static Future<void> _cacheResearchData(String industry, Map<String, dynamic> data) async {
-    await StorageService.setString('$_researchDataKey$industry', json.encode(data));
+  static Future<void> _cacheResearchData(
+      String industry, Map<String, dynamic> data) async {
+    await StorageService.setString(
+        '$_researchDataKey$industry', json.encode(data));
   }
 
-  static Future<void> _cacheCompetitorData(String industry, List<Map<String, dynamic>> data) async {
-    await StorageService.setString('$_competitorDataKey$industry', json.encode(data));
+  static Future<void> _cacheCompetitorData(
+      String industry, List<Map<String, dynamic>> data) async {
+    await StorageService.setString(
+        '$_competitorDataKey$industry', json.encode(data));
   }
 
-  static Future<void> _cacheIndustryData(String industry, List<Map<String, dynamic>> data) async {
-    await StorageService.setString('$_industryDataKey$industry', json.encode(data));
+  static Future<void> _cacheIndustryData(
+      String industry, List<Map<String, dynamic>> data) async {
+    await StorageService.setString(
+        '$_industryDataKey$industry', json.encode(data));
   }
 
   static bool _isDataFresh(Map<String, dynamic> data) {
     final lastUpdated = DateTime.parse(data['last_updated']);
     final now = DateTime.now();
-    return now.difference(lastUpdated).inHours < 24; // Data is fresh for 24 hours
+    return now.difference(lastUpdated).inHours <
+        24; // Data is fresh for 24 hours
   }
 
   // Get saved research data
@@ -352,7 +400,8 @@ class MarketResearchService {
   }
 
   // Get research insights
-  static Future<Map<String, dynamic>> getResearchInsights(String industry) async {
+  static Future<Map<String, dynamic>> getResearchInsights(
+      String industry) async {
     final research = await getMarketResearch(industry);
     final competitors = await getCompetitorAnalysis(industry);
     final trends = await getIndustryTrends(industry);
@@ -361,7 +410,8 @@ class MarketResearchService {
       'market_opportunity': _calculateMarketOpportunity(research),
       'competitive_landscape': _analyzeCompetitiveLandscape(competitors),
       'key_insights': _generateKeyInsights(research, competitors, trends),
-      'recommendations': _generateRecommendations(research, competitors, trends),
+      'recommendations':
+          _generateRecommendations(research, competitors, trends),
       'risk_factors': _identifyRiskFactors(research, competitors),
     };
   }
@@ -369,7 +419,7 @@ class MarketResearchService {
   static String _calculateMarketOpportunity(Map<String, dynamic> research) {
     final marketSize = research['market_size'] as String;
     final growthRate = research['growth_rate'] as String;
-    
+
     if (marketSize.contains('T') && growthRate.contains('10')) {
       return 'Very High - Large market with strong growth potential';
     } else if (marketSize.contains('B') && growthRate.contains('5')) {
@@ -379,13 +429,16 @@ class MarketResearchService {
     }
   }
 
-  static Map<String, dynamic> _analyzeCompetitiveLandscape(List<Map<String, dynamic>> competitors) {
+  static Map<String, dynamic> _analyzeCompetitiveLandscape(
+      List<Map<String, dynamic>> competitors) {
     if (competitors.isEmpty) {
       return {'intensity': 'Low', 'description': 'Limited competition'};
     }
 
     final totalMarketShare = competitors.fold<double>(0, (sum, comp) {
-      final share = double.tryParse(comp['market_share'].toString().replaceAll('%', '')) ?? 0;
+      final share = double.tryParse(
+              comp['market_share'].toString().replaceAll('%', '')) ??
+          0;
       return sum + share;
     });
 
@@ -402,7 +455,8 @@ class MarketResearchService {
       'intensity': intensity,
       'total_market_share_analyzed': '$totalMarketShare%',
       'competitor_count': competitors.length,
-      'description': '$intensity competition with ${competitors.length} major players',
+      'description':
+          '$intensity competition with ${competitors.length} major players',
     };
   }
 
@@ -414,16 +468,19 @@ class MarketResearchService {
     final insights = <String>[];
 
     // Market insights
-    insights.add('Market size of ${research['market_size']} with ${research['growth_rate']} growth rate');
-    
+    insights.add(
+        'Market size of ${research['market_size']} with ${research['growth_rate']} growth rate');
+
     // Competitive insights
     if (competitors.isNotEmpty) {
-      insights.add('${competitors.length} major competitors with varying market shares');
+      insights.add(
+          '${competitors.length} major competitors with varying market shares');
     }
 
     // Trend insights
     if (trends.isNotEmpty) {
-      insights.add('${trends.length} key trends identified affecting the industry');
+      insights
+          .add('${trends.length} key trends identified affecting the industry');
     }
 
     return insights;
@@ -438,7 +495,8 @@ class MarketResearchService {
 
     recommendations.add('Focus on identified market opportunities');
     recommendations.add('Develop competitive advantages over existing players');
-    recommendations.add('Stay updated with industry trends and adapt accordingly');
+    recommendations
+        .add('Stay updated with industry trends and adapt accordingly');
     recommendations.add('Consider partnerships with complementary businesses');
 
     return recommendations;
@@ -450,8 +508,8 @@ class MarketResearchService {
   ) {
     final risks = <String>[];
 
-    risks.addAll(research['threats'] as List<dynamic>? ?? []);
-    
+    risks.addAll((research['threats'] as List<dynamic>? ?? []).cast<String>());
+
     if (competitors.length > 5) {
       risks.add('High competition with many established players');
     }

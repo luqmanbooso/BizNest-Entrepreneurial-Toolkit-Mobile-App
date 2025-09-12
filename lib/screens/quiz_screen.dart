@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:lottie/lottie.dart';
 import 'package:shimmer/shimmer.dart';
 import '../core/theme/modern_theme.dart';
 import '../core/widgets/biznest_logo.dart';
-import '../core/widgets/modern_animations.dart';
 import '../core/services/quiz_service.dart';
-import '../core/services/learning_engine.dart';
 
 class QuizScreen extends StatefulWidget {
   const QuizScreen({super.key});
@@ -18,13 +15,13 @@ class _QuizScreenState extends State<QuizScreen> with TickerProviderStateMixin {
   late AnimationController _fadeController;
   late AnimationController _slideController;
   late AnimationController _pulseController;
-  
+
   bool _isLoading = true;
   bool _quizCompleted = false;
   int _currentQuestionIndex = 0;
   int? _selectedAnswer;
   List<Map<String, dynamic>> _questions = [];
-  List<Map<String, dynamic>> _answers = [];
+  final List<Map<String, dynamic>> _answers = [];
   QuizResult? _quizResult;
   String _userLevel = 'novice';
 
@@ -52,18 +49,18 @@ class _QuizScreenState extends State<QuizScreen> with TickerProviderStateMixin {
 
   Future<void> _loadQuizData() async {
     setState(() => _isLoading = true);
-    
+
     try {
       final level = await QuizService.getUserLevel();
       _questions = QuizService.getQuestionsByLevel(level);
       _userLevel = level;
-      
+
       if (_questions.isEmpty) {
         _questions = QuizService.getQuizQuestions().take(5).toList();
       }
-      
+
       await Future.delayed(const Duration(seconds: 1));
-      
+
       setState(() => _isLoading = false);
       _fadeController.forward();
       _slideController.forward();
@@ -129,7 +126,7 @@ class _QuizScreenState extends State<QuizScreen> with TickerProviderStateMixin {
     if (_quizCompleted) {
       return _buildResultsScreen();
     }
-    
+
     return FadeTransition(
       opacity: _fadeController,
       child: SlideTransition(
@@ -182,7 +179,8 @@ class _QuizScreenState extends State<QuizScreen> with TickerProviderStateMixin {
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
                   color: Colors.white.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(20),
@@ -206,7 +204,7 @@ class _QuizScreenState extends State<QuizScreen> with TickerProviderStateMixin {
 
   Widget _buildProgressBar() {
     final progress = (_currentQuestionIndex + 1) / _questions.length;
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -249,9 +247,9 @@ class _QuizScreenState extends State<QuizScreen> with TickerProviderStateMixin {
 
   Widget _buildQuestionCard() {
     if (_currentQuestionIndex >= _questions.length) return const SizedBox();
-    
+
     final question = _questions[_currentQuestionIndex];
-    
+
     return Container(
       margin: const EdgeInsets.all(20),
       child: Card(
@@ -272,13 +270,17 @@ class _QuizScreenState extends State<QuizScreen> with TickerProviderStateMixin {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
                     color: ModernTheme.primaryBlue.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
-                    question['category'].toString().replaceAll('_', ' ').toUpperCase(),
+                    question['category']
+                        .toString()
+                        .replaceAll('_', ' ')
+                        .toUpperCase(),
                     style: ModernTheme.bodySmall.copyWith(
                       color: ModernTheme.primaryBlue,
                       fontWeight: FontWeight.bold,
@@ -324,12 +326,12 @@ class _QuizScreenState extends State<QuizScreen> with TickerProviderStateMixin {
           duration: const Duration(milliseconds: 200),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: isSelected 
+            color: isSelected
                 ? ModernTheme.primaryBlue.withOpacity(0.1)
                 : Colors.grey.withOpacity(0.05),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: isSelected 
+              color: isSelected
                   ? ModernTheme.primaryBlue
                   : Colors.grey.withOpacity(0.2),
               width: isSelected ? 2 : 1,
@@ -341,7 +343,7 @@ class _QuizScreenState extends State<QuizScreen> with TickerProviderStateMixin {
                 width: 24,
                 height: 24,
                 decoration: BoxDecoration(
-                  color: isSelected 
+                  color: isSelected
                       ? ModernTheme.primaryBlue
                       : Colors.grey.withOpacity(0.3),
                   shape: BoxShape.circle,
@@ -362,13 +364,15 @@ class _QuizScreenState extends State<QuizScreen> with TickerProviderStateMixin {
                 child: Text(
                   option,
                   style: ModernTheme.bodyMedium.copyWith(
-                    color: isSelected ? ModernTheme.primaryBlue : Colors.black87,
-                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                    color:
+                        isSelected ? ModernTheme.primaryBlue : Colors.black87,
+                    fontWeight:
+                        isSelected ? FontWeight.w600 : FontWeight.normal,
                   ),
                 ),
               ),
               if (isSelected)
-                Icon(
+                const Icon(
                   Icons.check_circle,
                   color: ModernTheme.primaryBlue,
                   size: 20,
@@ -396,7 +400,9 @@ class _QuizScreenState extends State<QuizScreen> with TickerProviderStateMixin {
           if (_currentQuestionIndex > 0) const SizedBox(width: 16),
           Expanded(
             child: _buildButton(
-              text: _currentQuestionIndex == _questions.length - 1 ? 'Finish' : 'Next',
+              text: _currentQuestionIndex == _questions.length - 1
+                  ? 'Finish'
+                  : 'Next',
               onPressed: _selectedAnswer != null ? _nextQuestion : null,
             ),
           ),
@@ -416,12 +422,11 @@ class _QuizScreenState extends State<QuizScreen> with TickerProviderStateMixin {
         padding: const EdgeInsets.symmetric(vertical: 16),
         decoration: BoxDecoration(
           color: onPressed != null
-              ? (isSecondary 
-                  ? Colors.white.withOpacity(0.2)
-                  : Colors.white)
+              ? (isSecondary ? Colors.white.withOpacity(0.2) : Colors.white)
               : Colors.white.withOpacity(0.3),
           borderRadius: BorderRadius.circular(16),
-          border: isSecondary ? Border.all(color: Colors.white, width: 2) : null,
+          border:
+              isSecondary ? Border.all(color: Colors.white, width: 2) : null,
         ),
         child: Center(
           child: Text(
@@ -440,7 +445,7 @@ class _QuizScreenState extends State<QuizScreen> with TickerProviderStateMixin {
 
   Widget _buildResultsScreen() {
     if (_quizResult == null) return const SizedBox();
-    
+
     return FadeTransition(
       opacity: _fadeController,
       child: SingleChildScrollView(
@@ -449,7 +454,7 @@ class _QuizScreenState extends State<QuizScreen> with TickerProviderStateMixin {
           child: Column(
             children: [
               const SizedBox(height: 40),
-              Icon(
+              const Icon(
                 Icons.celebration,
                 size: 120,
                 color: Colors.white,
@@ -505,8 +510,10 @@ class _QuizScreenState extends State<QuizScreen> with TickerProviderStateMixin {
                 ),
               ),
               const SizedBox(height: 20),
-              _buildResultRow('Correct Answers', '${_quizResult!.correctAnswers}/${_quizResult!.totalQuestions}'),
-              _buildResultRow('Accuracy', '${_quizResult!.percentage.round()}%'),
+              _buildResultRow('Correct Answers',
+                  '${_quizResult!.correctAnswers}/${_quizResult!.totalQuestions}'),
+              _buildResultRow(
+                  'Accuracy', '${_quizResult!.percentage.round()}%'),
               _buildResultRow('New Level', _quizResult!.level.toUpperCase()),
               const SizedBox(height: 20),
               Text(
@@ -519,7 +526,7 @@ class _QuizScreenState extends State<QuizScreen> with TickerProviderStateMixin {
               ..._quizResult!.categoryScores.entries.map((entry) {
                 final percentage = (entry.value / _questions.length) * 100;
                 return _buildCategoryPerformance(entry.key, percentage.round());
-              }).toList(),
+              }),
             ],
           ),
         ),
@@ -587,9 +594,9 @@ class _QuizScreenState extends State<QuizScreen> with TickerProviderStateMixin {
               widthFactor: percentage / 100,
               child: Container(
                 decoration: BoxDecoration(
-                  color: percentage >= 70 
+                  color: percentage >= 70
                       ? Colors.green
-                      : percentage >= 50 
+                      : percentage >= 50
                           ? Colors.orange
                           : Colors.red,
                   borderRadius: BorderRadius.circular(3),
@@ -633,13 +640,13 @@ class _QuizScreenState extends State<QuizScreen> with TickerProviderStateMixin {
 
   void _nextQuestion() async {
     if (_selectedAnswer == null) return;
-    
+
     // Save answer
     _answers.add({
       'question_id': _questions[_currentQuestionIndex]['id'],
       'selected_answer': _selectedAnswer,
     });
-    
+
     if (_currentQuestionIndex == _questions.length - 1) {
       // Quiz completed
       await _completeQuiz();
@@ -655,7 +662,8 @@ class _QuizScreenState extends State<QuizScreen> with TickerProviderStateMixin {
     if (_currentQuestionIndex > 0) {
       setState(() {
         _currentQuestionIndex--;
-        _selectedAnswer = _answers.isNotEmpty ? _answers.last['selected_answer'] : null;
+        _selectedAnswer =
+            _answers.isNotEmpty ? _answers.last['selected_answer'] : null;
       });
     }
   }
@@ -667,7 +675,7 @@ class _QuizScreenState extends State<QuizScreen> with TickerProviderStateMixin {
         _quizResult = result;
         _quizCompleted = true;
       });
-      
+
       _pulseController.repeat();
     } catch (e) {
       // Handle error
@@ -676,7 +684,7 @@ class _QuizScreenState extends State<QuizScreen> with TickerProviderStateMixin {
 
   void _viewRecommendations() async {
     final recommendations = await QuizService.getPersonalizedRecommendations();
-    
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -685,17 +693,20 @@ class _QuizScreenState extends State<QuizScreen> with TickerProviderStateMixin {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
-            children: recommendations.map((rec) => Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Icon(Icons.lightbulb, color: ModernTheme.primaryBlue, size: 16),
-                  const SizedBox(width: 8),
-                  Expanded(child: Text(rec)),
-                ],
-              ),
-            )).toList(),
+            children: recommendations
+                .map((rec) => Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Icon(Icons.lightbulb,
+                              color: ModernTheme.primaryBlue, size: 16),
+                          const SizedBox(width: 8),
+                          Expanded(child: Text(rec)),
+                        ],
+                      ),
+                    ))
+                .toList(),
           ),
         ),
         actions: [

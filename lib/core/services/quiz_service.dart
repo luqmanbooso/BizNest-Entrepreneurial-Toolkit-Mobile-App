@@ -24,7 +24,8 @@ class QuizService {
     },
     {
       'id': 2,
-      'question': 'Which of the following is NOT a key component of market research?',
+      'question':
+          'Which of the following is NOT a key component of market research?',
       'options': [
         'Target audience analysis',
         'Competitor analysis',
@@ -50,13 +51,9 @@ class QuizService {
     },
     {
       'id': 4,
-      'question': 'Which financial metric indicates how long a company can operate with current cash?',
-      'options': [
-        'Revenue',
-        'Runway',
-        'Profit margin',
-        'Cash flow'
-      ],
+      'question':
+          'Which financial metric indicates how long a company can operate with current cash?',
+      'options': ['Revenue', 'Runway', 'Profit margin', 'Cash flow'],
       'correct_answer': 1,
       'category': 'financial_management',
       'difficulty': 'intermediate'
@@ -77,12 +74,7 @@ class QuizService {
     {
       'id': 6,
       'question': 'Which funding stage typically comes after seed funding?',
-      'options': [
-        'Pre-seed',
-        'Series A',
-        'Angel investment',
-        'Bootstrap'
-      ],
+      'options': ['Pre-seed', 'Series A', 'Angel investment', 'Bootstrap'],
       'correct_answer': 1,
       'category': 'funding',
       'difficulty': 'intermediate'
@@ -102,20 +94,17 @@ class QuizService {
     },
     {
       'id': 8,
-      'question': 'Which legal structure offers the most personal liability protection?',
-      'options': [
-        'Sole proprietorship',
-        'Partnership',
-        'Corporation',
-        'LLC'
-      ],
+      'question':
+          'Which legal structure offers the most personal liability protection?',
+      'options': ['Sole proprietorship', 'Partnership', 'Corporation', 'LLC'],
       'correct_answer': 2,
       'category': 'legal',
       'difficulty': 'intermediate'
     },
     {
       'id': 9,
-      'question': 'What is the primary benefit of networking for entrepreneurs?',
+      'question':
+          'What is the primary benefit of networking for entrepreneurs?',
       'options': [
         'Reduced competition',
         'Access to resources and opportunities',
@@ -128,7 +117,8 @@ class QuizService {
     },
     {
       'id': 10,
-      'question': 'Which metric is most important for measuring customer acquisition success?',
+      'question':
+          'Which metric is most important for measuring customer acquisition success?',
       'options': [
         'Total revenue',
         'Customer acquisition cost (CAC)',
@@ -157,7 +147,8 @@ class QuizService {
   }
 
   // Submit quiz answers and calculate score
-  static Future<QuizResult> submitQuiz(List<Map<String, dynamic>> answers) async {
+  static Future<QuizResult> submitQuiz(
+      List<Map<String, dynamic>> answers) async {
     try {
       int totalQuestions = answers.length;
       int correctAnswers = 0;
@@ -167,7 +158,7 @@ class QuizService {
       for (var answer in answers) {
         int questionId = answer['question_id'];
         int selectedAnswer = answer['selected_answer'];
-        
+
         var question = _quizQuestions.firstWhere((q) => q['id'] == questionId);
         int correctAnswer = question['correct_answer'];
         String category = question['category'];
@@ -178,15 +169,15 @@ class QuizService {
         }
 
         // Track category and difficulty scores
-        categoryScores[category] = (categoryScores[category] ?? 0) + 
+        categoryScores[category] = (categoryScores[category] ?? 0) +
             (selectedAnswer == correctAnswer ? 1 : 0);
-        difficultyScores[difficulty] = (difficultyScores[difficulty] ?? 0) + 
+        difficultyScores[difficulty] = (difficultyScores[difficulty] ?? 0) +
             (selectedAnswer == correctAnswer ? 1 : 0);
       }
 
       double percentage = (correctAnswers / totalQuestions) * 100;
       String level = _determineUserLevel(percentage, categoryScores);
-      
+
       var result = QuizResult(
         totalQuestions: totalQuestions,
         correctAnswers: correctAnswers,
@@ -199,9 +190,9 @@ class QuizService {
 
       // Save quiz result
       await _saveQuizResult(result);
-      
+
       // Update user level
-      await _updateUserLevel(level);
+      await updateUserLevel(level);
 
       return result;
     } catch (e) {
@@ -213,7 +204,8 @@ class QuizService {
   }
 
   // Determine user level based on performance
-  static String _determineUserLevel(double percentage, Map<String, int> categoryScores) {
+  static String _determineUserLevel(
+      double percentage, Map<String, int> categoryScores) {
     if (percentage >= 90) {
       return 'expert';
     } else if (percentage >= 75) {
@@ -233,7 +225,7 @@ class QuizService {
   }
 
   // Update user level
-  static Future<void> _updateUserLevel(String level) async {
+  static Future<void> updateUserLevel(String level) async {
     await StorageService.setString(_userLevelKey, level);
   }
 
@@ -241,12 +233,12 @@ class QuizService {
   static Future<void> _saveQuizResult(QuizResult result) async {
     final history = await getQuizHistory();
     history.add(result.toMap());
-    
+
     // Keep only last 10 quiz results
     if (history.length > 10) {
       history.removeRange(0, history.length - 10);
     }
-    
+
     await StorageService.setString(_quizHistoryKey, json.encode(history));
   }
 
@@ -275,7 +267,7 @@ class QuizService {
     // Analyze recent performance
     final recentResults = history.take(3).toList();
     Map<String, List<double>> categoryPerformance = {};
-    
+
     for (var result in recentResults) {
       final categoryScores = Map<String, int>.from(result['category_scores']);
       for (var entry in categoryScores.entries) {
@@ -289,7 +281,8 @@ class QuizService {
     List<String> recommendations = [];
 
     for (var entry in categoryPerformance.entries) {
-      double avgScore = entry.value.reduce((a, b) => a + b) / entry.value.length;
+      double avgScore =
+          entry.value.reduce((a, b) => a + b) / entry.value.length;
       if (avgScore >= 0.8) {
         strengths.add(entry.key);
       } else if (avgScore <= 0.4) {
@@ -311,15 +304,19 @@ class QuizService {
   // Calculate progress trend
   static String _calculateProgressTrend(List<Map<String, dynamic>> history) {
     if (history.length < 2) return 'stable';
-    
+
     final recent = history.take(3).toList();
     final older = history.skip(3).take(3).toList();
-    
+
     if (recent.isEmpty || older.isEmpty) return 'stable';
-    
-    double recentAvg = recent.map((r) => r['percentage'] as double).reduce((a, b) => a + b) / recent.length;
-    double olderAvg = older.map((r) => r['percentage'] as double).reduce((a, b) => a + b) / older.length;
-    
+
+    double recentAvg =
+        recent.map((r) => r['percentage'] as double).reduce((a, b) => a + b) /
+            recent.length;
+    double olderAvg =
+        older.map((r) => r['percentage'] as double).reduce((a, b) => a + b) /
+            older.length;
+
     if (recentAvg > olderAvg + 5) return 'improving';
     if (recentAvg < olderAvg - 5) return 'declining';
     return 'stable';
@@ -328,8 +325,9 @@ class QuizService {
   // Calculate average score
   static double _calculateAverageScore(List<Map<String, dynamic>> history) {
     if (history.isEmpty) return 0.0;
-    
-    double total = history.map((r) => r['percentage'] as double).reduce((a, b) => a + b);
+
+    double total =
+        history.map((r) => r['percentage'] as double).reduce((a, b) => a + b);
     return total / history.length;
   }
 
@@ -337,9 +335,9 @@ class QuizService {
   static Future<List<String>> getPersonalizedRecommendations() async {
     final level = await getUserLevel();
     final analysis = await getUserAnalysis();
-    
+
     List<String> recommendations = [];
-    
+
     switch (level) {
       case 'novice':
         recommendations = [
@@ -386,7 +384,7 @@ class QuizService {
     // Add specific recommendations based on weaknesses
     final weaknesses = analysis['weaknesses'] as List<dynamic>;
     for (var weakness in weaknesses) {
-      recommendations.add('Improve your ${weakness} knowledge and skills');
+      recommendations.add('Improve your $weakness knowledge and skills');
     }
 
     return recommendations;
@@ -396,7 +394,7 @@ class QuizService {
   static Future<Map<String, dynamic>> getQuizStatistics() async {
     final history = await getQuizHistory();
     final level = await getUserLevel();
-    
+
     if (history.isEmpty) {
       return {
         'total_quizzes': 0,
@@ -411,10 +409,14 @@ class QuizService {
 
     int totalQuizzes = history.length;
     double averageScore = _calculateAverageScore(history);
-    double bestScore = history.map((r) => r['percentage'] as double).reduce((a, b) => a > b ? a : b);
-    
-    int totalQuestions = history.map((r) => r['total_questions'] as int).reduce((a, b) => a + b);
-    int correctAnswers = history.map((r) => r['correct_answers'] as int).reduce((a, b) => a + b);
+    double bestScore = history
+        .map((r) => r['percentage'] as double)
+        .reduce((a, b) => a > b ? a : b);
+
+    int totalQuestions =
+        history.map((r) => r['total_questions'] as int).reduce((a, b) => a + b);
+    int correctAnswers =
+        history.map((r) => r['correct_answers'] as int).reduce((a, b) => a + b);
     double accuracy = (correctAnswers / totalQuestions) * 100;
 
     return {

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../core/theme/modern_theme.dart';
 import '../core/widgets/biznest_logo.dart';
-import '../core/widgets/modern_animations.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -12,14 +11,13 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen>
     with TickerProviderStateMixin {
-  
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
 
   @override
   void initState() {
     super.initState();
-    
+
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 1200),
       vsync: this,
@@ -96,7 +94,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                   ),
                 ),
               ),
-              
+
               // Content
               SliverPadding(
                 padding: const EdgeInsets.all(24),
@@ -120,7 +118,10 @@ class _ProfileScreenState extends State<ProfileScreen>
                               height: 80,
                               decoration: BoxDecoration(
                                 gradient: const LinearGradient(
-                                  colors: [ModernTheme.primaryBlue, ModernTheme.secondaryPurple],
+                                  colors: [
+                                    ModernTheme.primaryBlue,
+                                    ModernTheme.secondaryPurple
+                                  ],
                                 ),
                                 borderRadius: BorderRadius.circular(40),
                               ),
@@ -140,7 +141,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                               ),
                             ),
                             const SizedBox(height: 4),
-                            Text(
+                            const Text(
                               'john@example.com',
                               style: TextStyle(
                                 fontSize: 14,
@@ -149,7 +150,8 @@ class _ProfileScreenState extends State<ProfileScreen>
                             ),
                             const SizedBox(height: 16),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 8),
                               decoration: BoxDecoration(
                                 color: ModernTheme.accentGreen.withOpacity(0.1),
                                 borderRadius: BorderRadius.circular(20),
@@ -167,47 +169,60 @@ class _ProfileScreenState extends State<ProfileScreen>
                         ),
                       ),
                     ),
-                    
+
                     const SizedBox(height: 24),
-                    
+
                     // Stats
                     FadeTransition(
                       opacity: _fadeAnimation,
                       child: Row(
                         children: [
                           Expanded(
-                            child: _buildStatCard('Projects', '12', Icons.folder_rounded, ModernTheme.primaryBlue),
+                            child: _buildStatCard('Projects', '12',
+                                Icons.folder_rounded, ModernTheme.primaryBlue),
                           ),
                           const SizedBox(width: 16),
                           Expanded(
-                            child: _buildStatCard('Connections', '48', Icons.people_rounded, ModernTheme.accentGreen),
+                            child: _buildStatCard('Connections', '48',
+                                Icons.people_rounded, ModernTheme.accentGreen),
                           ),
                           const SizedBox(width: 16),
                           Expanded(
-                            child: _buildStatCard('Courses', '8', Icons.school_rounded, ModernTheme.warningOrange),
+                            child: _buildStatCard(
+                                'Courses',
+                                '8',
+                                Icons.school_rounded,
+                                ModernTheme.warningOrange),
                           ),
                         ],
                       ),
                     ),
-                    
+
                     const SizedBox(height: 24),
-                    
+
                     // Menu Items
                     FadeTransition(
                       opacity: _fadeAnimation,
                       child: Column(
                         children: [
-                          _buildMenuItem('Edit Profile', Icons.edit_rounded, () {}),
-                          _buildMenuItem('Settings', Icons.settings_rounded, () {}),
-                          _buildMenuItem('Notifications', Icons.notifications_rounded, () {}),
-                          _buildMenuItem('Privacy', Icons.privacy_tip_rounded, () {}),
-                          _buildMenuItem('Help & Support', Icons.help_rounded, () {}),
+                          _buildMenuItem(
+                              'Edit Profile', Icons.edit_rounded, () {}),
+                          _buildMenuItem(
+                              'Settings', Icons.settings_rounded, () {}),
+                          _buildMenuItem('Notifications',
+                              Icons.notifications_rounded, () {}),
+                          _buildMenuItem(
+                              'Privacy', Icons.privacy_tip_rounded, () {}),
+                          _buildMenuItem(
+                              'Help & Support', Icons.help_rounded, () {}),
                           _buildMenuItem('About', Icons.info_rounded, () {}),
-                          _buildMenuItem('Sign Out', Icons.logout_rounded, () {}, isDestructive: true),
+                          _buildMenuItem(
+                              'Sign Out', Icons.logout_rounded, () {},
+                              isDestructive: true),
                         ],
                       ),
                     ),
-                    
+
                     const SizedBox(height: 100), // Bottom padding
                   ]),
                 ),
@@ -219,7 +234,8 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
-  Widget _buildStatCard(String title, String value, IconData icon, Color color) {
+  Widget _buildStatCard(
+      String title, String value, IconData icon, Color color) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -261,7 +277,8 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
-  Widget _buildMenuItem(String title, IconData icon, VoidCallback onTap, {bool isDestructive = false}) {
+  Widget _buildMenuItem(String title, IconData icon, VoidCallback onTap,
+      {bool isDestructive = false}) {
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       child: Material(
@@ -287,14 +304,14 @@ class _ProfileScreenState extends State<ProfileScreen>
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: isDestructive 
+                    color: isDestructive
                         ? ModernTheme.errorRed.withOpacity(0.1)
                         : ModernTheme.primaryBlue.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Icon(
                     icon,
-                    color: isDestructive 
+                    color: isDestructive
                         ? ModernTheme.errorRed
                         : ModernTheme.primaryBlue,
                     size: 20,
@@ -307,7 +324,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: isDestructive 
+                      color: isDestructive
                           ? ModernTheme.errorRed
                           : ModernTheme.textPrimary,
                     ),

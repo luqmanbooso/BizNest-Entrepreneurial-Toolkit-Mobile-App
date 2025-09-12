@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import '../core/theme/modern_theme.dart';
 import '../core/widgets/biznest_logo.dart';
-import '../core/widgets/modern_animations.dart';
-import '../core/services/funding_service.dart';
 
 class FinancialScreen extends StatefulWidget {
   const FinancialScreen({super.key});
@@ -13,10 +11,9 @@ class FinancialScreen extends StatefulWidget {
 
 class _FinancialScreenState extends State<FinancialScreen>
     with TickerProviderStateMixin {
-  
   late AnimationController _animationController;
   late AnimationController _cardController;
-  
+
   late Animation<double> _fadeAnimation;
   late Animation<double> _slideAnimation;
   late Animation<double> _cardAnimation;
@@ -27,7 +24,11 @@ class _FinancialScreenState extends State<FinancialScreen>
       description: 'Calculate return on investment for your projects',
       icon: Icons.calculate_rounded,
       color: ModernTheme.primaryBlue,
-      features: ['Investment Analysis', 'Profit Calculations', 'Break-even Analysis'],
+      features: [
+        'Investment Analysis',
+        'Profit Calculations',
+        'Break-even Analysis'
+      ],
     ),
     FinancialTool(
       title: 'Cash Flow Tracker',
@@ -55,12 +56,12 @@ class _FinancialScreenState extends State<FinancialScreen>
   @override
   void initState() {
     super.initState();
-    
+
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 1200),
       vsync: this,
     );
-    
+
     _cardController = AnimationController(
       duration: const Duration(milliseconds: 800),
       vsync: this,
@@ -96,7 +97,7 @@ class _FinancialScreenState extends State<FinancialScreen>
   void _startAnimations() async {
     await Future.delayed(const Duration(milliseconds: 300));
     _animationController.forward();
-    
+
     await Future.delayed(const Duration(milliseconds: 600));
     _cardController.forward();
   }
@@ -171,7 +172,7 @@ class _FinancialScreenState extends State<FinancialScreen>
                   ),
                 ),
               ),
-              
+
               // Content
               SliverPadding(
                 padding: const EdgeInsets.all(24),
@@ -188,10 +189,10 @@ class _FinancialScreenState extends State<FinancialScreen>
                           parent: _animationController,
                           curve: Curves.easeOutCubic,
                         )),
-                        child: Column(
+                        child: const Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
+                            Text(
                               'Financial Tools',
                               style: TextStyle(
                                 fontSize: 28,
@@ -200,7 +201,7 @@ class _FinancialScreenState extends State<FinancialScreen>
                                 letterSpacing: -1,
                               ),
                             ),
-                            const SizedBox(height: 8),
+                            SizedBox(height: 8),
                             Text(
                               'Manage your finances and make informed decisions',
                               style: TextStyle(
@@ -213,9 +214,9 @@ class _FinancialScreenState extends State<FinancialScreen>
                         ),
                       ),
                     ),
-                    
+
                     const SizedBox(height: 32),
-                    
+
                     // Financial Overview Cards
                     AnimatedBuilder(
                       animation: _cardAnimation,
@@ -279,9 +280,9 @@ class _FinancialScreenState extends State<FinancialScreen>
                         );
                       },
                     ),
-                    
+
                     const SizedBox(height: 32),
-                    
+
                     // All Tools
                     FadeTransition(
                       opacity: _fadeAnimation,
@@ -301,7 +302,7 @@ class _FinancialScreenState extends State<FinancialScreen>
                         ],
                       ),
                     ),
-                    
+
                     const SizedBox(height: 100), // Bottom padding
                   ]),
                 ),
@@ -313,7 +314,8 @@ class _FinancialScreenState extends State<FinancialScreen>
     );
   }
 
-  Widget _buildFinancialCard(String title, String value, String change, IconData icon, Color color) {
+  Widget _buildFinancialCard(
+      String title, String value, String change, IconData icon, Color color) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -451,7 +453,8 @@ class _FinancialScreenState extends State<FinancialScreen>
                   runSpacing: 8,
                   children: tool.features.take(3).map((feature) {
                     return Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
                         color: tool.color.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(8),

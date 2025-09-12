@@ -181,7 +181,7 @@ class FundingService {
           'FDA approval pathway',
           'Clinical validation',
           'Regulatory expertise',
-          'Market opportunity >$1B'
+          'Market opportunity >\$1B'
         ],
         'application_deadline': '2024-11-30',
         'website': 'https://healthtechventures.com',

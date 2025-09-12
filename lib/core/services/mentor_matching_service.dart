@@ -320,7 +320,7 @@ class MentorMatchingService {
         'industries': ['Technology', 'Fintech', 'Healthcare'],
         'expertise_areas': ['Early Stage', 'Growth Stage', 'Scaling'],
         'specializations': ['Fundraising', 'Product Strategy', 'Team Building', 'Market Expansion'],
-        'bio': 'Sarah has founded 3 successful startups and now helps other entrepreneurs scale their businesses. She has 15+ years of experience in tech and has raised over $50M in funding.',
+        'bio': 'Sarah has founded 3 successful startups and now helps other entrepreneurs scale their businesses. She has 15+ years of experience in tech and has raised over \$50M in funding.',
         'rating': 4.9,
         'total_mentees': 45,
         'availability': 'Available',

@@ -21,8 +21,8 @@ class BizNestLogo extends StatelessWidget {
         Container(
           width: size,
           height: size,
-          decoration: BoxDecoration(
-            image: const DecorationImage(
+          decoration: const BoxDecoration(
+            image: DecorationImage(
               image: AssetImage('assets/images/biznest.png'),
               fit: BoxFit.contain,
             ),

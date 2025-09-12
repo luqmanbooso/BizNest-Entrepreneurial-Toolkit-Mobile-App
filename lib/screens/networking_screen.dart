@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../core/theme/modern_theme.dart';
 import '../core/widgets/biznest_logo.dart';
 import '../core/widgets/modern_animations.dart';
-import '../core/services/mentor_matching_service.dart';
 
 class NetworkingScreen extends StatefulWidget {
   const NetworkingScreen({super.key});
@@ -13,14 +12,13 @@ class NetworkingScreen extends StatefulWidget {
 
 class _NetworkingScreenState extends State<NetworkingScreen>
     with TickerProviderStateMixin {
-  
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
 
   @override
   void initState() {
     super.initState();
-    
+
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 1200),
       vsync: this,
@@ -97,7 +95,7 @@ class _NetworkingScreenState extends State<NetworkingScreen>
                   ),
                 ),
               ),
-              
+
               // Content
               SliverPadding(
                 padding: const EdgeInsets.all(24),
@@ -106,10 +104,10 @@ class _NetworkingScreenState extends State<NetworkingScreen>
                     // Header
                     FadeTransition(
                       opacity: _fadeAnimation,
-                      child: Column(
+                      child: const Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
+                          Text(
                             'Networking Hub',
                             style: TextStyle(
                               fontSize: 28,
@@ -118,7 +116,7 @@ class _NetworkingScreenState extends State<NetworkingScreen>
                               letterSpacing: -1,
                             ),
                           ),
-                          const SizedBox(height: 8),
+                          SizedBox(height: 8),
                           Text(
                             'Connect with entrepreneurs, mentors, and investors',
                             style: TextStyle(
@@ -130,9 +128,9 @@ class _NetworkingScreenState extends State<NetworkingScreen>
                         ],
                       ),
                     ),
-                    
+
                     const SizedBox(height: 32),
-                    
+
                     // Coming Soon Card
                     FadeTransition(
                       opacity: _fadeAnimation,
@@ -140,7 +138,10 @@ class _NetworkingScreenState extends State<NetworkingScreen>
                         padding: const EdgeInsets.all(32),
                         decoration: BoxDecoration(
                           gradient: const LinearGradient(
-                            colors: [ModernTheme.warningOrange, ModernTheme.primaryBlue],
+                            colors: [
+                              ModernTheme.warningOrange,
+                              ModernTheme.primaryBlue
+                            ],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),
@@ -180,11 +181,13 @@ class _NetworkingScreenState extends State<NetworkingScreen>
                               onPressed: () {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
-                                    content: Text('You\'ll be notified when networking features are available!'),
+                                    content: Text(
+                                        'You\'ll be notified when networking features are available!'),
                                     backgroundColor: ModernTheme.accentGreen,
                                     behavior: SnackBarBehavior.floating,
                                     shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.all(Radius.circular(12)),
+                                      borderRadius:
+                                          BorderRadius.all(Radius.circular(12)),
                                     ),
                                   ),
                                 );
@@ -198,7 +201,7 @@ class _NetworkingScreenState extends State<NetworkingScreen>
                         ),
                       ),
                     ),
-                    
+
                     const SizedBox(height: 100), // Bottom padding
                   ]),
                 ),

@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/modern_theme.dart';
 import '../../core/services/auth_service.dart';
-import '../../core/services/storage_service.dart';
-import '../../core/widgets/biznest_logo.dart';
-import '../../core/widgets/modern_animations.dart';
+import '../onboarding/onboarding_screen.dart';
+import '../main_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -14,67 +13,47 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen>
     with TickerProviderStateMixin {
-  
-  late AnimationController _animationController;
-  late AnimationController _particleController;
-  late AnimationController _progressController;
   late AnimationController _logoController;
-  
+  late AnimationController _fadeController;
+  late AnimationController _scaleController;
+  late AnimationController _slideController;
+
+  late Animation<double> _logoAnimation;
   late Animation<double> _fadeAnimation;
   late Animation<double> _scaleAnimation;
-  late Animation<double> _progressAnimation;
-  late Animation<double> _logoScaleAnimation;
   late Animation<Offset> _slideAnimation;
+  late Animation<double> _rotationAnimation;
 
   @override
   void initState() {
     super.initState();
-    
-    _animationController = AnimationController(
+    _setupAnimations();
+    _startAnimations();
+    _checkAuthStatus();
+  }
+
+  void _setupAnimations() {
+    _logoController = AnimationController(
       duration: const Duration(milliseconds: 2000),
       vsync: this,
     );
-    
-    _particleController = AnimationController(
-      duration: const Duration(seconds: 8),
-      vsync: this,
-    )..repeat();
-    
-    _progressController = AnimationController(
-      duration: const Duration(milliseconds: 3000),
-      vsync: this,
-    );
-    
-    _logoController = AnimationController(
+
+    _fadeController = AnimationController(
       duration: const Duration(milliseconds: 1500),
       vsync: this,
     );
 
-    _fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOut,
-    ));
+    _scaleController = AnimationController(
+      duration: const Duration(milliseconds: 1200),
+      vsync: this,
+    );
 
-    _scaleAnimation = Tween<double>(
-      begin: 0.8,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.elasticOut,
-    ));
+    _slideController = AnimationController(
+      duration: const Duration(milliseconds: 1000),
+      vsync: this,
+    );
 
-    _progressAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _progressController,
-      curve: Curves.easeInOut,
-    ));
-
-    _logoScaleAnimation = Tween<double>(
+    _logoAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
     ).animate(CurvedAnimation(
@@ -82,49 +61,125 @@ class _SplashScreenState extends State<SplashScreen>
       curve: Curves.elasticOut,
     ));
 
+    _fadeAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _fadeController,
+      curve: Curves.easeInOut,
+    ));
+
+    _scaleAnimation = Tween<double>(
+      begin: 0.8,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _scaleController,
+      curve: Curves.elasticOut,
+    ));
+
     _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.5),
+      begin: const Offset(0, 0.3),
       end: Offset.zero,
     ).animate(CurvedAnimation(
-      parent: _animationController,
+      parent: _slideController,
       curve: Curves.easeOutCubic,
     ));
 
-    _startAnimations();
+    _rotationAnimation = Tween<double>(
+      begin: 0.0,
+      end: 0.1,
+    ).animate(CurvedAnimation(
+      parent: _logoController,
+      curve: Curves.easeInOut,
+    ));
   }
 
-  void _startAnimations() async {
-    await Future.delayed(const Duration(milliseconds: 500));
+  void _startAnimations() {
     _logoController.forward();
-    
-    await Future.delayed(const Duration(milliseconds: 800));
-    _animationController.forward();
-    
-    await Future.delayed(const Duration(milliseconds: 1000));
-    _progressController.forward();
-    
-    await Future.delayed(const Duration(milliseconds: 2500));
-    _navigateToNext();
+    _fadeController.forward();
+    _scaleController.forward();
+    _slideController.forward();
   }
 
-  void _navigateToNext() async {
-    final isFirstTime = await StorageService.getBool('is_first_time') ?? true;
-    
-    if (mounted) {
-      if (isFirstTime) {
-        Navigator.of(context).pushReplacementNamed('/onboarding');
-      } else {
-        Navigator.of(context).pushReplacementNamed('/main');
+  Future<void> _checkAuthStatus() async {
+    // Wait for animations to complete
+    await Future.delayed(const Duration(milliseconds: 2500));
+
+    if (!mounted) return;
+
+    try {
+      final isLoggedIn = await AuthService.isLoggedIn();
+
+      if (mounted) {
+        if (isLoggedIn) {
+          _navigateToMain();
+        } else {
+          _navigateToOnboarding();
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        _navigateToOnboarding();
       }
     }
   }
 
+  void _navigateToMain() {
+    Navigator.of(context).pushReplacement(
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            const MainScreen(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return FadeTransition(
+            opacity: animation,
+            child: SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(1.0, 0.0),
+                end: Offset.zero,
+              ).animate(CurvedAnimation(
+                parent: animation,
+                curve: Curves.easeInOut,
+              )),
+              child: child,
+            ),
+          );
+        },
+        transitionDuration: const Duration(milliseconds: 600),
+      ),
+    );
+  }
+
+  void _navigateToOnboarding() {
+    Navigator.of(context).pushReplacement(
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            const OnboardingScreen(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return FadeTransition(
+            opacity: animation,
+            child: SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(1.0, 0.0),
+                end: Offset.zero,
+              ).animate(CurvedAnimation(
+                parent: animation,
+                curve: Curves.easeInOut,
+              )),
+              child: child,
+            ),
+          );
+        },
+        transitionDuration: const Duration(milliseconds: 600),
+      ),
+    );
+  }
+
   @override
   void dispose() {
-    _animationController.dispose();
-    _particleController.dispose();
-    _progressController.dispose();
     _logoController.dispose();
+    _fadeController.dispose();
+    _scaleController.dispose();
+    _slideController.dispose();
     super.dispose();
   }
 
@@ -137,157 +192,195 @@ class _SplashScreenState extends State<SplashScreen>
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              ModernTheme.primaryBlue,
-              ModernTheme.secondaryPurple,
-              ModernTheme.accentGreen,
+              ModernTheme.electricBlue,
+              ModernTheme.teal,
+              ModernTheme.freshGreen,
             ],
-            stops: [0.0, 0.5, 1.0],
           ),
         ),
-        child: ParticleAnimation(
-          particleCount: 60,
-          particleColor: Colors.white,
-          particleSpeed: 0.5,
-          child: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Column(
-                children: [
-                  const Spacer(flex: 2),
-                  
-                  // Logo Section
-                  AnimatedBuilder(
-                    animation: _logoScaleAnimation,
-                    builder: (context, child) {
-                      return Transform.scale(
-                        scale: _logoScaleAnimation.value,
-                        child: FadeTransition(
-                          opacity: _fadeAnimation,
-                          child: Column(
-                            children: [
-                              // Logo with glow effect
-                              Container(
-                                padding: const EdgeInsets.all(20),
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.white.withOpacity(0.3),
-                                      blurRadius: 30,
-                                      spreadRadius: 10,
-                                    ),
-                                    BoxShadow(
-                                      color: ModernTheme.accentGreen.withOpacity(0.2),
-                                      blurRadius: 50,
-                                      spreadRadius: 20,
-                                    ),
-                                  ],
-                                ),
-                                child: const BizNestLogo(
-                                  size: 120,
-                                  showText: false,
-                                ),
-                              ),
-                              
-                              const SizedBox(height: 32),
-                              
-                              // App Name
-                              SlideTransition(
-                                position: _slideAnimation,
-                                child: ShimmerEffect(
-                                  baseColor: Colors.white.withOpacity(0.8),
-                                  highlightColor: Colors.white,
-                                  child: const Text(
-                                    'BizNest',
-                                    style: TextStyle(
-                                      fontSize: 48,
-                                      fontWeight: FontWeight.w900,
-                                      color: Colors.white,
-                                      letterSpacing: -2,
-                                      height: 1.0,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              
-                              const SizedBox(height: 16),
-                              
-                              // Tagline
-                              FadeTransition(
-                                opacity: _fadeAnimation,
-                                child: const Text(
-                                  'AI Business Companion',
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.white70,
-                                    letterSpacing: 0.5,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                  
-                  const Spacer(flex: 2),
-                  
-                  // Progress Section
-                  FadeTransition(
-                    opacity: _fadeAnimation,
-                    child: Column(
-                      children: [
-                        // Progress Bar
-                        Container(
-                          height: 6,
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.2),
-                            borderRadius: BorderRadius.circular(3),
-                          ),
-                          child: AnimatedBuilder(
-                            animation: _progressAnimation,
-                            builder: (context, child) {
-                              return FractionallySizedBox(
-                                alignment: Alignment.centerLeft,
-                                widthFactor: _progressAnimation.value,
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    gradient: const LinearGradient(
-                                      colors: [Colors.white, ModernTheme.accentGreen],
-                                    ),
-                                    borderRadius: BorderRadius.circular(3),
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                        
-                        const SizedBox(height: 24),
-                        
-                        // Loading Text
-                        const Text(
-                          'Preparing your entrepreneurial journey...',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.white70,
-                            letterSpacing: 0.3,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  
-                  const SizedBox(height: 48),
-                ],
-              ),
+        child: SafeArea(
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // Animated Logo
+                _buildAnimatedLogo(),
+
+                const SizedBox(height: 40),
+
+                // App Name
+                _buildAppName(),
+
+                const SizedBox(height: 16),
+
+                // Tagline
+                _buildTagline(),
+
+                const SizedBox(height: 60),
+
+                // Loading Indicator
+                _buildLoadingIndicator(),
+              ],
             ),
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildAnimatedLogo() {
+    return AnimatedBuilder(
+      animation: _logoAnimation,
+      builder: (context, child) {
+        return FadeTransition(
+          opacity: _fadeAnimation,
+          child: SlideTransition(
+            position: _slideAnimation,
+            child: ScaleTransition(
+              scale: _scaleAnimation,
+              child: AnimatedBuilder(
+                animation: _rotationAnimation,
+                builder: (context, child) {
+                  return Transform.rotate(
+                    angle: _rotationAnimation.value,
+                    child: Container(
+                      width: 120,
+                      height: 120,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(30),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.2),
+                            blurRadius: 30,
+                            offset: const Offset(0, 15),
+                          ),
+                        ],
+                      ),
+                      child: const Icon(
+                        Icons.rocket_launch,
+                        size: 60,
+                        color: ModernTheme.electricBlue,
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildAppName() {
+    return AnimatedBuilder(
+      animation: _fadeAnimation,
+      builder: (context, child) {
+        return FadeTransition(
+          opacity: _fadeAnimation,
+          child: SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(0, 0.3),
+              end: Offset.zero,
+            ).animate(CurvedAnimation(
+              parent: _fadeController,
+              curve: const Interval(0.3, 1.0, curve: Curves.easeOut),
+            )),
+            child: Text(
+              'BizNest',
+              style: ModernTheme.h1.copyWith(
+                color: Colors.white,
+                fontWeight: FontWeight.w900,
+                fontSize: 48,
+                letterSpacing: -2,
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildTagline() {
+    return AnimatedBuilder(
+      animation: _fadeAnimation,
+      builder: (context, child) {
+        return FadeTransition(
+          opacity: _fadeAnimation,
+          child: SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(0, 0.3),
+              end: Offset.zero,
+            ).animate(CurvedAnimation(
+              parent: _fadeController,
+              curve: const Interval(0.5, 1.0, curve: Curves.easeOut),
+            )),
+            child: Text(
+              'AI-Powered Business Companion',
+              style: ModernTheme.h3.copyWith(
+                color: Colors.white.withOpacity(0.9),
+                fontWeight: FontWeight.w600,
+                fontSize: 18,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildLoadingIndicator() {
+    return AnimatedBuilder(
+      animation: _fadeAnimation,
+      builder: (context, child) {
+        return FadeTransition(
+          opacity: _fadeAnimation,
+          child: SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(0, 0.3),
+              end: Offset.zero,
+            ).animate(CurvedAnimation(
+              parent: _fadeController,
+              curve: const Interval(0.7, 1.0, curve: Curves.easeOut),
+            )),
+            child: Column(
+              children: [
+                // Custom loading indicator
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: const Center(
+                    child: SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2,
+                      ),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 16),
+
+                Text(
+                  'Loading...',
+                  style: ModernTheme.bodyMedium.copyWith(
+                    color: Colors.white.withOpacity(0.8),
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

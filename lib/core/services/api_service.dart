@@ -48,481 +48,429 @@ class ApiService {
         data: data, requiresAuth: requiresAuth);
   }
 
-  // PATCH request
-  static Future<Map<String, dynamic>> patch(
-    String endpoint,
-    Map<String, dynamic> data, {
-    bool requiresAuth = true,
-  }) async {
-    return _makeRequest('PATCH', endpoint,
-        data: data, requiresAuth: requiresAuth);
-  }
-
   // DELETE request
   static Future<Map<String, dynamic>> delete(
     String endpoint, {
+    Map<String, dynamic>? data,
     bool requiresAuth = true,
   }) async {
-    return _makeRequest('DELETE', endpoint, requiresAuth: requiresAuth);
+    return _makeRequest('DELETE', endpoint,
+        data: data, requiresAuth: requiresAuth);
   }
 
-  // Main request method
+  // Main request handler
   static Future<Map<String, dynamic>> _makeRequest(
     String method,
     String endpoint, {
     Map<String, dynamic>? data,
     Map<String, String>? queryParams,
     bool requiresAuth = true,
-    int retryCount = 0,
   }) async {
     try {
-      // Build URL
-      final url = _buildUrl(endpoint, queryParams);
+      // Simulate network delay
+      await Future.delayed(const Duration(milliseconds: 800));
 
-      // Prepare headers
-      final headers = Map<String, String>.from(_baseHeaders);
-
-      if (requiresAuth) {
-        final token = AuthService.currentToken;
-        if (token != null) {
-          headers['Authorization'] = 'Bearer $token';
-        } else {
-          throw ApiException('Authentication required', 401);
-        }
+      // Handle authentication endpoints with mock data
+      if (endpoint.startsWith('/auth/')) {
+        return _handleAuthEndpoint(method, endpoint, data);
       }
 
-      if (kDebugMode) {
-        print('🌐 API Request: $method $url');
-        if (data != null) {
-          print('📤 Request Data: ${json.encode(data)}');
-        }
-      }
+      // Handle other endpoints
+      return _handleOtherEndpoints(method, endpoint, data);
 
-      // Make request (simulated for demo)
-      final response = await _simulateRequest(method, endpoint, data);
-
-      if (kDebugMode) {
-        print('📥 API Response: ${json.encode(response)}');
-      }
-
-      return response;
-    } on ApiException {
-      rethrow;
     } catch (e) {
       if (kDebugMode) {
-        print('❌ API Error: $e');
+        print('API Error: $e');
       }
-
-      // Retry logic for network errors
-      if (retryCount < 2 && _shouldRetry(e)) {
-        await Future.delayed(Duration(seconds: 1 + retryCount));
-        return _makeRequest(method, endpoint,
-            data: data,
-            queryParams: queryParams,
-            requiresAuth: requiresAuth,
-            retryCount: retryCount + 1);
-      }
-
-      throw ApiException('Network error: ${e.toString()}', 500);
+      return {
+        'success': false,
+        'message': 'Network error. Please check your connection.',
+        'error': e.toString(),
+      };
     }
   }
 
-  // Build URL with query parameters
-  static String _buildUrl(String endpoint, Map<String, String>? queryParams) {
-    final uri = Uri.parse('$baseUrl$endpoint');
-    if (queryParams != null && queryParams.isNotEmpty) {
-      return uri.replace(queryParameters: queryParams).toString();
-    }
-    return uri.toString();
-  }
-
-  // Simulate API requests (replace with actual HTTP calls)
-  static Future<Map<String, dynamic>> _simulateRequest(
-    String method,
-    String endpoint,
-    Map<String, dynamic>? data,
-  ) async {
-    // Simulate network delay
-    await Future.delayed(const Duration(milliseconds: 500 + 1500));
-
-    // Mock responses based on endpoint
-    return _getMockResponse(method, endpoint, data);
-  }
-
-  // Mock response generator
-  static Map<String, dynamic> _getMockResponse(
+  // Handle authentication endpoints
+  static Map<String, dynamic> _handleAuthEndpoint(
     String method,
     String endpoint,
     Map<String, dynamic>? data,
   ) {
     switch (endpoint) {
-      // Authentication endpoints
       case '/auth/login':
-        return {
-          'success': true,
-          'data': {
-            'token': _generateToken(),
-            'refresh_token': _generateToken(),
-            'user': {
-              'id': '1',
-              'name': 'John Entrepreneur',
-              'email': data?['email'] ?? 'user@example.com',
-              'company': 'TechStartup Inc.',
-              'role': 'CEO',
-              'avatar':
-                  'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400',
-              'plan': 'premium',
-              'created_at': '2024-01-01T00:00:00Z',
-            },
-          },
-          'message': 'Login successful',
-        };
-
+        return _handleLogin(data);
       case '/auth/register':
-        return {
-          'success': true,
-          'data': {
-            'token': _generateToken(),
-            'refresh_token': _generateToken(),
-            'user': {
-              'id': '2',
-              'name': data?['name'] ?? 'New User',
-              'email': data?['email'] ?? 'newuser@example.com',
-              'company': data?['company'],
-              'role': data?['role'],
-              'avatar': null,
-              'plan': 'free',
-              'created_at': DateTime.now().toIso8601String(),
-            },
-          },
-          'message': 'Registration successful',
-        };
-
-      case '/auth/validate':
-        return {'success': true, 'message': 'Token is valid'};
-
+        return _handleRegister(data);
       case '/auth/refresh':
-        return {
-          'success': true,
-          'data': {
-            'token': _generateToken(),
-            'refresh_token': _generateToken(),
-          },
-        };
-
+        return _handleRefreshToken();
+      case '/auth/logout':
+        return _handleLogout();
       case '/auth/forgot-password':
-        return {
-          'success': true,
-          'message': 'Password reset link sent to your email',
-        };
-
-      // Business endpoints
-      case '/business/plans':
-        return {
-          'success': true,
-          'data': _getBusinessPlansData(),
-        };
-
-      case '/business/canvas':
-        return {
-          'success': true,
-          'data': _getCanvasData(),
-        };
-
-      case '/financial/calculations':
-        return {
-          'success': true,
-          'data': _getFinancialData(),
-        };
-
-      case '/market/research':
-        return {
-          'success': true,
-          'data': _getMarketResearchData(),
-        };
-
-      case '/networking/contacts':
-        return {
-          'success': true,
-          'data': _getNetworkingData(),
-        };
-
-      case '/learning/resources':
-        return {
-          'success': true,
-          'data': _getLearningResourcesData(),
-        };
-
-      case '/funding/opportunities':
-        return {
-          'success': true,
-          'data': _getFundingData(),
-        };
-
+        return _handleForgotPassword(data);
+      case '/auth/reset-password':
+        return _handleResetPassword(data);
+      case '/auth/verify-email':
+        return _handleVerifyEmail(data);
       default:
         return {
-          'success': true,
-          'data': {},
-          'message': 'Operation successful',
+          'success': false,
+          'message': 'Endpoint not found',
         };
     }
   }
 
-  // Mock data generators
-  static String _generateToken() {
-    return 'token_${DateTime.now().millisecondsSinceEpoch}_${(1000 + (9000 * (DateTime.now().millisecond / 1000)).round())}';
-  }
+  // Handle login
+  static Map<String, dynamic> _handleLogin(Map<String, dynamic>? data) {
+    if (data == null) {
+      return {
+        'success': false,
+        'message': 'Invalid request data',
+      };
+    }
 
-  static List<Map<String, dynamic>> _getBusinessPlansData() {
-    return [
-      {
+    final email = data['email']?.toString().toLowerCase();
+    final password = data['password']?.toString();
+
+    // Mock validation
+    if (email == null || password == null) {
+      return {
+        'success': false,
+        'message': 'Email and password are required',
+      };
+    }
+
+    // Mock user database
+    final mockUsers = {
+      'demo@biznest.com': {
         'id': '1',
-        'title': 'AI SaaS Startup',
-        'description': 'Revolutionary AI-powered business automation platform',
-        'status': 'in_progress',
-        'completion': 75,
-        'last_updated': '2024-01-20T10:30:00Z',
-        'sections': {
-          'executive_summary': 'Complete',
-          'market_analysis': 'Complete',
-          'financial_projections': 'In Progress',
-        },
+        'name': 'Demo User',
+        'email': 'demo@biznest.com',
+        'password': 'demo123', // In real app, this would be hashed
+        'role': 'entrepreneur',
+        'company': 'Demo Company',
+        'avatar': 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150',
+        'created_at': '2024-01-01T00:00:00Z',
+        'is_verified': true,
       },
-      {
+      'test@biznest.com': {
         'id': '2',
-        'title': 'E-commerce Platform',
-        'description':
-            'Next-generation online marketplace for sustainable products',
-        'status': 'draft',
-        'completion': 45,
-        'last_updated': '2024-01-18T14:20:00Z',
-        'sections': {
-          'executive_summary': 'Complete',
-          'market_analysis': 'In Progress',
-          'financial_projections': 'Not Started',
-        },
+        'name': 'Test User',
+        'email': 'test@biznest.com',
+        'password': 'test123',
+        'role': 'entrepreneur',
+        'company': 'Test Startup',
+        'avatar': 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150',
+        'created_at': '2024-01-15T00:00:00Z',
+        'is_verified': true,
       },
-    ];
-  }
-
-  static Map<String, dynamic> _getCanvasData() {
-    return {
-      'key_partners': [
-        'Tech suppliers',
-        'Marketing agencies',
-        'Distribution partners'
-      ],
-      'key_activities': [
-        'Software development',
-        'Customer support',
-        'Marketing'
-      ],
-      'value_propositions': [
-        'Time-saving automation',
-        'Cost reduction',
-        'Scalability'
-      ],
-      'customer_relationships': [
-        'Self-service',
-        'Dedicated support',
-        'Community'
-      ],
-      'customer_segments': ['SMBs', 'Enterprises', 'Startups'],
-      'key_resources': ['Development team', 'Technology platform', 'Brand'],
-      'channels': ['Direct sales', 'Online marketing', 'Partner network'],
-      'cost_structure': ['Development costs', 'Infrastructure', 'Marketing'],
-      'revenue_streams': [
-        'Subscription fees',
-        'Premium features',
-        'Consulting'
-      ],
     };
-  }
 
-  static Map<String, dynamic> _getFinancialData() {
+    final user = mockUsers[email];
+    if (user == null || user['password'] != password) {
+      return {
+        'success': false,
+        'message': 'Invalid email or password',
+      };
+    }
+
+    // Generate mock tokens
+    final token = _generateMockToken();
+    final refreshToken = _generateMockToken();
+
     return {
-      'calculations': [
-        {
-          'id': '1',
-          'type': 'roi',
-          'name': 'Marketing Campaign ROI',
-          'result': 15.5,
-          'parameters': {'investment': 10000, 'return': 11550},
-          'created_at': '2024-01-20T10:00:00Z',
+      'success': true,
+      'message': 'Login successful',
+      'data': {
+        'token': token,
+        'refresh_token': refreshToken,
+        'user': {
+          'id': user['id'],
+          'name': user['name'],
+          'email': user['email'],
+          'role': user['role'],
+          'company': user['company'],
+          'avatar': user['avatar'],
+          'created_at': user['created_at'],
+          'is_verified': user['is_verified'],
         },
-        {
-          'id': '2',
-          'type': 'break_even',
-          'name': 'Product Break-Even Analysis',
-          'result': 1250,
-          'parameters': {'fixed_costs': 5000, 'variable_cost': 12, 'price': 16},
-          'created_at': '2024-01-19T14:30:00Z',
-        },
-      ],
-      'summary': {
-        'total_calculations': 15,
-        'avg_roi': 12.8,
-        'best_performing': 'Marketing Campaign ROI',
       },
     };
   }
 
-  static Map<String, dynamic> _getMarketResearchData() {
+  // Handle registration
+  static Map<String, dynamic> _handleRegister(Map<String, dynamic>? data) {
+    if (data == null) {
+      return {
+        'success': false,
+        'message': 'Invalid request data',
+      };
+    }
+
+    final name = data['name']?.toString();
+    final email = data['email']?.toString().toLowerCase();
+    final password = data['password']?.toString();
+
+    // Validation
+    if (name == null || email == null || password == null) {
+      return {
+        'success': false,
+        'message': 'Name, email, and password are required',
+      };
+    }
+
+    if (name.length < 2) {
+      return {
+        'success': false,
+        'message': 'Name must be at least 2 characters',
+      };
+    }
+
+    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email)) {
+      return {
+        'success': false,
+        'message': 'Please enter a valid email address',
+      };
+    }
+
+    if (password.length < 6) {
+      return {
+        'success': false,
+        'message': 'Password must be at least 6 characters',
+      };
+    }
+
+    // Check if user already exists (mock)
+    final existingEmails = ['demo@biznest.com', 'test@biznest.com'];
+    if (existingEmails.contains(email)) {
+      return {
+        'success': false,
+        'message': 'An account with this email already exists',
+      };
+    }
+
+    // Generate mock tokens
+    final token = _generateMockToken();
+    final refreshToken = _generateMockToken();
+
+    // Create new user
+    final newUser = {
+      'id': DateTime.now().millisecondsSinceEpoch.toString(),
+      'name': name,
+      'email': email,
+      'role': 'entrepreneur',
+      'company': data['company'] ?? '',
+      'avatar': 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150',
+      'created_at': DateTime.now().toIso8601String(),
+      'is_verified': false,
+    };
+
     return {
-      'industry_analysis': {
-        'market_size': '\$2.5B',
-        'growth_rate': '15.2%',
-        'key_trends': ['AI adoption', 'Remote work', 'Sustainability'],
-        'competitors': [
-          {
-            'name': 'Competitor A',
-            'market_share': '25%',
-            'strength': 'Brand recognition'
+      'success': true,
+      'message': 'Registration successful',
+      'data': {
+        'token': token,
+        'refresh_token': refreshToken,
+        'user': newUser,
+      },
+    };
+  }
+
+  // Handle refresh token
+  static Map<String, dynamic> _handleRefreshToken() {
+    return {
+      'success': true,
+      'message': 'Token refreshed successfully',
+      'data': {
+        'token': _generateMockToken(),
+        'refresh_token': _generateMockToken(),
+      },
+    };
+  }
+
+  // Handle logout
+  static Map<String, dynamic> _handleLogout() {
+    return {
+      'success': true,
+      'message': 'Logged out successfully',
+    };
+  }
+
+  // Handle forgot password
+  static Map<String, dynamic> _handleForgotPassword(Map<String, dynamic>? data) {
+    if (data == null || data['email'] == null) {
+      return {
+        'success': false,
+        'message': 'Email is required',
+      };
+    }
+
+    return {
+      'success': true,
+      'message': 'Password reset email sent successfully',
+    };
+  }
+
+  // Handle reset password
+  static Map<String, dynamic> _handleResetPassword(Map<String, dynamic>? data) {
+    if (data == null || data['token'] == null || data['password'] == null) {
+      return {
+        'success': false,
+        'message': 'Token and password are required',
+      };
+    }
+
+    return {
+      'success': true,
+      'message': 'Password reset successfully',
+    };
+  }
+
+  // Handle email verification
+  static Map<String, dynamic> _handleVerifyEmail(Map<String, dynamic>? data) {
+    if (data == null || data['token'] == null) {
+      return {
+        'success': false,
+        'message': 'Verification token is required',
+      };
+    }
+
+    return {
+      'success': true,
+      'message': 'Email verified successfully',
+    };
+  }
+
+  // Handle other endpoints
+  static Map<String, dynamic> _handleOtherEndpoints(
+    String method,
+    String endpoint,
+    Map<String, dynamic>? data,
+  ) {
+    // Mock responses for other endpoints
+    switch (endpoint) {
+      case '/user/profile':
+        return {
+          'success': true,
+          'data': {
+            'id': '1',
+            'name': 'Demo User',
+            'email': 'demo@biznest.com',
+            'role': 'entrepreneur',
+            'company': 'Demo Company',
+            'avatar': 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150',
+            'created_at': '2024-01-01T00:00:00Z',
+            'is_verified': true,
           },
-          {
-            'name': 'Competitor B',
-            'market_share': '18%',
-            'strength': 'Technology'
+        };
+      case '/dashboard/stats':
+        return {
+          'success': true,
+          'data': {
+            'total_projects': 5,
+            'completed_tasks': 12,
+            'pending_tasks': 3,
+            'revenue': 25000.0,
+            'growth_rate': 15.5,
           },
-        ],
-      },
-      'target_audience': {
-        'primary': {
-          'age': '25-45',
-          'income': '\$50K-\$150K',
-          'location': 'Urban'
-        },
-        'secondary': {
-          'age': '35-55',
-          'income': '\$75K-\$200K',
-          'location': 'Suburban'
-        },
-      },
-    };
+        };
+      case '/business/plans':
+        return {
+          'success': true,
+          'data': [
+            {
+              'id': '1',
+              'title': 'E-commerce Platform',
+              'status': 'draft',
+              'created_at': '2024-01-15T10:30:00Z',
+            },
+            {
+              'id': '2',
+              'title': 'Mobile App',
+              'status': 'in_progress',
+              'created_at': '2024-01-20T14:45:00Z',
+            },
+          ],
+        };
+      default:
+        return {
+          'success': true,
+          'message': 'Mock response for $method $endpoint',
+          'data': {},
+        };
+    }
   }
 
-  static List<Map<String, dynamic>> _getNetworkingData() {
-    return [
-      {
-        'id': '1',
-        'name': 'Sarah Wilson',
-        'company': 'VentureTech Capital',
-        'role': 'Senior Partner',
-        'category': 'investor',
-        'contact_info': {
-          'email': 'sarah@venturetech.com',
-          'linkedin': 'sarah-wilson-vc'
-        },
-        'notes': 'Met at TechCrunch Disrupt. Interested in AI startups.',
-        'last_contact': '2024-01-15T00:00:00Z',
-        'relationship_score': 8.5,
-      },
-      {
-        'id': '2',
-        'name': 'Michael Chen',
-        'company': 'Growth Accelerator',
-        'role': 'Startup Mentor',
-        'category': 'mentor',
-        'contact_info': {
-          'email': 'michael@growthaccel.com',
-          'phone': '+1-555-0123'
-        },
-        'notes':
-            'Expert in scaling SaaS businesses. Available for monthly calls.',
-        'last_contact': '2024-01-12T00:00:00Z',
-        'relationship_score': 9.2,
-      },
-    ];
+  // Generate mock JWT token
+  static String _generateMockToken() {
+    final header = base64Url.encode(utf8.encode('{"alg":"HS256","typ":"JWT"}'));
+    final payload = base64Url.encode(utf8.encode(json.encode({
+      'sub': 'user_id',
+      'iat': DateTime.now().millisecondsSinceEpoch ~/ 1000,
+      'exp': (DateTime.now().add(const Duration(days: 7)).millisecondsSinceEpoch ~/ 1000),
+    })));
+    final signature = base64Url.encode(utf8.encode('mock_signature'));
+    
+    return '$header.$payload.$signature';
   }
 
-  static Map<String, dynamic> _getLearningResourcesData() {
-    return {
-      'courses': [
-        {
-          'id': '1',
-          'title': 'Business Model Innovation',
-          'provider': 'Stanford Online',
-          'duration': '6 weeks',
-          'rating': 4.8,
-          'progress': 60,
-          'thumbnail':
-              'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400',
-        },
-        {
-          'id': '2',
-          'title': 'Financial Planning for Startups',
-          'provider': 'Harvard Business School',
-          'duration': '4 weeks',
-          'rating': 4.9,
-          'progress': 25,
-          'thumbnail':
-              'https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=400',
-        },
-      ],
-      'articles': [
-        {
-          'id': '1',
-          'title': 'The Future of AI in Business',
-          'author': 'Tech Insights',
-          'read_time': '8 min',
-          'category': 'Technology',
-          'thumbnail':
-              'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=400',
-        },
-      ],
-    };
+  // Get auth headers
+  static Map<String, String> _getAuthHeaders() {
+    final headers = Map<String, String>.from(_baseHeaders);
+    
+    if (AuthService.isAuthenticated) {
+      headers['Authorization'] = 'Bearer ${AuthService.currentToken}';
+    }
+    
+    return headers;
   }
 
-  static Map<String, dynamic> _getFundingData() {
-    return {
-      'opportunities': [
-        {
-          'id': '1',
-          'name': 'Tech Innovation Grant',
-          'amount': '\$50,000',
-          'deadline': '2024-03-15',
-          'type': 'grant',
-          'eligibility': 'Early-stage tech startups',
-          'match_score': 85,
+  // Upload file
+  static Future<Map<String, dynamic>> uploadFile(
+    String endpoint,
+    String filePath, {
+    String fieldName = 'file',
+    Map<String, String>? additionalFields,
+    bool requiresAuth = true,
+  }) async {
+    try {
+      // Simulate file upload
+      await Future.delayed(const Duration(seconds: 2));
+      
+      return {
+        'success': true,
+        'message': 'File uploaded successfully',
+        'data': {
+          'file_url': 'https://api.biznests.com/uploads/mock_file.jpg',
+          'file_id': DateTime.now().millisecondsSinceEpoch.toString(),
         },
-        {
-          'id': '2',
-          'name': 'Series A Investment',
-          'amount': '\$2M - \$5M',
-          'deadline': '2024-04-30',
-          'type': 'equity',
-          'eligibility': 'Proven revenue model',
-          'match_score': 72,
-        },
-      ],
-      'applications': [
-        {
-          'id': '1',
-          'opportunity_name': 'Small Business Innovation Research',
-          'amount': '\$25,000',
-          'status': 'under_review',
-          'submitted_date': '2024-01-10',
-          'decision_date': '2024-02-15',
-        },
-      ],
-    };
+      };
+    } catch (e) {
+      return {
+        'success': false,
+        'message': 'File upload failed',
+        'error': e.toString(),
+      };
+    }
   }
 
-  // Utility methods
-  static bool _shouldRetry(dynamic error) {
-    // Implement retry logic based on error type
-    return false; // Simplified for demo
+  // WebSocket connection
+  static Stream<Map<String, dynamic>> connectWebSocket(String endpoint) {
+    final controller = StreamController<Map<String, dynamic>>();
+    
+    // Simulate WebSocket connection
+    Timer.periodic(const Duration(seconds: 5), (timer) {
+      controller.add({
+        'type': 'ping',
+        'timestamp': DateTime.now().toIso8601String(),
+        'data': {'message': 'Connection alive'},
+      });
+    });
+    
+    return controller.stream;
   }
-}
 
-// Custom exception class
-class ApiException implements Exception {
-  final String message;
-  final int statusCode;
-  final Map<String, dynamic>? data;
-
-  ApiException(this.message, this.statusCode, [this.data]);
-
-  @override
-  String toString() => 'ApiException: $message (Status: $statusCode)';
+  // Close WebSocket
+  static void closeWebSocket() {
+    // Mock implementation
+  }
 }

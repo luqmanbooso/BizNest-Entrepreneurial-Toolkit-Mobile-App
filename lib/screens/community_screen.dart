@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../core/theme/modern_theme.dart';
 import '../core/widgets/biznest_logo.dart';
-import '../core/widgets/modern_animations.dart';
 
 class CommunityScreen extends StatefulWidget {
   const CommunityScreen({super.key});
@@ -12,10 +11,9 @@ class CommunityScreen extends StatefulWidget {
 
 class _CommunityScreenState extends State<CommunityScreen>
     with TickerProviderStateMixin {
-  
   late AnimationController _animationController;
   late AnimationController _cardController;
-  
+
   late Animation<double> _fadeAnimation;
   late Animation<double> _slideAnimation;
   late Animation<double> _cardAnimation;
@@ -24,9 +22,11 @@ class _CommunityScreenState extends State<CommunityScreen>
     IdeaPost(
       id: '1',
       title: 'AI-Powered Customer Service Bot',
-      description: 'Developing an AI chatbot that can handle customer inquiries 24/7 with natural language processing.',
+      description:
+          'Developing an AI chatbot that can handle customer inquiries 24/7 with natural language processing.',
       author: 'Sarah Chen',
-      authorAvatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=100',
+      authorAvatar:
+          'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=100',
       category: 'Technology',
       likes: 24,
       comments: 8,
@@ -37,9 +37,11 @@ class _CommunityScreenState extends State<CommunityScreen>
     IdeaPost(
       id: '2',
       title: 'Sustainable Packaging Solution',
-      description: 'Creating biodegradable packaging materials from agricultural waste for e-commerce businesses.',
+      description:
+          'Creating biodegradable packaging materials from agricultural waste for e-commerce businesses.',
       author: 'Mike Rodriguez',
-      authorAvatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100',
+      authorAvatar:
+          'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100',
       category: 'Sustainability',
       likes: 18,
       comments: 12,
@@ -50,9 +52,11 @@ class _CommunityScreenState extends State<CommunityScreen>
     IdeaPost(
       id: '3',
       title: 'Remote Team Collaboration Platform',
-      description: 'Building a platform that combines project management, communication, and team building for remote teams.',
+      description:
+          'Building a platform that combines project management, communication, and team building for remote teams.',
       author: 'Emily Johnson',
-      authorAvatar: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=100',
+      authorAvatar:
+          'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=100',
       category: 'Productivity',
       likes: 31,
       comments: 15,
@@ -73,7 +77,7 @@ class _CommunityScreenState extends State<CommunityScreen>
       duration: const Duration(milliseconds: 1000),
       vsync: this,
     );
-    
+
     _cardController = AnimationController(
       duration: const Duration(milliseconds: 800),
       vsync: this,
@@ -237,7 +241,13 @@ class _CommunityScreenState extends State<CommunityScreen>
   }
 
   Widget _buildFilterTabs() {
-    final categories = ['All', 'Technology', 'Sustainability', 'Productivity', 'Finance'];
+    final categories = [
+      'All',
+      'Technology',
+      'Sustainability',
+      'Productivity',
+      'Finance'
+    ];
     String selectedCategory = 'All';
 
     return Container(
@@ -256,14 +266,15 @@ class _CommunityScreenState extends State<CommunityScreen>
                   });
                 },
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                   decoration: BoxDecoration(
-                    color: isSelected 
+                    color: isSelected
                         ? ModernTheme.primaryBlue
                         : Colors.grey.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(25),
                     border: Border.all(
-                      color: isSelected 
+                      color: isSelected
                           ? ModernTheme.primaryBlue
                           : Colors.grey.withOpacity(0.3),
                     ),
@@ -272,7 +283,8 @@ class _CommunityScreenState extends State<CommunityScreen>
                     category,
                     style: ModernTheme.bodyMedium.copyWith(
                       color: isSelected ? Colors.white : Colors.grey[600],
-                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                      fontWeight:
+                          isSelected ? FontWeight.bold : FontWeight.normal,
                     ),
                   ),
                 ),
@@ -349,9 +361,11 @@ class _CommunityScreenState extends State<CommunityScreen>
                       ),
                     ),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
-                        color: _getCategoryColor(idea.category).withOpacity(0.1),
+                        color:
+                            _getCategoryColor(idea.category).withOpacity(0.1),
                         borderRadius: BorderRadius.circular(15),
                       ),
                       child: Text(
@@ -391,9 +405,10 @@ class _CommunityScreenState extends State<CommunityScreen>
                     GestureDetector(
                       onTap: () => _toggleLike(idea.id),
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 8),
                         decoration: BoxDecoration(
-                          color: idea.isLiked 
+                          color: idea.isLiked
                               ? ModernTheme.primaryBlue.withOpacity(0.1)
                               : Colors.grey.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(20),
@@ -402,15 +417,21 @@ class _CommunityScreenState extends State<CommunityScreen>
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Icon(
-                              idea.isLiked ? Icons.favorite : Icons.favorite_border,
-                              color: idea.isLiked ? ModernTheme.primaryBlue : Colors.grey[600],
+                              idea.isLiked
+                                  ? Icons.favorite
+                                  : Icons.favorite_border,
+                              color: idea.isLiked
+                                  ? ModernTheme.primaryBlue
+                                  : Colors.grey[600],
                               size: 18,
                             ),
                             const SizedBox(width: 6),
                             Text(
                               '${idea.likes}',
                               style: ModernTheme.bodySmall.copyWith(
-                                color: idea.isLiked ? ModernTheme.primaryBlue : Colors.grey[600],
+                                color: idea.isLiked
+                                    ? ModernTheme.primaryBlue
+                                    : Colors.grey[600],
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -422,7 +443,8 @@ class _CommunityScreenState extends State<CommunityScreen>
                     GestureDetector(
                       onTap: () => _showComments(idea.id),
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 8),
                         decoration: BoxDecoration(
                           color: Colors.grey.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(20),

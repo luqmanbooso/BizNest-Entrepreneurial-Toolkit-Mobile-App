@@ -3,7 +3,6 @@ import '../core/theme/modern_theme.dart';
 import '../core/widgets/biznest_logo.dart';
 import '../core/widgets/modern_animations.dart';
 import '../core/services/ai_business_plan_service.dart';
-import '../core/services/market_research_service.dart';
 
 class BusinessScreen extends StatefulWidget {
   const BusinessScreen({super.key});
@@ -14,10 +13,9 @@ class BusinessScreen extends StatefulWidget {
 
 class _BusinessScreenState extends State<BusinessScreen>
     with TickerProviderStateMixin {
-  
   late AnimationController _animationController;
   late AnimationController _cardController;
-  
+
   late Animation<double> _fadeAnimation;
   late Animation<double> _slideAnimation;
   late Animation<double> _cardAnimation;
@@ -28,35 +26,60 @@ class _BusinessScreenState extends State<BusinessScreen>
       description: 'Create comprehensive business plans with AI assistance',
       icon: Icons.auto_awesome_rounded,
       color: ModernTheme.primaryBlue,
-      features: ['Executive Summary', 'Market Analysis', 'Financial Projections', 'SWOT Analysis'],
+      features: [
+        'Executive Summary',
+        'Market Analysis',
+        'Financial Projections',
+        'SWOT Analysis'
+      ],
     ),
     BusinessTool(
       title: 'Market Research Analyzer',
       description: 'Analyze market trends and competition',
       icon: Icons.analytics_rounded,
       color: ModernTheme.secondaryPurple,
-      features: ['Industry Analysis', 'Competitor Research', 'Target Market', 'Trend Analysis'],
+      features: [
+        'Industry Analysis',
+        'Competitor Research',
+        'Target Market',
+        'Trend Analysis'
+      ],
     ),
     BusinessTool(
       title: 'SWOT Analysis Builder',
       description: 'Identify strengths, weaknesses, opportunities, and threats',
       icon: Icons.assessment_rounded,
       color: ModernTheme.accentGreen,
-      features: ['Internal Analysis', 'External Analysis', 'Strategic Planning', 'Risk Assessment'],
+      features: [
+        'Internal Analysis',
+        'External Analysis',
+        'Strategic Planning',
+        'Risk Assessment'
+      ],
     ),
     BusinessTool(
       title: 'Business Model Canvas',
       description: 'Design and validate your business model',
       icon: Icons.dashboard_rounded,
       color: ModernTheme.warningOrange,
-      features: ['Value Proposition', 'Customer Segments', 'Revenue Streams', 'Key Partnerships'],
+      features: [
+        'Value Proposition',
+        'Customer Segments',
+        'Revenue Streams',
+        'Key Partnerships'
+      ],
     ),
     BusinessTool(
       title: 'Pitch Deck Builder',
       description: 'Create compelling investor presentations',
       icon: Icons.slideshow_rounded,
       color: ModernTheme.infoCyan,
-      features: ['Professional Templates', 'AI Content Generation', 'Visual Design', 'Export Options'],
+      features: [
+        'Professional Templates',
+        'AI Content Generation',
+        'Visual Design',
+        'Export Options'
+      ],
     ),
     BusinessTool(
       title: 'Legal Document Generator',
@@ -70,12 +93,12 @@ class _BusinessScreenState extends State<BusinessScreen>
   @override
   void initState() {
     super.initState();
-    
+
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 1200),
       vsync: this,
     );
-    
+
     _cardController = AnimationController(
       duration: const Duration(milliseconds: 800),
       vsync: this,
@@ -111,7 +134,7 @@ class _BusinessScreenState extends State<BusinessScreen>
   void _startAnimations() async {
     await Future.delayed(const Duration(milliseconds: 300));
     _animationController.forward();
-    
+
     await Future.delayed(const Duration(milliseconds: 600));
     _cardController.forward();
   }
@@ -186,7 +209,7 @@ class _BusinessScreenState extends State<BusinessScreen>
                   ),
                 ),
               ),
-              
+
               // Content
               SliverPadding(
                 padding: const EdgeInsets.all(24),
@@ -203,10 +226,10 @@ class _BusinessScreenState extends State<BusinessScreen>
                           parent: _animationController,
                           curve: Curves.easeOutCubic,
                         )),
-                        child: Column(
+                        child: const Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
+                            Text(
                               'Business Tools',
                               style: TextStyle(
                                 fontSize: 28,
@@ -215,7 +238,7 @@ class _BusinessScreenState extends State<BusinessScreen>
                                 letterSpacing: -1,
                               ),
                             ),
-                            const SizedBox(height: 8),
+                            SizedBox(height: 8),
                             Text(
                               'Powerful tools to build and grow your business',
                               style: TextStyle(
@@ -228,9 +251,9 @@ class _BusinessScreenState extends State<BusinessScreen>
                         ),
                       ),
                     ),
-                    
+
                     const SizedBox(height: 32),
-                    
+
                     // Featured Tool
                     AnimatedBuilder(
                       animation: _cardAnimation,
@@ -244,9 +267,9 @@ class _BusinessScreenState extends State<BusinessScreen>
                         );
                       },
                     ),
-                    
+
                     const SizedBox(height: 32),
-                    
+
                     // All Tools
                     FadeTransition(
                       opacity: _fadeAnimation,
@@ -266,7 +289,7 @@ class _BusinessScreenState extends State<BusinessScreen>
                         ],
                       ),
                     ),
-                    
+
                     const SizedBox(height: 100), // Bottom padding
                   ]),
                 ),
@@ -309,7 +332,8 @@ class _BusinessScreenState extends State<BusinessScreen>
               ),
               const Spacer(),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
                   color: Colors.white.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(20),
@@ -446,7 +470,8 @@ class _BusinessScreenState extends State<BusinessScreen>
                   runSpacing: 8,
                   children: tool.features.take(3).map((feature) {
                     return Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
                         color: tool.color.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(8),
@@ -544,20 +569,21 @@ class BusinessPlanGenerator extends StatefulWidget {
 
 class _BusinessPlanGeneratorState extends State<BusinessPlanGenerator>
     with TickerProviderStateMixin {
-  
   final _formKey = GlobalKey<FormState>();
   final _companyNameController = TextEditingController();
   final _industryController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _targetMarketController = TextEditingController();
   final _revenueModelController = TextEditingController();
-  
+
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
-  
+
   bool _isGenerating = false;
   int _currentStep = 0;
-  
+
+  Map<String, String> _businessData = {};
+
   final List<String> _steps = [
     'Company Information',
     'Market Analysis',
@@ -568,7 +594,7 @@ class _BusinessPlanGeneratorState extends State<BusinessPlanGenerator>
   @override
   void initState() {
     super.initState();
-    
+
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 800),
       vsync: this,
@@ -610,7 +636,7 @@ class _BusinessPlanGeneratorState extends State<BusinessPlanGenerator>
             borderRadius: BorderRadius.circular(2),
           ),
         ),
-        
+
         // Header
         Padding(
           padding: const EdgeInsets.all(24),
@@ -658,7 +684,7 @@ class _BusinessPlanGeneratorState extends State<BusinessPlanGenerator>
             ],
           ),
         ),
-        
+
         // Progress Steps
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -668,7 +694,7 @@ class _BusinessPlanGeneratorState extends State<BusinessPlanGenerator>
               final step = entry.value;
               final isActive = _currentStep == index;
               final isCompleted = _currentStep > index;
-              
+
               return Expanded(
                 child: Row(
                   children: [
@@ -691,7 +717,9 @@ class _BusinessPlanGeneratorState extends State<BusinessPlanGenerator>
                             : Text(
                                 '${index + 1}',
                                 style: TextStyle(
-                                  color: isActive ? Colors.white : Colors.grey[600],
+                                  color: isActive
+                                      ? Colors.white
+                                      : Colors.grey[600],
                                   fontWeight: FontWeight.w600,
                                   fontSize: 12,
                                 ),
@@ -713,9 +741,9 @@ class _BusinessPlanGeneratorState extends State<BusinessPlanGenerator>
             }).toList(),
           ),
         ),
-        
+
         const SizedBox(height: 32),
-        
+
         // Form Content
         Expanded(
           child: FadeTransition(
@@ -732,9 +760,9 @@ class _BusinessPlanGeneratorState extends State<BusinessPlanGenerator>
                     if (_currentStep == 1) _buildMarketAnalysisStep(),
                     if (_currentStep == 2) _buildFinancialProjectionsStep(),
                     if (_currentStep == 3) _buildGenerateStep(),
-                    
+
                     const SizedBox(height: 32),
-                    
+
                     // Navigation Buttons
                     Row(
                       children: [
@@ -743,8 +771,10 @@ class _BusinessPlanGeneratorState extends State<BusinessPlanGenerator>
                             child: OutlinedButton(
                               onPressed: _previousStep,
                               style: OutlinedButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(vertical: 16),
-                                side: const BorderSide(color: ModernTheme.primaryBlue),
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 16),
+                                side: const BorderSide(
+                                    color: ModernTheme.primaryBlue),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
@@ -778,7 +808,8 @@ class _BusinessPlanGeneratorState extends State<BusinessPlanGenerator>
                                     height: 20,
                                     child: CircularProgressIndicator(
                                       strokeWidth: 2,
-                                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                          Colors.white),
                                     ),
                                   )
                                 : Text(
@@ -793,7 +824,7 @@ class _BusinessPlanGeneratorState extends State<BusinessPlanGenerator>
                         ),
                       ],
                     ),
-                    
+
                     const SizedBox(height: 24),
                   ],
                 ),
@@ -826,7 +857,6 @@ class _BusinessPlanGeneratorState extends State<BusinessPlanGenerator>
           ),
         ),
         const SizedBox(height: 24),
-        
         TextFormField(
           controller: _companyNameController,
           decoration: const InputDecoration(
@@ -842,7 +872,6 @@ class _BusinessPlanGeneratorState extends State<BusinessPlanGenerator>
           },
         ),
         const SizedBox(height: 16),
-        
         TextFormField(
           controller: _industryController,
           decoration: const InputDecoration(
@@ -858,7 +887,6 @@ class _BusinessPlanGeneratorState extends State<BusinessPlanGenerator>
           },
         ),
         const SizedBox(height: 16),
-        
         TextFormField(
           controller: _descriptionController,
           maxLines: 3,
@@ -900,7 +928,6 @@ class _BusinessPlanGeneratorState extends State<BusinessPlanGenerator>
           ),
         ),
         const SizedBox(height: 24),
-        
         TextFormField(
           controller: _targetMarketController,
           decoration: const InputDecoration(
@@ -916,7 +943,6 @@ class _BusinessPlanGeneratorState extends State<BusinessPlanGenerator>
           },
         ),
         const SizedBox(height: 16),
-        
         TextFormField(
           controller: _revenueModelController,
           decoration: const InputDecoration(
@@ -956,7 +982,7 @@ class _BusinessPlanGeneratorState extends State<BusinessPlanGenerator>
           ),
         ),
         const SizedBox(height: 24),
-        
+
         // Financial inputs would go here
         Container(
           padding: const EdgeInsets.all(20),
@@ -1020,7 +1046,7 @@ class _BusinessPlanGeneratorState extends State<BusinessPlanGenerator>
           ),
         ),
         const SizedBox(height: 24),
-        
+
         // Summary of inputs
         Container(
           padding: const EdgeInsets.all(20),
@@ -1118,6 +1144,18 @@ class _BusinessPlanGeneratorState extends State<BusinessPlanGenerator>
       _isGenerating = true;
     });
 
+    // Collect form data
+    _businessData = {
+      'businessName': _companyNameController.text,
+      'businessType': 'Startup',
+      'industry': _industryController.text,
+      'targetMarket': _targetMarketController.text,
+      'businessModel': _revenueModelController.text,
+      'fundingGoal': '100000',
+      'timeline': '12 months',
+      'description': _descriptionController.text,
+    };
+
     try {
       // Use the real AI Business Plan service
       final businessPlan = await AIBusinessPlanService.generateBusinessPlan(
@@ -1128,7 +1166,8 @@ class _BusinessPlanGeneratorState extends State<BusinessPlanGenerator>
         businessModel: _businessData['businessModel'] ?? 'B2B',
         fundingGoal: _businessData['fundingGoal'] ?? '100000',
         timeline: _businessData['timeline'] ?? '12 months',
-        description: _businessData['description'] ?? 'Innovative business solution',
+        description:
+            _businessData['description'] ?? 'Innovative business solution',
       );
 
       setState(() {

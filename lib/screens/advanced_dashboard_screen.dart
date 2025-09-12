@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:lottie/lottie.dart';
 import 'package:shimmer/shimmer.dart';
 import '../core/theme/modern_theme.dart';
-import '../core/widgets/biznest_logo.dart';
-import '../core/widgets/modern_animations.dart';
 import '../core/services/analytics_service.dart';
 import '../core/services/realtime_service.dart';
 import '../core/services/business_intelligence_service.dart';
@@ -13,17 +10,17 @@ class AdvancedDashboardScreen extends StatefulWidget {
   const AdvancedDashboardScreen({super.key});
 
   @override
-  State<AdvancedDashboardScreen> createState() => _AdvancedDashboardScreenState();
+  State<AdvancedDashboardScreen> createState() =>
+      _AdvancedDashboardScreenState();
 }
 
 class _AdvancedDashboardScreenState extends State<AdvancedDashboardScreen>
     with TickerProviderStateMixin {
-  
   late AnimationController _animationController;
   late AnimationController _pulseController;
   late AnimationController _shimmerController;
   late AnimationController _chartController;
-  
+
   late Animation<double> _fadeAnimation;
   late Animation<double> _slideAnimation;
   late Animation<double> _pulseAnimation;
@@ -34,7 +31,7 @@ class _AdvancedDashboardScreenState extends State<AdvancedDashboardScreen>
   Map<String, dynamic> _insights = {};
   Map<String, dynamic> _analytics = {};
   bool _isLoading = true;
-  String _selectedTimeRange = '7d';
+  final String _selectedTimeRange = '7d';
   int _selectedTabIndex = 0;
 
   @override
@@ -259,7 +256,8 @@ class _AdvancedDashboardScreenState extends State<AdvancedDashboardScreen>
                         children: [
                           Text(
                             'Welcome back!',
-                            style: ModernTheme.textTheme.headlineSmall?.copyWith(
+                            style:
+                                ModernTheme.textTheme.headlineSmall?.copyWith(
                               color: Colors.white,
                               fontWeight: FontWeight.w300,
                             ),
@@ -344,7 +342,8 @@ class _AdvancedDashboardScreenState extends State<AdvancedDashboardScreen>
     );
   }
 
-  Widget _buildStatCard(String title, String value, IconData icon, Color color) {
+  Widget _buildStatCard(
+      String title, String value, IconData icon, Color color) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -393,7 +392,8 @@ class _AdvancedDashboardScreenState extends State<AdvancedDashboardScreen>
         ],
       ),
       child: TabBar(
-        controller: TabController(length: 4, vsync: this, initialIndex: _selectedTabIndex),
+        controller: TabController(
+            length: 4, vsync: this, initialIndex: _selectedTabIndex),
         onTap: (index) {
           setState(() {
             _selectedTabIndex = index;
@@ -432,16 +432,24 @@ class _AdvancedDashboardScreenState extends State<AdvancedDashboardScreen>
   }
 
   Widget _buildOverviewTab() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        children: [
-          _buildBusinessHealthCard(),
-          const SizedBox(height: 20),
-          _buildRecentActivityCard(),
-          const SizedBox(height: 20),
-          _buildQuickActionsCard(),
-        ],
+    return RefreshIndicator(
+      onRefresh: _loadDashboardData,
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          children: [
+            _isLoading
+                ? _buildSkeletonCard(height: 220)
+                : _buildBusinessHealthCard(),
+            const SizedBox(height: 20),
+            _isLoading
+                ? _buildSkeletonCard(height: 260)
+                : _buildRecentActivityCard(),
+            const SizedBox(height: 20),
+            _buildQuickActionsCard(),
+          ],
+        ),
       ),
     );
   }
@@ -461,13 +469,13 @@ class _AdvancedDashboardScreenState extends State<AdvancedDashboardScreen>
             child: Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: Colors.white,
+                gradient: ModernTheme.primaryGradient,
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 20,
-                    offset: const Offset(0, 10),
+                    color: Colors.black.withOpacity(0.12),
+                    blurRadius: 24,
+                    offset: const Offset(0, 12),
                   ),
                 ],
               ),
@@ -479,21 +487,23 @@ class _AdvancedDashboardScreenState extends State<AdvancedDashboardScreen>
                     children: [
                       Text(
                         'Business Health',
-                        style: ModernTheme.textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.bold,
+                        style: ModernTheme.headingMedium.copyWith(
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white,
                         ),
                       ),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
-                          color: _getHealthColor(healthLevel).withOpacity(0.1),
+                          color: Colors.white.withOpacity(0.18),
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
                           healthLevel,
-                          style: TextStyle(
-                            color: _getHealthColor(healthLevel),
-                            fontWeight: FontWeight.w600,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
                       ),
@@ -527,7 +537,7 @@ class _AdvancedDashboardScreenState extends State<AdvancedDashboardScreen>
                 child: CircularProgressIndicator(
                   value: (score / 100) * _chartAnimation.value,
                   strokeWidth: 12,
-                  backgroundColor: Colors.grey[200],
+                  backgroundColor: Colors.white.withOpacity(0.2),
                   valueColor: AlwaysStoppedAnimation<Color>(
                     _getHealthColor(_getHealthLevel(score)),
                   ),
@@ -535,9 +545,9 @@ class _AdvancedDashboardScreenState extends State<AdvancedDashboardScreen>
               ),
               Text(
                 '$score',
-                style: ModernTheme.textTheme.headlineLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: _getHealthColor(_getHealthLevel(score)),
+                style: ModernTheme.headingLarge.copyWith(
+                  fontWeight: FontWeight.w900,
+                  color: Colors.white,
                 ),
               ),
             ],
@@ -558,7 +568,8 @@ class _AdvancedDashboardScreenState extends State<AdvancedDashboardScreen>
           const SizedBox(height: 16),
         ],
         if (weaknesses.isNotEmpty) ...[
-          _buildMetricSection('Areas for Improvement', weaknesses, Colors.orange),
+          _buildMetricSection(
+              'Areas for Improvement', weaknesses, Colors.orange),
         ],
       ],
     );
@@ -570,32 +581,60 @@ class _AdvancedDashboardScreenState extends State<AdvancedDashboardScreen>
       children: [
         Text(
           title,
-          style: ModernTheme.textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.w600,
+          style: ModernTheme.bodyLarge.copyWith(
+            fontWeight: FontWeight.w700,
             color: color,
           ),
         ),
         const SizedBox(height: 8),
         ...items.take(3).map((item) => Padding(
-          padding: const EdgeInsets.only(bottom: 4),
-          child: Row(
-            children: [
-              Icon(
-                color == Colors.green ? Icons.check_circle : Icons.info,
-                size: 16,
-                color: color,
+              padding: const EdgeInsets.only(bottom: 4),
+              child: Row(
+                children: [
+                  Icon(
+                    color == Colors.green ? Icons.check_circle : Icons.info,
+                    size: 16,
+                    color: color,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      item.toString(),
+                      style:
+                          ModernTheme.bodyMedium.copyWith(color: Colors.white),
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  item.toString(),
-                  style: ModernTheme.textTheme.bodyMedium,
-                ),
-              ),
-            ],
-          ),
-        )),
+            )),
       ],
+    );
+  }
+
+  Widget _buildSkeletonCard({double height = 220}) {
+    return Container(
+      height: height,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Shimmer.fromColors(
+        baseColor: Colors.grey.shade300,
+        highlightColor: Colors.grey.shade100,
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+          ),
+        ),
+      ),
     );
   }
 
@@ -660,7 +699,8 @@ class _AdvancedDashboardScreenState extends State<AdvancedDashboardScreen>
     );
   }
 
-  Widget _buildActivityItem(String title, String subtitle, IconData icon, Color color, String time) {
+  Widget _buildActivityItem(
+      String title, String subtitle, IconData icon, Color color, String time) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Row(
@@ -787,7 +827,8 @@ class _AdvancedDashboardScreenState extends State<AdvancedDashboardScreen>
     );
   }
 
-  Widget _buildActionButton(String title, IconData icon, Color color, VoidCallback onTap) {
+  Widget _buildActionButton(
+      String title, IconData icon, Color color, VoidCallback onTap) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -870,8 +911,8 @@ class _AdvancedDashboardScreenState extends State<AdvancedDashboardScreen>
       builder: (context, child) {
         return LineChart(
           LineChartData(
-            gridData: FlGridData(show: false),
-            titlesData: FlTitlesData(show: false),
+            gridData: const FlGridData(show: false),
+            titlesData: const FlTitlesData(show: false),
             borderData: FlBorderData(show: false),
             lineBarsData: [
               LineChartBarData(
@@ -887,7 +928,7 @@ class _AdvancedDashboardScreenState extends State<AdvancedDashboardScreen>
                 isCurved: true,
                 color: ModernTheme.primaryColor,
                 barWidth: 3,
-                dotData: FlDotData(show: false),
+                dotData: const FlDotData(show: false),
                 belowBarData: BarAreaData(
                   show: true,
                   color: ModernTheme.primaryColor.withOpacity(0.1),
@@ -902,7 +943,7 @@ class _AdvancedDashboardScreenState extends State<AdvancedDashboardScreen>
 
   Widget _buildFeatureUsageCard() {
     final usage = _analytics['feature_usage'] as Map<String, int>? ?? {};
-    
+
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -926,7 +967,8 @@ class _AdvancedDashboardScreenState extends State<AdvancedDashboardScreen>
             ),
           ),
           const SizedBox(height: 20),
-          ...usage.entries.map((entry) => _buildUsageItem(entry.key, entry.value)),
+          ...usage.entries
+              .map((entry) => _buildUsageItem(entry.key, entry.value)),
         ],
       ),
     );
@@ -950,7 +992,7 @@ class _AdvancedDashboardScreenState extends State<AdvancedDashboardScreen>
             ),
             child: Text(
               count.toString(),
-              style: TextStyle(
+              style: const TextStyle(
                 color: ModernTheme.primaryColor,
                 fontWeight: FontWeight.w600,
               ),
@@ -975,8 +1017,10 @@ class _AdvancedDashboardScreenState extends State<AdvancedDashboardScreen>
   }
 
   Widget _buildRecommendationsCard() {
-    final recommendations = _insights['recommendations'] as Map<String, dynamic>? ?? {};
-    final priorityRecs = recommendations['priority_recommendations'] as List<dynamic>? ?? [];
+    final recommendations =
+        _insights['recommendations'] as Map<String, dynamic>? ?? {};
+    final priorityRecs =
+        recommendations['priority_recommendations'] as List<dynamic>? ?? [];
 
     return Container(
       padding: const EdgeInsets.all(24),
@@ -1040,9 +1084,11 @@ class _AdvancedDashboardScreenState extends State<AdvancedDashboardScreen>
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: _getPriorityColor(recommendation['priority'] ?? 'Medium'),
+                    color: _getPriorityColor(
+                        recommendation['priority'] ?? 'Medium'),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
@@ -1070,7 +1116,8 @@ class _AdvancedDashboardScreenState extends State<AdvancedDashboardScreen>
   }
 
   Widget _buildGrowthOpportunitiesCard() {
-    final opportunities = _insights['growth_opportunities'] as Map<String, dynamic>? ?? {};
+    final opportunities =
+        _insights['growth_opportunities'] as Map<String, dynamic>? ?? {};
     final opps = opportunities['opportunities'] as List<dynamic>? ?? [];
 
     return Container(
@@ -1251,24 +1298,36 @@ class _AdvancedDashboardScreenState extends State<AdvancedDashboardScreen>
                   },
                 ),
               ),
-              leftTitles: AxisTitles(
+              leftTitles: const AxisTitles(
                 sideTitles: SideTitles(showTitles: false),
               ),
-              topTitles: AxisTitles(
+              topTitles: const AxisTitles(
                 sideTitles: SideTitles(showTitles: false),
               ),
-              rightTitles: AxisTitles(
+              rightTitles: const AxisTitles(
                 sideTitles: SideTitles(showTitles: false),
               ),
             ),
             borderData: FlBorderData(show: false),
             barGroups: [
-              BarChartGroupData(x: 0, barRods: [BarChartRodData(toY: 8, color: ModernTheme.primaryColor)]),
-              BarChartGroupData(x: 1, barRods: [BarChartRodData(toY: 12, color: ModernTheme.primaryColor)]),
-              BarChartGroupData(x: 2, barRods: [BarChartRodData(toY: 6, color: ModernTheme.primaryColor)]),
-              BarChartGroupData(x: 3, barRods: [BarChartRodData(toY: 15, color: ModernTheme.primaryColor)]),
-              BarChartGroupData(x: 4, barRods: [BarChartRodData(toY: 18, color: ModernTheme.primaryColor)]),
-              BarChartGroupData(x: 5, barRods: [BarChartRodData(toY: 14, color: ModernTheme.primaryColor)]),
+              BarChartGroupData(x: 0, barRods: [
+                BarChartRodData(toY: 8, color: ModernTheme.primaryColor)
+              ]),
+              BarChartGroupData(x: 1, barRods: [
+                BarChartRodData(toY: 12, color: ModernTheme.primaryColor)
+              ]),
+              BarChartGroupData(x: 2, barRods: [
+                BarChartRodData(toY: 6, color: ModernTheme.primaryColor)
+              ]),
+              BarChartGroupData(x: 3, barRods: [
+                BarChartRodData(toY: 15, color: ModernTheme.primaryColor)
+              ]),
+              BarChartGroupData(x: 4, barRods: [
+                BarChartRodData(toY: 18, color: ModernTheme.primaryColor)
+              ]),
+              BarChartGroupData(x: 5, barRods: [
+                BarChartRodData(toY: 14, color: ModernTheme.primaryColor)
+              ]),
             ],
           ),
         );
@@ -1317,7 +1376,7 @@ class _AdvancedDashboardScreenState extends State<AdvancedDashboardScreen>
           Container(
             width: 8,
             height: 8,
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               color: ModernTheme.primaryColor,
               shape: BoxShape.circle,
             ),

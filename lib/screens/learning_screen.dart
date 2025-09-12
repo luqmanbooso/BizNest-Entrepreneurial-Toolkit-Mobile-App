@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:lottie/lottie.dart';
 import 'package:shimmer/shimmer.dart';
 import '../core/theme/modern_theme.dart';
 import '../core/widgets/biznest_logo.dart';
-import '../core/widgets/modern_animations.dart';
 import '../core/services/learning_engine.dart';
 import '../core/services/quiz_service.dart';
 import 'quiz_screen.dart';
@@ -15,11 +13,12 @@ class LearningScreen extends StatefulWidget {
   State<LearningScreen> createState() => _LearningScreenState();
 }
 
-class _LearningScreenState extends State<LearningScreen> with TickerProviderStateMixin {
+class _LearningScreenState extends State<LearningScreen>
+    with TickerProviderStateMixin {
   late AnimationController _fadeController;
   late AnimationController _slideController;
   late AnimationController _pulseController;
-  
+
   bool _isLoading = true;
   List<Map<String, dynamic>> _tutorials = [];
   Map<String, dynamic> _statistics = {};
@@ -50,22 +49,22 @@ class _LearningScreenState extends State<LearningScreen> with TickerProviderStat
 
   Future<void> _loadLearningData() async {
     setState(() => _isLoading = true);
-    
+
     try {
       final tutorials = await LearningEngine.getPersonalizedTutorials();
       final statistics = await LearningEngine.getLearningStatistics();
       final badges = await LearningEngine.getUserBadges();
       final level = await QuizService.getUserLevel();
-      
+
       setState(() {
         _tutorials = tutorials;
         _statistics = statistics;
         _badges = badges;
         _userLevel = level;
       });
-      
+
       await Future.delayed(const Duration(seconds: 1));
-      
+
       setState(() => _isLoading = false);
       _fadeController.forward();
       _slideController.forward();
@@ -194,7 +193,8 @@ class _LearningScreenState extends State<LearningScreen> with TickerProviderStat
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
                   color: Colors.white.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(20),
@@ -247,7 +247,7 @@ class _LearningScreenState extends State<LearningScreen> with TickerProviderStat
                       child: _buildStatItem(
                         'Tutorials',
                         '${_statistics['completed_tutorials'] ?? 0}',
-              Icons.school,
+                        Icons.school,
                         ModernTheme.primaryBlue,
                       ),
                     ),
@@ -279,7 +279,8 @@ class _LearningScreenState extends State<LearningScreen> with TickerProviderStat
     );
   }
 
-  Widget _buildStatItem(String label, String value, IconData icon, Color color) {
+  Widget _buildStatItem(
+      String label, String value, IconData icon, Color color) {
     return Column(
       children: [
         Container(
@@ -312,7 +313,7 @@ class _LearningScreenState extends State<LearningScreen> with TickerProviderStat
     final completed = _statistics['completed_tutorials'] as int? ?? 0;
     final total = completed + _tutorials.length;
     final progress = total > 0 ? completed / total : 0.0;
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -347,7 +348,10 @@ class _LearningScreenState extends State<LearningScreen> with TickerProviderStat
             child: Container(
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
-                  colors: [ModernTheme.primaryBlue, ModernTheme.secondaryPurple],
+                  colors: [
+                    ModernTheme.primaryBlue,
+                    ModernTheme.secondaryPurple
+                  ],
                 ),
                 borderRadius: BorderRadius.circular(4),
               ),
@@ -360,7 +364,7 @@ class _LearningScreenState extends State<LearningScreen> with TickerProviderStat
 
   Widget _buildBadgesSection() {
     if (_badges.isEmpty) return const SizedBox();
-    
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
       child: Card(
@@ -460,7 +464,9 @@ class _LearningScreenState extends State<LearningScreen> with TickerProviderStat
                 if (_tutorials.isEmpty)
                   _buildEmptyTutorials()
                 else
-                  ..._tutorials.take(3).map((tutorial) => _buildTutorialCard(tutorial)).toList(),
+                  ..._tutorials
+                      .take(3)
+                      .map((tutorial) => _buildTutorialCard(tutorial)),
                 if (_tutorials.length > 3)
                   TextButton(
                     onPressed: _viewAllTutorials,
@@ -523,7 +529,7 @@ class _LearningScreenState extends State<LearningScreen> with TickerProviderStat
                   color: ModernTheme.primaryBlue.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(
+                child: const Icon(
                   Icons.play_circle_outline,
                   color: ModernTheme.primaryBlue,
                   size: 24,
@@ -551,15 +557,18 @@ class _LearningScreenState extends State<LearningScreen> with TickerProviderStat
                     Row(
                       children: [
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
-                            color: _getDifficultyColor(tutorial['difficulty']).withOpacity(0.1),
+                            color: _getDifficultyColor(tutorial['difficulty'])
+                                .withOpacity(0.1),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
                             tutorial['difficulty'].toString().toUpperCase(),
                             style: ModernTheme.bodySmall.copyWith(
-                              color: _getDifficultyColor(tutorial['difficulty']),
+                              color:
+                                  _getDifficultyColor(tutorial['difficulty']),
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -783,7 +792,7 @@ class _LearningScreenState extends State<LearningScreen> with TickerProviderStat
 
   void _viewLeaderboard() async {
     final leaderboard = await LearningEngine.getLeaderboard();
-    
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -818,7 +827,7 @@ class _LearningScreenState extends State<LearningScreen> with TickerProviderStat
 
   void _viewRecommendations() async {
     final recommendations = await QuizService.getPersonalizedRecommendations();
-    
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -827,17 +836,20 @@ class _LearningScreenState extends State<LearningScreen> with TickerProviderStat
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
-            children: recommendations.map((rec) => Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Icon(Icons.lightbulb, color: ModernTheme.primaryBlue, size: 16),
-                  const SizedBox(width: 8),
-                  Expanded(child: Text(rec)),
-                ],
-              ),
-            )).toList(),
+            children: recommendations
+                .map((rec) => Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Icon(Icons.lightbulb,
+                              color: ModernTheme.primaryBlue, size: 16),
+                          const SizedBox(width: 8),
+                          Expanded(child: Text(rec)),
+                        ],
+                      ),
+                    ))
+                .toList(),
           ),
         ),
         actions: [

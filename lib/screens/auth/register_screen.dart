@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/modern_theme.dart';
 import '../../core/services/auth_service.dart';
-import '../../core/widgets/biznest_logo.dart';
-import '../../core/widgets/modern_animations.dart';
+import '../main_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -13,22 +12,22 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen>
     with TickerProviderStateMixin {
-  
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
-  
+
   late AnimationController _animationController;
-  late AnimationController _logoController;
-  late AnimationController _formController;
-  
+  late AnimationController _fadeController;
+  late AnimationController _scaleController;
+  late AnimationController _slideController;
+
   late Animation<double> _fadeAnimation;
-  late Animation<double> _slideAnimation;
-  late Animation<double> _logoScaleAnimation;
-  late Animation<double> _formScaleAnimation;
-  
+  late Animation<double> _scaleAnimation;
+  late Animation<Offset> _slideAnimation;
+  late Animation<double> _rotationAnimation;
+
   bool _isLoading = false;
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
@@ -37,19 +36,28 @@ class _RegisterScreenState extends State<RegisterScreen>
   @override
   void initState() {
     super.initState();
-    
+    _setupAnimations();
+    _startAnimations();
+  }
+
+  void _setupAnimations() {
     _animationController = AnimationController(
-      duration: const Duration(milliseconds: 1500),
+      duration: const Duration(milliseconds: 2000),
       vsync: this,
     );
-    
-    _logoController = AnimationController(
+
+    _fadeController = AnimationController(
       duration: const Duration(milliseconds: 1000),
       vsync: this,
     );
-    
-    _formController = AnimationController(
+
+    _scaleController = AnimationController(
       duration: const Duration(milliseconds: 800),
+      vsync: this,
+    );
+
+    _slideController = AnimationController(
+      duration: const Duration(milliseconds: 1200),
       vsync: this,
     );
 
@@ -57,46 +65,40 @@ class _RegisterScreenState extends State<RegisterScreen>
       begin: 0.0,
       end: 1.0,
     ).animate(CurvedAnimation(
-      parent: _animationController,
+      parent: _fadeController,
       curve: Curves.easeInOut,
     ));
 
-    _slideAnimation = Tween<double>(
-      begin: 0.3,
+    _scaleAnimation = Tween<double>(
+      begin: 0.9,
       end: 1.0,
     ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeOutCubic,
-    ));
-
-    _logoScaleAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _logoController,
+      parent: _scaleController,
       curve: Curves.elasticOut,
     ));
 
-    _formScaleAnimation = Tween<double>(
-      begin: 0.8,
-      end: 1.0,
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 0.3),
+      end: Offset.zero,
     ).animate(CurvedAnimation(
-      parent: _formController,
-      curve: Curves.easeOutBack,
+      parent: _slideController,
+      curve: Curves.easeOutCubic,
     ));
 
-    _startAnimations();
+    _rotationAnimation = Tween<double>(
+      begin: 0.0,
+      end: 0.05,
+    ).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeInOut,
+    ));
   }
 
-  void _startAnimations() async {
-    await Future.delayed(const Duration(milliseconds: 300));
-    _logoController.forward();
-    
-    await Future.delayed(const Duration(milliseconds: 500));
-    _animationController.forward();
-    
-    await Future.delayed(const Duration(milliseconds: 800));
-    _formController.forward();
+  void _startAnimations() {
+    _fadeController.forward();
+    _scaleController.forward();
+    _slideController.forward();
+    _animationController.repeat(reverse: true);
   }
 
   @override
@@ -106,9 +108,85 @@ class _RegisterScreenState extends State<RegisterScreen>
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     _animationController.dispose();
-    _logoController.dispose();
-    _formController.dispose();
+    _fadeController.dispose();
+    _scaleController.dispose();
+    _slideController.dispose();
     super.dispose();
+  }
+
+  Future<void> _register() async {
+    if (!_formKey.currentState!.validate()) return;
+    if (!_agreeToTerms) {
+      _showErrorSnackBar('Please agree to the terms and conditions');
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final result = await AuthService.register(
+        name: _nameController.text.trim(),
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
+      );
+
+      if (result.success && mounted) {
+        Navigator.of(context).pushReplacement(
+          PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) =>
+                const MainScreen(),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+              return FadeTransition(
+                opacity: animation,
+                child: SlideTransition(
+                  position: Tween<Offset>(
+                    begin: const Offset(1.0, 0.0),
+                    end: Offset.zero,
+                  ).animate(CurvedAnimation(
+                    parent: animation,
+                    curve: Curves.easeInOut,
+                  )),
+                  child: child,
+                ),
+              );
+            },
+            transitionDuration: const Duration(milliseconds: 600),
+          ),
+        );
+      } else if (mounted) {
+        _showErrorSnackBar(result.message);
+      }
+    } catch (e) {
+      if (mounted) {
+        _showErrorSnackBar('Registration failed. Please try again.');
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  void _showErrorSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: ModernTheme.errorRed,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ),
+    );
+  }
+
+  void _goToLogin() {
+    Navigator.of(context).pop();
   }
 
   @override
@@ -120,486 +198,44 @@ class _RegisterScreenState extends State<RegisterScreen>
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              ModernTheme.secondaryPurple,
-              ModernTheme.primaryBlue,
-              ModernTheme.accentGreen,
+              ModernTheme.lightGray,
+              ModernTheme.white,
             ],
-            stops: [0.0, 0.5, 1.0],
           ),
         ),
-        child: ParticleAnimation(
-          particleCount: 40,
-          particleColor: Colors.white,
-          particleSpeed: 0.3,
-          child: SafeArea(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 20),
-                  
-                  // Back Button
-                  FadeTransition(
-                    opacity: _fadeAnimation,
-                    child: IconButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      icon: const Icon(
-                        Icons.arrow_back_ios_rounded,
-                        color: Colors.white,
-                        size: 24,
-                      ),
-                    ),
-                  ),
-                  
-                  const SizedBox(height: 20),
-                  
-                  // Logo Section
-                  Center(
-                    child: AnimatedBuilder(
-                      animation: _logoScaleAnimation,
-                      builder: (context, child) {
-                        return Transform.scale(
-                          scale: _logoScaleAnimation.value,
-                          child: FadeTransition(
-                            opacity: _fadeAnimation,
-                            child: const BizNestLogo(
-                              size: 60,
-                              showText: true,
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                  
-                  const SizedBox(height: 32),
-                  
-                  // Welcome Text
-                  FadeTransition(
-                    opacity: _fadeAnimation,
-                    child: SlideTransition(
-                      position: Tween<Offset>(
-                        begin: const Offset(0, 0.3),
-                        end: Offset.zero,
-                      ).animate(CurvedAnimation(
-                        parent: _animationController,
-                        curve: Curves.easeOutCubic,
-                      )),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Create Account',
-                            style: TextStyle(
-                              fontSize: 32,
-                              fontWeight: FontWeight.w900,
-                              color: Colors.white,
-                              letterSpacing: -1,
-                              height: 1.1,
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                          Text(
-                            'Join thousands of entrepreneurs building the future',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.white.withOpacity(0.8),
-                              fontWeight: FontWeight.w500,
-                              height: 1.5,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  
-                  const SizedBox(height: 40),
-                  
-                  // Registration Form
-                  AnimatedBuilder(
-                    animation: _formScaleAnimation,
-                    builder: (context, child) {
-                      return Transform.scale(
-                        scale: _formScaleAnimation.value,
-                        child: FadeTransition(
-                          opacity: _fadeAnimation,
-                          child: GlassContainer(
-                            opacity: 0.15,
-                            blur: 20,
-                            child: Form(
-                              key: _formKey,
-                              child: Column(
-                                children: [
-                                  // Full Name Field
-                                  TextFormField(
-                                    controller: _nameController,
-                                    keyboardType: TextInputType.name,
-                                    style: const TextStyle(color: Colors.white),
-                                    decoration: InputDecoration(
-                                      labelText: 'Full Name',
-                                      labelStyle: TextStyle(
-                                        color: Colors.white.withOpacity(0.8),
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                      prefixIcon: Container(
-                                        margin: const EdgeInsets.all(12),
-                                        decoration: BoxDecoration(
-                                          color: Colors.white.withOpacity(0.2),
-                                          borderRadius: BorderRadius.circular(8),
-                                        ),
-                                        child: const Icon(
-                                          Icons.person_rounded,
-                                          color: Colors.white,
-                                          size: 20,
-                                        ),
-                                      ),
-                                      filled: true,
-                                      fillColor: Colors.white.withOpacity(0.1),
-                                      border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(16),
-                                        borderSide: BorderSide(
-                                          color: Colors.white.withOpacity(0.3),
-                                        ),
-                                      ),
-                                      enabledBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(16),
-                                        borderSide: BorderSide(
-                                          color: Colors.white.withOpacity(0.3),
-                                        ),
-                                      ),
-                                      focusedBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(16),
-                                        borderSide: const BorderSide(
-                                          color: Colors.white,
-                                          width: 2,
-                                        ),
-                                      ),
-                                    ),
-                                    validator: (value) {
-                                      if (value?.isEmpty ?? true) {
-                                        return 'Please enter your full name';
-                                      }
-                                      if (value!.length < 2) {
-                                        return 'Name must be at least 2 characters';
-                                      }
-                                      return null;
-                                    },
-                                  ),
-                                  
-                                  const SizedBox(height: 20),
-                                  
-                                  // Email Field
-                                  TextFormField(
-                                    controller: _emailController,
-                                    keyboardType: TextInputType.emailAddress,
-                                    style: const TextStyle(color: Colors.white),
-                                    decoration: InputDecoration(
-                                      labelText: 'Email Address',
-                                      labelStyle: TextStyle(
-                                        color: Colors.white.withOpacity(0.8),
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                      prefixIcon: Container(
-                                        margin: const EdgeInsets.all(12),
-                                        decoration: BoxDecoration(
-                                          color: Colors.white.withOpacity(0.2),
-                                          borderRadius: BorderRadius.circular(8),
-                                        ),
-                                        child: const Icon(
-                                          Icons.email_rounded,
-                                          color: Colors.white,
-                                          size: 20,
-                                        ),
-                                      ),
-                                      filled: true,
-                                      fillColor: Colors.white.withOpacity(0.1),
-                                      border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(16),
-                                        borderSide: BorderSide(
-                                          color: Colors.white.withOpacity(0.3),
-                                        ),
-                                      ),
-                                      enabledBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(16),
-                                        borderSide: BorderSide(
-                                          color: Colors.white.withOpacity(0.3),
-                                        ),
-                                      ),
-                                      focusedBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(16),
-                                        borderSide: const BorderSide(
-                                          color: Colors.white,
-                                          width: 2,
-                                        ),
-                                      ),
-                                    ),
-                                    validator: (value) {
-                                      if (value?.isEmpty ?? true) {
-                                        return 'Please enter your email';
-                                      }
-                                      if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value!)) {
-                                        return 'Please enter a valid email';
-                                      }
-                                      return null;
-                                    },
-                                  ),
-                                  
-                                  const SizedBox(height: 20),
-                                  
-                                  // Password Field
-                                  TextFormField(
-                                    controller: _passwordController,
-                                    obscureText: _obscurePassword,
-                                    style: const TextStyle(color: Colors.white),
-                                    decoration: InputDecoration(
-                                      labelText: 'Password',
-                                      labelStyle: TextStyle(
-                                        color: Colors.white.withOpacity(0.8),
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                      prefixIcon: Container(
-                                        margin: const EdgeInsets.all(12),
-                                        decoration: BoxDecoration(
-                                          color: Colors.white.withOpacity(0.2),
-                                          borderRadius: BorderRadius.circular(8),
-                                        ),
-                                        child: const Icon(
-                                          Icons.lock_rounded,
-                                          color: Colors.white,
-                                          size: 20,
-                                        ),
-                                      ),
-                                      suffixIcon: IconButton(
-                                        onPressed: () {
-                                          setState(() {
-                                            _obscurePassword = !_obscurePassword;
-                                          });
-                                        },
-                                        icon: Icon(
-                                          _obscurePassword 
-                                              ? Icons.visibility_off_rounded 
-                                              : Icons.visibility_rounded,
-                                          color: Colors.white.withOpacity(0.7),
-                                        ),
-                                      ),
-                                      filled: true,
-                                      fillColor: Colors.white.withOpacity(0.1),
-                                      border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(16),
-                                        borderSide: BorderSide(
-                                          color: Colors.white.withOpacity(0.3),
-                                        ),
-                                      ),
-                                      enabledBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(16),
-                                        borderSide: BorderSide(
-                                          color: Colors.white.withOpacity(0.3),
-                                        ),
-                                      ),
-                                      focusedBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(16),
-                                        borderSide: const BorderSide(
-                                          color: Colors.white,
-                                          width: 2,
-                                        ),
-                                      ),
-                                    ),
-                                    validator: (value) {
-                                      if (value?.isEmpty ?? true) {
-                                        return 'Please enter your password';
-                                      }
-                                      if (value!.length < 6) {
-                                        return 'Password must be at least 6 characters';
-                                      }
-                                      return null;
-                                    },
-                                  ),
-                                  
-                                  const SizedBox(height: 20),
-                                  
-                                  // Confirm Password Field
-                                  TextFormField(
-                                    controller: _confirmPasswordController,
-                                    obscureText: _obscureConfirmPassword,
-                                    style: const TextStyle(color: Colors.white),
-                                    decoration: InputDecoration(
-                                      labelText: 'Confirm Password',
-                                      labelStyle: TextStyle(
-                                        color: Colors.white.withOpacity(0.8),
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                      prefixIcon: Container(
-                                        margin: const EdgeInsets.all(12),
-                                        decoration: BoxDecoration(
-                                          color: Colors.white.withOpacity(0.2),
-                                          borderRadius: BorderRadius.circular(8),
-                                        ),
-                                        child: const Icon(
-                                          Icons.lock_rounded,
-                                          color: Colors.white,
-                                          size: 20,
-                                        ),
-                                      ),
-                                      suffixIcon: IconButton(
-                                        onPressed: () {
-                                          setState(() {
-                                            _obscureConfirmPassword = !_obscureConfirmPassword;
-                                          });
-                                        },
-                                        icon: Icon(
-                                          _obscureConfirmPassword 
-                                              ? Icons.visibility_off_rounded 
-                                              : Icons.visibility_rounded,
-                                          color: Colors.white.withOpacity(0.7),
-                                        ),
-                                      ),
-                                      filled: true,
-                                      fillColor: Colors.white.withOpacity(0.1),
-                                      border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(16),
-                                        borderSide: BorderSide(
-                                          color: Colors.white.withOpacity(0.3),
-                                        ),
-                                      ),
-                                      enabledBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(16),
-                                        borderSide: BorderSide(
-                                          color: Colors.white.withOpacity(0.3),
-                                        ),
-                                      ),
-                                      focusedBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(16),
-                                        borderSide: const BorderSide(
-                                          color: Colors.white,
-                                          width: 2,
-                                        ),
-                                      ),
-                                    ),
-                                    validator: (value) {
-                                      if (value?.isEmpty ?? true) {
-                                        return 'Please confirm your password';
-                                      }
-                                      if (value != _passwordController.text) {
-                                        return 'Passwords do not match';
-                                      }
-                                      return null;
-                                    },
-                                  ),
-                                  
-                                  const SizedBox(height: 24),
-                                  
-                                  // Terms and Conditions
-                                  Row(
-                                    children: [
-                                      Checkbox(
-                                        value: _agreeToTerms,
-                                        onChanged: (value) {
-                                          setState(() {
-                                            _agreeToTerms = value ?? false;
-                                          });
-                                        },
-                                        activeColor: Colors.white,
-                                        checkColor: ModernTheme.primaryBlue,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(4),
-                                        ),
-                                      ),
-                                      Expanded(
-                                        child: GestureDetector(
-                                          onTap: () {
-                                            setState(() {
-                                              _agreeToTerms = !_agreeToTerms;
-                                            });
-                                          },
-                                          child: RichText(
-                                            text: TextSpan(
-                                              style: TextStyle(
-                                                color: Colors.white.withOpacity(0.8),
-                                                fontSize: 14,
-                                              ),
-                                              children: const [
-                                                TextSpan(text: 'I agree to the '),
-                                                TextSpan(
-                                                  text: 'Terms of Service',
-                                                  style: TextStyle(
-                                                    color: Colors.white,
-                                                    fontWeight: FontWeight.w600,
-                                                    decoration: TextDecoration.underline,
-                                                  ),
-                                                ),
-                                                TextSpan(text: ' and '),
-                                                TextSpan(
-                                                  text: 'Privacy Policy',
-                                                  style: TextStyle(
-                                                    color: Colors.white,
-                                                    fontWeight: FontWeight.w600,
-                                                    decoration: TextDecoration.underline,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  
-                                  const SizedBox(height: 32),
-                                  
-                                  // Register Button
-                                  SizedBox(
-                                    width: double.infinity,
-                                    child: MorphingButton(
-                                      text: _isLoading ? 'Creating Account...' : 'Create Account',
-                                      onPressed: _isLoading ? () {} : _register,
-                                      gradient: const LinearGradient(
-                                        colors: [Colors.white, Colors.white70],
-                                      ),
-                                      textColor: ModernTheme.primaryBlue,
-                                    ),
-                                  ),
-                                  
-                                  const SizedBox(height: 24),
-                                  
-                                  // Sign In Link
-                                  Center(
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        Text(
-                                          'Already have an account? ',
-                                          style: TextStyle(
-                                            color: Colors.white.withOpacity(0.7),
-                                            fontSize: 14,
-                                          ),
-                                        ),
-                                        TextButton(
-                                          onPressed: () {
-                                            Navigator.of(context).pop();
-                                          },
-                                          child: const Text(
-                                            'Sign In',
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ],
-              ),
+        child: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const SizedBox(height: 20),
+
+                // Header
+                _buildHeader(),
+
+                const SizedBox(height: 40),
+
+                // Register Form
+                _buildRegisterForm(),
+
+                const SizedBox(height: 32),
+
+                // Terms and Conditions
+                _buildTermsAndConditions(),
+
+                const SizedBox(height: 32),
+
+                // Register Button
+                _buildRegisterButton(),
+
+                const SizedBox(height: 32),
+
+                // Login Link
+                _buildLoginLink(),
+
+                const SizedBox(height: 40),
+              ],
             ),
           ),
         ),
@@ -607,46 +243,569 @@ class _RegisterScreenState extends State<RegisterScreen>
     );
   }
 
-  void _register() async {
-    if (!_agreeToTerms) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Please agree to the Terms of Service and Privacy Policy'),
-          backgroundColor: ModernTheme.errorRed,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
-      );
-      return;
-    }
+  Widget _buildHeader() {
+    return AnimatedBuilder(
+      animation: _fadeAnimation,
+      builder: (context, child) {
+        return FadeTransition(
+          opacity: _fadeAnimation,
+          child: SlideTransition(
+            position: _slideAnimation,
+            child: Column(
+              children: [
+                // Back Button
+                Row(
+                  children: [
+                    IconButton(
+                      onPressed: _goToLogin,
+                      icon: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: ModernTheme.white,
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.1),
+                              blurRadius: 10,
+                              offset: const Offset(0, 5),
+                            ),
+                          ],
+                        ),
+                        child: const Icon(
+                          Icons.arrow_back_ios,
+                          color: ModernTheme.navy,
+                          size: 20,
+                        ),
+                      ),
+                    ),
+                    const Spacer(),
+                  ],
+                ),
 
-    if (_formKey.currentState?.validate() ?? false) {
-      setState(() {
-        _isLoading = true;
-      });
+                const SizedBox(height: 20),
 
-      // Simulate registration process
-      await Future.delayed(const Duration(seconds: 2));
+                // Logo
+                AnimatedBuilder(
+                  animation: _rotationAnimation,
+                  builder: (context, child) {
+                    return Transform.rotate(
+                      angle: _rotationAnimation.value,
+                      child: Container(
+                        width: 100,
+                        height: 100,
+                        decoration: BoxDecoration(
+                          gradient: ModernTheme.growthGradient,
+                          borderRadius: BorderRadius.circular(25),
+                          boxShadow: [
+                            BoxShadow(
+                              color: ModernTheme.freshGreen.withOpacity(0.3),
+                              blurRadius: 20,
+                              offset: const Offset(0, 10),
+                            ),
+                          ],
+                        ),
+                        child: const Icon(
+                          Icons.person_add,
+                          size: 50,
+                          color: Colors.white,
+                        ),
+                      ),
+                    );
+                  },
+                ),
 
-      setState(() {
-        _isLoading = false;
-      });
+                const SizedBox(height: 24),
 
-      if (mounted) {
-        Navigator.of(context).pushReplacementNamed('/main');
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Welcome to BizNest! Your account has been created successfully'),
-            backgroundColor: ModernTheme.accentGreen,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+                Text(
+                  'Create Account',
+                  style: ModernTheme.h1.copyWith(
+                    color: ModernTheme.navy,
+                    fontWeight: FontWeight.w900,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+
+                const SizedBox(height: 8),
+
+                Text(
+                  'Join thousands of entrepreneurs building the future',
+                  style: ModernTheme.bodyLarge.copyWith(
+                    color: ModernTheme.mediumGray,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
             ),
           ),
         );
-      }
-    }
+      },
+    );
+  }
+
+  Widget _buildRegisterForm() {
+    return AnimatedBuilder(
+      animation: _fadeAnimation,
+      builder: (context, child) {
+        return FadeTransition(
+          opacity: _fadeAnimation,
+          child: SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(0, 0.3),
+              end: Offset.zero,
+            ).animate(CurvedAnimation(
+              parent: _fadeController,
+              curve: const Interval(0.3, 1.0, curve: Curves.easeOut),
+            )),
+            child: ScaleTransition(
+              scale: _scaleAnimation,
+              child: Container(
+                padding: const EdgeInsets.all(32),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(24),
+                  boxShadow: [
+                    BoxShadow(
+                      color: ModernTheme.freshGreen.withOpacity(0.1),
+                      blurRadius: 30,
+                      offset: const Offset(0, 15),
+                    ),
+                  ],
+                ),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // Name Field
+                      _buildNameField(),
+
+                      const SizedBox(height: 20),
+
+                      // Email Field
+                      _buildEmailField(),
+
+                      const SizedBox(height: 20),
+
+                      // Password Field
+                      _buildPasswordField(),
+
+                      const SizedBox(height: 20),
+
+                      // Confirm Password Field
+                      _buildConfirmPasswordField(),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildNameField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Full Name',
+          style: ModernTheme.bodyMedium.copyWith(
+            color: ModernTheme.navy,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        const SizedBox(height: 8),
+        TextFormField(
+          controller: _nameController,
+          textInputAction: TextInputAction.next,
+          decoration: InputDecoration(
+            hintText: 'Enter your full name',
+            prefixIcon: const Icon(
+              Icons.person_outline,
+              color: ModernTheme.freshGreen,
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+              borderSide:
+                  BorderSide(color: ModernTheme.mediumGray.withOpacity(0.3)),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+              borderSide:
+                  BorderSide(color: ModernTheme.mediumGray.withOpacity(0.3)),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+              borderSide:
+                  const BorderSide(color: ModernTheme.freshGreen, width: 2),
+            ),
+            filled: true,
+            fillColor: ModernTheme.lightGray.withOpacity(0.5),
+          ),
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Please enter your full name';
+            }
+            if (value.length < 2) {
+              return 'Name must be at least 2 characters';
+            }
+            return null;
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildEmailField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Email',
+          style: ModernTheme.bodyMedium.copyWith(
+            color: ModernTheme.navy,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        const SizedBox(height: 8),
+        TextFormField(
+          controller: _emailController,
+          keyboardType: TextInputType.emailAddress,
+          textInputAction: TextInputAction.next,
+          decoration: InputDecoration(
+            hintText: 'Enter your email',
+            prefixIcon: const Icon(
+              Icons.email_outlined,
+              color: ModernTheme.freshGreen,
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+              borderSide:
+                  BorderSide(color: ModernTheme.mediumGray.withOpacity(0.3)),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+              borderSide:
+                  BorderSide(color: ModernTheme.mediumGray.withOpacity(0.3)),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+              borderSide:
+                  const BorderSide(color: ModernTheme.freshGreen, width: 2),
+            ),
+            filled: true,
+            fillColor: ModernTheme.lightGray.withOpacity(0.5),
+          ),
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Please enter your email';
+            }
+            if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+              return 'Please enter a valid email';
+            }
+            return null;
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPasswordField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Password',
+          style: ModernTheme.bodyMedium.copyWith(
+            color: ModernTheme.navy,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        const SizedBox(height: 8),
+        TextFormField(
+          controller: _passwordController,
+          obscureText: _obscurePassword,
+          textInputAction: TextInputAction.next,
+          decoration: InputDecoration(
+            hintText: 'Create a password',
+            prefixIcon: const Icon(
+              Icons.lock_outline,
+              color: ModernTheme.freshGreen,
+            ),
+            suffixIcon: IconButton(
+              icon: Icon(
+                _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                color: ModernTheme.mediumGray,
+              ),
+              onPressed: () {
+                setState(() {
+                  _obscurePassword = !_obscurePassword;
+                });
+              },
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+              borderSide:
+                  BorderSide(color: ModernTheme.mediumGray.withOpacity(0.3)),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+              borderSide:
+                  BorderSide(color: ModernTheme.mediumGray.withOpacity(0.3)),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+              borderSide:
+                  const BorderSide(color: ModernTheme.freshGreen, width: 2),
+            ),
+            filled: true,
+            fillColor: ModernTheme.lightGray.withOpacity(0.5),
+          ),
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Please enter a password';
+            }
+            if (value.length < 6) {
+              return 'Password must be at least 6 characters';
+            }
+            return null;
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildConfirmPasswordField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Confirm Password',
+          style: ModernTheme.bodyMedium.copyWith(
+            color: ModernTheme.navy,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        const SizedBox(height: 8),
+        TextFormField(
+          controller: _confirmPasswordController,
+          obscureText: _obscureConfirmPassword,
+          textInputAction: TextInputAction.done,
+          onFieldSubmitted: (_) => _register(),
+          decoration: InputDecoration(
+            hintText: 'Confirm your password',
+            prefixIcon: const Icon(
+              Icons.lock_outline,
+              color: ModernTheme.freshGreen,
+            ),
+            suffixIcon: IconButton(
+              icon: Icon(
+                _obscureConfirmPassword
+                    ? Icons.visibility_off
+                    : Icons.visibility,
+                color: ModernTheme.mediumGray,
+              ),
+              onPressed: () {
+                setState(() {
+                  _obscureConfirmPassword = !_obscureConfirmPassword;
+                });
+              },
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+              borderSide:
+                  BorderSide(color: ModernTheme.mediumGray.withOpacity(0.3)),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+              borderSide:
+                  BorderSide(color: ModernTheme.mediumGray.withOpacity(0.3)),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+              borderSide:
+                  const BorderSide(color: ModernTheme.freshGreen, width: 2),
+            ),
+            filled: true,
+            fillColor: ModernTheme.lightGray.withOpacity(0.5),
+          ),
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Please confirm your password';
+            }
+            if (value != _passwordController.text) {
+              return 'Passwords do not match';
+            }
+            return null;
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTermsAndConditions() {
+    return AnimatedBuilder(
+      animation: _fadeAnimation,
+      builder: (context, child) {
+        return FadeTransition(
+          opacity: _fadeAnimation,
+          child: SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(0, 0.3),
+              end: Offset.zero,
+            ).animate(CurvedAnimation(
+              parent: _fadeController,
+              curve: const Interval(0.6, 1.0, curve: Curves.easeOut),
+            )),
+            child: Row(
+              children: [
+                Checkbox(
+                  value: _agreeToTerms,
+                  onChanged: (value) {
+                    setState(() {
+                      _agreeToTerms = value ?? false;
+                    });
+                  },
+                  activeColor: ModernTheme.freshGreen,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+                Expanded(
+                  child: RichText(
+                    text: TextSpan(
+                      style: ModernTheme.bodySmall.copyWith(
+                        color: ModernTheme.mediumGray,
+                      ),
+                      children: [
+                        const TextSpan(text: 'I agree to the '),
+                        TextSpan(
+                          text: 'Terms of Service',
+                          style: ModernTheme.bodySmall.copyWith(
+                            color: ModernTheme.freshGreen,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const TextSpan(text: ' and '),
+                        TextSpan(
+                          text: 'Privacy Policy',
+                          style: ModernTheme.bodySmall.copyWith(
+                            color: ModernTheme.freshGreen,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildRegisterButton() {
+    return AnimatedBuilder(
+      animation: _fadeAnimation,
+      builder: (context, child) {
+        return FadeTransition(
+          opacity: _fadeAnimation,
+          child: SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(0, 0.3),
+              end: Offset.zero,
+            ).animate(CurvedAnimation(
+              parent: _fadeController,
+              curve: const Interval(0.7, 1.0, curve: Curves.easeOut),
+            )),
+            child: Container(
+              height: 60,
+              decoration: BoxDecoration(
+                gradient: ModernTheme.growthGradient,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: ModernTheme.freshGreen.withOpacity(0.3),
+                    blurRadius: 20,
+                    offset: const Offset(0, 10),
+                  ),
+                ],
+              ),
+              child: ElevatedButton(
+                onPressed: _isLoading ? null : _register,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.transparent,
+                  shadowColor: Colors.transparent,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                ),
+                child: _isLoading
+                    ? const SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2,
+                        ),
+                      )
+                    : const Text(
+                        'Create Account',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildLoginLink() {
+    return AnimatedBuilder(
+      animation: _fadeAnimation,
+      builder: (context, child) {
+        return FadeTransition(
+          opacity: _fadeAnimation,
+          child: SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(0, 0.3),
+              end: Offset.zero,
+            ).animate(CurvedAnimation(
+              parent: _fadeController,
+              curve: const Interval(0.8, 1.0, curve: Curves.easeOut),
+            )),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'Already have an account? ',
+                  style: ModernTheme.bodyMedium.copyWith(
+                    color: ModernTheme.mediumGray,
+                  ),
+                ),
+                TextButton(
+                  onPressed: _goToLogin,
+                  child: Text(
+                    'Sign In',
+                    style: ModernTheme.bodyMedium.copyWith(
+                      color: ModernTheme.freshGreen,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 }

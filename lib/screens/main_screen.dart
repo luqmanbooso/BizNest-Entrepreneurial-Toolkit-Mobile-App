@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'dart:ui' as ui;
 import '../core/theme/modern_theme.dart';
-import '../core/widgets/biznest_logo.dart';
-import '../core/widgets/modern_animations.dart';
 import 'advanced_dashboard_screen.dart';
 import 'business_screen.dart';
 import 'financial_screen.dart';
 import 'networking_screen.dart';
 import 'learning_screen.dart';
 import 'profile_screen.dart';
-import 'quiz_screen.dart';
 import 'community_screen.dart';
 
 class MainScreen extends StatefulWidget {
@@ -19,13 +17,11 @@ class MainScreen extends StatefulWidget {
   State<MainScreen> createState() => _MainScreenState();
 }
 
-class _MainScreenState extends State<MainScreen>
-    with TickerProviderStateMixin {
-  
+class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   int _currentIndex = 0;
   late AnimationController _fabController;
   late AnimationController _tabController;
-  
+
   late Animation<double> _fabAnimation;
   late Animation<double> _tabAnimation;
 
@@ -77,12 +73,12 @@ class _MainScreenState extends State<MainScreen>
   @override
   void initState() {
     super.initState();
-    
+
     _fabController = AnimationController(
       duration: const Duration(milliseconds: 300),
       vsync: this,
     );
-    
+
     _tabController = AnimationController(
       duration: const Duration(milliseconds: 200),
       vsync: this,
@@ -129,82 +125,88 @@ class _MainScreenState extends State<MainScreen>
             scale: _tabAnimation.value,
             child: Container(
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: Colors.white.withOpacity(0.6),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 20,
-                    offset: const Offset(0, -5),
+                    color: Colors.black.withOpacity(0.08),
+                    blurRadius: 16,
+                    offset: const Offset(0, -6),
                   ),
                 ],
               ),
-              child: SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: _tabs.asMap().entries.map((entry) {
-                      final index = entry.key;
-                      final tab = entry.value;
-                      final isSelected = _currentIndex == index;
-                      
-                      return GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            _currentIndex = index;
-                          });
-                          HapticFeedback.lightImpact();
-                        },
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 200),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 8,
-                          ),
-                          decoration: BoxDecoration(
-                            color: isSelected 
-                                ? tab.color.withOpacity(0.1)
-                                : Colors.transparent,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              AnimatedContainer(
-                                duration: const Duration(milliseconds: 200),
-                                padding: const EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  color: isSelected 
-                                      ? tab.color
-                                      : Colors.transparent,
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Icon(
-                                  tab.icon,
-                                  color: isSelected 
-                                      ? Colors.white
-                                      : Colors.grey[600],
-                                  size: 20,
-                                ),
+              child: ClipRRect(
+                child: BackdropFilter(
+                  filter: ui.ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+                  child: SafeArea(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: _tabs.asMap().entries.map((entry) {
+                          final index = entry.key;
+                          final tab = entry.value;
+                          final isSelected = _currentIndex == index;
+
+                          return GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                _currentIndex = index;
+                              });
+                              HapticFeedback.lightImpact();
+                            },
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 200),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 8,
                               ),
-                              const SizedBox(height: 4),
-                              Text(
-                                tab.label,
-                                style: TextStyle(
-                                  color: isSelected 
-                                      ? tab.color
-                                      : Colors.grey[600],
-                                  fontSize: 12,
-                                  fontWeight: isSelected 
-                                      ? FontWeight.w600
-                                      : FontWeight.w500,
-                                ),
+                              decoration: BoxDecoration(
+                                color: isSelected
+                                    ? tab.color.withOpacity(0.1)
+                                    : Colors.transparent,
+                                borderRadius: BorderRadius.circular(20),
                               ),
-                            ],
-                          ),
-                        ),
-                      );
-                    }).toList(),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  AnimatedContainer(
+                                    duration: const Duration(milliseconds: 200),
+                                    padding: const EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                      color: isSelected
+                                          ? tab.color
+                                          : Colors.transparent,
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Icon(
+                                      tab.icon,
+                                      color: isSelected
+                                          ? Colors.white
+                                          : Colors.grey[600],
+                                      size: 20,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    tab.label,
+                                    style: TextStyle(
+                                      color: isSelected
+                                          ? tab.color
+                                          : Colors.grey[600],
+                                      fontSize: 12,
+                                      fontWeight: isSelected
+                                          ? FontWeight.w600
+                                          : FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -269,7 +271,7 @@ class _MainScreenState extends State<MainScreen>
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
-                
+
                 // Header
                 Padding(
                   padding: const EdgeInsets.all(24),
@@ -313,7 +315,7 @@ class _MainScreenState extends State<MainScreen>
                     ],
                   ),
                 ),
-                
+
                 // Quick Actions List
                 Expanded(
                   child: ListView(

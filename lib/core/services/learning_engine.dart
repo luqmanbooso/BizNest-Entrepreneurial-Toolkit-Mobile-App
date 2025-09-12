@@ -363,7 +363,7 @@ class LearningEngine {
     }
     
     if (newLevel != null) {
-      await QuizService._updateUserLevel(newLevel);
+      await QuizService.updateUserLevel(newLevel);
     }
     
     return newLevel;

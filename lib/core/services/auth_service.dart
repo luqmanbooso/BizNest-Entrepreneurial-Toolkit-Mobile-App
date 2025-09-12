@@ -50,7 +50,7 @@ class AuthService {
     return _currentToken != null && _currentUser != null;
   }
 
-  // Login with email and password
+  // Login user
   static Future<AuthResult> login(String email, String password) async {
     try {
       final response = await ApiService.post('/auth/login', {
@@ -58,7 +58,7 @@ class AuthService {
         'password': password,
         'device_type': 'mobile',
         'app_version': '1.0.0',
-      });
+      }, requiresAuth: false);
 
       if (response['success']) {
         final token = response['data']['token'];
@@ -99,11 +99,11 @@ class AuthService {
         'name': name,
         'email': email,
         'password': password,
-        'company': company,
-        'role': role,
+        'company': company ?? '',
+        'role': role ?? 'entrepreneur',
         'device_type': 'mobile',
         'app_version': '1.0.0',
-      });
+      }, requiresAuth: false);
 
       if (response['success']) {
         final token = response['data']['token'];
@@ -123,7 +123,7 @@ class AuthService {
       }
     } catch (e) {
       if (kDebugMode) {
-        print('Register error: $e');
+        print('Registration error: $e');
       }
       return AuthResult.error(
         message: 'Network error. Please check your connection.',
@@ -131,54 +131,15 @@ class AuthService {
     }
   }
 
-  // Social login (Google, Apple, etc.)
-  static Future<AuthResult> socialLogin({
-    required String provider,
-    required String token,
-  }) async {
-    try {
-      final response = await ApiService.post('/auth/social', {
-        'provider': provider,
-        'token': token,
-        'device_type': 'mobile',
-        'app_version': '1.0.0',
-      });
-
-      if (response['success']) {
-        final authToken = response['data']['token'];
-        final refreshToken = response['data']['refresh_token'];
-        final user = response['data']['user'];
-
-        await _saveAuthData(authToken, refreshToken, user);
-
-        return AuthResult.success(
-          user: user,
-          message: response['message'] ?? 'Login successful',
-        );
-      } else {
-        return AuthResult.error(
-          message: response['message'] ?? 'Social login failed',
-        );
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        print('Social login error: $e');
-      }
-      return AuthResult.error(
-        message: 'Network error. Please check your connection.',
-      );
-    }
-  }
-
-  // Logout
+  // Logout user
   static Future<void> logout() async {
     try {
       if (_currentToken != null) {
-        await ApiService.post('/auth/logout', {});
+        await ApiService.post('/auth/logout', {}, requiresAuth: true);
       }
     } catch (e) {
       if (kDebugMode) {
-        print('Logout API error: $e');
+        print('Logout error: $e');
       }
     } finally {
       await _clearAuthData();
@@ -186,14 +147,16 @@ class AuthService {
   }
 
   // Refresh token
-  static Future<bool> refreshToken() async {
+  static Future<AuthResult> refreshToken() async {
     try {
       final refreshToken = await StorageService.getString(_refreshTokenKey);
-      if (refreshToken == null) return false;
+      if (refreshToken == null) {
+        return AuthResult.error(message: 'No refresh token available');
+      }
 
       final response = await ApiService.post('/auth/refresh', {
         'refresh_token': refreshToken,
-      });
+      }, requiresAuth: false);
 
       if (response['success']) {
         final newToken = response['data']['token'];
@@ -201,16 +164,26 @@ class AuthService {
 
         await StorageService.setString(_tokenKey, newToken);
         await StorageService.setString(_refreshTokenKey, newRefreshToken);
-
         _currentToken = newToken;
-        return true;
+
+        return AuthResult.success(
+          message: 'Token refreshed successfully',
+        );
+      } else {
+        await logout();
+        return AuthResult.error(
+          message: 'Token refresh failed. Please login again.',
+        );
       }
     } catch (e) {
       if (kDebugMode) {
-        print('Refresh token error: $e');
+        print('Token refresh error: $e');
       }
+      await logout();
+      return AuthResult.error(
+        message: 'Token refresh failed. Please login again.',
+      );
     }
-    return false;
   }
 
   // Forgot password
@@ -218,15 +191,15 @@ class AuthService {
     try {
       final response = await ApiService.post('/auth/forgot-password', {
         'email': email,
-      });
+      }, requiresAuth: false);
 
       if (response['success']) {
         return AuthResult.success(
-          message: response['message'] ?? 'Reset link sent to your email',
+          message: response['message'] ?? 'Password reset email sent',
         );
       } else {
         return AuthResult.error(
-          message: response['message'] ?? 'Failed to send reset link',
+          message: response['message'] ?? 'Failed to send reset email',
         );
       }
     } catch (e) {
@@ -234,7 +207,7 @@ class AuthService {
         print('Forgot password error: $e');
       }
       return AuthResult.error(
-        message: 'Network error. Please check your connection.',
+        message: 'Network error. Please try again.',
       );
     }
   }
@@ -248,11 +221,11 @@ class AuthService {
       final response = await ApiService.post('/auth/reset-password', {
         'token': token,
         'password': password,
-      });
+      }, requiresAuth: false);
 
       if (response['success']) {
         return AuthResult.success(
-          message: response['message'] ?? 'Password reset successful',
+          message: response['message'] ?? 'Password reset successfully',
         );
       } else {
         return AuthResult.error(
@@ -264,24 +237,50 @@ class AuthService {
         print('Reset password error: $e');
       }
       return AuthResult.error(
-        message: 'Network error. Please check your connection.',
+        message: 'Network error. Please try again.',
+      );
+    }
+  }
+
+  // Verify email
+  static Future<AuthResult> verifyEmail(String token) async {
+    try {
+      final response = await ApiService.post('/auth/verify-email', {
+        'token': token,
+      }, requiresAuth: false);
+
+      if (response['success']) {
+        return AuthResult.success(
+          message: response['message'] ?? 'Email verified successfully',
+        );
+      } else {
+        return AuthResult.error(
+          message: response['message'] ?? 'Email verification failed',
+        );
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Email verification error: $e');
+      }
+      return AuthResult.error(
+        message: 'Network error. Please try again.',
       );
     }
   }
 
   // Update user profile
-  static Future<AuthResult> updateProfile(Map<String, dynamic> userData) async {
+  static Future<AuthResult> updateProfile(Map<String, dynamic> updates) async {
     try {
-      final response = await ApiService.put('/user/profile', userData);
+      final response = await ApiService.put('/user/profile', updates);
 
       if (response['success']) {
-        final updatedUser = response['data']['user'];
-        await StorageService.setString(_userKey, json.encode(updatedUser));
+        final updatedUser = response['data'];
         _currentUser = updatedUser;
+        await StorageService.setString(_userKey, json.encode(updatedUser));
 
         return AuthResult.success(
           user: updatedUser,
-          message: response['message'] ?? 'Profile updated successfully',
+          message: 'Profile updated successfully',
         );
       } else {
         return AuthResult.error(
@@ -290,48 +289,165 @@ class AuthService {
       }
     } catch (e) {
       if (kDebugMode) {
-        print('Update profile error: $e');
+        print('Profile update error: $e');
       }
       return AuthResult.error(
-        message: 'Network error. Please check your connection.',
+        message: 'Network error. Please try again.',
       );
     }
   }
 
-  // Private methods
+  // Change password
+  static Future<AuthResult> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    try {
+      final response = await ApiService.post('/user/change-password', {
+        'current_password': currentPassword,
+        'new_password': newPassword,
+      });
+
+      if (response['success']) {
+        return AuthResult.success(
+          message: response['message'] ?? 'Password changed successfully',
+        );
+      } else {
+        return AuthResult.error(
+          message: response['message'] ?? 'Password change failed',
+        );
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Password change error: $e');
+      }
+      return AuthResult.error(
+        message: 'Network error. Please try again.',
+      );
+    }
+  }
+
+  // Delete account
+  static Future<AuthResult> deleteAccount(String password) async {
+    try {
+      final response = await ApiService.delete('/user/account', data: {
+        'password': password,
+      });
+
+      if (response['success']) {
+        await logout();
+        return AuthResult.success(
+          message: response['message'] ?? 'Account deleted successfully',
+        );
+      } else {
+        return AuthResult.error(
+          message: response['message'] ?? 'Account deletion failed',
+        );
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Account deletion error: $e');
+      }
+      return AuthResult.error(
+        message: 'Network error. Please try again.',
+      );
+    }
+  }
+
+  // Save authentication data
   static Future<void> _saveAuthData(
     String token,
     String refreshToken,
     Map<String, dynamic> user,
   ) async {
-    await StorageService.setString(_tokenKey, token);
-    await StorageService.setString(_refreshTokenKey, refreshToken);
-    await StorageService.setString(_userKey, json.encode(user));
-
     _currentToken = token;
     _currentUser = user;
+
+    await Future.wait([
+      StorageService.setString(_tokenKey, token),
+      StorageService.setString(_refreshTokenKey, refreshToken),
+      StorageService.setString(_userKey, json.encode(user)),
+    ]);
   }
 
+  // Clear authentication data
   static Future<void> _clearAuthData() async {
-    await StorageService.remove(_tokenKey);
-    await StorageService.remove(_refreshTokenKey);
-    await StorageService.remove(_userKey);
-
     _currentToken = null;
     _currentUser = null;
+
+    await Future.wait([
+      StorageService.remove(_tokenKey),
+      StorageService.remove(_refreshTokenKey),
+      StorageService.remove(_userKey),
+    ]);
   }
 
+  // Validate token
   static Future<bool> _validateToken() async {
     try {
-      final response = await ApiService.get('/auth/validate');
-      return response['success'] == true;
+      final response = await ApiService.get('/user/profile');
+      return response['success'] ?? false;
     } catch (e) {
+      if (kDebugMode) {
+        print('Token validation error: $e');
+      }
       return false;
     }
   }
+
+  // Get user profile
+  static Future<Map<String, dynamic>?> getUserProfile() async {
+    if (!isAuthenticated) return null;
+
+    try {
+      final response = await ApiService.get('/user/profile');
+      if (response['success']) {
+        _currentUser = response['data'];
+        await StorageService.setString(_userKey, json.encode(_currentUser));
+        return _currentUser;
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Get profile error: $e');
+      }
+    }
+    return null;
+  }
+
+  // Check if email is available
+  static Future<bool> isEmailAvailable(String email) async {
+    try {
+      final response = await ApiService.get('/auth/check-email', queryParams: {
+        'email': email,
+      });
+      return response['success'] && response['data']['available'] == true;
+    } catch (e) {
+      if (kDebugMode) {
+        print('Email check error: $e');
+      }
+      return false;
+    }
+  }
+
+  // Get user statistics
+  static Future<Map<String, dynamic>?> getUserStats() async {
+    if (!isAuthenticated) return null;
+
+    try {
+      final response = await ApiService.get('/user/stats');
+      if (response['success']) {
+        return response['data'];
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Get stats error: $e');
+      }
+    }
+    return null;
+  }
 }
 
-// Auth result class
+// AuthResult class
 class AuthResult {
   final bool success;
   final String message;
@@ -346,12 +462,12 @@ class AuthResult {
   });
 
   factory AuthResult.success({
+    required String message,
     Map<String, dynamic>? user,
-    String? message,
   }) {
     return AuthResult._(
       success: true,
-      message: message ?? 'Operation successful',
+      message: message,
       user: user,
     );
   }
@@ -365,5 +481,10 @@ class AuthResult {
       message: message,
       error: error,
     );
+  }
+
+  @override
+  String toString() {
+    return 'AuthResult(success: $success, message: $message, user: $user, error: $error)';
   }
 }
