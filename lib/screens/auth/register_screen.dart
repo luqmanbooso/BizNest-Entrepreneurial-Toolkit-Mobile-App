@@ -429,8 +429,11 @@ class _RegisterScreenState extends State<RegisterScreen>
         TextFormField(
           controller: _nameController,
           textInputAction: TextInputAction.next,
+          style: const TextStyle(color: Colors.black),
+          cursorColor: Colors.black,
           decoration: InputDecoration(
             hintText: 'Enter your full name',
+            hintStyle: TextStyle(color: Colors.black.withOpacity(0.45)),
             prefixIcon: const Icon(
               Icons.person_outline,
               color: ModernTheme.freshGreen,
@@ -483,8 +486,11 @@ class _RegisterScreenState extends State<RegisterScreen>
           controller: _emailController,
           keyboardType: TextInputType.emailAddress,
           textInputAction: TextInputAction.next,
+          style: const TextStyle(color: Colors.black),
+          cursorColor: Colors.black,
           decoration: InputDecoration(
             hintText: 'Enter your email',
+            hintStyle: TextStyle(color: Colors.black.withOpacity(0.45)),
             prefixIcon: const Icon(
               Icons.email_outlined,
               color: ModernTheme.freshGreen,
@@ -537,8 +543,11 @@ class _RegisterScreenState extends State<RegisterScreen>
           controller: _passwordController,
           obscureText: _obscurePassword,
           textInputAction: TextInputAction.next,
+          style: const TextStyle(color: Colors.black),
+          cursorColor: Colors.black,
           decoration: InputDecoration(
             hintText: 'Create a password',
+            hintStyle: TextStyle(color: Colors.black.withOpacity(0.45)),
             prefixIcon: const Icon(
               Icons.lock_outline,
               color: ModernTheme.freshGreen,
@@ -603,8 +612,11 @@ class _RegisterScreenState extends State<RegisterScreen>
           obscureText: _obscureConfirmPassword,
           textInputAction: TextInputAction.done,
           onFieldSubmitted: (_) => _register(),
+          style: const TextStyle(color: Colors.black),
+          cursorColor: Colors.black,
           decoration: InputDecoration(
             hintText: 'Confirm your password',
+            hintStyle: TextStyle(color: Colors.black.withOpacity(0.45)),
             prefixIcon: const Icon(
               Icons.lock_outline,
               color: ModernTheme.freshGreen,
@@ -677,10 +689,22 @@ class _RegisterScreenState extends State<RegisterScreen>
                       _agreeToTerms = value ?? false;
                     });
                   },
-                  activeColor: ModernTheme.freshGreen,
+                  fillColor: MaterialStateProperty.resolveWith((states) {
+                    if (states.contains(MaterialState.selected)) {
+                      return ModernTheme.freshGreen;
+                    }
+                    return Colors.black.withOpacity(0.7);
+                  }),
+                  checkColor: Colors.white,
+                  side: BorderSide(
+                    color: Colors.black.withOpacity(0.7),
+                    width: 1.5,
+                  ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(4),
                   ),
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  visualDensity: VisualDensity.compact,
                 ),
                 Expanded(
                   child: RichText(

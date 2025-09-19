@@ -274,7 +274,8 @@ class _LoginScreenState extends State<LoginScreen>
                             borderRadius: BorderRadius.circular(25),
                             boxShadow: [
                               BoxShadow(
-                                color: ModernTheme.electricBlue.withOpacity(0.3),
+                                color:
+                                    ModernTheme.electricBlue.withOpacity(0.3),
                                 blurRadius: 20,
                                 offset: const Offset(0, 10),
                               ),
@@ -406,8 +407,11 @@ class _LoginScreenState extends State<LoginScreen>
           controller: _emailController,
           keyboardType: TextInputType.emailAddress,
           textInputAction: TextInputAction.next,
+          style: const TextStyle(color: Colors.black),
+          cursorColor: Colors.black,
           decoration: InputDecoration(
             hintText: 'Enter your email',
+            hintStyle: TextStyle(color: Colors.black.withOpacity(0.45)),
             prefixIcon: const Icon(
               Icons.email_outlined,
               color: ModernTheme.electricBlue,
@@ -461,8 +465,11 @@ class _LoginScreenState extends State<LoginScreen>
           obscureText: _obscurePassword,
           textInputAction: TextInputAction.done,
           onFieldSubmitted: (_) => _login(),
+          style: const TextStyle(color: Colors.black),
+          cursorColor: Colors.black,
           decoration: InputDecoration(
             hintText: 'Enter your password',
+            hintStyle: TextStyle(color: Colors.black.withOpacity(0.45)),
             prefixIcon: const Icon(
               Icons.lock_outline,
               color: ModernTheme.electricBlue,
@@ -516,18 +523,48 @@ class _LoginScreenState extends State<LoginScreen>
       children: [
         Row(
           children: [
-            Checkbox(
-              value: _rememberMe,
-              onChanged: (value) {
-                setState(() {
-                  _rememberMe = value ?? false;
-                });
-              },
-              activeColor: ModernTheme.electricBlue,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(4),
+            Container(
+              width: 28,
+              height: 28,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(6),
+                border: Border.all(
+                  color: ModernTheme.mediumGray.withOpacity(0.4),
+                  width: 1.5,
+                ),
+              ),
+              child: Center(
+                child: SizedBox(
+                  width: 20,
+                  height: 20,
+                    child: Checkbox(
+                      value: _rememberMe,
+                      onChanged: (value) {
+                        setState(() {
+                          _rememberMe = value ?? false;
+                        });
+                      },
+                      fillColor: MaterialStateProperty.resolveWith((states) {
+                        if (states.contains(MaterialState.selected)) {
+                          return ModernTheme.electricBlue;
+                        }
+                        return Colors.black.withOpacity(0.7);
+                      }),
+                      checkColor: Colors.white,
+                      side: BorderSide(
+                        color: Colors.black.withOpacity(0.7),
+                        width: 1.5,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      visualDensity: VisualDensity.compact,
+                    ),
+                ),
               ),
             ),
+            const SizedBox(width: 8),
             Text(
               'Remember me',
               style: ModernTheme.bodySmall.copyWith(
