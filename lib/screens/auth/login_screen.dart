@@ -537,30 +537,30 @@ class _LoginScreenState extends State<LoginScreen>
                 child: SizedBox(
                   width: 20,
                   height: 20,
-                    child: Checkbox(
-                      value: _rememberMe,
-                      onChanged: (value) {
-                        setState(() {
-                          _rememberMe = value ?? false;
-                        });
-                      },
-                      fillColor: MaterialStateProperty.resolveWith((states) {
-                        if (states.contains(MaterialState.selected)) {
-                          return ModernTheme.electricBlue;
-                        }
-                        return Colors.black.withOpacity(0.7);
-                      }),
-                      checkColor: Colors.white,
-                      side: BorderSide(
-                        color: Colors.black.withOpacity(0.7),
-                        width: 1.5,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      visualDensity: VisualDensity.compact,
+                  child: Checkbox(
+                    value: _rememberMe,
+                    onChanged: (value) {
+                      setState(() {
+                        _rememberMe = value ?? false;
+                      });
+                    },
+                    fillColor: MaterialStateProperty.resolveWith((states) {
+                      if (states.contains(MaterialState.selected)) {
+                        return ModernTheme.electricBlue;
+                      }
+                      return Colors.black.withOpacity(0.7);
+                    }),
+                    checkColor: Colors.white,
+                    side: BorderSide(
+                      color: Colors.black.withOpacity(0.7),
+                      width: 1.5,
                     ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    visualDensity: VisualDensity.compact,
+                  ),
                 ),
               ),
             ),
