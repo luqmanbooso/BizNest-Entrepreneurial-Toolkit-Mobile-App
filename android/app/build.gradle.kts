@@ -8,7 +8,7 @@ plugins {
 android {
     namespace = "com.example.entrepreneur_toolkit"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+    // ndkVersion = flutter.ndkVersion // Temporarily disable NDK
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
