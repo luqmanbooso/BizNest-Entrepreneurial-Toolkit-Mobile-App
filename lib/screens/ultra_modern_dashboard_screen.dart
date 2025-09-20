@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import 'dart:ui' as ui;
 import 'dart:math' as math;
-import 'package:fl_chart/fl_chart.dart';
 import 'package:shimmer/shimmer.dart';
 import '../core/theme/modern_theme.dart';
-import '../core/services/analytics_service.dart';
+import '../core/services/auth_service.dart';
+// analytics service not directly used in this screen (kept in services layer)
 import '../core/services/realtime_service.dart';
 import '../core/services/business_intelligence_service.dart';
-import '../core/widgets/modern_animations.dart';
+// ...modern animations not used in this simplified dashboard
 import 'business_screen.dart';
 import 'learning_screen.dart';
+import 'profile_screen.dart';
 
 class UltraModernDashboardScreen extends StatefulWidget {
   const UltraModernDashboardScreen({super.key});
@@ -27,12 +28,12 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
 
   late Animation<double> _fadeAnimation;
   late Animation<double> _slideAnimation;
-  late Animation<double> _floatingAnimation;
-  late Animation<double> _pulseAnimation;
+  // removed floating animation since background is static
+  // pulse animation removed (no longer used in header)
 
   // Data variables
   Map<String, dynamic> _insights = {};
-  Map<String, dynamic> _analytics = {};
+  // analytics field currently unused in this screen
   bool _isLoading = true;
   int _selectedTabIndex = 0;
   final ScrollController _scrollController = ScrollController();
@@ -43,6 +44,28 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
     _setupAnimations();
     _loadDashboardData();
     _setupRealtimeUpdates();
+  }
+
+  Future<void> _loadDashboardData() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final insights = await BusinessIntelligenceService.generateInsights();
+      if (mounted) {
+        setState(() {
+          _insights = insights;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
   }
 
   void _setupAnimations() {
@@ -77,46 +100,11 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
       curve: const Interval(0.0, 0.8, curve: Curves.easeOutCubic),
     ));
 
-    _floatingAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _floatingController,
-      curve: Curves.linear,
-    ));
-
-    _pulseAnimation = Tween<double>(
-      begin: 1.0,
-      end: 1.05,
-    ).animate(CurvedAnimation(
-      parent: _pulseController,
-      curve: Curves.easeInOut,
-    ));
+    // floating animation removed; background is static now
 
     _mainController.forward();
-    _floatingController.repeat();
-    _pulseController.repeat(reverse: true);
-  }
-
-  Future<void> _loadDashboardData() async {
-    setState(() {
-      _isLoading = true;
-    });
-
-    try {
-      final insights = await BusinessIntelligenceService.generateInsights();
-      final analytics = await AnalyticsService.getUserInsights();
-
-      setState(() {
-        _insights = insights;
-        _analytics = analytics;
-        _isLoading = false;
-      });
-    } catch (e) {
-      setState(() {
-        _isLoading = false;
-      });
-    }
+    // Do not repeat floating controller — we will use a static background (no motion)
+    // _floatingController.repeat();
   }
 
   void _setupRealtimeUpdates() {
@@ -136,6 +124,24 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
     super.dispose();
   }
 
+  Future<void> _openProfile() async {
+    final result = await Navigator.of(context).push<bool?>(
+      MaterialPageRoute(builder: (_) => ProfileScreen()),
+    );
+    // If profile was saved/updated, refresh local view
+    if (result == true) {
+      // reload user data if AuthService provides an async getter
+      try {
+        await AuthService.getUserProfile();
+      } catch (_) {}
+      if (mounted) setState(() {});
+    }
+  }
+
+  void _openSettings() {
+    // placeholder — navigate to settings screen when available
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -143,107 +149,77 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
       body: Stack(
         children: [
           _buildUltraModernBackground(),
-          _buildFloatingElements(),
+          // Main content
           SafeArea(
-            child: _isLoading
-                ? _buildLoadingState()
-                : _buildDashboard(),
+            child: _isLoading ? _buildLoadingState() : _buildDashboard(),
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildUltraModernBackground() {
-    return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Color(0xFF0A0E1A),
-            Color(0xFF1A1F3A),
-            Color(0xFF0F1419),
-          ],
-          stops: [0.0, 0.5, 1.0],
-        ),
-      ),
-      child: Stack(
-        children: [
-          // Animated gradient orbs
-          AnimatedBuilder(
-            animation: _floatingAnimation,
-            builder: (context, child) {
-              return Stack(
-                children: [
-                  // Large floating orb
-                  Positioned(
-                    top: 50 + 100 * math.sin(_floatingAnimation.value * math.pi * 2),
-                    right: -100 + 80 * math.cos(_floatingAnimation.value * math.pi),
-                    child: Container(
-                      width: 300,
-                      height: 300,
-                      decoration: BoxDecoration(
-                        gradient: RadialGradient(
-                          colors: [
-                            const Color(0xFF00D4FF).withOpacity(0.15),
-                            const Color(0xFF00D4FF).withOpacity(0.05),
-                            Colors.transparent,
-                          ],
-                          stops: const [0.0, 0.7, 1.0],
+          // Full-width top bar overlay: left logo+name, right action icons
+          Positioned(
+            top: 6,
+            left: 12,
+            right: 12,
+            child: Material(
+              color: Colors.transparent,
+              elevation: 0,
+              child: Container(
+                // make explicit transparent background to avoid any white surface
+                decoration: const BoxDecoration(color: Colors.transparent),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Image.asset(
+                          'assets/images/biznest.png',
+                          width: 80,
+                          height: 40,
+                          errorBuilder: (ctx, err, stack) =>
+                              const Text('💼', style: TextStyle(fontSize: 28)),
                         ),
-                        shape: BoxShape.circle,
-                      ),
+                        const SizedBox(width: 20),
+                      ],
                     ),
-                  ),
-                  // Medium floating orb
-                  Positioned(
-                    bottom: 150 + 60 * math.sin(_floatingAnimation.value * math.pi),
-                    left: -80 + 50 * math.cos(_floatingAnimation.value * math.pi * 2),
-                    child: Container(
-                      width: 200,
-                      height: 200,
-                      decoration: BoxDecoration(
-                        gradient: RadialGradient(
-                          colors: [
-                            const Color(0xFF7C3AED).withOpacity(0.12),
-                            const Color(0xFF7C3AED).withOpacity(0.04),
-                            Colors.transparent,
-                          ],
-                          stops: const [0.0, 0.6, 1.0],
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Use GestureDetector + Padding to avoid ripple/highlight
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                          child: GestureDetector(
+                            behavior: HitTestBehavior.opaque,
+                            onTap: () {
+                              // TODO: open settings screen
+                              _openSettings();
+                            },
+                            child: const Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Icon(Icons.settings_rounded,
+                                  color: Colors.white),
+                            ),
+                          ),
                         ),
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                  ),
-                  // Small floating orb
-                  Positioned(
-                    top: 200 + 80 * math.sin(_floatingAnimation.value * math.pi * 1.5),
-                    left: 50 + 40 * math.cos(_floatingAnimation.value * math.pi),
-                    child: Container(
-                      width: 120,
-                      height: 120,
-                      decoration: BoxDecoration(
-                        gradient: RadialGradient(
-                          colors: [
-                            const Color(0xFF10B981).withOpacity(0.1),
-                            const Color(0xFF10B981).withOpacity(0.03),
-                            Colors.transparent,
-                          ],
-                          stops: const [0.0, 0.5, 1.0],
+                        const SizedBox(width: 8),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                          child: GestureDetector(
+                            behavior: HitTestBehavior.opaque,
+                            onTap: () async {
+                              await _openProfile();
+                            },
+                            child: const Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Icon(Icons.person_rounded,
+                                  color: Colors.white),
+                            ),
+                          ),
                         ),
-                        shape: BoxShape.circle,
-                      ),
+                      ],
                     ),
-                  ),
-                ],
-              );
-            },
-          ),
-          // Grid pattern overlay
-          Positioned.fill(
-            child: CustomPaint(
-              painter: _GridPainter(),
+                  ],
+                ),
+              ),
             ),
           ),
         ],
@@ -251,38 +227,100 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
     );
   }
 
-  Widget _buildFloatingElements() {
-    return AnimatedBuilder(
-      animation: _floatingAnimation,
-      builder: (context, child) {
-        return Stack(
+  Widget _buildUltraModernBackground() {
+    // Static background: gradient with responsive orbs (using LayoutBuilder)
+    return LayoutBuilder(builder: (context, constraints) {
+      final w = constraints.maxWidth;
+      // size caps to keep orbs reasonable on very large screens
+      final largeSize = math.min(w * 0.45, 320).toDouble();
+      final mediumSize = math.min(w * 0.28, 220).toDouble();
+      final smallSize = math.min(w * 0.16, 140).toDouble();
+
+      return Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0xFF0A0E1A),
+              Color(0xFF1A1F3A),
+              Color(0xFF0F1419),
+            ],
+            stops: [0.0, 0.5, 1.0],
+          ),
+        ),
+        child: Stack(
           children: [
-            // Floating particles
-            for (int i = 0; i < 8; i++)
-              Positioned(
-                top: 100 + (i * 100) + 30 * math.sin(_floatingAnimation.value * math.pi * 2 + i),
-                left: 50 + (i * 50) + 20 * math.cos(_floatingAnimation.value * math.pi + i),
-                child: Container(
-                  width: 4 + (i % 3),
-                  height: 4 + (i % 3),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF00D4FF).withOpacity(0.6),
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xFF00D4FF).withOpacity(0.3),
-                        blurRadius: 8,
-                        spreadRadius: 2,
-                      ),
+            // Large static orb placed top-right responsively
+            Align(
+              alignment: const Alignment(0.9, -0.6),
+              child: Container(
+                width: largeSize,
+                height: largeSize,
+                decoration: BoxDecoration(
+                  gradient: RadialGradient(
+                    colors: [
+                      const Color(0xFF00D4FF).withOpacity(0.15),
+                      const Color(0xFF00D4FF).withOpacity(0.05),
+                      Colors.transparent,
                     ],
+                    stops: const [0.0, 0.7, 1.0],
                   ),
+                  shape: BoxShape.circle,
                 ),
               ),
+            ),
+            // Medium static orb placed bottom-left responsively
+            Align(
+              alignment: const Alignment(-0.9, 0.7),
+              child: Container(
+                width: mediumSize,
+                height: mediumSize,
+                decoration: BoxDecoration(
+                  gradient: RadialGradient(
+                    colors: [
+                      const Color(0xFF7C3AED).withOpacity(0.12),
+                      const Color(0xFF7C3AED).withOpacity(0.04),
+                      Colors.transparent,
+                    ],
+                    stops: const [0.0, 0.6, 1.0],
+                  ),
+                  shape: BoxShape.circle,
+                ),
+              ),
+            ),
+            // Small static orb placed lower-left / center-left responsively
+            Align(
+              alignment: const Alignment(-0.4, 0.05),
+              child: Container(
+                width: smallSize,
+                height: smallSize,
+                decoration: BoxDecoration(
+                  gradient: RadialGradient(
+                    colors: [
+                      const Color(0xFF10B981).withOpacity(0.1),
+                      const Color(0xFF10B981).withOpacity(0.03),
+                      Colors.transparent,
+                    ],
+                    stops: const [0.0, 0.5, 1.0],
+                  ),
+                  shape: BoxShape.circle,
+                ),
+              ),
+            ),
+            // Grid pattern overlay
+            Positioned.fill(
+              child: CustomPaint(
+                painter: _GridPainter(spacing: 56.0),
+              ),
+            ),
           ],
-        );
-      },
-    );
+        ),
+      );
+    });
   }
+
+  // Floating elements removed — background simplified to a static gradient
 
   Widget _buildLoadingState() {
     return Shimmer.fromColors(
@@ -346,7 +384,8 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
           child: Opacity(
             opacity: _fadeAnimation.value,
             child: Container(
-              margin: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+              // Increased top margin so header sits below the top bar overlay
+              margin: const EdgeInsets.fromLTRB(16, 72, 16, 12),
               child: Column(
                 children: [
                   // Ultra Modern Glassmorphism Header
@@ -384,7 +423,6 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
                       ],
                     ),
                     child: ClipRRect(
-                      borderRadius: BorderRadius.circular(28),
                       child: BackdropFilter(
                         filter: ui.ImageFilter.blur(sigmaX: 20, sigmaY: 20),
                         child: Row(
@@ -396,17 +434,26 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
                                   Row(
                                     children: [
                                       Flexible(
-                                        child: Text(
-                                          'Welcome back!',
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 28,
-                                            fontWeight: FontWeight.w900,
-                                            letterSpacing: -0.5,
-                                            height: 1.1,
-                                          ),
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
+                                        child: Builder(builder: (context) {
+                                          final user = AuthService.currentUser;
+                                          final name = user == null
+                                              ? 'there'
+                                              : (user['name'] ??
+                                                  user['full_name'] ??
+                                                  user['displayName'] ??
+                                                  'there');
+                                          return Text(
+                                            'Welcome back, $name!',
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 28,
+                                              fontWeight: FontWeight.w900,
+                                              letterSpacing: -0.5,
+                                              height: 1.1,
+                                            ),
+                                            overflow: TextOverflow.ellipsis,
+                                          );
+                                        }),
                                       ),
                                       const SizedBox(width: 12),
                                       Container(
@@ -418,9 +465,11 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
                                               Colors.white.withOpacity(0.1),
                                             ],
                                           ),
-                                          borderRadius: BorderRadius.circular(12),
+                                          borderRadius:
+                                              BorderRadius.circular(12),
                                           border: Border.all(
-                                            color: Colors.white.withOpacity(0.3),
+                                            color:
+                                                Colors.white.withOpacity(0.3),
                                             width: 1,
                                           ),
                                         ),
@@ -447,42 +496,8 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
                               ),
                             ),
                             const SizedBox(width: 12),
-                            AnimatedBuilder(
-                              animation: _pulseAnimation,
-                              builder: (context, child) {
-                                return Transform.scale(
-                                  scale: _pulseAnimation.value,
-                                  child: Container(
-                                    padding: const EdgeInsets.all(16),
-                                    decoration: BoxDecoration(
-                                      gradient: LinearGradient(
-                                        colors: [
-                                          Colors.white.withOpacity(0.2),
-                                          Colors.white.withOpacity(0.1),
-                                        ],
-                                      ),
-                                      borderRadius: BorderRadius.circular(20),
-                                      border: Border.all(
-                                        color: Colors.white.withOpacity(0.3),
-                                        width: 1.5,
-                                      ),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.white.withOpacity(0.1),
-                                          blurRadius: 16,
-                                          offset: const Offset(0, 6),
-                                        ),
-                                      ],
-                                    ),
-                                    child: const Icon(
-                                      Icons.rocket_launch_rounded,
-                                      color: Colors.white,
-                                      size: 28,
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
+                            // Inner header actions removed (top bar provides settings/profile)
+                            const SizedBox.shrink(),
                           ],
                         ),
                       ),
@@ -569,71 +584,42 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
     Color color,
     VoidCallback onTap,
   ) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 400),
-        curve: Curves.easeInOutCubic,
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              color.withOpacity(0.1),
-              color.withOpacity(0.05),
-              Colors.transparent,
-            ],
-            stops: const [0.0, 0.7, 1.0],
-          ),
+    return ConstrainedBox(
+      constraints: const BoxConstraints(minHeight: 92),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(24),
+        child: InkWell(
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(
-            color: color.withOpacity(0.2),
-            width: 1.5,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: color.withOpacity(0.15),
-              blurRadius: 24,
-              offset: const Offset(0, 12),
-              spreadRadius: -6,
+          onTap: onTap,
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  color.withOpacity(0.08),
+                  color.withOpacity(0.04),
+                  Colors.transparent,
+                ],
+              ),
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: color.withOpacity(0.16), width: 1.2),
             ),
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 16,
-              offset: const Offset(0, 8),
-              spreadRadius: -4,
-            ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(24),
-          child: BackdropFilter(
-            filter: ui.ImageFilter.blur(sigmaX: 10, sigmaY: 10),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        color.withOpacity(0.2),
-                        color.withOpacity(0.1),
-                      ],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
+                Semantics(
+                  button: true,
+                  label: title,
+                  child: Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: color.withOpacity(0.06),
+                      borderRadius: BorderRadius.circular(16),
                     ),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: color.withOpacity(0.3),
-                      width: 1,
-                    ),
-                  ),
-                  child: Icon(
-                    icon,
-                    color: color,
-                    size: 20,
+                    child: Icon(icon, color: color, size: 20),
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -643,15 +629,6 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
                     color: Colors.white,
                     fontSize: 24,
                     fontWeight: FontWeight.w900,
-                    letterSpacing: -0.5,
-                    height: 1.0,
-                    shadows: [
-                      Shadow(
-                        color: color.withOpacity(0.5),
-                        blurRadius: 8,
-                        offset: const Offset(0, 3),
-                      ),
-                    ],
                   ),
                 ),
                 const SizedBox(height: 6),
@@ -661,8 +638,6 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
                     color: Colors.white.withOpacity(0.8),
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
-                    letterSpacing: 0.3,
-                    height: 1.2,
                   ),
                   textAlign: TextAlign.center,
                   maxLines: 1,
@@ -769,9 +744,7 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
               fontWeight: isSelected ? FontWeight.w900 : FontWeight.w600,
               fontSize: 14,
               letterSpacing: 0.3,
-              color: isSelected
-                  ? Colors.white
-                  : Colors.white.withOpacity(0.7),
+              color: isSelected ? Colors.white : Colors.white.withOpacity(0.7),
               shadows: isSelected
                   ? [
                       Shadow(
@@ -891,7 +864,8 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
@@ -1000,7 +974,8 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
           const SizedBox(height: 16),
         ],
         if (weaknesses.isNotEmpty) ...[
-          _buildMetricSection('Areas for Improvement', weaknesses, ModernTheme.sunsetOrange),
+          _buildMetricSection(
+              'Areas for Improvement', weaknesses, ModernTheme.sunsetOrange),
         ],
       ],
     );
@@ -1023,7 +998,9 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
           Row(
             children: [
               Icon(
-                color == ModernTheme.freshGreen ? Icons.trending_up : Icons.priority_high,
+                color == ModernTheme.freshGreen
+                    ? Icons.trending_up
+                    : Icons.priority_high,
                 size: 18,
                 color: color,
               ),
@@ -1041,29 +1018,31 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
           ),
           const SizedBox(height: 12),
           ...items.take(3).map((item) => Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Icon(
-                  color == ModernTheme.freshGreen ? Icons.check_circle : Icons.info_outline,
-                  size: 16,
-                  color: color,
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    item.toString(),
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: ModernTheme.navy,
-                      height: 1.3,
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(
+                      color == ModernTheme.freshGreen
+                          ? Icons.check_circle
+                          : Icons.info_outline,
+                      size: 16,
+                      color: color,
                     ),
-                  ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        item.toString(),
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: ModernTheme.navy,
+                          height: 1.3,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          )),
+              )),
         ],
       ),
     );
@@ -1268,44 +1247,56 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
                 ),
               ),
               const SizedBox(height: 20),
-              GridView.count(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                crossAxisCount: 2,
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 16,
-                childAspectRatio: 1.3,
-                children: [
-                  _buildActionCard(
-                    'New Plan',
-                    Icons.add_business_rounded,
-                    const Color(0xFF00D4FF),
-                    () => Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => BusinessScreen()),
+              LayoutBuilder(builder: (context, constraints) {
+                // Choose grid layout based on available width for better
+                // responsiveness: on narrow screens keep 2 columns, on wide
+                // screens allow 3.
+                final width = constraints.maxWidth;
+                final crossAxisCount = width > 700 ? 3 : 2;
+                // childAspectRatio tuned so cards have comfortable height on
+                // different widths.
+                final childAspectRatio =
+                    width > 900 ? 1.25 : (width > 700 ? 1.18 : 1.05);
+
+                return GridView.count(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  crossAxisCount: crossAxisCount,
+                  crossAxisSpacing: 16,
+                  mainAxisSpacing: 16,
+                  childAspectRatio: childAspectRatio,
+                  children: [
+                    _buildActionCard(
+                      'New Plan',
+                      Icons.add_business_rounded,
+                      const Color(0xFF00D4FF),
+                      () => Navigator.of(context).push(
+                        MaterialPageRoute(builder: (_) => BusinessScreen()),
+                      ),
                     ),
-                  ),
-                  _buildActionCard(
-                    'Learn',
-                    Icons.school_rounded,
-                    const Color(0xFF10B981),
-                    () => Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => LearningScreen()),
+                    _buildActionCard(
+                      'Learn',
+                      Icons.school_rounded,
+                      const Color(0xFF10B981),
+                      () => Navigator.of(context).push(
+                        MaterialPageRoute(builder: (_) => LearningScreen()),
+                      ),
                     ),
-                  ),
-                  _buildActionCard(
-                    'Analytics',
-                    Icons.analytics_rounded,
-                    const Color(0xFF7C3AED),
-                    () => setState(() => _selectedTabIndex = 1),
-                  ),
-                  _buildActionCard(
-                    'Insights',
-                    Icons.lightbulb_rounded,
-                    const Color(0xFFF59E0B),
-                    () => setState(() => _selectedTabIndex = 2),
-                  ),
-                ],
-              ),
+                    _buildActionCard(
+                      'Analytics',
+                      Icons.analytics_rounded,
+                      const Color(0xFF7C3AED),
+                      () => setState(() => _selectedTabIndex = 1),
+                    ),
+                    _buildActionCard(
+                      'Insights',
+                      Icons.lightbulb_rounded,
+                      const Color(0xFFF59E0B),
+                      () => setState(() => _selectedTabIndex = 2),
+                    ),
+                  ],
+                );
+              }),
             ],
           ),
         ),
@@ -1313,67 +1304,71 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
     );
   }
 
+  // quick-actions modal and helper removed (unused after FAB deletion)
+
   Widget _buildActionCard(
     String title,
     IconData icon,
     Color color,
     VoidCallback onTap,
   ) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOutCubic,
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [color.withOpacity(0.1), color.withOpacity(0.05)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
+    return ConstrainedBox(
+      constraints: const BoxConstraints(minHeight: 92, minWidth: 92),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(20),
+        child: InkWell(
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: color.withOpacity(0.2),
-            width: 1.5,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: color.withOpacity(0.1),
-              blurRadius: 16,
-              offset: const Offset(0, 8),
-              spreadRadius: -4,
+          onTap: onTap,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOutCubic,
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [color.withOpacity(0.08), color.withOpacity(0.04)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: color.withOpacity(0.14),
+                width: 1.0,
+              ),
             ),
-          ],
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [color.withOpacity(0.2), color.withOpacity(0.1)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Semantics(
+                  button: true,
+                  label: title,
+                  child: Tooltip(
+                    message: title,
+                    child: Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: color.withOpacity(0.06),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(icon, color: color, size: 22),
+                    ),
+                  ),
                 ),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Icon(icon, color: color, size: 24),
+                const SizedBox(height: 10),
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                  ),
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
             ),
-            const SizedBox(height: 12),
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w700,
-                color: Colors.white,
-                letterSpacing: 0.2,
-              ),
-              textAlign: TextAlign.center,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ],
+          ),
         ),
       ),
     );
@@ -1564,8 +1559,9 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
   }
 
   Widget _buildInsightsTab() {
-    final recommendations = _insights['recommendations'] as Map<String, dynamic>? ?? {};
-    
+    final recommendations =
+        _insights['recommendations'] as Map<String, dynamic>? ?? {};
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Column(
@@ -1618,9 +1614,9 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
             )
           else
             ...recommendations.entries.map((entry) => _buildRecommendationItem(
-              entry.key,
-              entry.value.toString(),
-            )),
+                  entry.key,
+                  entry.value.toString(),
+                )),
         ],
       ),
     );
@@ -1741,8 +1737,9 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
   }
 
   Widget _buildTrendsTab() {
-    final growthOps = _insights['growth_opportunities'] as Map<String, dynamic>? ?? {};
-    
+    final growthOps =
+        _insights['growth_opportunities'] as Map<String, dynamic>? ?? {};
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Column(
@@ -1840,9 +1837,9 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
             )
           else
             ...opportunities.entries.map((entry) => _buildOpportunityItem(
-              entry.key,
-              entry.value.toString(),
-            )),
+                  entry.key,
+                  entry.value.toString(),
+                )),
         ],
       ),
     );
@@ -1967,6 +1964,10 @@ class _HealthRingPainter extends CustomPainter {
 }
 
 class _GridPainter extends CustomPainter {
+  final double spacing;
+
+  _GridPainter({this.spacing = 56.0});
+
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
@@ -1974,28 +1975,19 @@ class _GridPainter extends CustomPainter {
       ..strokeWidth = 1.0
       ..style = PaintingStyle.stroke;
 
-    const spacing = 40.0;
-    
+    final step = spacing;
+
     // Draw vertical lines
-    for (double x = 0; x < size.width; x += spacing) {
-      canvas.drawLine(
-        Offset(x, 0),
-        Offset(x, size.height),
-        paint,
-      );
+    for (double x = 0; x < size.width; x += step) {
+      canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
     }
-    
+
     // Draw horizontal lines
-    for (double y = 0; y < size.height; y += spacing) {
-      canvas.drawLine(
-        Offset(0, y),
-        Offset(size.width, y),
-        paint,
-      );
+    for (double y = 0; y < size.height; y += step) {
+      canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
     }
   }
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
-

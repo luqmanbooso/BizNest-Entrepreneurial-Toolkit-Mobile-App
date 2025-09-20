@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:ui' as ui;
@@ -5,11 +6,9 @@ import '../core/theme/modern_theme.dart';
 import 'ultra_modern_dashboard_screen.dart';
 import 'business_screen.dart';
 import 'financial_screen.dart';
-import 'networking_screen.dart';
 import 'learning_screen.dart';
-import 'profile_screen.dart';
-import 'community_screen.dart';
 
+// Clean, single-definition MainScreen with overlay navigation and FAB.
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
 
@@ -19,74 +18,47 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   int _currentIndex = 0;
-  late AnimationController _fabController;
-  late AnimationController _tabController;
+  late final AnimationController _fabController;
+  late final AnimationController _tabController;
 
-  late Animation<double> _fabAnimation;
-  late Animation<double> _tabAnimation;
+  late final Animation<double> _fabAnimation;
+  late final Animation<double> _tabAnimation;
 
   final List<MainTab> _tabs = [
     MainTab(
-      page: const UltraModernDashboardScreen(),
-      icon: Icons.dashboard_rounded,
-      label: 'Dashboard',
-      color: ModernTheme.primaryBlue,
-    ),
+        page: const UltraModernDashboardScreen(),
+        icon: Icons.dashboard_rounded,
+        label: 'Dashboard',
+        color: ModernTheme.primaryBlue),
     MainTab(
-      page: const BusinessScreen(),
-      icon: Icons.business_center_rounded,
-      label: 'Business',
-      color: ModernTheme.freshGreen,
-    ),
+        page: const BusinessScreen(),
+        icon: Icons.business_center_rounded,
+        label: 'Business',
+        color: ModernTheme.freshGreen),
     MainTab(
-      page: const FinancialScreen(),
-      icon: Icons.account_balance_wallet_rounded,
-      label: 'Financial',
-      color: ModernTheme.teal,
-    ),
+        page: const FinancialScreen(),
+        icon: Icons.account_balance_wallet_rounded,
+        label: 'Financial',
+        color: ModernTheme.teal),
     MainTab(
-      page: const LearningScreen(),
-      icon: Icons.school_rounded,
-      label: 'Learn',
-      color: ModernTheme.goldenYellow,
-    ),
-    MainTab(
-      page: const ProfileScreen(),
-      icon: Icons.person_rounded,
-      label: 'Profile',
-      color: ModernTheme.sunsetOrange,
-    ),
+        page: const LearningScreen(),
+        icon: Icons.school_rounded,
+        label: 'Learn',
+        color: ModernTheme.goldenYellow),
   ];
 
   @override
   void initState() {
     super.initState();
-
     _fabController = AnimationController(
-      duration: const Duration(milliseconds: 300),
-      vsync: this,
-    );
-
+        vsync: this, duration: const Duration(milliseconds: 300));
     _tabController = AnimationController(
-      duration: const Duration(milliseconds: 200),
-      vsync: this,
-    );
+        vsync: this, duration: const Duration(milliseconds: 200));
 
-    _fabAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _fabController,
-      curve: Curves.easeInOut,
-    ));
-
-    _tabAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _tabController,
-      curve: Curves.easeInOut,
-    ));
+    _fabAnimation =
+        CurvedAnimation(parent: _fabController, curve: Curves.easeInOut);
+    _tabAnimation =
+        CurvedAnimation(parent: _tabController, curve: Curves.easeInOut);
 
     _fabController.forward();
     _tabController.forward();
@@ -101,218 +73,86 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: IndexedStack(
-        index: _currentIndex,
-        children: _tabs.map((tab) => tab.page).toList(),
-      ),
-      bottomNavigationBar: AnimatedBuilder(
-        animation: _tabAnimation,
-        builder: (context, child) {
-          return Transform.scale(
-            scale: _tabAnimation.value,
-            child: Container(
-              margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Colors.white.withOpacity(0.1),
-                    Colors.white.withOpacity(0.05),
-                  ],
-                ),
-                borderRadius: BorderRadius.circular(28),
-                border: Border.all(
-                  color: Colors.white.withOpacity(0.2),
-                  width: 1.5,
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 32,
-                    offset: const Offset(0, 16),
-                    spreadRadius: -8,
-                  ),
-                  BoxShadow(
-                    color: const Color(0xFF00D4FF).withOpacity(0.1),
-                    blurRadius: 20,
-                    offset: const Offset(0, 10),
-                    spreadRadius: -5,
-                  ),
-                ],
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(28),
-                child: BackdropFilter(
-                  filter: ui.ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-                  child: SafeArea(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: _tabs.asMap().entries.map((entry) {
-                          final index = entry.key;
-                          final tab = entry.value;
-                          final isSelected = _currentIndex == index;
+    final keyboardInset = MediaQuery.of(context).viewInsets.bottom;
 
-                          return GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                _currentIndex = index;
-                              });
-                              HapticFeedback.lightImpact();
-                            },
-                            child: AnimatedContainer(
-                              duration: const Duration(milliseconds: 600),
-                              curve: Curves.easeInOutCubic,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 12,
-                              ),
-                              decoration: BoxDecoration(
-                                gradient: isSelected
-                                    ? LinearGradient(
-                                        colors: [
-                                          tab.color,
-                                          tab.color.withOpacity(0.8),
-                                        ],
-                                        begin: Alignment.topLeft,
-                                        end: Alignment.bottomRight,
-                                      )
-                                    : null,
-                                borderRadius: BorderRadius.circular(20),
-                                boxShadow: isSelected
-                                    ? [
-                                        BoxShadow(
-                                          color: tab.color.withOpacity(0.4),
-                                          blurRadius: 24,
-                                          offset: const Offset(0, 12),
-                                          spreadRadius: -6,
-                                        ),
-                                      ]
-                                    : null,
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  AnimatedContainer(
-                                    duration: const Duration(milliseconds: 600),
-                                    curve: Curves.easeInOutCubic,
-                                    padding: const EdgeInsets.all(8),
-                                    decoration: BoxDecoration(
-                                      color: isSelected
-                                          ? Colors.white.withOpacity(0.2)
-                                          : Colors.transparent,
-                                      borderRadius: BorderRadius.circular(16),
-                                    ),
-                                    child: Icon(
-                                      tab.icon,
-                                      color: isSelected
-                                          ? Colors.white
-                                          : Colors.white.withOpacity(0.7),
-                                      size: 20,
-                                    ),
-                                  ),
-                                  if (isSelected) ...[
-                                    const SizedBox(width: 8),
-                                    Flexible(
-                                      child: Text(
-                                        tab.label,
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w900,
-                                          letterSpacing: 0.3,
-                                          shadows: [
-                                            Shadow(
-                                              color: Colors.black26,
-                                              blurRadius: 6,
-                                              offset: Offset(0, 3),
-                                            ),
-                                          ],
-                                        ),
-                                        overflow: TextOverflow.ellipsis,
-                                        maxLines: 1,
-                                      ),
-                                    ),
-                                  ],
-                                ],
-                              ),
-                            ),
-                          );
-                        }).toList(),
+    return Scaffold(
+      extendBody: true,
+      body: Stack(
+        children: [
+          // main content
+          IndexedStack(
+              index: _currentIndex,
+              children: _tabs.map((t) => t.page).toList()),
+
+          // FAB positioned above nav (raised slightly)
+          Positioned(
+            right: 28,
+            bottom: 110 + (keyboardInset > 0 ? keyboardInset : 0),
+            child: ScaleTransition(
+              scale: _fabAnimation,
+              child: Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(colors: [
+                    Color(0xFF00D4FF),
+                    Color(0xFF7C3AED),
+                    Color(0xFF10B981)
+                  ], begin: Alignment.topLeft, end: Alignment.bottomRight),
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                child: FloatingActionButton(
+                  onPressed: _showQuickActions,
+                  backgroundColor: Colors.transparent,
+                  elevation: 0,
+                  mini: true,
+                  child: const Icon(Icons.add_box, size: 22),
+                ),
+              ),
+            ),
+          ),
+
+          // Floating nav overlay (centered and width-constrained so it's not too long)
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 24 + (keyboardInset > 0 ? keyboardInset : 0),
+            child: AnimatedBuilder(
+              animation: _tabAnimation,
+              builder: (context, child) => Transform.scale(
+                scale: _tabAnimation.value,
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(
+                        maxWidth:
+                            760), // keep nav visually short on large screens
+                    child: Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 16),
+                      decoration: BoxDecoration(
+                        color: Colors.transparent,
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                            color: Colors.black.withOpacity(0.06), width: 1.0),
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(20),
+                        child: BackdropFilter(
+                          filter: ui.ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                          child: SafeArea(
+                            child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 4, vertical: 2),
+                                child: _buildMaterialNavigationBar()),
+                          ),
+                        ),
                       ),
                     ),
                   ),
                 ),
               ),
             ),
-          );
-        },
+          ),
+        ],
       ),
-      floatingActionButton: AnimatedBuilder(
-        animation: _fabAnimation,
-        builder: (context, child) {
-          return Transform.scale(
-            scale: _fabAnimation.value,
-            child: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    const Color(0xFF00D4FF),
-                    const Color(0xFF7C3AED),
-                    const Color(0xFF10B981),
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(36),
-                boxShadow: [
-                  BoxShadow(
-                    color: const Color(0xFF00D4FF).withOpacity(0.4),
-                    blurRadius: 40,
-                    offset: const Offset(0, 20),
-                    spreadRadius: -10,
-                  ),
-                  BoxShadow(
-                    color: const Color(0xFF7C3AED).withOpacity(0.3),
-                    blurRadius: 24,
-                    offset: const Offset(0, 12),
-                    spreadRadius: -6,
-                  ),
-                ],
-              ),
-              child: FloatingActionButton.extended(
-                onPressed: _showQuickActions,
-                backgroundColor: Colors.transparent,
-                foregroundColor: Colors.white,
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(36),
-                ),
-                icon: const Icon(Icons.rocket_launch_rounded, size: 28),
-                label: const Text(
-                  'Quick Action',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: 0.8,
-                    fontSize: 18,
-                    shadows: [
-                      Shadow(
-                        color: Colors.black26,
-                        blurRadius: 8,
-                        offset: Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          );
-        },
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 
@@ -321,6 +161,8 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
+      isDismissible: true,
+      barrierColor: Colors.black54,
       builder: (context) => DraggableScrollableSheet(
         initialChildSize: 0.6,
         minChildSize: 0.3,
@@ -328,155 +170,108 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
         builder: (context, scrollController) {
           return Container(
             decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.vertical(
-                top: Radius.circular(24),
-              ),
-            ),
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
             child: Column(
               children: [
-                // Handle
                 Container(
-                  width: 40,
-                  height: 4,
-                  margin: const EdgeInsets.only(top: 12),
-                  decoration: BoxDecoration(
-                    color: ModernTheme.mediumGray.withOpacity(0.3),
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-
-                // Header
+                    width: 40,
+                    height: 4,
+                    margin: const EdgeInsets.only(top: 12),
+                    decoration: BoxDecoration(
+                        color: ModernTheme.mediumGray.withOpacity(0.3),
+                        borderRadius: BorderRadius.circular(2))),
                 Padding(
                   padding: const EdgeInsets.all(24),
-                  child: Row(
-                    children: [
-                      Container(
+                  child: Row(children: [
+                    Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: ModernTheme.primaryBlue.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: const Icon(
-                          Icons.flash_on_rounded,
-                          color: ModernTheme.primaryBlue,
-                          size: 24,
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      const Expanded(
+                            color: ModernTheme.primaryBlue.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(12)),
+                        child: const Icon(Icons.flash_on_rounded,
+                            color: ModernTheme.primaryBlue, size: 24)),
+                    const SizedBox(width: 16),
+                    const Expanded(
                         child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Quick Actions',
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                          Text('Quick Actions',
                               style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.w700,
-                                color: ModernTheme.textPrimary,
-                              ),
-                            ),
-                            Text(
-                              'Choose what you want to do',
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w700,
+                                  color: ModernTheme.textPrimary)),
+                          Text('Choose what you want to do',
                               style: TextStyle(
-                                fontSize: 14,
-                                color: ModernTheme.textSecondary,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
+                                  fontSize: 14,
+                                  color: ModernTheme.textSecondary))
+                        ]))
+                  ]),
                 ),
-
-                // Quick Actions List
                 Expanded(
                   child: ListView(
-                    controller: scrollController,
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
-                    children: [
-                      _buildQuickAction(
-                        'Create Business Plan',
-                        'Generate AI-powered business plan',
-                        Icons.description_rounded,
-                        ModernTheme.primaryBlue,
-                        () {
+                      controller: scrollController,
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      children: [
+                        _buildQuickAction(
+                            'Create Business Plan',
+                            'Generate AI-powered business plan',
+                            Icons.description_rounded,
+                            ModernTheme.primaryBlue, () {
                           Navigator.pop(context);
-                          setState(() {
-                            _currentIndex = 1; // Business tab
-                          });
-                        },
-                      ),
-                      _buildQuickAction(
-                        'Calculate ROI',
-                        'Analyze your investment returns',
-                        Icons.calculate_rounded,
-                        ModernTheme.accentGreen,
-                        () {
+                          setState(() => _currentIndex = 1);
+                        }),
+                        _buildQuickAction(
+                            'Calculate ROI',
+                            'Analyze your investment returns',
+                            Icons.calculate_rounded,
+                            ModernTheme.accentGreen, () {
                           Navigator.pop(context);
-                          setState(() {
-                            _currentIndex = 2; // Financial tab
-                          });
-                        },
-                      ),
-                      _buildQuickAction(
-                        'Find Mentors',
-                        'Connect with industry experts',
-                        Icons.people_alt_rounded,
-                        ModernTheme.sunsetOrange,
-                        () {
+                          setState(() => _currentIndex = 2);
+                        }),
+                        _buildQuickAction(
+                            'Find Mentors',
+                            'Connect with industry experts',
+                            Icons.people_alt_rounded,
+                            ModernTheme.sunsetOrange, () {
                           Navigator.pop(context);
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Networking features coming soon'),
-                            ),
-                          );
-                        },
-                      ),
-                      _buildQuickAction(
-                        'Start Learning',
-                        'Access courses and resources',
-                        Icons.play_circle_rounded,
-                        ModernTheme.goldenYellow,
-                        () {
+                              const SnackBar(
+                                  content:
+                                      Text('Networking features coming soon')));
+                        }),
+                        _buildQuickAction(
+                            'Start Learning',
+                            'Access courses and resources',
+                            Icons.play_circle_rounded,
+                            ModernTheme.goldenYellow, () {
                           Navigator.pop(context);
-                          setState(() {
-                            _currentIndex = 3; // Learning tab
-                          });
-                        },
-                      ),
-                      _buildQuickAction(
-                        'Create Pitch Deck',
-                        'Build professional presentations',
-                        Icons.slideshow_rounded,
-                        ModernTheme.teal,
-                        () {
+                          setState(() => _currentIndex = 3);
+                        }),
+                        _buildQuickAction(
+                            'Create Pitch Deck',
+                            'Build professional presentations',
+                            Icons.slideshow_rounded,
+                            ModernTheme.teal, () {
                           Navigator.pop(context);
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Pitch Deck Builder coming soon'),
-                            ),
-                          );
-                        },
-                      ),
-                      _buildQuickAction(
-                        'Market Research',
-                        'Analyze market trends and competition',
-                        Icons.analytics_rounded,
-                        ModernTheme.sunsetOrange,
-                        () {
+                              const SnackBar(
+                                  content:
+                                      Text('Pitch Deck Builder coming soon')));
+                        }),
+                        _buildQuickAction(
+                            'Market Research',
+                            'Analyze market trends and competition',
+                            Icons.analytics_rounded,
+                            ModernTheme.sunsetOrange, () {
                           Navigator.pop(context);
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Market Research coming soon'),
-                            ),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                ),
+                              const SnackBar(
+                                  content:
+                                      Text('Market Research coming soon')));
+                        }),
+                      ]),
+                )
               ],
             ),
           );
@@ -485,13 +280,91 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildQuickAction(
-    String title,
-    String subtitle,
-    IconData icon,
-    Color color,
-    VoidCallback onTap,
-  ) {
+  Widget _buildMaterialNavigationBar() {
+    return LayoutBuilder(builder: (context, constraints) {
+      // Icons-only nav (forced) to minimize height
+      // labels are intentionally hidden (icons-only)
+
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: _tabs.asMap().entries.map((entry) {
+          final index = entry.key;
+          final tab = entry.value;
+          final isSelected = _currentIndex == index;
+
+          return Expanded(
+            child: Semantics(
+              selected: isSelected,
+              label: tab.label,
+              child: GestureDetector(
+                onTap: () => setState(() => _currentIndex = index),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 240),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
+                  decoration: BoxDecoration(
+                    gradient: isSelected
+                        ? LinearGradient(colors: [
+                            tab.color.withOpacity(0.95),
+                            tab.color.withOpacity(0.8)
+                          ])
+                        : null,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Column(mainAxisSize: MainAxisSize.min, children: [
+                    Stack(alignment: Alignment.topRight, children: [
+                      Icon(tab.icon,
+                          size: 16,
+                          color: isSelected
+                              ? Colors.black
+                              : Colors.black.withOpacity(0.65)),
+                      if (index == 2)
+                        Positioned(
+                            right: -4,
+                            top: -4,
+                            child: _buildBadge('3', small: true)),
+                    ]),
+                    // labels hidden in icons-only mode
+                  ]),
+                ),
+              ),
+            ),
+          );
+        }).toList(),
+      );
+    });
+  }
+
+  Widget _buildBadge(String text, {bool small = false}) {
+    if (small) {
+      // Tight circular badge for compact nav
+      return Container(
+        width: 16,
+        height: 16,
+        decoration: const BoxDecoration(
+            color: Colors.redAccent, shape: BoxShape.circle),
+        alignment: Alignment.center,
+        child: const Text(
+          '3',
+          style: TextStyle(
+              color: Colors.white, fontSize: 10, fontWeight: FontWeight.w700),
+        ),
+      );
+    }
+
+    // regular badge (slightly rounded pill)
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+          color: Colors.redAccent, borderRadius: BorderRadius.circular(12)),
+      child: Text(text,
+          style: const TextStyle(
+              color: Colors.white, fontSize: 10, fontWeight: FontWeight.w700)),
+    );
+  }
+
+  Widget _buildQuickAction(String title, String subtitle, IconData icon,
+      Color color, VoidCallback onTap) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       child: Material(
@@ -502,58 +375,34 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
           child: Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.05),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: color.withOpacity(0.1),
-                width: 1,
-              ),
-            ),
-            child: Row(
-              children: [
-                Container(
+                color: color.withOpacity(0.05),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: color.withOpacity(0.1), width: 1)),
+            child: Row(children: [
+              Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: color.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(
-                    icon,
-                    color: color,
-                    size: 24,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
+                      color: color.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12)),
+                  child: Icon(icon, color: color, size: 24)),
+              const SizedBox(width: 16),
+              Expanded(
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        title,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                    Text(title,
                         style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: ModernTheme.textPrimary,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        subtitle,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: ModernTheme.textPrimary)),
+                    const SizedBox(height: 4),
+                    Text(subtitle,
                         style: const TextStyle(
-                          fontSize: 14,
-                          color: ModernTheme.textSecondary,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Icon(
-                  Icons.arrow_forward_ios_rounded,
-                  color: Colors.grey[400],
-                  size: 16,
-                ),
-              ],
-            ),
+                            fontSize: 14, color: ModernTheme.textSecondary))
+                  ])),
+              Icon(Icons.arrow_forward_ios_rounded,
+                  color: Colors.grey[400], size: 16),
+            ]),
           ),
         ),
       ),
@@ -567,10 +416,9 @@ class MainTab {
   final String label;
   final Color color;
 
-  MainTab({
-    required this.page,
-    required this.icon,
-    required this.label,
-    required this.color,
-  });
+  MainTab(
+      {required this.page,
+      required this.icon,
+      required this.label,
+      required this.color});
 }

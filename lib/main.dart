@@ -12,7 +12,7 @@ import 'screens/main_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // Initialize Firebase with error handling
   try {
     await Firebase.initializeApp();
@@ -21,11 +21,11 @@ void main() async {
     print('Firebase initialization failed: $e');
     print('App will continue with mock services');
   }
-  
+
   // Initialize services
   await StorageService.init();
   await AuthService.init();
-  
+
   // Set system UI overlay style for premium look
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
@@ -35,13 +35,13 @@ void main() async {
       systemNavigationBarIconBrightness: Brightness.dark,
     ),
   );
-  
+
   // Lock orientation to portrait
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
-  
+
   runApp(const BizNestApp());
 }
 
@@ -51,7 +51,7 @@ class BizNestApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'BizNest - AI Business Companion',
+      title: 'BizNest - Entrepreneurial Toolkit Mobile App',
       debugShowCheckedModeBanner: false,
       theme: ModernTheme.lightTheme,
       darkTheme: ModernTheme.darkTheme,

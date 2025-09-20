@@ -291,7 +291,19 @@ class BusinessIntelligenceService {
   static Future<List<Map<String, dynamic>>> _getBusinessPlans() async {
     final response = await ApiService.get('/business/plans');
     if (response['success']) {
-      return List<Map<String, dynamic>>.from(response['data']);
+      final data = response['data'];
+      if (data is Iterable) {
+        return List<Map<String, dynamic>>.from(data);
+      }
+      // If API returned an object/map instead of list, try to extract values
+      if (data is Map) {
+        return List<Map<String, dynamic>>.from(data.values);
+      }
+      // Unexpected shape, return empty list and log in debug mode
+      if (kDebugMode)
+        print(
+            'BusinessIntelligenceService: /business/plans returned non-iterable data: $data');
+      return [];
     }
     return [];
   }
@@ -299,7 +311,17 @@ class BusinessIntelligenceService {
   static Future<Map<String, dynamic>> _getFinancialData() async {
     final response = await ApiService.get('/financial/calculations');
     if (response['success']) {
-      return Map<String, dynamic>.from(response['data']);
+      final data = response['data'];
+      if (data is Map) return Map<String, dynamic>.from(data);
+      // If data is a list with a single map, return the first element as map
+      if (data is Iterable && data.isNotEmpty) {
+        final first = data.first;
+        if (first is Map) return Map<String, dynamic>.from(first);
+      }
+      if (kDebugMode)
+        print(
+            'BusinessIntelligenceService: /financial/calculations returned non-map data: $data');
+      return {};
     }
     return {};
   }
@@ -307,7 +329,13 @@ class BusinessIntelligenceService {
   static Future<List<Map<String, dynamic>>> _getNetworkingData() async {
     final response = await ApiService.get('/networking/contacts');
     if (response['success']) {
-      return List<Map<String, dynamic>>.from(response['data']);
+      final data = response['data'];
+      if (data is Iterable) return List<Map<String, dynamic>>.from(data);
+      if (data is Map) return List<Map<String, dynamic>>.from(data.values);
+      if (kDebugMode)
+        print(
+            'BusinessIntelligenceService: /networking/contacts returned non-iterable data: $data');
+      return [];
     }
     return [];
   }
@@ -315,7 +343,13 @@ class BusinessIntelligenceService {
   static Future<List<Map<String, dynamic>>> _getLearningData() async {
     final response = await ApiService.get('/learning/resources');
     if (response['success']) {
-      return List<Map<String, dynamic>>.from(response['data']);
+      final data = response['data'];
+      if (data is Iterable) return List<Map<String, dynamic>>.from(data);
+      if (data is Map) return List<Map<String, dynamic>>.from(data.values);
+      if (kDebugMode)
+        print(
+            'BusinessIntelligenceService: /learning/resources returned non-iterable data: $data');
+      return [];
     }
     return [];
   }
