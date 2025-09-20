@@ -587,7 +587,8 @@ class _ROICalculatorState extends State<_ROICalculator> {
                     color: ModernTheme.primaryBlue.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Icon(Icons.calculate, color: ModernTheme.primaryBlue),
+                  child: const Icon(Icons.calculate,
+                      color: ModernTheme.primaryBlue),
                 ),
                 const SizedBox(width: 12),
                 const Text(
@@ -638,11 +639,13 @@ class _ROICalculatorState extends State<_ROICalculator> {
                 decoration: BoxDecoration(
                   color: ModernTheme.primaryBlue.withOpacity(0.06),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: ModernTheme.primaryBlue.withOpacity(0.2)),
+                  border: Border.all(
+                      color: ModernTheme.primaryBlue.withOpacity(0.2)),
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.percent_rounded, color: ModernTheme.primaryBlue),
+                    const Icon(Icons.percent_rounded,
+                        color: ModernTheme.primaryBlue),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
