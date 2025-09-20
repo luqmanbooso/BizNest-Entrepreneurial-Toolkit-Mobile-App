@@ -461,15 +461,17 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
                                         decoration: BoxDecoration(
                                           gradient: LinearGradient(
                                             colors: [
-                                              ModernTheme.primaryBlue.withOpacity(0.1),
-                                              ModernTheme.primaryBlue.withOpacity(0.05),
+                                              ModernTheme.primaryBlue
+                                                  .withOpacity(0.1),
+                                              ModernTheme.primaryBlue
+                                                  .withOpacity(0.05),
                                             ],
                                           ),
                                           borderRadius:
                                               BorderRadius.circular(12),
                                           border: Border.all(
-                                            color:
-                                                ModernTheme.primaryBlue.withOpacity(0.2),
+                                            color: ModernTheme.primaryBlue
+                                                .withOpacity(0.2),
                                             width: 1,
                                           ),
                                         ),
@@ -1357,44 +1359,48 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
 
   Widget _buildUsageChart() {
     // Attempt to read a numeric series from insights (financial_forecast -> forecast)
-    final forecast = (_insights['financial_forecast']?['forecast'] as List<dynamic>?)
-            ?.map<double>((e) {
-          if (e is Map<String, dynamic>) {
-            final v = e['revenue'] ?? e['value'] ?? e['y'];
-            if (v is num) return v.toDouble();
-          }
-          return 0.0;
-        }).toList() ??
-        // Fallback sample series (12 months)
-        [50, 62, 58, 72, 80, 95, 110, 105, 125, 140, 155, 170];
+    final forecast =
+        (_insights['financial_forecast']?['forecast'] as List<dynamic>?)
+                ?.map<double>((e) {
+              if (e is Map<String, dynamic>) {
+                final v = e['revenue'] ?? e['value'] ?? e['y'];
+                if (v is num) return v.toDouble();
+              }
+              return 0.0;
+            }).toList() ??
+            // Fallback sample series (12 months)
+            [50, 62, 58, 72, 80, 95, 110, 105, 125, 140, 155, 170];
 
-    final labels = (_insights['financial_forecast']?['forecast'] as List<dynamic>?)
-            ?.map<String>((e) {
-          if (e is Map<String, dynamic>) {
-            final m = e['month']?.toString() ?? e['label']?.toString();
-            return m ?? '';
-          }
-          return '';
-        }).toList() ??
-        [
-          'Jan',
-          'Feb',
-          'Mar',
-          'Apr',
-          'May',
-          'Jun',
-          'Jul',
-          'Aug',
-          'Sep',
-          'Oct',
-          'Nov',
-          'Dec'
-        ];
+    final labels =
+        (_insights['financial_forecast']?['forecast'] as List<dynamic>?)
+                ?.map<String>((e) {
+              if (e is Map<String, dynamic>) {
+                final m = e['month']?.toString() ?? e['label']?.toString();
+                return m ?? '';
+              }
+              return '';
+            }).toList() ??
+            [
+              'Jan',
+              'Feb',
+              'Mar',
+              'Apr',
+              'May',
+              'Jun',
+              'Jul',
+              'Aug',
+              'Sep',
+              'Oct',
+              'Nov',
+              'Dec'
+            ];
 
     final total = forecast.fold<double>(0.0, (s, v) => s + v);
     final avg = forecast.isNotEmpty ? total / forecast.length : 0.0;
     final growth = forecast.length >= 2
-        ? ((forecast.last - forecast.first) / (forecast.first == 0 ? 1 : forecast.first) * 100)
+        ? ((forecast.last - forecast.first) /
+            (forecast.first == 0 ? 1 : forecast.first) *
+            100)
         : 0.0;
 
     return Container(
@@ -1429,10 +1435,12 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Total', style: TextStyle(color: ModernTheme.textTertiary)),
+                    Text('Total',
+                        style: TextStyle(color: ModernTheme.textTertiary)),
                     const SizedBox(height: 6),
                     Text(total.round().toString(),
-                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+                        style: const TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.w800)),
                   ],
                 ),
               ),
@@ -1440,10 +1448,12 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Average', style: TextStyle(color: ModernTheme.textTertiary)),
+                    Text('Average',
+                        style: TextStyle(color: ModernTheme.textTertiary)),
                     const SizedBox(height: 6),
                     Text(avg.round().toString(),
-                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+                        style: const TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.w800)),
                   ],
                 ),
               ),
@@ -1451,10 +1461,16 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Growth', style: TextStyle(color: ModernTheme.textTertiary)),
+                    Text('Growth',
+                        style: TextStyle(color: ModernTheme.textTertiary)),
                     const SizedBox(height: 6),
                     Text('${growth.round()}%',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: growth >= 0 ? ModernTheme.freshGreen : ModernTheme.sunsetOrange)),
+                        style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w800,
+                            color: growth >= 0
+                                ? ModernTheme.freshGreen
+                                : ModernTheme.sunsetOrange)),
                   ],
                 ),
               ),
@@ -1473,8 +1489,6 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
       ),
     );
   }
-
-
 
   Widget _buildPerformanceMetrics() {
     return Container(
@@ -2014,8 +2028,10 @@ class _SimpleLineChart extends StatefulWidget {
   final List<double> values;
   final List<String>? labels;
   final Color color;
-  
-  const _SimpleLineChart({required this.values, this.labels, required this.color, Key? key}) : super(key: key);
+
+  const _SimpleLineChart(
+      {required this.values, this.labels, required this.color, Key? key})
+      : super(key: key);
 
   @override
   State<_SimpleLineChart> createState() => _SimpleLineChartState();
@@ -2046,7 +2062,7 @@ class _SimpleLineChartState extends State<_SimpleLineChart> {
     return LayoutBuilder(builder: (context, constraints) {
       return GestureDetector(
         onTapDown: (d) => _handleTapDown(d, constraints),
-          child: CustomPaint(
+        child: CustomPaint(
           size: Size(constraints.maxWidth, 220),
           painter: _LineChartPainter(
             values: widget.values,
@@ -2066,7 +2082,11 @@ class _LineChartPainter extends CustomPainter {
   final int? selectedIndex;
   final List<String>? labels;
 
-  _LineChartPainter({required this.values, required this.color, this.selectedIndex, this.labels});
+  _LineChartPainter(
+      {required this.values,
+      required this.color,
+      this.selectedIndex,
+      this.labels});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -2076,7 +2096,8 @@ class _LineChartPainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..isAntiAlias = true;
 
-    final bg = RRect.fromRectAndRadius(Offset.zero & size, const Radius.circular(12));
+    final bg =
+        RRect.fromRectAndRadius(Offset.zero & size, const Radius.circular(12));
     final bgPaint = Paint()..color = Colors.transparent;
     canvas.drawRRect(bg, bgPaint);
 
@@ -2096,7 +2117,8 @@ class _LineChartPainter extends CustomPainter {
     final path = Path();
     for (int i = 0; i < values.length; i++) {
       final x = leftPad + (usableWidth) * (i / (values.length - 1));
-      final y = topPad + usableHeight - ((values[i] - minV) / range) * usableHeight;
+      final y =
+          topPad + usableHeight - ((values[i] - minV) / range) * usableHeight;
       if (i == 0) {
         path.moveTo(x, y);
       } else {
@@ -2120,7 +2142,8 @@ class _LineChartPainter extends CustomPainter {
     final dotPaint = Paint()..color = color;
     for (int i = 0; i < values.length; i++) {
       final x = leftPad + (usableWidth) * (i / (values.length - 1));
-      final y = topPad + usableHeight - ((values[i] - minV) / range) * usableHeight;
+      final y =
+          topPad + usableHeight - ((values[i] - minV) / range) * usableHeight;
       canvas.drawCircle(Offset(x, y), i == selectedIndex ? 5.0 : 3.5, dotPaint);
     }
 
@@ -2138,15 +2161,23 @@ class _LineChartPainter extends CustomPainter {
     }
 
     // selected value tooltip
-    if (selectedIndex != null && selectedIndex! >= 0 && selectedIndex! < values.length) {
+    if (selectedIndex != null &&
+        selectedIndex! >= 0 &&
+        selectedIndex! < values.length) {
       final i = selectedIndex!;
       final x = leftPad + (usableWidth) * (i / (values.length - 1));
-      final y = topPad + usableHeight - ((values[i] - minV) / range) * usableHeight;
+      final y =
+          topPad + usableHeight - ((values[i] - minV) / range) * usableHeight;
       final val = values[i].round().toString();
-      final text = TextSpan(text: val, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w700));
+      final text = TextSpan(
+          text: val,
+          style: const TextStyle(
+              color: Colors.white, fontSize: 12, fontWeight: FontWeight.w700));
       final ttp = TextPainter(text: text, textDirection: TextDirection.ltr);
       ttp.layout();
-      final rect = RRect.fromRectAndRadius(Rect.fromLTWH(x - ttp.width / 2 - 8, y - 34, ttp.width + 16, 24), const Radius.circular(6));
+      final rect = RRect.fromRectAndRadius(
+          Rect.fromLTWH(x - ttp.width / 2 - 8, y - 34, ttp.width + 16, 24),
+          const Radius.circular(6));
       final rpaint = Paint()..color = color;
       canvas.drawRRect(rect, rpaint);
       ttp.paint(canvas, Offset(x - ttp.width / 2, y - 30));
