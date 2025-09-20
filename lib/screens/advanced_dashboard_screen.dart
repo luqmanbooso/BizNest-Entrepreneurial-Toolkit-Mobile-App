@@ -183,7 +183,7 @@ class _AdvancedDashboardScreenState extends State<AdvancedDashboardScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: ModernTheme.lightGray,
+      backgroundColor: ModernTheme.backgroundLight,
       body: Stack(
         children: [
           _buildBackgroundEffects(),
@@ -355,15 +355,15 @@ class _AdvancedDashboardScreenState extends State<AdvancedDashboardScreen>
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                         colors: [
-                          ModernTheme.primaryBlue.withOpacity(0.95),
-                          ModernTheme.teal.withOpacity(0.9),
-                          ModernTheme.freshGreen.withOpacity(0.85),
+                          Colors.white.withOpacity(0.95),
+                          Colors.white.withOpacity(0.9),
+                          Colors.white.withOpacity(0.85),
                         ],
                         stops: const [0.1, 0.6, 0.9],
                       ),
                       borderRadius: BorderRadius.circular(28),
                       border: Border.all(
-                        color: Colors.white.withOpacity(0.2),
+                        color: ModernTheme.primaryBlue.withOpacity(0.1),
                         width: 1.5,
                       ),
                     ),
@@ -380,7 +380,7 @@ class _AdvancedDashboardScreenState extends State<AdvancedDashboardScreen>
                                   'Welcome back!',
                                   style: ModernTheme.textTheme.headlineSmall
                                       ?.copyWith(
-                                    color: Colors.white,
+                                    color: ModernTheme.textPrimary,
                                     fontWeight: FontWeight.w300,
                                     letterSpacing: 0.5,
                                   ),
@@ -390,7 +390,7 @@ class _AdvancedDashboardScreenState extends State<AdvancedDashboardScreen>
                                   'Here\'s your business overview',
                                   style:
                                       ModernTheme.textTheme.bodyLarge?.copyWith(
-                                    color: Colors.white.withOpacity(0.9),
+                                    color: ModernTheme.textSecondary,
                                     letterSpacing: 0.2,
                                   ),
                                 ),

@@ -145,7 +145,7 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0A0E1A),
+      backgroundColor: ModernTheme.backgroundLight,
       body: Stack(
         children: [
           _buildUltraModernBackground(),
@@ -196,7 +196,7 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
                             child: const Padding(
                               padding: EdgeInsets.all(8.0),
                               child: Icon(Icons.settings_rounded,
-                                  color: Colors.white),
+                                  color: ModernTheme.textPrimary),
                             ),
                           ),
                         ),
@@ -211,7 +211,7 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
                             child: const Padding(
                               padding: EdgeInsets.all(8.0),
                               child: Icon(Icons.person_rounded,
-                                  color: Colors.white),
+                                  color: ModernTheme.textPrimary),
                             ),
                           ),
                         ),
@@ -242,9 +242,9 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              Color(0xFF0A0E1A),
-              Color(0xFF1A1F3A),
-              Color(0xFF0F1419),
+              Color(0xFFF8F9FA),
+              Color(0xFFE3F2FD),
+              Color(0xFFF1F8E9),
             ],
             stops: [0.0, 0.5, 1.0],
           ),
@@ -260,8 +260,8 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
                 decoration: BoxDecoration(
                   gradient: RadialGradient(
                     colors: [
-                      const Color(0xFF00D4FF).withOpacity(0.15),
-                      const Color(0xFF00D4FF).withOpacity(0.05),
+                      ModernTheme.primaryBlue.withOpacity(0.08),
+                      ModernTheme.primaryBlue.withOpacity(0.03),
                       Colors.transparent,
                     ],
                     stops: const [0.0, 0.7, 1.0],
@@ -279,8 +279,8 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
                 decoration: BoxDecoration(
                   gradient: RadialGradient(
                     colors: [
-                      const Color(0xFF7C3AED).withOpacity(0.12),
-                      const Color(0xFF7C3AED).withOpacity(0.04),
+                      ModernTheme.teal.withOpacity(0.08),
+                      ModernTheme.teal.withOpacity(0.03),
                       Colors.transparent,
                     ],
                     stops: const [0.0, 0.6, 1.0],
@@ -298,8 +298,8 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
                 decoration: BoxDecoration(
                   gradient: RadialGradient(
                     colors: [
-                      const Color(0xFF10B981).withOpacity(0.1),
-                      const Color(0xFF10B981).withOpacity(0.03),
+                      ModernTheme.freshGreen.withOpacity(0.08),
+                      ModernTheme.freshGreen.withOpacity(0.03),
                       Colors.transparent,
                     ],
                     stops: const [0.0, 0.5, 1.0],
@@ -396,26 +396,26 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                         colors: [
-                          const Color(0xFF00D4FF).withOpacity(0.2),
-                          const Color(0xFF7C3AED).withOpacity(0.15),
-                          const Color(0xFF10B981).withOpacity(0.1),
+                          Colors.white.withOpacity(0.9),
+                          Colors.white.withOpacity(0.8),
+                          Colors.white.withOpacity(0.7),
                         ],
                         stops: const [0.0, 0.5, 1.0],
                       ),
                       borderRadius: BorderRadius.circular(28),
                       border: Border.all(
-                        color: Colors.white.withOpacity(0.1),
+                        color: ModernTheme.primaryBlue.withOpacity(0.1),
                         width: 1.5,
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: const Color(0xFF00D4FF).withOpacity(0.2),
+                          color: ModernTheme.primaryBlue.withOpacity(0.1),
                           blurRadius: 32,
                           offset: const Offset(0, 16),
                           spreadRadius: -8,
                         ),
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
+                          color: Colors.black.withOpacity(0.05),
                           blurRadius: 16,
                           offset: const Offset(0, 8),
                           spreadRadius: -4,
@@ -445,7 +445,7 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
                                           return Text(
                                             'Welcome back, $name!',
                                             style: const TextStyle(
-                                              color: Colors.white,
+                                              color: ModernTheme.textPrimary,
                                               fontSize: 28,
                                               fontWeight: FontWeight.w900,
                                               letterSpacing: -0.5,
@@ -461,15 +461,15 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
                                         decoration: BoxDecoration(
                                           gradient: LinearGradient(
                                             colors: [
-                                              Colors.white.withOpacity(0.2),
-                                              Colors.white.withOpacity(0.1),
+                                              ModernTheme.primaryBlue.withOpacity(0.1),
+                                              ModernTheme.primaryBlue.withOpacity(0.05),
                                             ],
                                           ),
                                           borderRadius:
                                               BorderRadius.circular(12),
                                           border: Border.all(
                                             color:
-                                                Colors.white.withOpacity(0.3),
+                                                ModernTheme.primaryBlue.withOpacity(0.2),
                                             width: 1,
                                           ),
                                         ),
@@ -484,7 +484,7 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
                                   Text(
                                     'Ready to grow your business?',
                                     style: TextStyle(
-                                      color: Colors.white.withOpacity(0.9),
+                                      color: ModernTheme.textSecondary,
                                       fontSize: 16,
                                       fontWeight: FontWeight.w600,
                                       letterSpacing: 0.2,
@@ -516,140 +516,11 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
   }
 
   Widget _buildModernStatsRow() {
-    final overview = _insights['overview'] as Map<String, dynamic>? ?? {};
-    final totalPlans = overview['total_business_plans'] ?? 0;
-    final completedPlans = overview['completed_plans'] ?? 0;
-    final completionRate = overview['completion_rate'] ?? 0;
-    final healthScore = _insights['business_health']?['health_score'] ?? 0;
-
-    return Row(
-      children: [
-        Expanded(
-          child: _buildUltraModernStatCard(
-            'Business',
-            totalPlans.toString(),
-            Icons.business_center_rounded,
-            const Color(0xFF00D4FF),
-            () => Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => BusinessScreen()),
-            ),
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: _buildUltraModernStatCard(
-            'Done',
-            completedPlans.toString(),
-            Icons.check_circle_rounded,
-            const Color(0xFF10B981),
-            () => Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => BusinessScreen()),
-            ),
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: _buildUltraModernStatCard(
-            'Progress',
-            '$completionRate%',
-            Icons.trending_up_rounded,
-            const Color(0xFFF59E0B),
-            () => Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => LearningScreen()),
-            ),
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: _buildUltraModernStatCard(
-            'Health',
-            _getHealthLevel(healthScore),
-            Icons.favorite_rounded,
-            const Color(0xFF7C3AED),
-            () {
-              setState(() {
-                _selectedTabIndex = 1;
-              });
-            },
-          ),
-        ),
-      ],
-    );
+    // Stat cards removed: keep minimal vertical space so top tabs remain visible.
+    return const SizedBox.shrink();
   }
 
-  Widget _buildUltraModernStatCard(
-    String title,
-    String value,
-    IconData icon,
-    Color color,
-    VoidCallback onTap,
-  ) {
-    return ConstrainedBox(
-      constraints: const BoxConstraints(minHeight: 92),
-      child: Material(
-        color: Colors.transparent,
-        borderRadius: BorderRadius.circular(24),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(24),
-          onTap: onTap,
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  color.withOpacity(0.08),
-                  color.withOpacity(0.04),
-                  Colors.transparent,
-                ],
-              ),
-              borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: color.withOpacity(0.16), width: 1.2),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Semantics(
-                  button: true,
-                  label: title,
-                  child: Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: color.withOpacity(0.06),
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Icon(icon, color: color, size: 20),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  value,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 24,
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  title,
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.8),
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  textAlign: TextAlign.center,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
+  // Stat cards helper removed; no inline widget fragments remain here.
 
   Widget _buildTabBar() {
     return Container(
@@ -660,24 +531,24 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            Colors.white.withOpacity(0.1),
-            Colors.white.withOpacity(0.05),
+            Colors.white.withOpacity(0.9),
+            Colors.white.withOpacity(0.8),
           ],
         ),
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
-          color: Colors.white.withOpacity(0.2),
+          color: ModernTheme.primaryBlue.withOpacity(0.1),
           width: 1.5,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withOpacity(0.05),
             blurRadius: 24,
             offset: const Offset(0, 12),
             spreadRadius: -6,
           ),
           BoxShadow(
-            color: const Color(0xFF00D4FF).withOpacity(0.1),
+            color: ModernTheme.primaryBlue.withOpacity(0.08),
             blurRadius: 16,
             offset: const Offset(0, 8),
             spreadRadius: -4,
@@ -718,8 +589,8 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
             gradient: isSelected
                 ? LinearGradient(
                     colors: [
-                      const Color(0xFF00D4FF),
-                      const Color(0xFF7C3AED),
+                      ModernTheme.primaryBlue,
+                      ModernTheme.teal,
                     ],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
@@ -729,7 +600,7 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
             boxShadow: isSelected
                 ? [
                     BoxShadow(
-                      color: const Color(0xFF00D4FF).withOpacity(0.3),
+                      color: ModernTheme.primaryBlue.withOpacity(0.2),
                       blurRadius: 20,
                       offset: const Offset(0, 10),
                       spreadRadius: -5,
@@ -744,7 +615,7 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
               fontWeight: isSelected ? FontWeight.w900 : FontWeight.w600,
               fontSize: 14,
               letterSpacing: 0.3,
-              color: isSelected ? Colors.white : Colors.white.withOpacity(0.7),
+              color: isSelected ? Colors.white : ModernTheme.textSecondary,
               shadows: isSelected
                   ? [
                       Shadow(
@@ -1375,42 +1246,170 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
   }
 
   Widget _buildAnalyticsTab() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
+    // Compose a small internal tab UI for Analytics: Usage | Performance | Trends
+    return DefaultTabController(
+      length: 3,
       child: Column(
         children: [
-          _buildUsageChart(),
-          const SizedBox(height: 24),
-          _buildPerformanceMetrics(),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Material(
+              color: Colors.transparent,
+              child: TabBar(
+                indicator: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  color: ModernTheme.electricBlue.withOpacity(0.12),
+                ),
+                labelColor: ModernTheme.navy,
+                unselectedLabelColor: ModernTheme.textTertiary,
+                labelStyle: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                ),
+                unselectedLabelStyle: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                ),
+                tabs: const [
+                  Tab(text: 'Usage'),
+                  Tab(text: 'Performance'),
+                  Tab(text: 'Trends'),
+                ],
+                isScrollable: false,
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          // Tab content area
+          Expanded(
+            child: TabBarView(
+              children: [
+                // Usage tab: reuse existing usage chart inside a scroll view
+                SingleChildScrollView(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    children: [
+                      _buildUsageChart(),
+                    ],
+                  ),
+                ),
+
+                // Performance tab: reuse performance metrics
+                SingleChildScrollView(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    children: [
+                      _buildPerformanceMetrics(),
+                    ],
+                  ),
+                ),
+
+                // Trends tab: small placeholders or compact cards
+                SingleChildScrollView(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.04),
+                              blurRadius: 20,
+                              offset: const Offset(0, 10),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: const [
+                            Text(
+                              'Trends & Forecast',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w800,
+                                color: ModernTheme.navy,
+                              ),
+                            ),
+                            SizedBox(height: 12),
+                            Text(
+                              'Short term and long term trend cards will be shown here. Use charts to show moving averages, growth rates and seasonality.',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: ModernTheme.textTertiary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
   }
 
   Widget _buildUsageChart() {
+    // Attempt to read a numeric series from insights (financial_forecast -> forecast)
+    final forecast = (_insights['financial_forecast']?['forecast'] as List<dynamic>?)
+            ?.map<double>((e) {
+          if (e is Map<String, dynamic>) {
+            final v = e['revenue'] ?? e['value'] ?? e['y'];
+            if (v is num) return v.toDouble();
+          }
+          return 0.0;
+        }).toList() ??
+        // Fallback sample series (12 months)
+        [50, 62, 58, 72, 80, 95, 110, 105, 125, 140, 155, 170];
+
+    final labels = (_insights['financial_forecast']?['forecast'] as List<dynamic>?)
+            ?.map<String>((e) {
+          if (e is Map<String, dynamic>) {
+            final m = e['month']?.toString() ?? e['label']?.toString();
+            return m ?? '';
+          }
+          return '';
+        }).toList() ??
+        [
+          'Jan',
+          'Feb',
+          'Mar',
+          'Apr',
+          'May',
+          'Jun',
+          'Jul',
+          'Aug',
+          'Sep',
+          'Oct',
+          'Nov',
+          'Dec'
+        ];
+
+    final total = forecast.fold<double>(0.0, (s, v) => s + v);
+    final avg = forecast.isNotEmpty ? total / forecast.length : 0.0;
+    final growth = forecast.length >= 2
+        ? ((forecast.last - forecast.first) / (forecast.first == 0 ? 1 : forecast.first) * 100)
+        : 0.0;
+
     return Container(
-      padding: const EdgeInsets.all(28),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(32),
+        borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.06),
-            blurRadius: 32,
-            offset: const Offset(0, 16),
-            spreadRadius: -8,
-          ),
-          BoxShadow(
-            color: ModernTheme.electricBlue.withOpacity(0.03),
-            blurRadius: 16,
-            offset: const Offset(0, 8),
-            spreadRadius: -4,
+            blurRadius: 24,
+            offset: const Offset(0, 12),
+            spreadRadius: -6,
           ),
         ],
-        border: Border.all(
-          color: Colors.grey.withOpacity(0.08),
-          width: 1.5,
-        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1418,46 +1417,64 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
           const Text(
             'Feature Usage',
             style: TextStyle(
-              fontSize: 24,
+              fontSize: 20,
               fontWeight: FontWeight.w900,
               color: ModernTheme.navy,
-              letterSpacing: -0.5,
-              height: 1.2,
             ),
           ),
-          const SizedBox(height: 24),
-          Container(
-            height: 220,
-            decoration: BoxDecoration(
-              color: ModernTheme.lightGray,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: const Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.analytics_rounded,
-                    size: 48,
-                    color: ModernTheme.textTertiary,
-                  ),
-                  SizedBox(height: 16),
-                  Text(
-                    'Analytics data will be displayed here',
-                    style: TextStyle(
-                      color: ModernTheme.textTertiary,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Total', style: TextStyle(color: ModernTheme.textTertiary)),
+                    const SizedBox(height: 6),
+                    Text(total.round().toString(),
+                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+                  ],
+                ),
               ),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Average', style: TextStyle(color: ModernTheme.textTertiary)),
+                    const SizedBox(height: 6),
+                    Text(avg.round().toString(),
+                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Growth', style: TextStyle(color: ModernTheme.textTertiary)),
+                    const SizedBox(height: 6),
+                    Text('${growth.round()}%',
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: growth >= 0 ? ModernTheme.freshGreen : ModernTheme.sunsetOrange)),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            height: 220,
+            child: _SimpleLineChart(
+              values: forecast,
+              labels: labels,
+              color: ModernTheme.electricBlue,
             ),
           ),
         ],
       ),
     );
   }
+
+
 
   Widget _buildPerformanceMetrics() {
     return Container(
@@ -1990,4 +2007,152 @@ class _GridPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+// Simple in-file line chart widget used by the Analytics Usage tab.
+class _SimpleLineChart extends StatefulWidget {
+  final List<double> values;
+  final List<String>? labels;
+  final Color color;
+  
+  const _SimpleLineChart({required this.values, this.labels, required this.color, Key? key}) : super(key: key);
+
+  @override
+  State<_SimpleLineChart> createState() => _SimpleLineChartState();
+}
+
+class _SimpleLineChartState extends State<_SimpleLineChart> {
+  int? _selectedIndex;
+
+  void _handleTapDown(TapDownDetails details, BoxConstraints constraints) {
+    final box = context.findRenderObject() as RenderBox?;
+    if (box == null) return;
+    final local = box.globalToLocal(details.globalPosition);
+    final w = constraints.maxWidth;
+    final leftPad = 32.0;
+    final rightPad = 16.0;
+    final usable = w - leftPad - rightPad;
+    final n = widget.values.length;
+    if (n == 0) return;
+    final dx = (local.dx - leftPad).clamp(0.0, usable);
+    final idx = ((dx / usable) * (n - 1)).round();
+    setState(() {
+      _selectedIndex = idx;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(builder: (context, constraints) {
+      return GestureDetector(
+        onTapDown: (d) => _handleTapDown(d, constraints),
+          child: CustomPaint(
+          size: Size(constraints.maxWidth, 220),
+          painter: _LineChartPainter(
+            values: widget.values,
+            color: widget.color,
+            selectedIndex: _selectedIndex,
+            labels: widget.labels,
+          ),
+        ),
+      );
+    });
+  }
+}
+
+class _LineChartPainter extends CustomPainter {
+  final List<double> values;
+  final Color color;
+  final int? selectedIndex;
+  final List<String>? labels;
+
+  _LineChartPainter({required this.values, required this.color, this.selectedIndex, this.labels});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..strokeWidth = 2.6
+      ..style = PaintingStyle.stroke
+      ..isAntiAlias = true;
+
+    final bg = RRect.fromRectAndRadius(Offset.zero & size, const Radius.circular(12));
+    final bgPaint = Paint()..color = Colors.transparent;
+    canvas.drawRRect(bg, bgPaint);
+
+    if (values.isEmpty) return;
+
+    final leftPad = 32.0;
+    final bottomPad = 28.0;
+    final topPad = 12.0;
+    final rightPad = 16.0;
+    final usableWidth = size.width - leftPad - rightPad;
+    final usableHeight = size.height - topPad - bottomPad;
+
+    final maxV = values.reduce((a, b) => a > b ? a : b);
+    final minV = values.reduce((a, b) => a < b ? a : b);
+    final range = (maxV - minV) == 0 ? 1.0 : (maxV - minV);
+
+    final path = Path();
+    for (int i = 0; i < values.length; i++) {
+      final x = leftPad + (usableWidth) * (i / (values.length - 1));
+      final y = topPad + usableHeight - ((values[i] - minV) / range) * usableHeight;
+      if (i == 0) {
+        path.moveTo(x, y);
+      } else {
+        path.lineTo(x, y);
+      }
+    }
+
+    // shadow
+    final shadowPaint = Paint()
+      ..color = color.withOpacity(0.12)
+      ..strokeWidth = paint.strokeWidth
+      ..style = PaintingStyle.stroke
+      ..isAntiAlias = true;
+    canvas.drawPath(path.shift(const Offset(0, 6)), shadowPaint);
+
+    // line
+    paint.color = color;
+    canvas.drawPath(path, paint);
+
+    // dots
+    final dotPaint = Paint()..color = color;
+    for (int i = 0; i < values.length; i++) {
+      final x = leftPad + (usableWidth) * (i / (values.length - 1));
+      final y = topPad + usableHeight - ((values[i] - minV) / range) * usableHeight;
+      canvas.drawCircle(Offset(x, y), i == selectedIndex ? 5.0 : 3.5, dotPaint);
+    }
+
+    // labels (x-axis)
+    final textStyle = TextStyle(color: ModernTheme.textTertiary, fontSize: 10);
+    final tp = TextPainter(textDirection: TextDirection.ltr);
+    if (labels != null && labels!.isNotEmpty) {
+      final step = (values.length / 6).ceil();
+      for (int i = 0; i < values.length; i += step) {
+        final x = leftPad + (usableWidth) * (i / (values.length - 1));
+        tp.text = TextSpan(text: labels![i].toString(), style: textStyle);
+        tp.layout();
+        tp.paint(canvas, Offset(x - tp.width / 2, size.height - bottomPad + 6));
+      }
+    }
+
+    // selected value tooltip
+    if (selectedIndex != null && selectedIndex! >= 0 && selectedIndex! < values.length) {
+      final i = selectedIndex!;
+      final x = leftPad + (usableWidth) * (i / (values.length - 1));
+      final y = topPad + usableHeight - ((values[i] - minV) / range) * usableHeight;
+      final val = values[i].round().toString();
+      final text = TextSpan(text: val, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w700));
+      final ttp = TextPainter(text: text, textDirection: TextDirection.ltr);
+      ttp.layout();
+      final rect = RRect.fromRectAndRadius(Rect.fromLTWH(x - ttp.width / 2 - 8, y - 34, ttp.width + 16, 24), const Radius.circular(6));
+      final rpaint = Paint()..color = color;
+      canvas.drawRRect(rect, rpaint);
+      ttp.paint(canvas, Offset(x - ttp.width / 2, y - 30));
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

@@ -316,8 +316,8 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                       Icon(tab.icon,
                           size: 16,
                           color: isSelected
-                              ? Colors.black
-                              : Colors.black.withOpacity(0.65)),
+                              ? Colors.white
+                              : ModernTheme.textSecondary),
                       if (index == 2)
                         Positioned(
                             right: -4,

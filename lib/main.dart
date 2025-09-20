@@ -26,11 +26,11 @@ void main() async {
   await StorageService.init();
   await AuthService.init();
 
-  // Set system UI overlay style for premium look
+  // Set system UI overlay style for light theme
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
-      statusBarIconBrightness: Brightness.light,
+      statusBarIconBrightness: Brightness.dark,
       systemNavigationBarColor: Colors.transparent,
       systemNavigationBarIconBrightness: Brightness.dark,
     ),
@@ -55,7 +55,7 @@ class BizNestApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ModernTheme.lightTheme,
       darkTheme: ModernTheme.darkTheme,
-      themeMode: ThemeMode.system,
+      themeMode: ThemeMode.light,
       home: const SplashScreen(),
       routes: {
         '/splash': (context) => const SplashScreen(),
