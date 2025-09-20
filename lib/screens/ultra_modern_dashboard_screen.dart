@@ -102,10 +102,9 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
 
     // floating animation removed; background is static now
 
-
     _mainController.forward();
-  // Do not repeat floating controller — we will use a static background (no motion)
-  // _floatingController.repeat();
+    // Do not repeat floating controller — we will use a static background (no motion)
+    // _floatingController.repeat();
   }
 
   void _setupRealtimeUpdates() {
@@ -165,7 +164,8 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
               child: Container(
                 // make explicit transparent background to avoid any white surface
                 decoration: const BoxDecoration(color: Colors.transparent),
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -195,7 +195,8 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
                             },
                             child: const Padding(
                               padding: EdgeInsets.all(8.0),
-                              child: Icon(Icons.settings_rounded, color: Colors.white),
+                              child: Icon(Icons.settings_rounded,
+                                  color: Colors.white),
                             ),
                           ),
                         ),
@@ -209,7 +210,8 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
                             },
                             child: const Padding(
                               padding: EdgeInsets.all(8.0),
-                              child: Icon(Icons.person_rounded, color: Colors.white),
+                              child: Icon(Icons.person_rounded,
+                                  color: Colors.white),
                             ),
                           ),
                         ),
@@ -436,7 +438,10 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
                                           final user = AuthService.currentUser;
                                           final name = user == null
                                               ? 'there'
-                                              : (user['name'] ?? user['full_name'] ?? user['displayName'] ?? 'there');
+                                              : (user['name'] ??
+                                                  user['full_name'] ??
+                                                  user['displayName'] ??
+                                                  'there');
                                           return Text(
                                             'Welcome back, $name!',
                                             style: const TextStyle(

@@ -12,7 +12,6 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen>
     with TickerProviderStateMixin {
   late AnimationController _animationController;
-  
 
   // Profile form controllers
   final _formKey = GlobalKey<FormState>();
@@ -32,11 +31,13 @@ class _ProfileScreenState extends State<ProfileScreen>
 
     _animationController.forward();
 
-  // initialize profile controllers from AuthService
-  final user = AuthService.currentUser ?? {};
-  _nameController = TextEditingController(text: user['name'] ?? user['full_name'] ?? user['displayName'] ?? '');
-  _emailController = TextEditingController(text: user['email'] ?? '');
-  _avatarController = TextEditingController(text: user['avatar'] ?? user['photoUrl'] ?? '');
+    // initialize profile controllers from AuthService
+    final user = AuthService.currentUser ?? {};
+    _nameController = TextEditingController(
+        text: user['name'] ?? user['full_name'] ?? user['displayName'] ?? '');
+    _emailController = TextEditingController(text: user['email'] ?? '');
+    _avatarController =
+        TextEditingController(text: user['avatar'] ?? user['photoUrl'] ?? '');
   }
 
   @override
@@ -48,7 +49,7 @@ class _ProfileScreenState extends State<ProfileScreen>
     _avatarController.dispose();
     super.dispose();
   }
-  
+
   Future<void> _saveProfile() async {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isSaving = true);
@@ -63,23 +64,31 @@ class _ProfileScreenState extends State<ProfileScreen>
       await AuthService.getUserProfile();
       if (mounted) Navigator.of(context).pop(true);
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to save profile: $e')));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Failed to save profile: $e')));
     } finally {
       if (mounted) setState(() => _isSaving = false);
     }
   }
-  
+
   @override
   Widget build(BuildContext context) {
     final user = AuthService.currentUser ?? {};
-    final avatar = _avatarController.text.isNotEmpty ? _avatarController.text : (user['avatar'] ?? user['photoUrl']);
+    final avatar = _avatarController.text.isNotEmpty
+        ? _avatarController.text
+        : (user['avatar'] ?? user['photoUrl']);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Profile'),
         actions: [
           TextButton(
             onPressed: _isSaving ? null : _saveProfile,
-            child: _isSaving ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)) : const Text('Save', style: TextStyle(color: Colors.white)),
+            child: _isSaving
+                ? const SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(strokeWidth: 2))
+                : const Text('Save', style: TextStyle(color: Colors.white)),
           )
         ],
       ),
@@ -93,26 +102,34 @@ class _ProfileScreenState extends State<ProfileScreen>
               Center(
                 child: CircleAvatar(
                   radius: 48,
-                  backgroundImage: avatar != null && avatar.toString().isNotEmpty ? NetworkImage(avatar) as ImageProvider : null,
-                  child: (avatar == null || avatar.toString().isEmpty) ? const Icon(Icons.person, size: 48) : null,
+                  backgroundImage:
+                      avatar != null && avatar.toString().isNotEmpty
+                          ? NetworkImage(avatar) as ImageProvider
+                          : null,
+                  child: (avatar == null || avatar.toString().isEmpty)
+                      ? const Icon(Icons.person, size: 48)
+                      : null,
                 ),
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _nameController,
                 decoration: const InputDecoration(labelText: 'Full name'),
-                validator: (v) => (v == null || v.trim().isEmpty) ? 'Enter your name' : null,
+                validator: (v) =>
+                    (v == null || v.trim().isEmpty) ? 'Enter your name' : null,
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _emailController,
                 decoration: const InputDecoration(labelText: 'Email'),
-                validator: (v) => (v == null || v.trim().isEmpty) ? 'Enter email' : null,
+                validator: (v) =>
+                    (v == null || v.trim().isEmpty) ? 'Enter email' : null,
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _avatarController,
-                decoration: const InputDecoration(labelText: 'Avatar image URL (optional)'),
+                decoration: const InputDecoration(
+                    labelText: 'Avatar image URL (optional)'),
               ),
               const SizedBox(height: 24),
               ElevatedButton.icon(
@@ -126,10 +143,4 @@ class _ProfileScreenState extends State<ProfileScreen>
       ),
     );
   }
-
-
-
-  
-
-  
 }
