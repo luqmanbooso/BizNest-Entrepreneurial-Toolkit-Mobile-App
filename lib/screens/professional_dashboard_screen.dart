@@ -1029,14 +1029,14 @@ class _ProfessionalDashboardScreenState extends State<ProfessionalDashboardScree
         decoration: BoxDecoration(
           gradient: isActive
               ? const LinearGradient(
-                  colors: [Color(0xFF4F46E5), Color(0xFF7C3AED)],
+                  colors: [Color(0xFF2563EB), Color(0xFF3B82F6)],
                 )
               : null,
           borderRadius: BorderRadius.circular(16),
           boxShadow: isActive
               ? [
                   BoxShadow(
-                    color: const Color(0xFF4F46E5).withOpacity(0.3),
+                    color: const Color(0xFF2563EB).withOpacity(0.3),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
