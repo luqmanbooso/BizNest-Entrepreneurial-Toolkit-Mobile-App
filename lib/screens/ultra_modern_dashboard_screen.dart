@@ -335,7 +335,9 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
       stretch: true,
       backgroundColor: const Color(0xFFF8FAFC),
       elevation: 0,
+      // NO title property - completely removed
       flexibleSpace: FlexibleSpaceBar(
+        // NO title here either
         stretchModes: const [StretchMode.zoomBackground],
         background: Container(
           decoration: const BoxDecoration(
@@ -343,8 +345,8 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                Color(0xFF667EEA),
-                Color(0xFF764BA2),
+                Color(0xFF2D3748),
+                Color(0xFF4A5568),
               ],
             ),
           ),
@@ -358,39 +360,10 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
+                      const Spacer(),
                       Row(
                         children: [
-                          Container(
-                            padding: const EdgeInsets.all(2),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.2),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Image.asset(
-                              'assets/images/biznest.png',
-                              width: 40,
-                              height: 40,
-                              errorBuilder: (ctx, err, stack) => const Icon(
-                                Icons.business_center,
-                                color: Colors.white,
-                                size: 40,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          const Text(
-                            'BizNest',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 24,
-                              fontWeight: FontWeight.w700,
-                              letterSpacing: -0.5,
-                            ),
-                          ),
-                        ],
-                      ),
-                      Row(
-                        children: [
+                          // NO SEARCH ICON - completely removed
                           _buildAppBarAction(Icons.notifications_outlined, () {}),
                           const SizedBox(width: 8),
                           _buildAppBarAction(Icons.settings_outlined, _openSettings),
@@ -2068,87 +2041,6 @@ class _HealthRingPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
-
-  // Professional Dashboard Methods
-  Widget _buildProfessionalAppBar() {
-    return SliverAppBar(
-      expandedHeight: 140,
-      floating: false,
-      pinned: true,
-      stretch: true,
-      backgroundColor: const Color(0xFFF8FAFC),
-      elevation: 0,
-      flexibleSpace: FlexibleSpaceBar(
-        stretchModes: const [StretchMode.zoomBackground],
-        background: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Color(0xFF667EEA),
-                Color(0xFF764BA2),
-              ],
-            ),
-          ),
-          child: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(2),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.2),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Image.asset(
-                              'assets/images/biznest.png',
-                              width: 40,
-                              height: 40,
-                              errorBuilder: (ctx, err, stack) => const Icon(
-                                Icons.business_center,
-                                color: Colors.white,
-                                size: 40,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          const Text(
-                            'BizNest',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 24,
-                              fontWeight: FontWeight.w700,
-                              letterSpacing: -0.5,
-                            ),
-                          ),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          _buildAppBarAction(Icons.notifications_outlined, () {}),
-                          const SizedBox(width: 8),
-                          _buildAppBarAction(Icons.settings_outlined, _openSettings),
-                          const SizedBox(width: 8),
-                          _buildProfileAvatar(),
-                        ],
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                ],
-              ),
-            ),
-          ),
-        ),
       ),
     );
   }
