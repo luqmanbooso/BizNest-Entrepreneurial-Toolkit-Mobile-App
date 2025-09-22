@@ -380,4 +380,74 @@ For each slide, provide specific content, key points, and presentation tips.
       throw Exception('Error generating pitch deck: $e');
     }
   }
+
+  static Future<String> generateBusinessModelCanvas({
+    required String businessName,
+    required String industry,
+    required String businessModel,
+    required String targetMarket,
+    required String competitors,
+    required String description,
+  }) async {
+    try {
+      final prompt = '''
+Create a comprehensive Business Model Canvas for:
+
+Business Name: $businessName
+Industry: $industry
+Business Model: $businessModel
+Target Market: $targetMarket
+Main Competitors: $competitors
+Description: $description
+
+Provide detailed content for each of the 9 Business Model Canvas building blocks:
+
+1. **Key Partners**: Strategic alliances, key suppliers, key partners
+2. **Key Activities**: Most important activities to make the business model work
+3. **Key Resources**: Most important assets required to make the business model work
+4. **Value Propositions**: The bundle of products and services that create value for customers
+5. **Customer Relationships**: Types of relationships established with specific customer segments
+6. **Channels**: How the company communicates and reaches its customer segments
+7. **Customer Segments**: Different groups of people or organizations the business aims to reach
+8. **Cost Structure**: Most important costs inherent in the business model
+9. **Revenue Streams**: Cash generated from each customer segment
+
+Format each section clearly with specific, actionable content relevant to the business.
+''';
+
+      final response = await http.post(
+        Uri.parse('$_baseUrl/chat/completions'),
+        headers: {
+          'Authorization': 'Bearer $_apiKey',
+          'Content-Type': 'application/json',
+          'HTTP-Referer': 'https://biznest.app',
+          'X-Title': 'BizNest Business Model Canvas Tool',
+        },
+        body: jsonEncode({
+          'model': 'openai/gpt-3.5-turbo',
+          'messages': [
+            {
+              'role': 'system',
+              'content': 'You are a business strategy consultant expert in Business Model Canvas methodology. Create specific, actionable business model canvases.'
+            },
+            {
+              'role': 'user',
+              'content': prompt,
+            }
+          ],
+          'temperature': 0.7,
+          'max_tokens': 3500,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return data['choices'][0]['message']['content'];
+      } else {
+        throw Exception('Failed to generate Business Model Canvas: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Error generating Business Model Canvas: $e');
+    }
+  }
 }

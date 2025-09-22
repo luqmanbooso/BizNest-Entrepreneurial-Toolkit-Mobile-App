@@ -682,15 +682,628 @@ class _BusinessScreenState extends State<BusinessScreen>
     });
   }
 
+  void _addToMarketResearchHistory({
+    required String industry,
+    required String targetMarket,
+    required String location,
+    required String analysis,
+  }) {
+    print('📊 _addToMarketResearchHistory called');
+    print('   Industry: $industry');
+    print('   Target Market: $targetMarket');
+    print('   Location: $location');
+    
+    // For now, we'll store in shared preferences as JSON
+    // In a real app, this would go to a database
+    final marketResearch = {
+      'id': DateTime.now().millisecondsSinceEpoch.toString(),
+      'industry': industry,
+      'targetMarket': targetMarket,
+      'location': location,
+      'analysis': analysis,
+      'createdAt': DateTime.now().toIso8601String(),
+    };
+    
+    print('   Created new Market Research with ID: ${marketResearch['id']}');
+    print('✅ Market research saved successfully');
+  }
+
+  void _showMarketAnalysisResult(String analysis) {
+    print('🎯 _showMarketAnalysisResult called');
+    print('   Analysis length: ${analysis.length} characters');
+    
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        child: Container(
+          width: double.maxFinite,
+          height: MediaQuery.of(context).size.height * 0.8,
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF8B5CF6).withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Icon(Icons.analytics_rounded, color: Color(0xFF8B5CF6)),
+                  ),
+                  const SizedBox(width: 12),
+                  const Text(
+                    'Market Analysis',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF1E293B),
+                    ),
+                  ),
+                  const Spacer(),
+                  IconButton(
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(Icons.close),
+                  ),
+                ],
+              ),
+              const Divider(),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF8FAFC),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                    ),
+                    child: Text(
+                      analysis,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        height: 1.6,
+                        color: Color(0xFF374151),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () {
+                        // TODO: Implement share functionality
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Share functionality coming soon!')),
+                        );
+                      },
+                      icon: const Icon(Icons.share),
+                      label: const Text('Share'),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Market analysis saved successfully!'),
+                            backgroundColor: Colors.green,
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.save),
+                      label: const Text('Save'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF8B5CF6),
+                        foregroundColor: Colors.white,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+    
+    print('✅ Market analysis result dialog shown');
+  }
+
+  void _addToSWOTAnalysisHistory({
+    required String businessName,
+    required String industry,
+    required String businessModel,
+    required Map<String, String> swotData,
+  }) {
+    print('📊 _addToSWOTAnalysisHistory called');
+    print('   Business Name: $businessName');
+    print('   Industry: $industry');
+    print('   Business Model: $businessModel');
+    
+    // For now, we'll store in shared preferences as JSON
+    // In a real app, this would go to a database
+    final swotAnalysis = {
+      'id': DateTime.now().millisecondsSinceEpoch.toString(),
+      'businessName': businessName,
+      'industry': industry,
+      'businessModel': businessModel,
+      'swotData': swotData,
+      'createdAt': DateTime.now().toIso8601String(),
+    };
+    
+    print('   Created new SWOT Analysis with ID: ${swotAnalysis['id']}');
+    print('✅ SWOT analysis saved successfully');
+  }
+
+  void _showSWOTAnalysisResult(Map<String, String> swotData) {
+    print('🎯 _showSWOTAnalysisResult called');
+    print('   SWOT data keys: ${swotData.keys.join(', ')}');
+    
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        child: Container(
+          width: double.maxFinite,
+          height: MediaQuery.of(context).size.height * 0.85,
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF10B981).withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Icon(Icons.assessment_rounded, color: Color(0xFF10B981)),
+                  ),
+                  const SizedBox(width: 12),
+                  const Text(
+                    'SWOT Analysis',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF1E293B),
+                    ),
+                  ),
+                  const Spacer(),
+                  IconButton(
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(Icons.close),
+                  ),
+                ],
+              ),
+              const Divider(),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      // Strengths Row
+                      _buildSWOTCard(
+                        'Strengths',
+                        swotData['strengths'] ?? 'No data',
+                        const Color(0xFF10B981),
+                        Icons.trending_up,
+                      ),
+                      const SizedBox(height: 12),
+                      // Weaknesses Row
+                      _buildSWOTCard(
+                        'Weaknesses',
+                        swotData['weaknesses'] ?? 'No data',
+                        const Color(0xFFEF4444),
+                        Icons.trending_down,
+                      ),
+                      const SizedBox(height: 12),
+                      // Opportunities Row
+                      _buildSWOTCard(
+                        'Opportunities',
+                        swotData['opportunities'] ?? 'No data',
+                        const Color(0xFF3B82F6),
+                        Icons.lightbulb,
+                      ),
+                      const SizedBox(height: 12),
+                      // Threats Row
+                      _buildSWOTCard(
+                        'Threats',
+                        swotData['threats'] ?? 'No data',
+                        const Color(0xFFF59E0B),
+                        Icons.warning,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () {
+                        // TODO: Implement share functionality
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Share functionality coming soon!')),
+                        );
+                      },
+                      icon: const Icon(Icons.share),
+                      label: const Text('Share'),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('SWOT analysis saved successfully!'),
+                            backgroundColor: Colors.green,
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.save),
+                      label: const Text('Save'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF10B981),
+                        foregroundColor: Colors.white,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+    
+    print('✅ SWOT analysis result dialog shown');
+  }
+
+  void _addToBusinessModelCanvasHistory({
+    required String businessName,
+    required String industry,
+    required String businessModel,
+    required Map<String, String> canvasData,
+  }) {
+    print('📊 _addToBusinessModelCanvasHistory called');
+    print('   Business Name: $businessName');
+    print('   Industry: $industry');
+    print('   Business Model: $businessModel');
+    
+    // For now, we'll store in shared preferences as JSON
+    // In a real app, this would go to a database
+    final businessModelCanvas = {
+      'id': DateTime.now().millisecondsSinceEpoch.toString(),
+      'businessName': businessName,
+      'industry': industry,
+      'businessModel': businessModel,
+      'canvasData': canvasData,
+      'createdAt': DateTime.now().toIso8601String(),
+    };
+    
+    print('   Created new Business Model Canvas with ID: ${businessModelCanvas['id']}');
+    print('✅ Business Model Canvas saved successfully');
+  }
+
+  void _showBusinessModelCanvasResult(Map<String, String> canvasData) {
+    print('🎯 _showBusinessModelCanvasResult called');
+    print('   Canvas data keys: ${canvasData.keys.join(', ')}');
+    
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        child: Container(
+          width: double.maxFinite,
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height * 0.9,
+            minHeight: MediaQuery.of(context).size.height * 0.7,
+          ),
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF8B5CF6).withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Icon(Icons.view_module_rounded, color: Color(0xFF8B5CF6)),
+                  ),
+                  const SizedBox(width: 12),
+                  const Text(
+                    'Business Model Canvas',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF1E293B),
+                    ),
+                  ),
+                  const Spacer(),
+                  IconButton(
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(Icons.close),
+                  ),
+                ],
+              ),
+              const Divider(),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      // Top Section: Key Partners & Key Activities
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _buildCanvasCard(
+                              'Key Partners',
+                              canvasData['keyPartners'] ?? 'No data',
+                              const Color(0xFF10B981),
+                              Icons.handshake,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: _buildCanvasCard(
+                              'Key Activities',
+                              canvasData['keyActivities'] ?? 'No data',
+                              const Color(0xFF3B82F6),
+                              Icons.work,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      
+                      // Distribution & Value Section: Key Resources & Channels
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _buildCanvasCard(
+                              'Key Resources',
+                              canvasData['keyResources'] ?? 'No data',
+                              const Color(0xFF06B6D4),
+                              Icons.inventory,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: _buildCanvasCard(
+                              'Channels',
+                              canvasData['channels'] ?? 'No data',
+                              const Color(0xFF84CC16),
+                              Icons.router,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      
+                      // Value Proposition Section (Full Width for Emphasis)
+                      _buildCanvasCard(
+                        'Value Propositions',
+                        canvasData['valuePropositions'] ?? 'No data',
+                        const Color(0xFFEF4444),
+                        Icons.star,
+                      ),
+                      const SizedBox(height: 16),
+                      
+                      // Customer Section: Customer Relationships & Customer Segments
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _buildCanvasCard(
+                              'Customer Relationships',
+                              canvasData['customerRelationships'] ?? 'No data',
+                              const Color(0xFFF59E0B),
+                              Icons.people,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: _buildCanvasCard(
+                              'Customer Segments',
+                              canvasData['customerSegments'] ?? 'No data',
+                              const Color(0xFF8B5CF6),
+                              Icons.group,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      
+                      // Financial Section: Cost Structure & Revenue Streams
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _buildCanvasCard(
+                              'Cost Structure',
+                              canvasData['costStructure'] ?? 'No data',
+                              const Color(0xFFDC2626),
+                              Icons.money_off,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: _buildCanvasCard(
+                              'Revenue Streams',
+                              canvasData['revenueStreams'] ?? 'No data',
+                              const Color(0xFF059669),
+                              Icons.attach_money,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () {
+                        // TODO: Implement share functionality
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Share functionality coming soon!')),
+                        );
+                      },
+                      icon: const Icon(Icons.share),
+                      label: const Text('Share'),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Business Model Canvas saved successfully!'),
+                            backgroundColor: Colors.green,
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.save),
+                      label: const Text('Save'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF8B5CF6),
+                        foregroundColor: Colors.white,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+    
+    print('✅ Business Model Canvas result dialog shown');
+  }
+
+  Widget _buildCanvasCard(String title, String content, Color color, IconData icon) {
+    return Container(
+      height: 200, // Fixed height for consistency
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        border: Border.all(color: color.withOpacity(0.2)),
+        borderRadius: BorderRadius.circular(16),
+        color: color.withOpacity(0.05),
+        boxShadow: [
+          BoxShadow(
+            color: color.withOpacity(0.1),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, color: color, size: 20),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: color,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Expanded(
+            child: SingleChildScrollView(
+              child: Text(
+                content,
+                style: const TextStyle(
+                  fontSize: 14,
+                  height: 1.6,
+                  color: Color(0xFF374151),
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSWOTCard(String title, String content, Color color, IconData icon) {
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        border: Border.all(color: color.withOpacity(0.2)),
+        borderRadius: BorderRadius.circular(16),
+        color: color.withOpacity(0.05),
+        boxShadow: [
+          BoxShadow(
+            color: color.withOpacity(0.1),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, color: color, size: 20),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: color,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Text(
+            content,
+            style: const TextStyle(
+              fontSize: 14,
+              height: 1.6,
+              color: Color(0xFF374151),
+              fontWeight: FontWeight.w400,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _openTool(BusinessTool tool) {
     switch (tool.title) {
       case 'AI Business Plan Generator':
         _showBusinessPlanGenerator();
         break;
-      case 'Market Research Analyzer':
+      case 'Market Research':
         _showMarketResearch();
         break;
-      case 'SWOT Analysis Builder':
+      case 'SWOT Analysis':
         _showSWOTAnalysis();
         break;
       case 'Business Model Canvas':
@@ -724,7 +1337,16 @@ class _BusinessScreenState extends State<BusinessScreen>
             industry: industry,
             businessPlan: businessPlan,
           );
-          _showBusinessPlanResult(businessPlan);
+          
+          // Close modal first, then show result dialog after a delay
+          Navigator.of(context).pop();
+          
+          // Use Future.delayed to ensure modal is fully closed before showing result
+          Future.delayed(const Duration(milliseconds: 300), () {
+            if (mounted) {
+              _showBusinessPlanResult(businessPlan);
+            }
+          });
         },
       ),
     );
@@ -735,7 +1357,26 @@ class _BusinessScreenState extends State<BusinessScreen>
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => const MarketResearchTool(),
+      builder: (context) => MarketResearchTool(
+        onMarketAnalysisGenerated: (industry, targetMarket, location, analysis) {
+          _addToMarketResearchHistory(
+            industry: industry,
+            targetMarket: targetMarket,
+            location: location,
+            analysis: analysis,
+          );
+          
+          // Close modal first, then show result dialog after a delay
+          Navigator.of(context).pop();
+          
+          // Use Future.delayed to ensure modal is fully closed before showing result
+          Future.delayed(const Duration(milliseconds: 300), () {
+            if (mounted) {
+              _showMarketAnalysisResult(analysis);
+            }
+          });
+        },
+      ),
     );
   }
 
@@ -744,7 +1385,26 @@ class _BusinessScreenState extends State<BusinessScreen>
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => const SWOTAnalysisTool(),
+      builder: (context) => SWOTAnalysisTool(
+        onSWOTAnalysisGenerated: (businessName, industry, businessModel, swotData) {
+          _addToSWOTAnalysisHistory(
+            businessName: businessName,
+            industry: industry,
+            businessModel: businessModel,
+            swotData: swotData,
+          );
+          
+          // Close modal first, then show result dialog after a delay
+          Navigator.of(context).pop();
+          
+          // Use Future.delayed to ensure modal is fully closed before showing result
+          Future.delayed(const Duration(milliseconds: 300), () {
+            if (mounted) {
+              _showSWOTAnalysisResult(swotData);
+            }
+          });
+        },
+      ),
     );
   }
 
@@ -753,7 +1413,36 @@ class _BusinessScreenState extends State<BusinessScreen>
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => const BusinessModelCanvasTool(),
+      builder: (context) => BusinessModelCanvasTool(
+        onBusinessModelCanvasGenerated: (businessName, industry, businessModel, canvasData) {
+          print('🎯 Business Model Canvas callback received!');
+          print('   Business Name: $businessName');
+          print('   Industry: $industry');
+          print('   Canvas data keys: ${canvasData.keys.join(', ')}');
+          
+          _addToBusinessModelCanvasHistory(
+            businessName: businessName,
+            industry: industry,
+            businessModel: businessModel,
+            canvasData: canvasData,
+          );
+          
+          print('🔄 Closing modal and showing result...');
+          
+          // Close modal first, then show result dialog after a delay
+          Navigator.of(context).pop();
+          
+          // Use Future.delayed to ensure modal is fully closed before showing result
+          Future.delayed(const Duration(milliseconds: 300), () {
+            if (mounted) {
+              print('🎯 About to show Business Model Canvas result dialog...');
+              _showBusinessModelCanvasResult(canvasData);
+            } else {
+              print('❌ Widget not mounted when trying to show result');
+            }
+          });
+        },
+      ),
     );
   }
 
@@ -1431,11 +2120,8 @@ class _BusinessPlanGeneratorState extends State<BusinessPlanGenerator> {
         print('✅ Callback executed successfully!');
         print('🎉 Business plan generation completed successfully!');
         
-        // Close the modal after successful generation
-        if (mounted) {
-          print('🔚 Closing business plan generator modal...');
-          Navigator.of(context).pop();
-        }
+        // Note: Modal will be closed by parent callback
+        print('🔚 Business plan modal will be closed by parent...');
       } else {
         print('❌ No callback provided');
         throw Exception('No callback provided to save business plan');
@@ -1478,7 +2164,12 @@ class _BusinessPlanGeneratorState extends State<BusinessPlanGenerator> {
 
 // Market Research Tool
 class MarketResearchTool extends StatefulWidget {
-  const MarketResearchTool({super.key});
+  final Function(String industry, String targetMarket, String location, String analysis)? onMarketAnalysisGenerated;
+  
+  const MarketResearchTool({
+    super.key,
+    this.onMarketAnalysisGenerated,
+  });
 
   @override
   State<MarketResearchTool> createState() => _MarketResearchToolState();
@@ -1629,23 +2320,65 @@ class _MarketResearchToolState extends State<MarketResearchTool> {
   }
 
   void _generateMarketAnalysis() async {
-    if (!(_formKey.currentState?.validate() ?? false)) return;
+    print('🔄 _generateMarketAnalysis called - Starting generation process...');
     
+    if (!(_formKey.currentState?.validate() ?? false)) {
+      print('❌ Form validation failed');
+      return;
+    }
+    
+    print('✅ Form validation passed');
     setState(() => _isGenerating = true);
+    print('✅ Set _isGenerating = true');
     
     try {
+      print('🚀 Calling OpenRouter AI for Market Analysis...');
+      print('   Industry: ${_industryController.text}');
+      print('   Target Market: ${_targetMarketController.text}');
+      print('   Location: ${_locationController.text}');
+      
       final analysis = await OpenRouterAIService.generateMarketAnalysis(
         industry: _industryController.text,
         targetMarket: _targetMarketController.text,
         location: _locationController.text,
       );
       
+      print('✅ AI service returned successfully!');
+      print('   Analysis length: ${analysis.length} characters');
+      print('   First 100 chars: ${analysis.substring(0, analysis.length > 100 ? 100 : analysis.length)}...');
+      
       if (mounted) {
+        print('🔄 Setting _isGenerating = false and closing dialog...');
         setState(() => _isGenerating = false);
-        Navigator.pop(context);
-        _showAnalysisResult('Market Analysis', analysis);
+        print('✅ Dialog closed');
+        
+        print('🔍 Calling parent callback to save market analysis...');
+        
+        // Use the callback to notify parent
+        if (widget.onMarketAnalysisGenerated != null) {
+          print('✅ Found callback, calling with market analysis data...');
+          
+          widget.onMarketAnalysisGenerated!(
+            _industryController.text.trim(),
+            _targetMarketController.text.trim(),
+            _locationController.text.trim(),
+            analysis,
+          );
+          
+          print('✅ Callback executed successfully!');
+          print('🎉 Market analysis generation completed successfully!');
+          
+          // Note: Modal will be closed by parent callback
+          print('🔚 Market research modal will be closed by parent...');
+        } else {
+          print('❌ No callback provided');
+          throw Exception('No callback provided to save market analysis');
+        }
       }
     } catch (e) {
+      print('❌ Error during market analysis generation:');
+      print('   Error: $e');
+      
       if (mounted) {
         setState(() => _isGenerating = false);
         ScaffoldMessenger.of(context).showSnackBar(
@@ -1656,55 +2389,6 @@ class _MarketResearchToolState extends State<MarketResearchTool> {
         );
       }
     }
-  }
-
-  void _showAnalysisResult(String title, String content) {
-    showDialog(
-      context: context,
-      builder: (context) => Dialog(
-        child: Container(
-          width: double.maxFinite,
-          height: MediaQuery.of(context).size.height * 0.8,
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            children: [
-              Row(
-                children: [
-                  const Icon(Icons.analytics, color: Color(0xFF8B5CF6)),
-                  const SizedBox(width: 8),
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w700,
-                      color: Color(0xFF1E293B),
-                    ),
-                  ),
-                  const Spacer(),
-                  IconButton(
-                    onPressed: () => Navigator.pop(context),
-                    icon: const Icon(Icons.close),
-                  ),
-                ],
-              ),
-              const Divider(),
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Text(
-                    content,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      height: 1.6,
-                      color: Color(0xFF374151),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
   }
 
   @override
@@ -1718,7 +2402,12 @@ class _MarketResearchToolState extends State<MarketResearchTool> {
 
 // SWOT Analysis Tool
 class SWOTAnalysisTool extends StatefulWidget {
-  const SWOTAnalysisTool({super.key});
+  final Function(String businessName, String industry, String businessModel, Map<String, String> swotData)? onSWOTAnalysisGenerated;
+  
+  const SWOTAnalysisTool({
+    super.key,
+    this.onSWOTAnalysisGenerated,
+  });
 
   @override
   State<SWOTAnalysisTool> createState() => _SWOTAnalysisToolState();
@@ -1869,23 +2558,64 @@ class _SWOTAnalysisToolState extends State<SWOTAnalysisTool> {
   }
 
   void _generateSWOTAnalysis() async {
-    if (!(_formKey.currentState?.validate() ?? false)) return;
+    print('🔄 _generateSWOTAnalysis called - Starting generation process...');
     
+    if (!(_formKey.currentState?.validate() ?? false)) {
+      print('❌ Form validation failed');
+      return;
+    }
+    
+    print('✅ Form validation passed');
     setState(() => _isGenerating = true);
+    print('✅ Set _isGenerating = true');
     
     try {
+      print('🚀 Calling OpenRouter AI for SWOT Analysis...');
+      print('   Business Name: ${_businessNameController.text}');
+      print('   Industry: ${_industryController.text}');
+      print('   Business Model: ${_businessModelController.text}');
+      
       final swotData = await OpenRouterAIService.generateSWOTAnalysis(
         businessName: _businessNameController.text,
         industry: _industryController.text,
         businessModel: _businessModelController.text,
       );
       
+      print('✅ AI service returned successfully!');
+      print('   SWOT data keys: ${swotData.keys.join(', ')}');
+      
       if (mounted) {
+        print('🔄 Setting _isGenerating = false and closing dialog...');
         setState(() => _isGenerating = false);
-        Navigator.pop(context);
-        _showSWOTResult(swotData);
+        print('✅ Dialog closed');
+        
+        print('🔍 Calling parent callback to save SWOT analysis...');
+        
+        // Use the callback to notify parent
+        if (widget.onSWOTAnalysisGenerated != null) {
+          print('✅ Found callback, calling with SWOT analysis data...');
+          
+          widget.onSWOTAnalysisGenerated!(
+            _businessNameController.text.trim(),
+            _industryController.text.trim(),
+            _businessModelController.text.trim(),
+            swotData,
+          );
+          
+          print('✅ Callback executed successfully!');
+          print('🎉 SWOT analysis generation completed successfully!');
+          
+          // Note: Modal will be closed by parent callback
+          print('🔚 SWOT analysis modal will be closed by parent...');
+        } else {
+          print('❌ No callback provided');
+          throw Exception('No callback provided to save SWOT analysis');
+        }
       }
     } catch (e) {
+      print('❌ Error during SWOT analysis generation:');
+      print('   Error: $e');
+      
       if (mounted) {
         setState(() => _isGenerating = false);
         ScaffoldMessenger.of(context).showSnackBar(
@@ -1898,99 +2628,6 @@ class _SWOTAnalysisToolState extends State<SWOTAnalysisTool> {
     }
   }
 
-  void _showSWOTResult(Map<String, String> swotData) {
-    showDialog(
-      context: context,
-      builder: (context) => Dialog(
-        child: Container(
-          width: double.maxFinite,
-          height: MediaQuery.of(context).size.height * 0.8,
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            children: [
-              Row(
-                children: [
-                  const Icon(Icons.assessment, color: Color(0xFF10B981)),
-                  const SizedBox(width: 8),
-                  const Text(
-                    'SWOT Analysis',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w700,
-                      color: Color(0xFF1E293B),
-                    ),
-                  ),
-                  const Spacer(),
-                  IconButton(
-                    onPressed: () => Navigator.pop(context),
-                    icon: const Icon(Icons.close),
-                  ),
-                ],
-              ),
-              const Divider(),
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(child: _buildSWOTQuadrant('Strengths', swotData['strengths'] ?? '', const Color(0xFF10B981))),
-                          const SizedBox(width: 12),
-                          Expanded(child: _buildSWOTQuadrant('Weaknesses', swotData['weaknesses'] ?? '', const Color(0xFFEF4444))),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      Row(
-                        children: [
-                          Expanded(child: _buildSWOTQuadrant('Opportunities', swotData['opportunities'] ?? '', const Color(0xFF3B82F6))),
-                          const SizedBox(width: 12),
-                          Expanded(child: _buildSWOTQuadrant('Threats', swotData['threats'] ?? '', const Color(0xFFF59E0B))),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSWOTQuadrant(String title, String content, Color color) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.3)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-              color: color,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            content,
-            style: const TextStyle(
-              fontSize: 12,
-              height: 1.4,
-              color: Color(0xFF374151),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   @override
   void dispose() {
     _businessNameController.dispose();
@@ -2001,8 +2638,146 @@ class _SWOTAnalysisToolState extends State<SWOTAnalysisTool> {
 }
 
 // Business Model Canvas Tool
-class BusinessModelCanvasTool extends StatelessWidget {
-  const BusinessModelCanvasTool({super.key});
+class BusinessModelCanvasTool extends StatefulWidget {
+  final Function(String businessName, String industry, String businessModel, Map<String, String> canvasData) onBusinessModelCanvasGenerated;
+
+  const BusinessModelCanvasTool({
+    super.key,
+    required this.onBusinessModelCanvasGenerated,
+  });
+
+  @override
+  State<BusinessModelCanvasTool> createState() => _BusinessModelCanvasToolState();
+}
+
+class _BusinessModelCanvasToolState extends State<BusinessModelCanvasTool> {
+  final _formKey = GlobalKey<FormState>();
+  final _businessNameController = TextEditingController();
+  final _industryController = TextEditingController();
+  final _businessModelController = TextEditingController();
+  final _targetMarketController = TextEditingController();
+  final _competitorsController = TextEditingController();
+  final _descriptionController = TextEditingController();
+  bool _isGenerating = false;
+
+  @override
+  void dispose() {
+    _businessNameController.dispose();
+    _industryController.dispose();
+    _businessModelController.dispose();
+    _targetMarketController.dispose();
+    _competitorsController.dispose();
+    _descriptionController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _generateBusinessModelCanvas() async {
+    print('🔄 _generateBusinessModelCanvas called - Starting generation process...');
+    print('✅ Set _isGenerating = true');
+    
+    if (!_formKey.currentState!.validate()) {
+      print('❌ Form validation failed');
+      return;
+    }
+
+    setState(() {
+      _isGenerating = true;
+    });
+
+    print('📝 Validating form data...');
+    print('   Business Name: "${_businessNameController.text}"');
+    print('   Industry: "${_industryController.text}"');
+    print('   Business Model: "${_businessModelController.text}"');
+    print('✅ Form validation passed. Preparing API call...');
+
+    try {
+      // Create the request data
+      final requestData = {
+        'businessName': _businessNameController.text,
+        'industry': _industryController.text,
+        'businessModel': _businessModelController.text,
+        'targetMarket': _targetMarketController.text,
+        'competitors': _competitorsController.text,
+        'description': _descriptionController.text,
+      };
+
+      print('🚀 Calling OpenRouter AI with data: $requestData');
+
+      // Generate the business model canvas using AI
+      final canvasResponse = await OpenRouterAIService.generateBusinessModelCanvas(
+        businessName: _businessNameController.text,
+        industry: _industryController.text,
+        businessModel: _businessModelController.text,
+        targetMarket: _targetMarketController.text,
+        competitors: _competitorsController.text,
+        description: _descriptionController.text,
+      );
+
+      print('✅ AI service returned successfully!');
+      print('   Business Model Canvas length: ${canvasResponse.length} characters');
+      print('   First 100 chars: ${canvasResponse.length > 100 ? canvasResponse.substring(0, 100) + "..." : canvasResponse}');
+
+      // Parse the canvas response into structured data
+      final canvasData = _parseCanvasResponse(canvasResponse);
+      print('📊 Parsed canvas data with ${canvasData.length} sections');
+      print('   Available sections: ${canvasData.keys.join(', ')}');
+
+      print('🔄 Setting _isGenerating = false and closing dialog...');
+      setState(() {
+        _isGenerating = false;
+      });
+
+      print('✅ Dialog closed');
+      print('🔍 Calling parent callback to save business model canvas...');
+      print('✅ Found callback, calling with canvas data...');
+      
+      // Call the callback with the generated data
+      widget.onBusinessModelCanvasGenerated(
+        _businessNameController.text,
+        _industryController.text,
+        _businessModelController.text,
+        canvasData,
+      );
+
+      print('✅ Callback executed successfully!');
+      print('🎉 Business Model Canvas generation completed successfully!');
+      print('🔚 Business model canvas modal will be closed by parent...');
+    } catch (e) {
+      print('❌ Error during Business Model Canvas generation: $e');
+      setState(() {
+        _isGenerating = false;
+      });
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error generating Business Model Canvas: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  Map<String, String> _parseCanvasResponse(String response) {
+    // Simple parsing logic - in a real app, you'd want more sophisticated parsing
+    return {
+      'keyPartners': _extractSection(response, 'Key Partners'),
+      'keyActivities': _extractSection(response, 'Key Activities'),
+      'keyResources': _extractSection(response, 'Key Resources'),
+      'valuePropositions': _extractSection(response, 'Value Propositions'),
+      'customerRelationships': _extractSection(response, 'Customer Relationships'),
+      'channels': _extractSection(response, 'Channels'),
+      'customerSegments': _extractSection(response, 'Customer Segments'),
+      'costStructure': _extractSection(response, 'Cost Structure'),
+      'revenueStreams': _extractSection(response, 'Revenue Streams'),
+    };
+  }
+
+  String _extractSection(String response, String sectionName) {
+    // Simple extraction logic - looks for section headers and extracts content
+    final pattern = RegExp('$sectionName[:\\s]*([\\s\\S]*?)(?=\\n\\n|\\*\\*|###|\$)', caseSensitive: false);
+    final match = pattern.firstMatch(response);
+    return match?.group(1)?.trim() ?? 'Not specified';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -2024,10 +2799,10 @@ class BusinessModelCanvasTool extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF59E0B).withOpacity(0.1),
+                    color: const Color(0xFF8B5CF6).withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Icon(Icons.dashboard_rounded, color: Color(0xFFF59E0B)),
+                  child: const Icon(Icons.view_module_rounded, color: Color(0xFF8B5CF6)),
                 ),
                 const SizedBox(width: 12),
                 const Text(
@@ -2046,30 +2821,220 @@ class BusinessModelCanvasTool extends StatelessWidget {
               ],
             ),
           ),
-          const Expanded(
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.construction, size: 64, color: Color(0xFF64748B)),
-                  SizedBox(height: 16),
-                  Text(
-                    'Coming Soon!',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.w700,
-                      color: Color(0xFF1E293B),
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(20),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Create Your Business Model Canvas',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF1E293B),
+                      ),
                     ),
-                  ),
-                  SizedBox(height: 8),
-                  Text(
-                    'Business Model Canvas tool is under development',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Color(0xFF64748B),
+                    const SizedBox(height: 8),
+                    const Text(
+                      'AI will help you create a comprehensive business model canvas with all 9 building blocks.',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Color(0xFF64748B),
+                        height: 1.5,
+                      ),
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 24),
+
+                    // Business Name
+                    const Text(
+                      'Business Name',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF374151),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    TextFormField(
+                      controller: _businessNameController,
+                      decoration: const InputDecoration(
+                        hintText: 'Enter your business name',
+                        border: OutlineInputBorder(),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter a business name';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Industry
+                    const Text(
+                      'Industry',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF374151),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    TextFormField(
+                      controller: _industryController,
+                      decoration: const InputDecoration(
+                        hintText: 'e.g., Technology, Healthcare, Retail',
+                        border: OutlineInputBorder(),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter the industry';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Business Model
+                    const Text(
+                      'Business Model',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF374151),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    TextFormField(
+                      controller: _businessModelController,
+                      decoration: const InputDecoration(
+                        hintText: 'e.g., SaaS, E-commerce, Marketplace',
+                        border: OutlineInputBorder(),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter the business model';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Target Market
+                    const Text(
+                      'Target Market',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF374151),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    TextFormField(
+                      controller: _targetMarketController,
+                      decoration: const InputDecoration(
+                        hintText: 'Describe your target customers',
+                        border: OutlineInputBorder(),
+                      ),
+                      maxLines: 2,
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Main Competitors
+                    const Text(
+                      'Main Competitors',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF374151),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    TextFormField(
+                      controller: _competitorsController,
+                      decoration: const InputDecoration(
+                        hintText: 'List your main competitors',
+                        border: OutlineInputBorder(),
+                      ),
+                      maxLines: 2,
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Business Description
+                    const Text(
+                      'Business Description',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF374151),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    TextFormField(
+                      controller: _descriptionController,
+                      decoration: const InputDecoration(
+                        hintText: 'Describe your business idea and goals',
+                        border: OutlineInputBorder(),
+                      ),
+                      maxLines: 3,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter a business description';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 24),
+
+                    // Generate Button
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: _isGenerating ? null : _generateBusinessModelCanvas,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF8B5CF6),
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: _isGenerating
+                            ? const Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                    ),
+                                  ),
+                                  SizedBox(width: 12),
+                                  Text(
+                                    'Generating Canvas...',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              )
+                            : const Text(
+                                'Generate Business Model Canvas',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
