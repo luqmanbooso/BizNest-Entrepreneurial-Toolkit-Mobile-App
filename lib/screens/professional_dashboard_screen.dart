@@ -178,135 +178,46 @@ class _ProfessionalDashboardScreenState extends State<ProfessionalDashboardScree
 
   Widget _buildModernFixedHeader() {
     return Container(
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Color(0xFF4F46E5),
-            Color(0xFF7C3AED),
-            Color(0xFFEC4899),
-          ],
-        ),
+      decoration: const BoxDecoration(
+        color: Color(0xFF2563EB),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF4F46E5).withOpacity(0.3),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
+            color: Color(0x1A2563EB),
+            blurRadius: 15,
+            offset: Offset(0, 4),
           ),
         ],
       ),
       child: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 15, 20, 25),
-          child: Column(
+          padding: const EdgeInsets.fromLTRB(20, 6, 20, 6),
+          child: Row(
             children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.15),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: Colors.white.withOpacity(0.2),
-                        width: 1,
-                      ),
-                    ),
-                    child: Image.asset(
-                      'assets/images/biznest.png',
-                      width: 32,
-                      height: 32,
-                      errorBuilder: (ctx, err, stack) => const Icon(
-                        Icons.business_center,
-                        color: Colors.white,
-                        size: 32,
-                      ),
-                    ),
+              Transform.translate(
+                offset: const Offset(0, -8),
+                child: ColorFiltered(
+                  colorFilter: const ColorFilter.mode(
+                    Colors.white,
+                    BlendMode.srcIn,
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'BizNest',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 22,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: -0.5,
-                          ),
-                        ),
-                        Text(
-                          'Business Dashboard',
-                          style: TextStyle(
-                            color: Colors.white.withOpacity(0.8),
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
+                  child: Image.asset(
+                    'assets/images/biznest.png',
+                    width: 100,
+                    height: 80,
+                    errorBuilder: (ctx, err, stack) => const Icon(
+                      Icons.business_center,
+                      color: Colors.white,
+                      size: 50,
                     ),
-                  ),
-                  _buildModernHeaderAction(Icons.search, () {}),
-                  const SizedBox(width: 6),
-                  _buildModernHeaderAction(Icons.notifications_outlined, () {}),
-                  const SizedBox(width: 6),
-                  _buildModernHeaderAction(Icons.settings_outlined, _openSettings),
-                  const SizedBox(width: 8),
-                  _buildModernProfileAvatar(),
-                ],
-              ),
-              const SizedBox(height: 20),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: Colors.white.withOpacity(0.2),
-                    width: 1,
                   ),
                 ),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.trending_up,
-                      color: Colors.white.withOpacity(0.9),
-                      size: 18,
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      'Revenue up 24% this month',
-                      style: TextStyle(
-                        color: Colors.white.withOpacity(0.9),
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const Spacer(),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF10B981).withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: const Text(
-                        '+24%',
-                        style: TextStyle(
-                          color: Color(0xFF34D399),
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
               ),
+              const Spacer(),
+              _buildModernHeaderAction(Icons.notifications_none, () {}),
+              const SizedBox(width: 8),
+              _buildModernHeaderAction(Icons.settings_outlined, _openSettings),
+              const SizedBox(width: 8),
+              _buildModernProfileAvatar(),
             ],
           ),
         ),
@@ -340,18 +251,9 @@ class _ProfessionalDashboardScreenState extends State<ProfessionalDashboardScree
         width: 40,
         height: 40,
         decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [Color(0xFF34D399), Color(0xFF10B981)],
-          ),
+          color: const Color(0xFF10B981),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: Colors.white.withOpacity(0.3), width: 2),
-          boxShadow: [
-            BoxShadow(
-              color: const Color(0xFF10B981).withOpacity(0.4),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
         ),
         child: const Icon(Icons.person, color: Colors.white, size: 20),
       ),
@@ -1127,14 +1029,14 @@ class _ProfessionalDashboardScreenState extends State<ProfessionalDashboardScree
         decoration: BoxDecoration(
           gradient: isActive
               ? const LinearGradient(
-                  colors: [Color(0xFF4F46E5), Color(0xFF7C3AED)],
+                  colors: [Color(0xFF2563EB), Color(0xFF3B82F6)],
                 )
               : null,
           borderRadius: BorderRadius.circular(16),
           boxShadow: isActive
               ? [
                   BoxShadow(
-                    color: const Color(0xFF4F46E5).withOpacity(0.3),
+                    color: const Color(0xFF2563EB).withOpacity(0.3),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),

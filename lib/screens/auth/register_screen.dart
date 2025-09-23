@@ -689,8 +689,8 @@ class _RegisterScreenState extends State<RegisterScreen>
                       _agreeToTerms = value ?? false;
                     });
                   },
-                  fillColor: MaterialStateProperty.resolveWith((states) {
-                    if (states.contains(MaterialState.selected)) {
+                  fillColor: WidgetStateProperty.resolveWith((states) {
+                    if (states.contains(WidgetState.selected)) {
                       return ModernTheme.freshGreen;
                     }
                     return Colors.black.withOpacity(0.7);

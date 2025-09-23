@@ -245,7 +245,7 @@ class _AdvancedDashboardScreenState extends State<AdvancedDashboardScreen>
             Container(
               width: double.infinity,
               height: double.infinity,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 image: DecorationImage(
                   image: NetworkImage(
                       'https://transparenttextures.com/patterns/grid-me.png'),
@@ -450,7 +450,7 @@ class _AdvancedDashboardScreenState extends State<AdvancedDashboardScreen>
     final completedPlans = overview['completed_plans'] ?? 0;
     final completionRate = overview['completion_rate'] ?? 0;
 
-    return Container(
+    return SizedBox(
       height: 200, // Fixed height to prevent overflow
       child: GridView.count(
         shrinkWrap: true,
@@ -467,7 +467,7 @@ class _AdvancedDashboardScreenState extends State<AdvancedDashboardScreen>
             Colors.white,
             onTap: () {
               Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => BusinessScreen()),
+                MaterialPageRoute(builder: (_) => const BusinessScreen()),
               );
             },
           ),
@@ -478,7 +478,7 @@ class _AdvancedDashboardScreenState extends State<AdvancedDashboardScreen>
             ModernTheme.freshGreen,
             onTap: () {
               Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => BusinessScreen()),
+                MaterialPageRoute(builder: (_) => const BusinessScreen()),
               );
             },
           ),
@@ -489,7 +489,7 @@ class _AdvancedDashboardScreenState extends State<AdvancedDashboardScreen>
             ModernTheme.goldenYellow,
             onTap: () {
               Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => LearningScreen()),
+                MaterialPageRoute(builder: (_) => const LearningScreen()),
               );
             },
           ),
@@ -1145,7 +1145,7 @@ class _AdvancedDashboardScreenState extends State<AdvancedDashboardScreen>
                         Icons.add_business,
                         ModernTheme.primaryBlue,
                         () => Navigator.of(context).push(
-                          MaterialPageRoute(builder: (_) => BusinessScreen()),
+                          MaterialPageRoute(builder: (_) => const BusinessScreen()),
                         ),
                       ),
                       _buildActionCard(
@@ -1153,7 +1153,7 @@ class _AdvancedDashboardScreenState extends State<AdvancedDashboardScreen>
                         Icons.school,
                         ModernTheme.freshGreen,
                         () => Navigator.of(context).push(
-                          MaterialPageRoute(builder: (_) => LearningScreen()),
+                          MaterialPageRoute(builder: (_) => const LearningScreen()),
                         ),
                       ),
                       _buildActionCard(
@@ -1257,15 +1257,15 @@ class _AdvancedDashboardScreenState extends State<AdvancedDashboardScreen>
             ),
           ),
           const SizedBox(height: 20),
-          Container(
+          SizedBox(
             height: 200,
             child: usage.isEmpty
-                ? Center(child: Text('No usage data available'))
+                ? const Center(child: Text('No usage data available'))
                 : BarChart(
                     BarChartData(
                       // Chart configuration would go here
                       barGroups: [],
-                      titlesData: FlTitlesData(show: false),
+                      titlesData: const FlTitlesData(show: false),
                       borderData: FlBorderData(show: false),
                     ),
                   ),
@@ -1542,13 +1542,13 @@ class _AdvancedDashboardScreenState extends State<AdvancedDashboardScreen>
                 ),
               ),
               const SizedBox(height: 20),
-              Container(
+              SizedBox(
                 height: 200,
                 child: LineChart(
                   LineChartData(
                     // Chart configuration would go here
                     lineBarsData: [],
-                    titlesData: FlTitlesData(show: false),
+                    titlesData: const FlTitlesData(show: false),
                     borderData: FlBorderData(show: false),
                   ),
                 ),
@@ -1675,7 +1675,7 @@ class _HealthRingPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
     final radius = (size.width - 20) / 2;
-    final strokeWidth = 12.0;
+    const strokeWidth = 12.0;
 
     // Draw track
     final trackPaint = Paint()
