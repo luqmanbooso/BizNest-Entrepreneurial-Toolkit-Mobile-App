@@ -126,7 +126,7 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
 
   Future<void> _openProfile() async {
     final result = await Navigator.of(context).push<bool?>(
-      MaterialPageRoute(builder: (_) => ProfileScreen()),
+      MaterialPageRoute(builder: (_) => const ProfileScreen()),
     );
     // If profile was saved/updated, refresh local view
     if (result == true) {
@@ -531,7 +531,7 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
                                     ],
                                   ),
                                   const SizedBox(height: 12),
-                                  Text(
+                                  const Text(
                                     'Ready to grow your business?',
                                     style: TextStyle(
                                       color: ModernTheme.textSecondary,
@@ -637,7 +637,7 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
           padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
           decoration: BoxDecoration(
             gradient: isSelected
-                ? LinearGradient(
+                ? const LinearGradient(
                     colors: [
                       ModernTheme.primaryBlue,
                       ModernTheme.teal,
@@ -774,9 +774,9 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
+              const Text(
                 'Business Health',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w900,
                   color: ModernTheme.navy,
@@ -826,7 +826,7 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
   }
 
   Widget _buildHealthScoreChart(int score) {
-    return Container(
+    return SizedBox(
       height: 180,
       width: 180,
       child: Stack(
@@ -868,7 +868,7 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
                 const SizedBox(height: 4),
                 Text(
                   _getHealthLevel(score),
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
                     color: ModernTheme.textSecondary,
@@ -1087,7 +1087,7 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
                 const SizedBox(height: 4),
                 Text(
                   subtitle,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 15,
                     color: ModernTheme.textSecondary,
                     fontWeight: FontWeight.w500,
@@ -1105,7 +1105,7 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
             ),
             child: Text(
               time,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 12,
                 color: ModernTheme.textTertiary,
                 fontWeight: FontWeight.w600,
@@ -1192,7 +1192,7 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
                       Icons.add_business_rounded,
                       const Color(0xFF00D4FF),
                       () => Navigator.of(context).push(
-                        MaterialPageRoute(builder: (_) => BusinessScreen()),
+                        MaterialPageRoute(builder: (_) => const BusinessScreen()),
                       ),
                     ),
                     _buildActionCard(
@@ -1200,7 +1200,7 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
                       Icons.school_rounded,
                       const Color(0xFF10B981),
                       () => Navigator.of(context).push(
-                        MaterialPageRoute(builder: (_) => LearningScreen()),
+                        MaterialPageRoute(builder: (_) => const LearningScreen()),
                       ),
                     ),
                     _buildActionCard(
@@ -1278,7 +1278,7 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
                 const SizedBox(height: 10),
                 Text(
                   title,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
                     color: Colors.white,
@@ -1372,9 +1372,9 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
                             ),
                           ],
                         ),
-                        child: Column(
+                        child: const Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          children: const [
+                          children: [
                             Text(
                               'Trends & Forecast',
                               style: TextStyle(
@@ -1483,7 +1483,7 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Total',
+                    const Text('Total',
                         style: TextStyle(color: ModernTheme.textTertiary)),
                     const SizedBox(height: 6),
                     Text(total.round().toString(),
@@ -1496,7 +1496,7 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Average',
+                    const Text('Average',
                         style: TextStyle(color: ModernTheme.textTertiary)),
                     const SizedBox(height: 6),
                     Text(avg.round().toString(),
@@ -1509,7 +1509,7 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Growth',
+                    const Text('Growth',
                         style: TextStyle(color: ModernTheme.textTertiary)),
                     const SizedBox(height: 6),
                     Text('${growth.round()}%',
@@ -1846,10 +1846,10 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
           ),
         ],
       ),
-      child: Column(
+      child: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Market Trends',
             style: TextStyle(
               fontSize: 20,
@@ -1858,10 +1858,10 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
               letterSpacing: 0.5,
             ),
           ),
-          const SizedBox(height: 20),
-          Container(
+          SizedBox(height: 20),
+          SizedBox(
             height: 200,
-            child: const Center(
+            child: Center(
               child: Text(
                 'Trend data will be displayed here',
                 style: TextStyle(
@@ -1987,7 +1987,7 @@ class _HealthRingPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
     final radius = (size.width - 24) / 2;
-    final strokeWidth = 12.0;
+    const strokeWidth = 12.0;
 
     // Draw track
     final trackPaint = Paint()
@@ -2738,8 +2738,7 @@ class _SimpleLineChart extends StatefulWidget {
   final Color color;
 
   const _SimpleLineChart(
-      {required this.values, this.labels, required this.color, Key? key})
-      : super(key: key);
+      {required this.values, this.labels, required this.color});
 
   @override
   State<_SimpleLineChart> createState() => _SimpleLineChartState();
@@ -2753,8 +2752,8 @@ class _SimpleLineChartState extends State<_SimpleLineChart> {
     if (box == null) return;
     final local = box.globalToLocal(details.globalPosition);
     final w = constraints.maxWidth;
-    final leftPad = 32.0;
-    final rightPad = 16.0;
+    const leftPad = 32.0;
+    const rightPad = 16.0;
     final usable = w - leftPad - rightPad;
     final n = widget.values.length;
     if (n == 0) return;
@@ -2811,10 +2810,10 @@ class _LineChartPainter extends CustomPainter {
 
     if (values.isEmpty) return;
 
-    final leftPad = 32.0;
-    final bottomPad = 28.0;
-    final topPad = 12.0;
-    final rightPad = 16.0;
+    const leftPad = 32.0;
+    const bottomPad = 28.0;
+    const topPad = 12.0;
+    const rightPad = 16.0;
     final usableWidth = size.width - leftPad - rightPad;
     final usableHeight = size.height - topPad - bottomPad;
 
@@ -2856,7 +2855,7 @@ class _LineChartPainter extends CustomPainter {
     }
 
     // labels (x-axis)
-    final textStyle = TextStyle(color: ModernTheme.textTertiary, fontSize: 10);
+    const textStyle = TextStyle(color: ModernTheme.textTertiary, fontSize: 10);
     final tp = TextPainter(textDirection: TextDirection.ltr);
     if (labels != null && labels!.isNotEmpty) {
       final step = (values.length / 6).ceil();

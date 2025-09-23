@@ -300,9 +300,10 @@ class BusinessIntelligenceService {
         return List<Map<String, dynamic>>.from(data.values);
       }
       // Unexpected shape, return empty list and log in debug mode
-      if (kDebugMode)
+      if (kDebugMode) {
         print(
             'BusinessIntelligenceService: /business/plans returned non-iterable data: $data');
+      }
       return [];
     }
     return [];
@@ -318,9 +319,10 @@ class BusinessIntelligenceService {
         final first = data.first;
         if (first is Map) return Map<String, dynamic>.from(first);
       }
-      if (kDebugMode)
+      if (kDebugMode) {
         print(
             'BusinessIntelligenceService: /financial/calculations returned non-map data: $data');
+      }
       return {};
     }
     return {};
@@ -332,9 +334,10 @@ class BusinessIntelligenceService {
       final data = response['data'];
       if (data is Iterable) return List<Map<String, dynamic>>.from(data);
       if (data is Map) return List<Map<String, dynamic>>.from(data.values);
-      if (kDebugMode)
+      if (kDebugMode) {
         print(
             'BusinessIntelligenceService: /networking/contacts returned non-iterable data: $data');
+      }
       return [];
     }
     return [];
@@ -346,9 +349,10 @@ class BusinessIntelligenceService {
       final data = response['data'];
       if (data is Iterable) return List<Map<String, dynamic>>.from(data);
       if (data is Map) return List<Map<String, dynamic>>.from(data.values);
-      if (kDebugMode)
+      if (kDebugMode) {
         print(
             'BusinessIntelligenceService: /learning/resources returned non-iterable data: $data');
+      }
       return [];
     }
     return [];

@@ -24,7 +24,7 @@ Business Type: $businessType
 Industry: $industry
 Target Market: $targetMarket
 Business Model: $businessModel
-Funding Goal: \$${fundingGoal}
+Funding Goal: \$$fundingGoal
 Timeline: $timeline
 Description: $description
 
@@ -109,7 +109,7 @@ Format the response in a clear, professional manner with proper headings and det
         
         print('✅ Successfully generated content');
         print('   Content length: ${content.toString().length} characters');
-        print('   First 200 chars: ${content.toString().length > 200 ? content.toString().substring(0, 200) + "..." : content.toString()}');
+        print('   First 200 chars: ${content.toString().length > 200 ? "${content.toString().substring(0, 200)}..." : content.toString()}');
         return content.toString();
       } else {
         print('❌ API returned error status: ${response.statusCode}');

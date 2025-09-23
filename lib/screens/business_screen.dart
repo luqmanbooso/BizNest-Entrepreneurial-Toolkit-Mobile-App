@@ -15,6 +15,9 @@ class _BusinessScreenState extends State<BusinessScreen>
 
   // Store generated business plans
   final List<BusinessPlanHistory> _businessPlanHistory = [];
+  final List<Map<String, dynamic>> _marketResearchHistory = [];
+  final List<Map<String, dynamic>> _swotAnalysisHistory = [];
+  final List<Map<String, dynamic>> _businessModelCanvasHistory = [];
 
   final List<BusinessTool> _tools = [
     BusinessTool(
@@ -431,84 +434,79 @@ class _BusinessScreenState extends State<BusinessScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              const Icon(Icons.history, color: Color(0xFF2563EB), size: 24),
-              const SizedBox(width: 8),
-              const Text(
-                'Business Plan History',
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFF1E293B),
-                ),
-              ),
-              const Spacer(),
-              Text(
-                '${_businessPlanHistory.length} plan${_businessPlanHistory.length == 1 ? '' : 's'}',
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: Color(0xFF64748B),
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          if (_businessPlanHistory.isEmpty)
-            Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: const Color(0xFFE2E8F0)),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 10,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: const Center(
-                child: Column(
-                  children: [
-                    Icon(
-                      Icons.history,
-                      size: 48,
-                      color: Color(0xFF64748B),
-                    ),
-                    SizedBox(height: 12),
-                    Text(
-                      'No Business Plans Yet',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF1E293B),
-                      ),
-                    ),
-                    SizedBox(height: 8),
-                    Text(
-                      'Generate your first business plan using the AI Business Plan Generator above!',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Color(0xFF64748B),
-                        height: 1.4,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            )
-          else
-            ...List.generate(
-              _businessPlanHistory.length,
-              (index) => Padding(
+          // Business Plan History Section
+          _buildHistorySection(
+            title: 'Business Plan History',
+            icon: Icons.auto_awesome_rounded,
+            color: const Color(0xFF2563EB),
+            count: _businessPlanHistory.length,
+            isEmpty: _businessPlanHistory.isEmpty,
+            emptyTitle: 'No Business Plans Yet',
+            emptyDescription: 'Generate your first business plan using the AI Business Plan Generator!',
+            children: _businessPlanHistory.map((plan) => 
+              Padding(
                 padding: const EdgeInsets.only(bottom: 12),
-                child: _buildBusinessPlanHistoryCard(_businessPlanHistory[index]),
+                child: _buildBusinessPlanHistoryCard(plan),
               ),
-            ),
+            ).toList(),
+          ),
+          
+          const SizedBox(height: 32),
+          
+          // Market Research History Section
+          _buildHistorySection(
+            title: 'Market Research History',
+            icon: Icons.analytics_rounded,
+            color: const Color(0xFF8B5CF6),
+            count: _marketResearchHistory.length,
+            isEmpty: _marketResearchHistory.isEmpty,
+            emptyTitle: 'No Market Research Yet',
+            emptyDescription: 'Analyze your market using the Market Research tool!',
+            children: _marketResearchHistory.map((research) => 
+              Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: _buildMarketResearchHistoryCard(research),
+              ),
+            ).toList(),
+          ),
+          
+          const SizedBox(height: 32),
+          
+          // SWOT Analysis History Section
+          _buildHistorySection(
+            title: 'SWOT Analysis History',
+            icon: Icons.analytics_outlined,
+            color: const Color(0xFF10B981),
+            count: _swotAnalysisHistory.length,
+            isEmpty: _swotAnalysisHistory.isEmpty,
+            emptyTitle: 'No SWOT Analyses Yet',
+            emptyDescription: 'Analyze your business strengths and weaknesses!',
+            children: _swotAnalysisHistory.map((swot) => 
+              Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: _buildSWOTHistoryCard(swot),
+              ),
+            ).toList(),
+          ),
+          
+          const SizedBox(height: 32),
+          
+          // Business Model Canvas History Section
+          _buildHistorySection(
+            title: 'Business Model Canvas History',
+            icon: Icons.view_module_rounded,
+            color: const Color(0xFFEF4444),
+            count: _businessModelCanvasHistory.length,
+            isEmpty: _businessModelCanvasHistory.isEmpty,
+            emptyTitle: 'No Business Model Canvases Yet',
+            emptyDescription: 'Create your business model using the Canvas Generator!',
+            children: _businessModelCanvasHistory.map((canvas) => 
+              Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: _buildBusinessModelCanvasHistoryCard(canvas),
+              ),
+            ).toList(),
+          ),
         ],
       ),
     );
@@ -693,8 +691,6 @@ class _BusinessScreenState extends State<BusinessScreen>
     print('   Target Market: $targetMarket');
     print('   Location: $location');
     
-    // For now, we'll store in shared preferences as JSON
-    // In a real app, this would go to a database
     final marketResearch = {
       'id': DateTime.now().millisecondsSinceEpoch.toString(),
       'industry': industry,
@@ -704,7 +700,12 @@ class _BusinessScreenState extends State<BusinessScreen>
       'createdAt': DateTime.now().toIso8601String(),
     };
     
+    setState(() {
+      _marketResearchHistory.insert(0, marketResearch); // Add to beginning of list
+    });
+    
     print('   Created new Market Research with ID: ${marketResearch['id']}');
+    print('   Added to history. Total analyses: ${_marketResearchHistory.length}');
     print('✅ Market research saved successfully');
   }
 
@@ -826,8 +827,6 @@ class _BusinessScreenState extends State<BusinessScreen>
     print('   Industry: $industry');
     print('   Business Model: $businessModel');
     
-    // For now, we'll store in shared preferences as JSON
-    // In a real app, this would go to a database
     final swotAnalysis = {
       'id': DateTime.now().millisecondsSinceEpoch.toString(),
       'businessName': businessName,
@@ -837,7 +836,12 @@ class _BusinessScreenState extends State<BusinessScreen>
       'createdAt': DateTime.now().toIso8601String(),
     };
     
+    setState(() {
+      _swotAnalysisHistory.insert(0, swotAnalysis); // Add to beginning of list
+    });
+    
     print('   Created new SWOT Analysis with ID: ${swotAnalysis['id']}');
+    print('   Added to history. Total analyses: ${_swotAnalysisHistory.length}');
     print('✅ SWOT analysis saved successfully');
   }
 
@@ -988,7 +992,12 @@ class _BusinessScreenState extends State<BusinessScreen>
       'createdAt': DateTime.now().toIso8601String(),
     };
     
+    setState(() {
+      _businessModelCanvasHistory.insert(0, businessModelCanvas); // Add to beginning of list
+    });
+    
     print('   Created new Business Model Canvas with ID: ${businessModelCanvas['id']}');
+    print('   Added to history. Total canvases: ${_businessModelCanvasHistory.length}');
     print('✅ Business Model Canvas saved successfully');
   }
 
@@ -1019,15 +1028,17 @@ class _BusinessScreenState extends State<BusinessScreen>
                     child: const Icon(Icons.view_module_rounded, color: Color(0xFF8B5CF6)),
                   ),
                   const SizedBox(width: 12),
-                  const Text(
-                    'Business Model Canvas',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w700,
-                      color: Color(0xFF1E293B),
+                  const Expanded(
+                    child: Text(
+                      'Business Model Canvas',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF1E293B),
+                      ),
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  const Spacer(),
                   IconButton(
                     onPressed: () => Navigator.pop(context),
                     icon: const Icon(Icons.close),
@@ -1194,7 +1205,10 @@ class _BusinessScreenState extends State<BusinessScreen>
 
   Widget _buildCanvasCard(String title, String content, Color color, IconData icon) {
     return Container(
-      height: 200, // Fixed height for consistency
+      constraints: const BoxConstraints(
+        minHeight: 180,
+        maxHeight: 250,
+      ),
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         border: Border.all(color: color.withOpacity(0.2)),
@@ -1233,10 +1247,10 @@ class _BusinessScreenState extends State<BusinessScreen>
               child: Text(
                 content,
                 style: const TextStyle(
-                  fontSize: 14,
-                  height: 1.6,
-                  color: Color(0xFF374151),
-                  fontWeight: FontWeight.w400,
+                  fontSize: 15,
+                  height: 1.5,
+                  color: Color(0xFF1F2937),
+                  fontWeight: FontWeight.w500,
                 ),
               ),
             ),
@@ -1415,11 +1429,6 @@ class _BusinessScreenState extends State<BusinessScreen>
       backgroundColor: Colors.transparent,
       builder: (context) => BusinessModelCanvasTool(
         onBusinessModelCanvasGenerated: (businessName, industry, businessModel, canvasData) {
-          print('🎯 Business Model Canvas callback received!');
-          print('   Business Name: $businessName');
-          print('   Industry: $industry');
-          print('   Canvas data keys: ${canvasData.keys.join(', ')}');
-          
           _addToBusinessModelCanvasHistory(
             businessName: businessName,
             industry: industry,
@@ -1427,18 +1436,13 @@ class _BusinessScreenState extends State<BusinessScreen>
             canvasData: canvasData,
           );
           
-          print('🔄 Closing modal and showing result...');
-          
           // Close modal first, then show result dialog after a delay
           Navigator.of(context).pop();
           
           // Use Future.delayed to ensure modal is fully closed before showing result
           Future.delayed(const Duration(milliseconds: 300), () {
             if (mounted) {
-              print('🎯 About to show Business Model Canvas result dialog...');
               _showBusinessModelCanvasResult(canvasData);
-            } else {
-              print('❌ Widget not mounted when trying to show result');
             }
           });
         },
@@ -1467,7 +1471,7 @@ class _BusinessScreenState extends State<BusinessScreen>
   void _showBusinessPlanResult(String businessPlan) {
     print('🎯 _showBusinessPlanResult called');
     print('   Business plan length: ${businessPlan.length} characters');
-    print('   First 100 characters: ${businessPlan.length > 100 ? businessPlan.substring(0, 100) + "..." : businessPlan}');
+    print('   First 100 characters: ${businessPlan.length > 100 ? "${businessPlan.substring(0, 100)}..." : businessPlan}');
     
     showDialog(
       context: context,
@@ -1566,6 +1570,498 @@ class _BusinessScreenState extends State<BusinessScreen>
           ),
         );
       },
+    );
+  }
+
+  // History Section Builder Methods
+  Widget _buildHistorySection({
+    required String title,
+    required IconData icon,
+    required Color color,
+    required int count,
+    required bool isEmpty,
+    required String emptyTitle,
+    required String emptyDescription,
+    required List<Widget> children,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: color.withOpacity(0.3)),
+          ),
+          child: Row(
+            children: [
+              Icon(icon, color: color, size: 24),
+              const SizedBox(width: 12),
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: color,
+                ),
+              ),
+              const Spacer(),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: color,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  '$count',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+        if (isEmpty)
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade50,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.grey.shade200),
+            ),
+            child: Column(
+              children: [
+                Icon(
+                  icon,
+                  size: 48,
+                  color: Colors.grey.shade400,
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  emptyTitle,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                    color: Colors.black87,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  emptyDescription,
+                  style: TextStyle(
+                    color: Colors.grey.shade600,
+                    fontSize: 14,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          )
+        else
+          Column(children: children),
+      ],
+    );
+  }
+
+  Widget _buildMarketResearchHistoryCard(Map<String, dynamic> research) {
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          gradient: LinearGradient(
+            colors: [Colors.blue.shade50, Colors.white],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: ExpansionTile(
+          leading: const CircleAvatar(
+            backgroundColor: Colors.blue,
+            child: Icon(Icons.trending_up, color: Colors.white),
+          ),
+          title: const Text(
+            'Market Research',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            ),
+          ),
+          subtitle: Text(
+            'Created: ${research['timestamp'] ?? 'Unknown'}',
+            style: TextStyle(
+              color: Colors.grey.shade600,
+              fontSize: 14,
+            ),
+          ),
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (research['industry'] != null) ...[
+                    _buildResearchDetailRow('Industry', research['industry']!),
+                    const SizedBox(height: 8),
+                  ],
+                  if (research['target_market'] != null) ...[
+                    _buildResearchDetailRow('Target Market', research['target_market']!),
+                    const SizedBox(height: 8),
+                  ],
+                  if (research['market_size'] != null) ...[
+                    _buildResearchDetailRow('Market Size', research['market_size']!),
+                    const SizedBox(height: 8),
+                  ],
+                  if (research['competitors'] != null) ...[
+                    _buildResearchDetailRow('Competitors', research['competitors']!),
+                    const SizedBox(height: 8),
+                  ],
+                  if (research['trends'] != null) ...[
+                    _buildResearchDetailRow('Trends', research['trends']!),
+                  ],
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSWOTHistoryCard(Map<String, dynamic> swot) {
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          gradient: LinearGradient(
+            colors: [Colors.green.shade50, Colors.white],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: ExpansionTile(
+          leading: const CircleAvatar(
+            backgroundColor: Colors.green,
+            child: Icon(Icons.analytics, color: Colors.white),
+          ),
+          title: const Text(
+            'SWOT Analysis',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            ),
+          ),
+          subtitle: Text(
+            'Created: ${swot['timestamp'] ?? 'Unknown'}',
+            style: TextStyle(
+              color: Colors.grey.shade600,
+              fontSize: 14,
+            ),
+          ),
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildSWOTQuadrant(
+                          'Strengths',
+                          swot['strengths'] ?? 'Not available',
+                          Colors.green,
+                          Icons.trending_up,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: _buildSWOTQuadrant(
+                          'Weaknesses',
+                          swot['weaknesses'] ?? 'Not available',
+                          Colors.orange,
+                          Icons.trending_down,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildSWOTQuadrant(
+                          'Opportunities',
+                          swot['opportunities'] ?? 'Not available',
+                          Colors.blue,
+                          Icons.lightbulb,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: _buildSWOTQuadrant(
+                          'Threats',
+                          swot['threats'] ?? 'Not available',
+                          Colors.red,
+                          Icons.warning,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBusinessModelCanvasHistoryCard(Map<String, dynamic> canvas) {
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          gradient: LinearGradient(
+            colors: [Colors.purple.shade50, Colors.white],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: ExpansionTile(
+          leading: const CircleAvatar(
+            backgroundColor: Colors.purple,
+            child: Icon(Icons.business_center, color: Colors.white),
+          ),
+          title: const Text(
+            'Business Model Canvas',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            ),
+          ),
+          subtitle: Text(
+            'Created: ${canvas['timestamp'] ?? 'Unknown'}',
+            style: TextStyle(
+              color: Colors.grey.shade600,
+              fontSize: 14,
+            ),
+          ),
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildCanvasQuadrant(
+                          'Key Partners',
+                          canvas['keyPartners'] ?? 'Not available',
+                          Colors.blue,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: _buildCanvasQuadrant(
+                          'Key Activities',
+                          canvas['keyActivities'] ?? 'Not available',
+                          Colors.green,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: _buildCanvasQuadrant(
+                          'Value Propositions',
+                          canvas['valuePropositions'] ?? 'Not available',
+                          Colors.purple,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildCanvasQuadrant(
+                          'Customer Relationships',
+                          canvas['customerRelationships'] ?? 'Not available',
+                          Colors.orange,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: _buildCanvasQuadrant(
+                          'Customer Segments',
+                          canvas['customerSegments'] ?? 'Not available',
+                          Colors.red,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildCanvasQuadrant(
+                          'Key Resources',
+                          canvas['keyResources'] ?? 'Not available',
+                          Colors.teal,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: _buildCanvasQuadrant(
+                          'Channels',
+                          canvas['channels'] ?? 'Not available',
+                          Colors.indigo,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildCanvasQuadrant(
+                          'Cost Structure',
+                          canvas['costStructure'] ?? 'Not available',
+                          Colors.brown,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: _buildCanvasQuadrant(
+                          'Revenue Streams',
+                          canvas['revenueStreams'] ?? 'Not available',
+                          Colors.green,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildResearchDetailRow(String label, String value) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.blue.shade50,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.blue.shade200),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Colors.blue.shade800,
+              fontSize: 14,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: const TextStyle(
+              fontSize: 13,
+              height: 1.4,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSWOTQuadrant(String title, String content, Color color, IconData icon) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: color.withOpacity(0.3)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, color: color, size: 16),
+              const SizedBox(width: 4),
+              Text(
+                title,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: color,
+                  fontSize: 12,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            content,
+            style: const TextStyle(
+              fontSize: 11,
+              height: 1.3,
+            ),
+            maxLines: 3,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCanvasQuadrant(String title, String content, Color color) {
+    return Container(
+      height: 80,
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: color.withOpacity(0.3)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: color,
+              fontSize: 10,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Expanded(
+            child: Text(
+              content,
+              style: const TextStyle(
+                fontSize: 9,
+                height: 1.2,
+              ),
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -2091,7 +2587,7 @@ class _BusinessPlanGeneratorState extends State<BusinessPlanGenerator> {
       
       print('✅ AI service returned successfully!');
       print('   Business plan length: ${businessPlan.length} characters');
-      print('   First 100 chars: ${businessPlan.length > 100 ? businessPlan.substring(0, 100) + "..." : businessPlan}');
+      print('   First 100 chars: ${businessPlan.length > 100 ? "${businessPlan.substring(0, 100)}..." : businessPlan}');
       
       if (!mounted) {
         print('❌ Widget unmounted after API call, aborting...');
@@ -2715,12 +3211,10 @@ class _BusinessModelCanvasToolState extends State<BusinessModelCanvasTool> {
 
       print('✅ AI service returned successfully!');
       print('   Business Model Canvas length: ${canvasResponse.length} characters');
-      print('   First 100 chars: ${canvasResponse.length > 100 ? canvasResponse.substring(0, 100) + "..." : canvasResponse}');
+      print('   First 100 chars: ${canvasResponse.length > 100 ? "${canvasResponse.substring(0, 100)}..." : canvasResponse}');
 
       // Parse the canvas response into structured data
       final canvasData = _parseCanvasResponse(canvasResponse);
-      print('📊 Parsed canvas data with ${canvasData.length} sections');
-      print('   Available sections: ${canvasData.keys.join(', ')}');
 
       print('🔄 Setting _isGenerating = false and closing dialog...');
       setState(() {
@@ -3042,4 +3536,6 @@ class _BusinessModelCanvasToolState extends State<BusinessModelCanvasTool> {
       ),
     );
   }
+
+
 }

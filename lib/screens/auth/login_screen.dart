@@ -544,8 +544,8 @@ class _LoginScreenState extends State<LoginScreen>
                         _rememberMe = value ?? false;
                       });
                     },
-                    fillColor: MaterialStateProperty.resolveWith((states) {
-                      if (states.contains(MaterialState.selected)) {
+                    fillColor: WidgetStateProperty.resolveWith((states) {
+                      if (states.contains(WidgetState.selected)) {
                         return ModernTheme.electricBlue;
                       }
                       return Colors.black.withOpacity(0.7);
