@@ -20,7 +20,10 @@ class QuizService {
       ],
       'correct_answer': 1,
       'category': 'business_planning',
-      'difficulty': 'beginner'
+      'difficulty': 'beginner',
+      'explanation': 'A business plan serves as a roadmap for your business, outlining your strategy, goals, and how you plan to achieve them. While securing funding is important, the primary purpose is to provide a clear direction for your business operations.',
+      'hint': 'Think about what guides your business decisions and operations.',
+      'learning_tip': 'A good business plan should be reviewed and updated regularly as your business evolves.'
     },
     {
       'id': 2,
@@ -34,7 +37,10 @@ class QuizService {
       ],
       'correct_answer': 2,
       'category': 'market_research',
-      'difficulty': 'beginner'
+      'difficulty': 'beginner',
+      'explanation': 'Market research focuses on objective data about markets, customers, and competitors. Personal preferences are subjective and not part of formal market research methodology.',
+      'hint': 'Market research should be based on data, not personal opinions.',
+      'learning_tip': 'Always validate your assumptions with real market data before making business decisions.'
     },
     {
       'id': 3,
@@ -47,7 +53,10 @@ class QuizService {
       ],
       'correct_answer': 1,
       'category': 'product_development',
-      'difficulty': 'intermediate'
+      'difficulty': 'intermediate',
+      'explanation': 'MVP stands for Minimum Viable Product - the simplest version of your product that allows you to test your business hypothesis with real customers.',
+      'hint': 'It\'s about testing your idea with the least amount of resources.',
+      'learning_tip': 'Focus on building an MVP that solves the core problem for your target customers.'
     },
     {
       'id': 4,
@@ -56,7 +65,10 @@ class QuizService {
       'options': ['Revenue', 'Runway', 'Profit margin', 'Cash flow'],
       'correct_answer': 1,
       'category': 'financial_management',
-      'difficulty': 'intermediate'
+      'difficulty': 'intermediate',
+      'explanation': 'Runway measures how many months a company can continue operating with its current cash reserves. It\'s calculated by dividing current cash by monthly burn rate.',
+      'hint': 'It\'s about how long your current cash will last.',
+      'learning_tip': 'Monitor your runway closely and plan fundraising before you run out of cash.'
     },
     {
       'id': 5,
@@ -69,7 +81,10 @@ class QuizService {
       ],
       'correct_answer': 1,
       'category': 'customer_development',
-      'difficulty': 'advanced'
+      'difficulty': 'advanced',
+      'explanation': 'Customer validation proves that your product solves a real problem for a specific group of customers who are willing to pay for it.',
+      'hint': 'It\'s about confirming that customers actually want and need your solution.',
+      'learning_tip': 'Never assume you know what customers want - always validate with real users.'
     },
     {
       'id': 6,
@@ -77,7 +92,10 @@ class QuizService {
       'options': ['Pre-seed', 'Series A', 'Angel investment', 'Bootstrap'],
       'correct_answer': 1,
       'category': 'funding',
-      'difficulty': 'intermediate'
+      'difficulty': 'intermediate',
+      'explanation': 'The typical startup funding progression is: Pre-seed → Seed → Series A → Series B → Series C. Series A comes after seed funding.',
+      'hint': 'Seed funding is the first institutional round of funding.',
+      'learning_tip': 'Each funding stage has different requirements and expectations from investors.'
     },
     {
       'id': 7,
@@ -90,7 +108,10 @@ class QuizService {
       ],
       'correct_answer': 1,
       'category': 'strategic_planning',
-      'difficulty': 'beginner'
+      'difficulty': 'beginner',
+      'explanation': 'SWOT (Strengths, Weaknesses, Opportunities, Threats) analysis helps you understand your internal capabilities and external environment.',
+      'hint': 'It examines both internal and external factors affecting your business.',
+      'learning_tip': 'Conduct SWOT analysis regularly as your business and market conditions change.'
     },
     {
       'id': 8,
@@ -99,7 +120,10 @@ class QuizService {
       'options': ['Sole proprietorship', 'Partnership', 'Corporation', 'LLC'],
       'correct_answer': 2,
       'category': 'legal',
-      'difficulty': 'intermediate'
+      'difficulty': 'intermediate',
+      'explanation': 'A corporation provides the strongest liability protection by creating a separate legal entity. However, it also has more complex requirements and potential double taxation.',
+      'hint': 'It creates a separate legal entity from its owners.',
+      'learning_tip': 'Choose your legal structure based on liability protection, tax implications, and operational complexity.'
     },
     {
       'id': 9,
@@ -113,7 +137,10 @@ class QuizService {
       ],
       'correct_answer': 1,
       'category': 'networking',
-      'difficulty': 'beginner'
+      'difficulty': 'beginner',
+      'explanation': 'Networking provides access to mentors, partners, investors, customers, and other valuable resources that can accelerate your business growth.',
+      'hint': 'It\'s about building relationships that provide value to your business.',
+      'learning_tip': 'Focus on building genuine relationships rather than just collecting business cards.'
     },
     {
       'id': 10,
@@ -127,11 +154,332 @@ class QuizService {
       ],
       'correct_answer': 1,
       'category': 'marketing',
-      'difficulty': 'advanced'
+      'difficulty': 'advanced',
+      'explanation': 'CAC measures how much it costs to acquire each new customer. It\'s crucial for understanding the efficiency of your marketing and sales efforts.',
+      'hint': 'It measures the cost effectiveness of gaining new customers.',
+      'learning_tip': 'Compare your CAC with customer lifetime value (LTV) to ensure profitability.'
+    },
+    {
+      'id': 11,
+      'question': 'What is the main difference between a product and a service?',
+      'options': [
+        'Products are tangible, services are intangible',
+        'Products are cheaper than services',
+        'Services don\'t require marketing',
+        'Products can be stored, services cannot'
+      ],
+      'correct_answer': 0,
+      'category': 'business_fundamentals',
+      'difficulty': 'beginner',
+      'explanation': 'Products are physical items that customers can touch and own, while services are intangible experiences or actions performed for customers.',
+      'hint': 'Think about what you can hold in your hand vs. what you experience.',
+      'learning_tip': 'Understanding this difference helps you choose the right business model and marketing strategies.'
+    },
+    {
+      'id': 12,
+      'question': 'Which of these is NOT a common pricing strategy?',
+      'options': [
+        'Cost-plus pricing',
+        'Value-based pricing',
+        'Competition-based pricing',
+        'Random pricing'
+      ],
+      'correct_answer': 3,
+      'category': 'pricing_strategy',
+      'difficulty': 'beginner',
+      'explanation': 'Random pricing is not a legitimate pricing strategy. Businesses use cost-plus, value-based, or competition-based pricing to set prices strategically.',
+      'hint': 'Businesses set prices for specific business reasons, not randomly.',
+      'learning_tip': 'Choose a pricing strategy that aligns with your business goals and target market.'
+    },
+    {
+      'id': 13,
+      'question': 'What does ROI stand for in business?',
+      'options': [
+        'Return on Investment',
+        'Rate of Income',
+        'Revenue on Inventory',
+        'Return of Interest'
+      ],
+      'correct_answer': 0,
+      'category': 'financial_management',
+      'difficulty': 'beginner',
+      'explanation': 'ROI (Return on Investment) measures the profitability of an investment by comparing the gain or loss relative to the cost.',
+      'hint': 'It\'s a percentage that shows how much profit you make from your investment.',
+      'learning_tip': 'Always calculate ROI before making business investments to ensure they\'re worthwhile.'
+    },
+    {
+      'id': 14,
+      'question': 'What is a target market?',
+      'options': [
+        'The location of your business',
+        'The group of customers most likely to buy your product',
+        'Your business competitors',
+        'Your marketing budget'
+      ],
+      'correct_answer': 1,
+      'category': 'market_research',
+      'difficulty': 'beginner',
+      'explanation': 'A target market is a specific group of customers who are most likely to buy your products or services based on demographics, interests, and needs.',
+      'hint': 'It\'s about knowing who your ideal customers are.',
+      'learning_tip': 'Define your target market clearly to focus your marketing efforts effectively.'
+    },
+    {
+      'id': 15,
+      'question': 'Which of these is a fixed cost for most businesses?',
+      'options': [
+        'Raw materials',
+        'Rent',
+        'Packaging',
+        'Shipping'
+      ],
+      'correct_answer': 1,
+      'category': 'financial_management',
+      'difficulty': 'beginner',
+      'explanation': 'Fixed costs remain the same regardless of business activity level, like rent, insurance, and salaries. Variable costs change with production volume.',
+      'hint': 'It doesn\'t change based on how much you sell.',
+      'learning_tip': 'Understanding fixed vs. variable costs helps with pricing and profitability analysis.'
+    },
+    {
+      'id': 16,
+      'question': 'What is a competitive advantage?',
+      'options': [
+        'Having the lowest prices',
+        'Something that makes your business better than competitors',
+        'Having the most employees',
+        'Being the oldest business in town'
+      ],
+      'correct_answer': 1,
+      'category': 'strategic_planning',
+      'difficulty': 'intermediate',
+      'explanation': 'A competitive advantage is any factor that allows a company to provide value to customers better than its competitors, such as unique products, better service, or cost efficiency.',
+      'hint': 'It\'s what sets you apart from the competition.',
+      'learning_tip': 'Identify and leverage your competitive advantages to stand out in the market.'
+    },
+    {
+      'id': 17,
+      'question': 'What is the break-even point?',
+      'options': [
+        'When you start making a profit',
+        'When revenue equals total costs',
+        'When you have no more debt',
+        'When you reach your sales goal'
+      ],
+      'correct_answer': 1,
+      'category': 'financial_management',
+      'difficulty': 'intermediate',
+      'explanation': 'The break-even point is when total revenue equals total costs, meaning you\'re neither making nor losing money.',
+      'hint': 'It\'s the point where you stop losing money.',
+      'learning_tip': 'Calculate your break-even point to understand how much you need to sell to be profitable.'
+    },
+    {
+      'id': 18,
+      'question': 'What is a value proposition?',
+      'options': [
+        'Your product\'s price',
+        'The unique value your product offers customers',
+        'Your business location',
+        'Your marketing budget'
+      ],
+      'correct_answer': 1,
+      'category': 'marketing',
+      'difficulty': 'intermediate',
+      'explanation': 'A value proposition is a clear statement of the unique value your product or service provides to customers and why they should choose you over competitors.',
+      'hint': 'It\'s about what makes your offering special and valuable.',
+      'learning_tip': 'Craft a compelling value proposition to attract and retain customers.'
+    },
+    {
+      'id': 19,
+      'question': 'What is market penetration?',
+      'options': [
+        'Entering a new market',
+        'Selling more in your existing market',
+        'Reducing your prices',
+        'Expanding your product line'
+      ],
+      'correct_answer': 1,
+      'category': 'marketing',
+      'difficulty': 'intermediate',
+      'explanation': 'Market penetration involves selling more of your existing products to your existing market through strategies like increasing market share or frequency of purchase.',
+      'hint': 'It\'s about growing within your current market.',
+      'learning_tip': 'Market penetration is often the first growth strategy businesses should consider.'
+    },
+    {
+      'id': 20,
+      'question': 'What is a pivot in startup terminology?',
+      'options': [
+        'Changing your business direction significantly',
+        'Hiring new employees',
+        'Moving to a new location',
+        'Increasing your prices'
+      ],
+      'correct_answer': 0,
+      'category': 'strategic_planning',
+      'difficulty': 'intermediate',
+      'explanation': 'A pivot is a fundamental change in a business strategy, often involving changing the product, target market, or business model when the original approach isn\'t working.',
+      'hint': 'It\'s when you change course dramatically.',
+      'learning_tip': 'Be willing to pivot when data shows your current strategy isn\'t working.'
+    },
+    {
+      'id': 21,
+      'question': 'What is the customer acquisition cost (CAC) payback period?',
+      'options': [
+        'How long it takes to recover CAC through customer revenue',
+        'How long customers stay with your business',
+        'How much customers spend in their first purchase',
+        'How many customers you acquire per month'
+      ],
+      'correct_answer': 0,
+      'category': 'financial_management',
+      'difficulty': 'advanced',
+      'explanation': 'CAC payback period is the time it takes for a customer to generate enough revenue to cover the cost of acquiring them.',
+      'hint': 'It measures how quickly you recover your customer acquisition investment.',
+      'learning_tip': 'Aim for a CAC payback period of 12 months or less for sustainable growth.'
+    },
+    {
+      'id': 22,
+      'question': 'What is a cohort analysis?',
+      'options': [
+        'Analyzing groups of customers who joined at the same time',
+        'Comparing different market segments',
+        'Tracking competitor performance',
+        'Measuring employee productivity'
+      ],
+      'correct_answer': 0,
+      'category': 'analytics',
+      'difficulty': 'advanced',
+      'explanation': 'Cohort analysis groups customers by shared characteristics (like signup date) and tracks their behavior over time to understand retention and engagement patterns.',
+      'hint': 'It\'s about studying groups of customers with similar characteristics.',
+      'learning_tip': 'Use cohort analysis to understand customer lifetime value and retention strategies.'
+    },
+    {
+      'id': 23,
+      'question': 'What is the concept of "product-market fit"?',
+      'options': [
+        'When your product is ready for market',
+        'When customers love your product and it sells itself',
+        'When you have enough funding',
+        'When your product is better than competitors'
+      ],
+      'correct_answer': 1,
+      'category': 'product_development',
+      'difficulty': 'advanced',
+      'explanation': 'Product-market fit occurs when your product satisfies a strong market demand and customers are enthusiastic about it, often evidenced by high retention and organic growth.',
+      'hint': 'It\'s when your product meets a real need that customers are excited about.',
+      'learning_tip': 'Focus on achieving product-market fit before scaling your business.'
+    },
+    {
+      'id': 24,
+      'question': 'What is a SaaS business model?',
+      'options': [
+        'Software as a Service - subscription-based software delivery',
+        'Sell as a Service - focus on sales',
+        'Support as a Service - customer service model',
+        'Scale as a Service - growth consulting'
+      ],
+      'correct_answer': 0,
+      'category': 'business_models',
+      'difficulty': 'advanced',
+      'explanation': 'SaaS (Software as a Service) is a software delivery model where customers pay a subscription fee to access software hosted by the provider, rather than purchasing it outright.',
+      'hint': 'It\'s subscription-based software that you access online.',
+      'learning_tip': 'SaaS businesses benefit from recurring revenue and scalable delivery.'
+    },
+    {
+      'id': 25,
+      'question': 'What is the difference between gross margin and net margin?',
+      'options': [
+        'Gross margin excludes all expenses, net margin includes everything',
+        'Gross margin is revenue minus COGS, net margin is after all expenses',
+        'Gross margin is for products, net margin is for services',
+        'There is no difference'
+      ],
+      'correct_answer': 1,
+      'category': 'financial_management',
+      'difficulty': 'advanced',
+      'explanation': 'Gross margin is revenue minus cost of goods sold (COGS). Net margin is gross profit minus all operating expenses, taxes, and other costs.',
+      'hint': 'Gross margin shows profitability from sales, net margin shows overall profitability.',
+      'learning_tip': 'Monitor both margins to understand different aspects of your business profitability.'
+    },
+    {
+      'id': 26,
+      'question': 'What is a key performance indicator (KPI)?',
+      'options': [
+        'A measure of business performance',
+        'A type of employee evaluation',
+        'A financial statement',
+        'A marketing campaign'
+      ],
+      'correct_answer': 0,
+      'category': 'analytics',
+      'difficulty': 'intermediate',
+      'explanation': 'KPIs are measurable values that demonstrate how effectively a company is achieving key business objectives.',
+      'hint': 'It\'s a metric that shows if you\'re meeting your goals.',
+      'learning_tip': 'Choose KPIs that align with your business objectives and track them regularly.'
+    },
+    {
+      'id': 27,
+      'question': 'What is A/B testing?',
+      'options': [
+        'Testing two versions of something to see which performs better',
+        'A type of financial audit',
+        'Employee performance testing',
+        'Product quality testing'
+      ],
+      'correct_answer': 0,
+      'category': 'marketing',
+      'difficulty': 'intermediate',
+      'explanation': 'A/B testing compares two versions of a webpage, email, or other marketing element to determine which one performs better.',
+      'hint': 'It\'s about comparing option A vs. option B.',
+      'learning_tip': 'Use A/B testing to optimize your marketing and improve conversion rates.'
+    },
+    {
+      'id': 28,
+      'question': 'What is the customer journey?',
+      'options': [
+        'The path customers take from discovering to buying your product',
+        'A travel itinerary for business trips',
+        'The process of hiring customers',
+        'A customer feedback survey'
+      ],
+      'correct_answer': 0,
+      'category': 'customer_experience',
+      'difficulty': 'intermediate',
+      'explanation': 'The customer journey maps all the touchpoints and experiences a customer has with your brand from initial awareness to post-purchase.',
+      'hint': 'It\'s the complete experience customers have with your business.',
+      'learning_tip': 'Map your customer journey to identify opportunities for improvement.'
+    },
+    {
+      'id': 29,
+      'question': 'What is churn rate?',
+      'options': [
+        'How fast your business is growing',
+        'The rate at which customers stop using your service',
+        'Your monthly revenue growth',
+        'Employee turnover rate'
+      ],
+      'correct_answer': 1,
+      'category': 'analytics',
+      'difficulty': 'advanced',
+      'explanation': 'Churn rate measures the percentage of customers who stop using your product or service over a given period.',
+      'hint': 'It measures customer loss, not gain.',
+      'learning_tip': 'Monitor churn rate closely and implement retention strategies to reduce it.'
+    },
+    {
+      'id': 30,
+      'question': 'What is a minimum viable product (MVP)?',
+      'options': [
+        'The cheapest product you can make',
+        'The simplest version of your product that solves the core problem',
+        'Your first product prototype',
+        'A product with minimum features'
+      ],
+      'correct_answer': 1,
+      'category': 'product_development',
+      'difficulty': 'intermediate',
+      'explanation': 'An MVP is the most basic version of your product that allows you to test your business hypothesis with real customers and gather feedback.',
+      'hint': 'It\'s about testing your idea with the least effort possible.',
+      'learning_tip': 'Launch an MVP early to validate your assumptions and learn from real users.'
     }
   ];
-
-  // Get quiz questions
   static List<Map<String, dynamic>> getQuizQuestions() {
     return _quizQuestions;
   }
@@ -176,13 +524,16 @@ class QuizService {
       }
 
       double percentage = (correctAnswers / totalQuestions) * 100;
-      String level = _determineUserLevel(percentage, categoryScores);
+
+      // Get current level for advancement logic
+      String currentLevel = await getUserLevel();
+      String newLevel = _determineUserLevel(percentage, currentLevel);
 
       var result = QuizResult(
         totalQuestions: totalQuestions,
         correctAnswers: correctAnswers,
         percentage: percentage,
-        level: level,
+        level: newLevel,
         categoryScores: categoryScores,
         difficultyScores: difficultyScores,
         timestamp: DateTime.now(),
@@ -191,8 +542,10 @@ class QuizService {
       // Save quiz result
       await _saveQuizResult(result);
 
-      // Update user level
-      await updateUserLevel(level);
+      // Update user level only if advanced
+      if (newLevel != currentLevel) {
+        await updateUserLevel(newLevel);
+      }
 
       return result;
     } catch (e) {
@@ -204,24 +557,27 @@ class QuizService {
   }
 
   // Determine user level based on performance
-  static String _determineUserLevel(
-      double percentage, Map<String, int> categoryScores) {
-    if (percentage >= 90) {
-      return 'expert';
-    } else if (percentage >= 75) {
-      return 'advanced';
-    } else if (percentage >= 60) {
-      return 'intermediate';
-    } else if (percentage >= 40) {
-      return 'beginner';
-    } else {
-      return 'novice';
+  static String _determineUserLevel(double percentage, String currentLevel) {
+    // Only advance if score >= 70%
+    if (percentage >= 70) {
+      if (currentLevel == 'beginner') {
+        return 'intermediate';
+      } else if (currentLevel == 'intermediate') {
+        return 'advanced';
+      }
     }
+
+    // Stay at current level if score < 70% or already at advanced
+    return currentLevel;
   }
 
   // Get user's current level
   static Future<String> getUserLevel() async {
-    return await FirebaseDataService.getString(_userLevelKey) ?? 'novice';
+    try {
+      return await FirebaseDataService.getString(_userLevelKey) ?? 'beginner';
+    } catch (e) {
+      return 'beginner';
+    }
   }
 
   // Update user level
@@ -339,44 +695,31 @@ class QuizService {
     List<String> recommendations = [];
 
     switch (level) {
-      case 'novice':
-        recommendations = [
-          'Start with basic business concepts',
-          'Learn about market research fundamentals',
-          'Understand the importance of customer validation',
-          'Study successful startup case studies'
-        ];
-        break;
       case 'beginner':
         recommendations = [
-          'Focus on business plan development',
-          'Learn about different funding options',
-          'Practice networking and communication',
-          'Study your target market in detail'
+          'Start with basic business concepts and terminology',
+          'Learn about market research fundamentals',
+          'Understand the importance of customer validation',
+          'Study successful startup case studies',
+          'Practice creating simple business plans'
         ];
         break;
       case 'intermediate':
         recommendations = [
-          'Develop advanced financial modeling skills',
-          'Learn about scaling strategies',
-          'Focus on team building and leadership',
-          'Study competitive analysis techniques'
+          'Focus on business plan development and financial projections',
+          'Learn about different funding options and pitching',
+          'Practice networking and communication skills',
+          'Study your target market in detail',
+          'Learn about product development and MVP creation'
         ];
         break;
       case 'advanced':
         recommendations = [
-          'Master investor relations and pitching',
-          'Learn about international expansion',
-          'Focus on strategic partnerships',
-          'Study advanced growth strategies'
-        ];
-        break;
-      case 'expert':
-        recommendations = [
-          'Mentor other entrepreneurs',
-          'Share your expertise through content',
-          'Focus on innovation and disruption',
-          'Consider angel investing or advising'
+          'Develop advanced financial modeling and analysis skills',
+          'Learn about scaling strategies and operations',
+          'Focus on team building and leadership development',
+          'Study competitive analysis and strategic planning',
+          'Master investor relations and advanced pitching techniques'
         ];
         break;
     }

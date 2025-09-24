@@ -2,6 +2,7 @@
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import '../core/services/openrouter_ai_service.dart';
+import '../core/services/firebase_data_service.dart';
 
 class BusinessScreen extends StatefulWidget {
   const BusinessScreen({super.key});
@@ -14,6 +15,9 @@ class _BusinessScreenState extends State<BusinessScreen>
     with TickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
+
+  // Loading states
+  bool _isLoadingHistory = true;
 
   // Store generated business plans
   final List<BusinessPlanHistory> _businessPlanHistory = [];
@@ -65,6 +69,54 @@ class _BusinessScreenState extends State<BusinessScreen>
     ));
 
     _animationController.forward();
+    _loadBusinessHistory();
+  }
+
+  Future<void> _loadBusinessHistory() async {
+    setState(() {
+      _isLoadingHistory = true;
+    });
+
+    try {
+      // Load business plans
+      final businessPlansData = await FirebaseDataService.getList('business_plans') ?? [];
+      _businessPlanHistory.clear();
+      for (final planData in businessPlansData) {
+        if (planData is Map<String, dynamic>) {
+          _businessPlanHistory.add(BusinessPlanHistory(
+            id: planData['id'] ?? DateTime.now().millisecondsSinceEpoch.toString(),
+            companyName: planData['companyName'] ?? '',
+            industry: planData['industry'] ?? '',
+            businessPlan: planData['businessPlan'] ?? '',
+            createdAt: planData['createdAt'] != null
+                ? DateTime.parse(planData['createdAt'])
+                : DateTime.now(),
+          ));
+        }
+      }
+
+      // Load market research
+      final marketResearchData = await FirebaseDataService.getList('market_research') ?? [];
+      _marketResearchHistory.clear();
+      _marketResearchHistory.addAll(marketResearchData.map((item) => item as Map<String, dynamic>));
+
+      // Load SWOT analysis
+      final swotData = await FirebaseDataService.getList('swot_analysis') ?? [];
+      _swotAnalysisHistory.clear();
+      _swotAnalysisHistory.addAll(swotData.map((item) => item as Map<String, dynamic>));
+
+      // Load business model canvas
+      final canvasData = await FirebaseDataService.getList('business_model_canvas') ?? [];
+      _businessModelCanvasHistory.clear();
+      _businessModelCanvasHistory.addAll(canvasData.map((item) => item as Map<String, dynamic>));
+
+    } catch (e) {
+      print('Error loading business history: $e');
+    } finally {
+      setState(() {
+        _isLoadingHistory = false;
+      });
+    }
   }
 
   @override
@@ -431,6 +483,18 @@ class _BusinessScreenState extends State<BusinessScreen>
   }
 
   Widget _buildBusinessPlanHistory() {
+    if (_isLoadingHistory) {
+      return FadeTransition(
+        opacity: _fadeAnimation,
+        child: const Center(
+          child: Padding(
+            padding: EdgeInsets.all(32),
+            child: CircularProgressIndicator(),
+          ),
+        ),
+      );
+    }
+
     return FadeTransition(
       opacity: _fadeAnimation,
       child: Column(
@@ -445,16 +509,16 @@ class _BusinessScreenState extends State<BusinessScreen>
             isEmpty: _businessPlanHistory.isEmpty,
             emptyTitle: 'No Business Plans Yet',
             emptyDescription: 'Generate your first business plan using the AI Business Plan Generator!',
-            children: _businessPlanHistory.map((plan) => 
+            children: _businessPlanHistory.map((plan) =>
               Padding(
                 padding: const EdgeInsets.only(bottom: 12),
                 child: _buildBusinessPlanHistoryCard(plan),
               ),
             ).toList(),
           ),
-          
+
           const SizedBox(height: 32),
-          
+
           // Market Research History Section
           _buildHistorySection(
             title: 'Market Research History',
@@ -617,10 +681,26 @@ class _BusinessScreenState extends State<BusinessScreen>
             child: const Text('Cancel'),
           ),
           ElevatedButton(
-            onPressed: () {
+            onPressed: () async {
+              // Remove from local state
               setState(() {
                 _businessPlanHistory.removeWhere((plan) => plan.id == id);
               });
+
+              // Update Firebase
+              try {
+                final plansData = _businessPlanHistory.map((plan) => {
+                  'id': plan.id,
+                  'companyName': plan.companyName,
+                  'industry': plan.industry,
+                  'businessPlan': plan.businessPlan,
+                  'createdAt': plan.createdAt.toIso8601String(),
+                }).toList();
+                await FirebaseDataService.setList('business_plans', plansData);
+              } catch (e) {
+                print('Error updating Firebase after business plan deletion: $e');
+              }
+
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Business plan deleted')),
@@ -649,10 +729,19 @@ class _BusinessScreenState extends State<BusinessScreen>
             child: const Text('Cancel'),
           ),
           ElevatedButton(
-            onPressed: () {
+            onPressed: () async {
+              // Remove from local state
               setState(() {
                 _marketResearchHistory.removeWhere((research) => research['id'] == id);
               });
+
+              // Update Firebase
+              try {
+                await FirebaseDataService.setList('market_research', _marketResearchHistory);
+              } catch (e) {
+                print('Error updating Firebase after market research deletion: $e');
+              }
+
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Market research deleted')),
@@ -681,10 +770,19 @@ class _BusinessScreenState extends State<BusinessScreen>
             child: const Text('Cancel'),
           ),
           ElevatedButton(
-            onPressed: () {
+            onPressed: () async {
+              // Remove from local state
               setState(() {
                 _swotAnalysisHistory.removeWhere((swot) => swot['id'] == id);
               });
+
+              // Update Firebase
+              try {
+                await FirebaseDataService.setList('swot_analysis', _swotAnalysisHistory);
+              } catch (e) {
+                print('Error updating Firebase after SWOT analysis deletion: $e');
+              }
+
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('SWOT analysis deleted')),
@@ -713,10 +811,19 @@ class _BusinessScreenState extends State<BusinessScreen>
             child: const Text('Cancel'),
           ),
           ElevatedButton(
-            onPressed: () {
+            onPressed: () async {
+              // Remove from local state
               setState(() {
                 _businessModelCanvasHistory.removeWhere((canvas) => canvas['id'] == id);
               });
+
+              // Update Firebase
+              try {
+                await FirebaseDataService.setList('business_model_canvas', _businessModelCanvasHistory);
+              } catch (e) {
+                print('Error updating Firebase after business model canvas deletion: $e');
+              }
+
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Business model canvas deleted')),
@@ -737,12 +844,12 @@ class _BusinessScreenState extends State<BusinessScreen>
     required String companyName,
     required String industry,
     required String businessPlan,
-  }) {
+  }) async {
     print('📚 _addToBusinessPlanHistory called');
     print('   Company Name: $companyName');
     print('   Industry: $industry');
     print('   Business Plan Length: ${businessPlan.length} characters');
-    
+
     final newPlan = BusinessPlanHistory(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       companyName: companyName,
@@ -750,9 +857,34 @@ class _BusinessScreenState extends State<BusinessScreen>
       businessPlan: businessPlan,
       createdAt: DateTime.now(),
     );
-    
+
     print('   Created new BusinessPlanHistory with ID: ${newPlan.id}');
-    
+
+    // Save to Firebase
+    try {
+      final plansData = _businessPlanHistory.map((plan) => {
+        'id': plan.id,
+        'companyName': plan.companyName,
+        'industry': plan.industry,
+        'businessPlan': plan.businessPlan,
+        'createdAt': plan.createdAt.toIso8601String(),
+      }).toList();
+
+      // Add the new plan to the list
+      plansData.insert(0, {
+        'id': newPlan.id,
+        'companyName': newPlan.companyName,
+        'industry': newPlan.industry,
+        'businessPlan': newPlan.businessPlan,
+        'createdAt': newPlan.createdAt.toIso8601String(),
+      });
+
+      await FirebaseDataService.setList('business_plans', plansData);
+      print('   ✅ Business plan saved to Firebase');
+    } catch (e) {
+      print('   ❌ Error saving business plan to Firebase: $e');
+    }
+
     setState(() {
       _businessPlanHistory.insert(0, newPlan); // Add to beginning of list
       print('   Added to history. Total plans: ${_businessPlanHistory.length}');
@@ -764,12 +896,12 @@ class _BusinessScreenState extends State<BusinessScreen>
     required String targetMarket,
     required String location,
     required String analysis,
-  }) {
+  }) async {
     print('📊 _addToMarketResearchHistory called');
     print('   Industry: $industry');
     print('   Target Market: $targetMarket');
     print('   Location: $location');
-    
+
     final marketResearch = {
       'id': DateTime.now().millisecondsSinceEpoch.toString(),
       'industry': industry,
@@ -778,11 +910,20 @@ class _BusinessScreenState extends State<BusinessScreen>
       'analysis': analysis,
       'createdAt': DateTime.now().toIso8601String(),
     };
-    
+
+    // Save to Firebase
+    try {
+      final researchData = [..._marketResearchHistory, marketResearch];
+      await FirebaseDataService.setList('market_research', researchData);
+      print('   ✅ Market research saved to Firebase');
+    } catch (e) {
+      print('   ❌ Error saving market research to Firebase: $e');
+    }
+
     setState(() {
       _marketResearchHistory.insert(0, marketResearch); // Add to beginning of list
     });
-    
+
     print('   Created new Market Research with ID: ${marketResearch['id']}');
     print('   Added to history. Total analyses: ${_marketResearchHistory.length}');
     print('✅ Market research saved successfully');
@@ -895,12 +1036,12 @@ class _BusinessScreenState extends State<BusinessScreen>
     required String industry,
     required String businessModel,
     required Map<String, String> swotData,
-  }) {
+  }) async {
     print('📊 _addToSWOTAnalysisHistory called');
     print('   Business Name: $businessName');
     print('   Industry: $industry');
     print('   Business Model: $businessModel');
-    
+
     final swotAnalysis = {
       'id': DateTime.now().millisecondsSinceEpoch.toString(),
       'businessName': businessName,
@@ -909,11 +1050,20 @@ class _BusinessScreenState extends State<BusinessScreen>
       'swotData': swotData,
       'createdAt': DateTime.now().toIso8601String(),
     };
-    
+
+    // Save to Firebase
+    try {
+      final swotDataList = [..._swotAnalysisHistory, swotAnalysis];
+      await FirebaseDataService.setList('swot_analysis', swotDataList);
+      print('   ✅ SWOT analysis saved to Firebase');
+    } catch (e) {
+      print('   ❌ Error saving SWOT analysis to Firebase: $e');
+    }
+
     setState(() {
       _swotAnalysisHistory.insert(0, swotAnalysis); // Add to beginning of list
     });
-    
+
     print('   Created new SWOT Analysis with ID: ${swotAnalysis['id']}');
     print('   Added to history. Total analyses: ${_swotAnalysisHistory.length}');
     print('✅ SWOT analysis saved successfully');
@@ -1044,14 +1194,12 @@ class _BusinessScreenState extends State<BusinessScreen>
     required String industry,
     required String businessModel,
     required Map<String, String> canvasData,
-  }) {
+  }) async {
     print('📊 _addToBusinessModelCanvasHistory called');
     print('   Business Name: $businessName');
     print('   Industry: $industry');
     print('   Business Model: $businessModel');
-    
-    // For now, we'll store in shared preferences as JSON
-    // In a real app, this would go to a database
+
     final businessModelCanvas = {
       'id': DateTime.now().millisecondsSinceEpoch.toString(),
       'businessName': businessName,
@@ -1060,11 +1208,20 @@ class _BusinessScreenState extends State<BusinessScreen>
       'canvasData': canvasData,
       'createdAt': DateTime.now().toIso8601String(),
     };
-    
+
+    // Save to Firebase
+    try {
+      final canvasDataList = [..._businessModelCanvasHistory, businessModelCanvas];
+      await FirebaseDataService.setList('business_model_canvas', canvasDataList);
+      print('   ✅ Business Model Canvas saved to Firebase');
+    } catch (e) {
+      print('   ❌ Error saving Business Model Canvas to Firebase: $e');
+    }
+
     setState(() {
       _businessModelCanvasHistory.insert(0, businessModelCanvas); // Add to beginning of list
     });
-    
+
     print('   Created new Business Model Canvas with ID: ${businessModelCanvas['id']}');
     print('   Added to history. Total canvases: ${_businessModelCanvasHistory.length}');
     print('✅ Business Model Canvas saved successfully');
