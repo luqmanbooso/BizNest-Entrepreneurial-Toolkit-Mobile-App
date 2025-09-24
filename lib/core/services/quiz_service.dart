@@ -20,7 +20,7 @@ class QuizService {
       ],
       'correct_answer': 1,
       'category': 'business_planning',
-      'difficulty': 'beginner',
+      'difficulty': 'novice',
       'explanation': 'A business plan serves as a roadmap for your business, outlining your strategy, goals, and how you plan to achieve them. While securing funding is important, the primary purpose is to provide a clear direction for your business operations.',
       'hint': 'Think about what guides your business decisions and operations.',
       'learning_tip': 'A good business plan should be reviewed and updated regularly as your business evolves.'
@@ -37,7 +37,7 @@ class QuizService {
       ],
       'correct_answer': 2,
       'category': 'market_research',
-      'difficulty': 'beginner',
+      'difficulty': 'novice',
       'explanation': 'Market research focuses on objective data about markets, customers, and competitors. Personal preferences are subjective and not part of formal market research methodology.',
       'hint': 'Market research should be based on data, not personal opinions.',
       'learning_tip': 'Always validate your assumptions with real market data before making business decisions.'
@@ -108,7 +108,7 @@ class QuizService {
       ],
       'correct_answer': 1,
       'category': 'strategic_planning',
-      'difficulty': 'beginner',
+      'difficulty': 'novice',
       'explanation': 'SWOT (Strengths, Weaknesses, Opportunities, Threats) analysis helps you understand your internal capabilities and external environment.',
       'hint': 'It examines both internal and external factors affecting your business.',
       'learning_tip': 'Conduct SWOT analysis regularly as your business and market conditions change.'
@@ -137,7 +137,7 @@ class QuizService {
       ],
       'correct_answer': 1,
       'category': 'networking',
-      'difficulty': 'beginner',
+      'difficulty': 'novice',
       'explanation': 'Networking provides access to mentors, partners, investors, customers, and other valuable resources that can accelerate your business growth.',
       'hint': 'It\'s about building relationships that provide value to your business.',
       'learning_tip': 'Focus on building genuine relationships rather than just collecting business cards.'
@@ -170,7 +170,7 @@ class QuizService {
       ],
       'correct_answer': 0,
       'category': 'business_fundamentals',
-      'difficulty': 'beginner',
+      'difficulty': 'novice',
       'explanation': 'Products are physical items that customers can touch and own, while services are intangible experiences or actions performed for customers.',
       'hint': 'Think about what you can hold in your hand vs. what you experience.',
       'learning_tip': 'Understanding this difference helps you choose the right business model and marketing strategies.'
@@ -186,7 +186,7 @@ class QuizService {
       ],
       'correct_answer': 3,
       'category': 'pricing_strategy',
-      'difficulty': 'beginner',
+      'difficulty': 'novice',
       'explanation': 'Random pricing is not a legitimate pricing strategy. Businesses use cost-plus, value-based, or competition-based pricing to set prices strategically.',
       'hint': 'Businesses set prices for specific business reasons, not randomly.',
       'learning_tip': 'Choose a pricing strategy that aligns with your business goals and target market.'
@@ -202,7 +202,7 @@ class QuizService {
       ],
       'correct_answer': 0,
       'category': 'financial_management',
-      'difficulty': 'beginner',
+      'difficulty': 'novice',
       'explanation': 'ROI (Return on Investment) measures the profitability of an investment by comparing the gain or loss relative to the cost.',
       'hint': 'It\'s a percentage that shows how much profit you make from your investment.',
       'learning_tip': 'Always calculate ROI before making business investments to ensure they\'re worthwhile.'
@@ -218,7 +218,7 @@ class QuizService {
       ],
       'correct_answer': 1,
       'category': 'market_research',
-      'difficulty': 'beginner',
+      'difficulty': 'novice',
       'explanation': 'A target market is a specific group of customers who are most likely to buy your products or services based on demographics, interests, and needs.',
       'hint': 'It\'s about knowing who your ideal customers are.',
       'learning_tip': 'Define your target market clearly to focus your marketing efforts effectively.'
@@ -234,7 +234,7 @@ class QuizService {
       ],
       'correct_answer': 1,
       'category': 'financial_management',
-      'difficulty': 'beginner',
+      'difficulty': 'novice',
       'explanation': 'Fixed costs remain the same regardless of business activity level, like rent, insurance, and salaries. Variable costs change with production volume.',
       'hint': 'It doesn\'t change based on how much you sell.',
       'learning_tip': 'Understanding fixed vs. variable costs helps with pricing and profitability analysis.'
@@ -558,25 +558,25 @@ class QuizService {
 
   // Determine user level based on performance
   static String _determineUserLevel(double percentage, String currentLevel) {
-    // Only advance if score >= 70%
-    if (percentage >= 70) {
-      if (currentLevel == 'beginner') {
+    // Only advance if score >= 60%
+    if (percentage >= 60) {
+      if (currentLevel == 'novice') {
         return 'intermediate';
       } else if (currentLevel == 'intermediate') {
         return 'advanced';
       }
     }
 
-    // Stay at current level if score < 70% or already at advanced
+    // Stay at current level if score < 60% or already at advanced
     return currentLevel;
   }
 
   // Get user's current level
   static Future<String> getUserLevel() async {
     try {
-      return await FirebaseDataService.getString(_userLevelKey) ?? 'beginner';
+      return await FirebaseDataService.getString(_userLevelKey) ?? 'novice';
     } catch (e) {
-      return 'beginner';
+      return 'novice';
     }
   }
 
@@ -695,7 +695,7 @@ class QuizService {
     List<String> recommendations = [];
 
     switch (level) {
-      case 'beginner':
+      case 'novice':
         recommendations = [
           'Start with basic business concepts and terminology',
           'Learn about market research fundamentals',

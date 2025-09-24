@@ -576,14 +576,10 @@ class _TutorialScreenState extends State<TutorialScreen>
     switch (difficulty.toLowerCase()) {
       case 'novice':
         return Colors.green;
-      case 'beginner':
-        return Colors.blue;
       case 'intermediate':
         return Colors.orange;
       case 'advanced':
         return Colors.red;
-      case 'expert':
-        return Colors.purple;
       default:
         return Colors.grey;
     }

@@ -22,7 +22,7 @@ class _QuizScreenState extends State<QuizScreen> {
   final List<Map<String, dynamic>> _answers = [];
   final List<bool> _answerCorrectness = [];
   QuizResult? _quizResult;
-  String _userLevel = 'beginner';
+  String _userLevel = 'novice';
   DateTime? _questionStartTime;
 
   @override
@@ -38,8 +38,8 @@ class _QuizScreenState extends State<QuizScreen> {
       _userLevel = level;
 
       if (_questions.isEmpty) {
-        // Show 8 questions for beginners, 10 for intermediate, 12 for advanced
-        int questionCount = _userLevel == 'beginner' ? 8 : _userLevel == 'intermediate' ? 10 : 12;
+        // Show 8 questions for novices, 10 for intermediate, 12 for advanced
+        int questionCount = _userLevel == 'novice' ? 8 : _userLevel == 'intermediate' ? 10 : 12;
         _questions = QuizService.getQuizQuestions().take(questionCount).toList();
       }
 
@@ -157,6 +157,7 @@ class _QuizScreenState extends State<QuizScreen> {
   }
 
   Widget _buildProgressBar() {
+    if (_questions.isEmpty) return const SizedBox();
     final progress = (_currentQuestionIndex + 1) / _questions.length;
 
     return Column(
@@ -225,12 +226,18 @@ class _QuizScreenState extends State<QuizScreen> {
             color: Colors.white.withOpacity(0.2),
             borderRadius: BorderRadius.circular(3),
           ),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 300),
-            width: MediaQuery.of(context).size.width * progress,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(3),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(3),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                width: _questions.isEmpty ? 0 : MediaQuery.of(context).size.width * progress,
+                height: 6,
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                ),
+              ),
             ),
           ),
         ),
@@ -436,24 +443,6 @@ class _QuizScreenState extends State<QuizScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Icon(
-                isCorrect ? Icons.check_circle : Icons.lightbulb,
-                color: isCorrect ? Colors.green : Colors.orange,
-                size: 24,
-              ),
-              const SizedBox(width: 12),
-              Text(
-                isCorrect ? 'Correct!' : 'Incorrect',
-                style: ModernTheme.bodyLarge.copyWith(
-                  color: isCorrect ? Colors.green : Colors.orange,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
           Text(
             question['explanation'],
             style: ModernTheme.bodyMedium.copyWith(
@@ -658,18 +647,6 @@ class _QuizScreenState extends State<QuizScreen> {
               _buildResultRow('Average Time per Question',
                   '${(_answers.fold<int>(0, (sum, answer) => sum + (answer['time_taken'] as int)) / _answers.length).round()}s'),
               _buildResultRow('New Level', _quizResult!.level.toUpperCase()),
-              const SizedBox(height: 20),
-              Text(
-                'Category Performance',
-                style: ModernTheme.bodyLarge.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 12),
-              ..._quizResult!.categoryScores.entries.map((entry) {
-                final percentage = (entry.value / _questions.length) * 100;
-                return _buildCategoryPerformance(entry.key, percentage.round());
-              }),
             ],
           ),
         ),
@@ -1022,20 +999,7 @@ class _ReviewAnswersScreenState extends State<ReviewAnswersScreen> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: isCorrect ? Colors.green.withOpacity(0.8) : Colors.red.withOpacity(0.8),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(
-                        isCorrect ? 'Correct' : 'Incorrect',
-                        style: ModernTheme.bodySmall.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
+                    const SizedBox(width: 40), // Placeholder for symmetry
                   ],
                 ),
               ),

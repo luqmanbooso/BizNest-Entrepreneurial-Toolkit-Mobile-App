@@ -311,37 +311,6 @@ class LearningEngine {
         'badge': 'business_modeler'
       }
     ],
-    'beginner': [
-      {
-        'id': 'beginner_1',
-        'title': 'Creating Your First Business Plan',
-        'description': 'Step-by-step guide to writing a business plan',
-        'duration': 30,
-        'category': 'business_planning',
-        'difficulty': 'beginner',
-        'content': {
-          'sections': [
-            {
-              'title': 'Executive Summary',
-              'content': 'Learn how to write a compelling executive summary...',
-              'type': 'text'
-            },
-            {
-              'title': 'Market Analysis',
-              'content': 'How to analyze your market and competition...',
-              'type': 'text'
-            },
-            {
-              'title': 'Financial Projections',
-              'content': 'Creating realistic financial forecasts...',
-              'type': 'text'
-            }
-          ]
-        },
-        'prerequisites': ['novice_1', 'novice_2'],
-        'badge': 'business_planner'
-      }
-    ],
     'intermediate': [
       {
         'id': 'intermediate_1',
@@ -365,7 +334,7 @@ class LearningEngine {
             }
           ]
         },
-        'prerequisites': ['beginner_1'],
+        'prerequisites': ['novice_1', 'novice_2'],
         'badge': 'financial_expert'
       }
     ],
@@ -431,10 +400,8 @@ class LearningEngine {
       // Get tutorials for current level and below
       for (String level in [
         'novice',
-        'beginner',
         'intermediate',
-        'advanced',
-        'expert'
+        'advanced'
       ]) {
         if (_isLevelAccessible(level, userLevel)) {
           final levelTutorials = _tutorials[level] ?? [];
@@ -459,10 +426,8 @@ class LearningEngine {
   static bool _isLevelAccessible(String level, String userLevel) {
     final levelOrder = [
       'novice',
-      'beginner',
       'intermediate',
-      'advanced',
-      'expert'
+      'advanced'
     ];
     final userIndex = levelOrder.indexOf(userLevel);
     final levelIndex = levelOrder.indexOf(level);
@@ -615,8 +580,8 @@ class LearningEngine {
       newLevel = 'advanced';
     } else if (completedCount >= 10 && currentLevel != 'intermediate') {
       newLevel = 'intermediate';
-    } else if (completedCount >= 5 && currentLevel != 'beginner') {
-      newLevel = 'beginner';
+    } else if (completedCount >= 5 && currentLevel != 'novice') {
+      newLevel = 'novice';
     }
 
     if (newLevel != null) {
