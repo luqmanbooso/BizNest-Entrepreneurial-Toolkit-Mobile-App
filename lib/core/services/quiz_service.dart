@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
-import 'storage_service.dart';
+import 'firebase_data_service.dart';
 
 class QuizService {
   static const String _quizDataKey = 'quiz_data';
@@ -221,12 +221,12 @@ class QuizService {
 
   // Get user's current level
   static Future<String> getUserLevel() async {
-    return await StorageService.getString(_userLevelKey) ?? 'novice';
+    return await FirebaseDataService.getString(_userLevelKey) ?? 'novice';
   }
 
   // Update user level
   static Future<void> updateUserLevel(String level) async {
-    await StorageService.setString(_userLevelKey, level);
+    await FirebaseDataService.setString(_userLevelKey, level);
   }
 
   // Save quiz result
@@ -239,12 +239,12 @@ class QuizService {
       history.removeRange(0, history.length - 10);
     }
 
-    await StorageService.setString(_quizHistoryKey, json.encode(history));
+    await FirebaseDataService.setString(_quizHistoryKey, json.encode(history));
   }
 
   // Get quiz history
   static Future<List<Map<String, dynamic>>> getQuizHistory() async {
-    final historyJson = await StorageService.getString(_quizHistoryKey);
+    final historyJson = await FirebaseDataService.getString(_quizHistoryKey);
     if (historyJson != null) {
       final List<dynamic> historyList = json.decode(historyJson);
       return historyList.cast<Map<String, dynamic>>();
