@@ -6,6 +6,7 @@ import '../core/services/business_intelligence_service.dart';
 import 'business_screen.dart';
 import 'learning_screen.dart';
 import 'profile_screen.dart';
+import 'community_screen.dart';
 
 class ProfessionalDashboardScreen extends StatefulWidget {
   const ProfessionalDashboardScreen({super.key});
@@ -1006,10 +1007,13 @@ class _ProfessionalDashboardScreenState extends State<ProfessionalDashboardScree
                 },
               ),
               _buildNavItem(
-                Icons.person,
-                'Profile',
+                Icons.people,
+                'Community',
                 4,
-                _openProfile,
+                () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const CommunityScreen()),
+                ),
               ),
             ],
           ),
