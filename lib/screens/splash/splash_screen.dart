@@ -96,15 +96,20 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   void _startAnimations() {
-    _logoController.forward();
-    _fadeController.forward();
-    _scaleController.forward();
-    _slideController.forward();
+    // Animations will be started in _checkAuthStatus to ensure proper sequencing
   }
 
   Future<void> _checkAuthStatus() async {
-    // Wait for animations to complete
-    await Future.delayed(const Duration(milliseconds: 2500));
+    // Wait for all animations to complete
+    await Future.wait([
+      _logoController.forward(),
+      _fadeController.forward(),
+      _scaleController.forward(),
+      _slideController.forward(),
+    ]);
+
+    // Add a small additional delay for visual effect
+    await Future.delayed(const Duration(milliseconds: 500));
 
     if (!mounted) return;
 

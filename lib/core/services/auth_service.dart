@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
-import 'storage_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'firebase_data_service.dart';
 import 'api_service.dart';
 import 'firebase_auth_service.dart' as fb;
 
@@ -9,37 +10,69 @@ class AuthService {
   static const String _userKey = 'user_data';
   static const String _refreshTokenKey = 'refresh_token';
 
+  static final FirebaseAuth _auth = FirebaseAuth.instance;
+
   // Current user data
   static Map<String, dynamic>? _currentUser;
   static String? _currentToken;
 
   // Authentication state
-  static bool get isAuthenticated => _currentToken != null;
+  static bool get isAuthenticated => _auth.currentUser != null && _currentToken != null;
   static Map<String, dynamic>? get currentUser => _currentUser;
   static String? get currentToken => _currentToken;
 
   // Initialize auth service
   static Future<void> init() async {
     try {
-      _currentToken = await StorageService.getString(_tokenKey);
-      final userData = await StorageService.getString(_userKey);
-
-      if (userData != null) {
-        _currentUser = json.decode(userData);
-      }
-
-      // Validate token if exists
-      if (_currentToken != null) {
-        final isValid = await _validateToken();
-        if (!isValid) {
-          await logout();
+      // Listen to auth state changes
+      _auth.authStateChanges().listen((User? user) async {
+        if (user != null) {
+          _currentToken = await user.getIdToken();
+          await _loadUserData();
+        } else {
+          _currentToken = null;
+          _currentUser = null;
         }
+      });
+
+      // Check current user
+      final currentUser = _auth.currentUser;
+      if (currentUser != null) {
+        _currentToken = await currentUser.getIdToken();
+        await _loadUserData();
       }
     } catch (e) {
       if (kDebugMode) {
         print('Auth init error: $e');
       }
       await logout();
+    }
+  }
+
+  // Load user data from Firebase
+  static Future<void> _loadUserData() async {
+    try {
+      final userData = await FirebaseDataService.getJson(_userKey);
+      if (userData != null) {
+        _currentUser = userData;
+      } else {
+        // Create user data from Firebase Auth
+        final user = _auth.currentUser;
+        if (user != null) {
+          _currentUser = {
+            'id': user.uid,
+            'name': user.displayName ?? 'User',
+            'email': user.email ?? '',
+            'avatar': user.photoURL ?? '',
+            'role': 'entrepreneur',
+            'company': '',
+            'is_verified': user.emailVerified,
+          };
+          await FirebaseDataService.setJson(_userKey, _currentUser!);
+        }
+      }
+    } catch (e) {
+      print('Error loading user data: $e');
     }
   }
 
@@ -178,7 +211,7 @@ class AuthService {
   // Refresh token
   static Future<AuthResult> refreshToken() async {
     try {
-      final refreshToken = await StorageService.getString(_refreshTokenKey);
+      final refreshToken = await FirebaseDataService.getString(_refreshTokenKey);
       if (refreshToken == null) {
         return AuthResult.error(message: 'No refresh token available');
       }
@@ -191,8 +224,8 @@ class AuthService {
         final newToken = response['data']['token'];
         final newRefreshToken = response['data']['refresh_token'];
 
-        await StorageService.setString(_tokenKey, newToken);
-        await StorageService.setString(_refreshTokenKey, newRefreshToken);
+        await FirebaseDataService.setString(_tokenKey, newToken);
+        await FirebaseDataService.setString(_refreshTokenKey, newRefreshToken);
         _currentToken = newToken;
 
         return AuthResult.success(
@@ -305,7 +338,7 @@ class AuthService {
       if (response['success']) {
         final updatedUser = response['data'];
         _currentUser = updatedUser;
-        await StorageService.setString(_userKey, json.encode(updatedUser));
+        await FirebaseDataService.setJson(_userKey, updatedUser);
 
         return AuthResult.success(
           user: updatedUser,
@@ -393,9 +426,9 @@ class AuthService {
     _currentUser = user;
 
     await Future.wait([
-      StorageService.setString(_tokenKey, token),
-      StorageService.setString(_refreshTokenKey, refreshToken),
-      StorageService.setString(_userKey, json.encode(user)),
+      FirebaseDataService.setString(_tokenKey, token),
+      FirebaseDataService.setString(_refreshTokenKey, refreshToken),
+      FirebaseDataService.setJson(_userKey, user),
     ]);
   }
 
@@ -405,23 +438,10 @@ class AuthService {
     _currentUser = null;
 
     await Future.wait([
-      StorageService.remove(_tokenKey),
-      StorageService.remove(_refreshTokenKey),
-      StorageService.remove(_userKey),
+      FirebaseDataService.remove(_tokenKey),
+      FirebaseDataService.remove(_refreshTokenKey),
+      FirebaseDataService.remove(_userKey),
     ]);
-  }
-
-  // Validate token
-  static Future<bool> _validateToken() async {
-    try {
-      final response = await ApiService.get('/user/profile');
-      return response['success'] ?? false;
-    } catch (e) {
-      if (kDebugMode) {
-        print('Token validation error: $e');
-      }
-      return false;
-    }
   }
 
   // Get user profile
@@ -432,7 +452,7 @@ class AuthService {
       final response = await ApiService.get('/user/profile');
       if (response['success']) {
         _currentUser = response['data'];
-        await StorageService.setString(_userKey, json.encode(_currentUser));
+        await FirebaseDataService.setJson(_userKey, _currentUser!);
         return _currentUser;
       }
     } catch (e) {
