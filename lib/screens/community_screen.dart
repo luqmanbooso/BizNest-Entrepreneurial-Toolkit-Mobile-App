@@ -1241,10 +1241,13 @@ class _ThreadDetailScreenState extends State<ThreadDetailScreen> {
   }
 
   Widget _buildReplyCard(ForumReply reply) {
+    final bool isCurrentUserReply = AuthService.isAuthenticated &&
+        AuthService.currentUser!['id'] == reply.authorId;
+
     return Card(
       elevation: 2,
-      margin: const EdgeInsets.only(bottom: 12),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      margin: const EdgeInsets.only(bottom: 12, left: 16, right: 16),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -1253,24 +1256,51 @@ class _ThreadDetailScreenState extends State<ThreadDetailScreen> {
             Row(
               children: [
                 CircleAvatar(
-                  radius: 16,
+                  radius: 18,
                   backgroundImage: reply.authorAvatar.isNotEmpty
                       ? NetworkImage(reply.authorAvatar)
                       : null,
                   child: reply.authorAvatar.isEmpty
-                      ? Text(reply.authorName[0].toUpperCase())
+                      ? Text(
+                          reply.authorName[0].toUpperCase(),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: ModernTheme.primaryBlue,
+                          ),
+                        )
                       : null,
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        reply.authorName,
-                        style: ModernTheme.bodyMedium.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
+                      Row(
+                        children: [
+                          Text(
+                            reply.authorName,
+                            style: ModernTheme.bodyMedium.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          if (isCurrentUserReply) ...[
+                            const SizedBox(width: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: ModernTheme.primaryBlue.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(
+                                'You',
+                                style: ModernTheme.bodySmall.copyWith(
+                                  color: ModernTheme.primaryBlue,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ],
                       ),
                       Text(
                         _formatTimestamp(reply.createdAt),
@@ -1281,14 +1311,103 @@ class _ThreadDetailScreenState extends State<ThreadDetailScreen> {
                     ],
                   ),
                 ),
+                if (isCurrentUserReply)
+                  PopupMenuButton<String>(
+                    onSelected: (value) => _handleReplyAction(reply, value),
+                    itemBuilder: (context) => [
+                      const PopupMenuItem(
+                        value: 'edit',
+                        child: Row(
+                          children: [
+                            Icon(Icons.edit, size: 18),
+                            SizedBox(width: 8),
+                            Text('Edit'),
+                          ],
+                        ),
+                      ),
+                      const PopupMenuItem(
+                        value: 'delete',
+                        child: Row(
+                          children: [
+                            Icon(Icons.delete, size: 18, color: Colors.red),
+                            SizedBox(width: 8),
+                            Text('Delete', style: TextStyle(color: Colors.red)),
+                          ],
+                        ),
+                      ),
+                    ],
+                    child: const Icon(Icons.more_vert, size: 20, color: Colors.grey),
+                  ),
               ],
             ),
             const SizedBox(height: 12),
             Text(
               reply.content,
               style: ModernTheme.bodyMedium.copyWith(
-                height: 1.4,
+                height: 1.5,
               ),
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                _buildReplyActionButton(
+                  icon: Icons.thumb_up_outlined,
+                  label: 'Like',
+                  onPressed: () => _toggleReplyLike(reply),
+                  isActive: reply.likes?.contains(AuthService.currentUser?['id']) ?? false,
+                ),
+                const SizedBox(width: 16),
+                _buildReplyActionButton(
+                  icon: Icons.reply,
+                  label: 'Reply',
+                  onPressed: () => _showNestedReplyInput(reply),
+                ),
+                const Spacer(),
+                if (reply.likes != null && reply.likes!.isNotEmpty)
+                  Text(
+                    '${reply.likes!.length} ${reply.likes!.length == 1 ? 'like' : 'likes'}',
+                    style: ModernTheme.bodySmall.copyWith(
+                      color: Colors.grey[600],
+                    ),
+                  ),
+              ],
+            ),
+            // Show nested replies if any
+            StreamBuilder<QuerySnapshot>(
+              stream: _firestore
+                  .collection('threads')
+                  .doc(widget.thread.id)
+                  .collection('replies')
+                  .doc(reply.id)
+                  .collection('nestedReplies')
+                  .orderBy('createdAt')
+                  .snapshots(),
+              builder: (context, nestedSnapshot) {
+                if (nestedSnapshot.hasError || !nestedSnapshot.hasData) {
+                  return const SizedBox.shrink();
+                }
+
+                final nestedReplies = nestedSnapshot.data!.docs
+                    .map((doc) => ForumReply.fromMap(
+                        doc.data() as Map<String, dynamic>, doc.id))
+                    .toList();
+
+                if (nestedReplies.isEmpty) {
+                  return const SizedBox.shrink();
+                }
+
+                return Padding(
+                  padding: const EdgeInsets.only(top: 12),
+                  child: Column(
+                    children: nestedReplies
+                        .map((nestedReply) => Padding(
+                              padding: const EdgeInsets.only(left: 32),
+                              child: _buildNestedReplyCard(nestedReply, reply),
+                            ))
+                        .toList(),
+                  ),
+                );
+              },
             ),
           ],
         ),
@@ -1399,6 +1518,470 @@ class _ThreadDetailScreenState extends State<ThreadDetailScreen> {
     }
   }
 
+  Widget _buildReplyActionButton({
+    required IconData icon,
+    required String label,
+    required VoidCallback onPressed,
+    bool isActive = false,
+  }) {
+    return InkWell(
+      onTap: onPressed,
+      borderRadius: BorderRadius.circular(8),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        child: Row(
+          children: [
+            Icon(
+              icon,
+              size: 16,
+              color: isActive ? ModernTheme.primaryBlue : Colors.grey[600],
+            ),
+            const SizedBox(width: 4),
+            Text(
+              label,
+              style: ModernTheme.bodySmall.copyWith(
+                color: isActive ? ModernTheme.primaryBlue : Colors.grey[600],
+                fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _handleReplyAction(ForumReply reply, String action) {
+    switch (action) {
+      case 'edit':
+        _showEditReplyDialog(reply);
+        break;
+      case 'delete':
+        _showDeleteReplyDialog(reply);
+        break;
+    }
+  }
+
+  Future<void> _toggleReplyLike(ForumReply reply) async {
+    if (!AuthService.isAuthenticated) return;
+
+    final currentUserId = AuthService.currentUser!['id'];
+    final replyRef = _firestore
+        .collection('threads')
+        .doc(widget.thread.id)
+        .collection('replies')
+        .doc(reply.id);
+
+    try {
+      final doc = await replyRef.get();
+      final currentLikes = List<String>.from(doc.data()?['likes'] ?? []);
+
+      if (currentLikes.contains(currentUserId)) {
+        // Remove like
+        currentLikes.remove(currentUserId);
+      } else {
+        // Add like
+        currentLikes.add(currentUserId);
+      }
+
+      await replyRef.update({'likes': currentLikes});
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error updating like: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  void _showNestedReplyInput(ForumReply parentReply) {
+    final nestedReplyController = TextEditingController();
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+        ),
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(20),
+              topRight: Radius.circular(20),
+            ),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                children: [
+                  Text(
+                    'Reply to ${parentReply.authorName}',
+                    style: ModernTheme.headingMedium,
+                  ),
+                  const Spacer(),
+                  IconButton(
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(Icons.close),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: nestedReplyController,
+                maxLines: 3,
+                minLines: 1,
+                decoration: InputDecoration(
+                  hintText: 'Write your reply...',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  filled: true,
+                  fillColor: Colors.grey[50],
+                ),
+              ),
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () => _submitNestedReply(parentReply, nestedReplyController.text.trim()),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: ModernTheme.primaryBlue,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text('Post Reply'),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _submitNestedReply(ForumReply parentReply, String content) async {
+    if (!AuthService.isAuthenticated || content.isEmpty) return;
+
+    try {
+      await _firestore
+          .collection('threads')
+          .doc(widget.thread.id)
+          .collection('replies')
+          .doc(parentReply.id)
+          .collection('nestedReplies')
+          .add({
+        'content': content,
+        'authorId': AuthService.currentUser!['id'],
+        'authorName': AuthService.currentUser!['name'],
+        'authorAvatar': AuthService.currentUser!['avatar'] ?? '',
+        'createdAt': FieldValue.serverTimestamp(),
+        'likes': [],
+      });
+
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Reply posted successfully!'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error posting reply: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  Widget _buildNestedReplyCard(ForumReply nestedReply, ForumReply parentReply) {
+    final bool isCurrentUserReply = AuthService.isAuthenticated &&
+        AuthService.currentUser!['id'] == nestedReply.authorId;
+
+    return Card(
+      elevation: 1,
+      margin: const EdgeInsets.only(bottom: 8, top: 8),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      color: Colors.grey[50],
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                CircleAvatar(
+                  radius: 14,
+                  backgroundImage: nestedReply.authorAvatar.isNotEmpty
+                      ? NetworkImage(nestedReply.authorAvatar)
+                      : null,
+                  child: nestedReply.authorAvatar.isEmpty
+                      ? Text(
+                          nestedReply.authorName[0].toUpperCase(),
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: ModernTheme.primaryBlue,
+                          ),
+                        )
+                      : null,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                            nestedReply.authorName,
+                            style: ModernTheme.bodySmall.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          if (isCurrentUserReply) ...[
+                            const SizedBox(width: 6),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                              decoration: BoxDecoration(
+                                color: ModernTheme.primaryBlue.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Text(
+                                'You',
+                                style: ModernTheme.bodySmall.copyWith(
+                                  fontSize: 10,
+                                  color: ModernTheme.primaryBlue,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                      Text(
+                        _formatTimestamp(nestedReply.createdAt),
+                        style: ModernTheme.bodySmall.copyWith(
+                          fontSize: 10,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              nestedReply.content,
+              style: ModernTheme.bodySmall.copyWith(
+                height: 1.4,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                InkWell(
+                  onTap: () => _toggleNestedReplyLike(nestedReply, parentReply),
+                  borderRadius: BorderRadius.circular(6),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.thumb_up,
+                          size: 12,
+                          color: (nestedReply.likes?.contains(AuthService.currentUser?['id']) ?? false)
+                              ? ModernTheme.primaryBlue
+                              : Colors.grey[600],
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          'Like',
+                          style: ModernTheme.bodySmall.copyWith(
+                            fontSize: 10,
+                            color: (nestedReply.likes?.contains(AuthService.currentUser?['id']) ?? false)
+                                ? ModernTheme.primaryBlue
+                                : Colors.grey[600],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                if (nestedReply.likes != null && nestedReply.likes!.isNotEmpty) ...[
+                  const SizedBox(width: 8),
+                  Text(
+                    '${nestedReply.likes!.length}',
+                    style: ModernTheme.bodySmall.copyWith(
+                      fontSize: 10,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _toggleNestedReplyLike(ForumReply nestedReply, ForumReply parentReply) async {
+    if (!AuthService.isAuthenticated) return;
+
+    final currentUserId = AuthService.currentUser!['id'];
+    final nestedReplyRef = _firestore
+        .collection('threads')
+        .doc(widget.thread.id)
+        .collection('replies')
+        .doc(parentReply.id)
+        .collection('nestedReplies')
+        .doc(nestedReply.id);
+
+    try {
+      final doc = await nestedReplyRef.get();
+      final currentLikes = List<String>.from(doc.data()?['likes'] ?? []);
+
+      if (currentLikes.contains(currentUserId)) {
+        currentLikes.remove(currentUserId);
+      } else {
+        currentLikes.add(currentUserId);
+      }
+
+      await nestedReplyRef.update({'likes': currentLikes});
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error updating like: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  void _showEditReplyDialog(ForumReply reply) {
+    final editController = TextEditingController(text: reply.content);
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Edit Reply'),
+        content: TextField(
+          controller: editController,
+          maxLines: 3,
+          decoration: const InputDecoration(
+            hintText: 'Edit your reply...',
+            border: OutlineInputBorder(),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => _updateReply(reply, editController.text.trim()),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: ModernTheme.primaryBlue,
+            ),
+            child: const Text('Update'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _updateReply(ForumReply reply, String newContent) async {
+    if (newContent.isEmpty) return;
+
+    try {
+      await _firestore
+          .collection('threads')
+          .doc(widget.thread.id)
+          .collection('replies')
+          .doc(reply.id)
+          .update({'content': newContent});
+
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Reply updated successfully!'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error updating reply: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  void _showDeleteReplyDialog(ForumReply reply) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Reply'),
+        content: const Text('Are you sure you want to delete this reply? This action cannot be undone.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => _deleteReply(reply),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+            ),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _deleteReply(ForumReply reply) async {
+    try {
+      await _firestore
+          .collection('threads')
+          .doc(widget.thread.id)
+          .collection('replies')
+          .doc(reply.id)
+          .delete();
+
+      // Update thread reply count
+      await _firestore.collection('threads').doc(widget.thread.id).update({
+        'replyCount': FieldValue.increment(-1),
+      });
+
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Reply deleted successfully!'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error deleting reply: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
   Future<void> _sendReplyNotifications(ForumThread thread, String replyContent) async {
     try {
       // Get all subscribers to this thread
@@ -1468,6 +2051,8 @@ class ForumReply {
   final String authorName;
   final String authorAvatar;
   final DateTime createdAt;
+  final List<String>? likes;
+  final List<ForumReply>? nestedReplies;
 
   ForumReply({
     required this.id,
@@ -1476,6 +2061,8 @@ class ForumReply {
     required this.authorName,
     required this.authorAvatar,
     required this.createdAt,
+    this.likes,
+    this.nestedReplies,
   });
 
   factory ForumReply.fromMap(Map<String, dynamic> data, String id) {
@@ -1486,6 +2073,8 @@ class ForumReply {
       authorName: data['authorName'] ?? 'Anonymous',
       authorAvatar: data['authorAvatar'] ?? '',
       createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      likes: List<String>.from(data['likes'] ?? []),
+      nestedReplies: null, // Will be populated separately for nested replies
     );
   }
 }
