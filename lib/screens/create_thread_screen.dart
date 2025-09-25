@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../core/theme/modern_theme.dart';
-import '../core/widgets/biznest_logo.dart';
 import '../core/services/auth_service.dart';
 
 class CreateThreadScreen extends StatefulWidget {
@@ -88,31 +87,34 @@ class _CreateThreadScreenState extends State<CreateThreadScreen>
           ),
         ),
         child: SafeArea(
-          child: FadeTransition(
-            opacity: _fadeAnimation,
-            child: SlideTransition(
-              position: Tween<Offset>(
-                begin: const Offset(0, 0.1),
-                end: Offset.zero,
-              ).animate(_slideAnimation),
-              child: Column(
-                children: [
-                  _buildHeader(),
-                  Expanded(
-                    child: Container(
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(30),
-                          topRight: Radius.circular(30),
+          child: Column(
+            children: [
+              _buildHeader(),
+              Expanded(
+                child: FadeTransition(
+                  opacity: _fadeAnimation,
+                  child: SlideTransition(
+                    position: Tween<Offset>(
+                      begin: const Offset(0, 0.1),
+                      end: Offset.zero,
+                    ).animate(_slideAnimation),
+                    child: Transform.translate(
+                      offset: const Offset(0, -40),
+                      child: Container(
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(30),
+                            topRight: Radius.circular(30),
+                          ),
                         ),
+                        child: _buildForm(),
                       ),
-                      child: _buildForm(),
                     ),
                   ),
-                ],
+                ),
               ),
-            ),
+            ],
           ),
         ),
       ),
@@ -121,7 +123,7 @@ class _CreateThreadScreenState extends State<CreateThreadScreen>
 
   Widget _buildHeader() {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.fromLTRB(20, 1, 20, 0),
       child: Column(
         children: [
           Row(
@@ -141,30 +143,9 @@ class _CreateThreadScreenState extends State<CreateThreadScreen>
                   ),
                 ),
               ),
-              const SizedBox(width: 16),
-              const BizNestLogo(size: 40, showText: false),
-              const Spacer(),
-              ElevatedButton(
-                onPressed: _isLoading ? null : _createThread,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: ModernTheme.primaryBlue,
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(25),
-                  ),
-                ),
-                child: _isLoading
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Text('Post Thread'),
-              ),
             ],
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 1),
           Text(
             'Create New Thread',
             style: ModernTheme.headingLarge.copyWith(
@@ -172,7 +153,7 @@ class _CreateThreadScreenState extends State<CreateThreadScreen>
               fontWeight: FontWeight.bold,
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 2),
           Text(
             'Share your thoughts with the community',
             style: ModernTheme.bodyLarge.copyWith(
@@ -190,21 +171,6 @@ class _CreateThreadScreenState extends State<CreateThreadScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Create New Thread',
-            style: ModernTheme.headingLarge.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Share your thoughts with the community',
-            style: ModernTheme.bodyMedium.copyWith(
-              color: Colors.grey[600],
-            ),
-          ),
-          const SizedBox(height: 32),
-
           // Category Selection
           Text(
             'Category',
@@ -355,6 +321,40 @@ class _CreateThreadScreenState extends State<CreateThreadScreen>
                 ],
               ),
             ),
+
+          const SizedBox(height: 40),
+
+          // Post Thread Button
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: _isLoading ? null : _createThread,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: ModernTheme.primaryBlue,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: _isLoading
+                  ? const SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
+                    )
+                  : const Text(
+                      'Post Thread',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+            ),
+          ),
 
           const SizedBox(height: 100), // Space for bottom padding
         ],
