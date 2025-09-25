@@ -40,6 +40,10 @@ class FirebaseAuthService {
         email: email,
         password: password,
       );
+      
+      // Update the display name in Firebase Auth
+      await cred.user?.updateDisplayName(name);
+      
       await _db.collection('users').doc(cred.user!.uid).set({
         'name': name,
         'email': email,

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'firebase_data_service.dart';
 import 'api_service.dart';
 import 'firebase_auth_service.dart' as fb;
@@ -56,12 +57,16 @@ class AuthService {
       if (userData != null) {
         _currentUser = userData;
       } else {
-        // Create user data from Firebase Auth
+        // Create user data from Firebase Auth and Firestore
         final user = _auth.currentUser;
         if (user != null) {
+          // Try to get name from Firestore first
+          final userDoc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+          final firestoreName = userDoc.data()?['name'];
+          
           _currentUser = {
             'id': user.uid,
-            'name': user.displayName ?? 'User',
+            'name': firestoreName ?? user.displayName ?? user.email ?? 'User',
             'email': user.email ?? '',
             'avatar': user.photoURL ?? '',
             'role': 'entrepreneur',
@@ -195,16 +200,27 @@ class AuthService {
 
   // Logout user
   static Future<void> logout() async {
+    // Since we primarily use Firebase Auth, skip API logout to avoid authentication errors
+    // Make logout completely fail-safe
     try {
-      if (_currentToken != null) {
-        await ApiService.post('/auth/logout', {}, requiresAuth: true);
+      final user = _auth.currentUser;
+      if (user != null) {
+        await _auth.signOut();
       }
     } catch (e) {
+      // Firebase sign out failed, but continue with clearing local data
       if (kDebugMode) {
-        print('Logout error: $e');
+        print('Firebase sign out error: $e');
       }
-    } finally {
+    }
+
+    // Always clear local data, even if Firebase sign out fails
+    try {
       await _clearAuthData();
+    } catch (e) {
+      if (kDebugMode) {
+        print('Clear auth data error: $e');
+      }
     }
   }
 
@@ -333,10 +349,28 @@ class AuthService {
   // Update user profile
   static Future<AuthResult> updateProfile(Map<String, dynamic> updates) async {
     try {
-      final response = await ApiService.put('/user/profile', updates);
+      final user = _auth.currentUser;
+      if (user != null) {
+        // Update Firebase Auth display name if name is being updated
+        if (updates.containsKey('name') && updates['name'] != null) {
+          await user.updateDisplayName(updates['name']);
+        }
 
-      if (response['success']) {
-        final updatedUser = response['data'];
+        // Update Firestore user document
+        final userUpdates = <String, dynamic>{};
+        if (updates.containsKey('name')) userUpdates['name'] = updates['name'];
+        if (updates.containsKey('email')) userUpdates['email'] = updates['email'];
+        if (updates.containsKey('avatar')) userUpdates['avatar'] = updates['avatar'];
+
+        if (userUpdates.isNotEmpty) {
+          await FirebaseFirestore.instance.collection('users').doc(user.uid).update(userUpdates);
+        }
+
+        // Update local user data
+        final updatedUser = {
+          ..._currentUser ?? {},
+          ...updates,
+        };
         _currentUser = updatedUser;
         await FirebaseDataService.setJson(_userKey, updatedUser);
 
@@ -345,16 +379,14 @@ class AuthService {
           message: 'Profile updated successfully',
         );
       } else {
-        return AuthResult.error(
-          message: response['message'] ?? 'Profile update failed',
-        );
+        return AuthResult.error(message: 'No user logged in');
       }
     } catch (e) {
       if (kDebugMode) {
         print('Profile update error: $e');
       }
       return AuthResult.error(
-        message: 'Network error. Please try again.',
+        message: 'Failed to update profile. Please try again.',
       );
     }
   }
