@@ -447,7 +447,7 @@ class _CommunityScreenState extends State<CommunityScreen>
             gradient: const LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [Colors.white, Color(0xFFF8FAFC)],
+              colors: [Color(0xFFF5F7FA), Color(0xFFE8ECF1)],
             ),
           ),
           child: InkWell(
@@ -832,12 +832,37 @@ class _CommunityScreenState extends State<CommunityScreen>
                   stream: _firestore
                       .collection('notifications')
                       .where('userId', isEqualTo: AuthService.currentUser!['id'])
-                      .orderBy('createdAt', descending: true)
-                      .limit(50)
                       .snapshots(),
                   builder: (context, snapshot) {
                     if (snapshot.hasError) {
-                      return const Center(child: Text('Error loading notifications'));
+                      print('Notification error: ${snapshot.error}');
+                      return Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(Icons.error_outline, size: 48, color: Colors.red),
+                            const SizedBox(height: 16),
+                            Text(
+                              'Error loading notifications',
+                              style: ModernTheme.bodyMedium.copyWith(color: Colors.grey),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Details: ${snapshot.error.toString()}',
+                              style: ModernTheme.bodySmall.copyWith(color: Colors.grey[600]),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 16),
+                            ElevatedButton(
+                              onPressed: () {
+                                // Try to create the required index or use alternative query
+                                setState(() {});
+                              },
+                              child: const Text('Retry'),
+                            ),
+                          ],
+                        ),
+                      );
                     }
 
                     if (snapshot.connectionState == ConnectionState.waiting) {
@@ -846,23 +871,40 @@ class _CommunityScreenState extends State<CommunityScreen>
 
                     final notifications = snapshot.data?.docs ?? [];
 
+                    // Sort notifications by createdAt in descending order (most recent first)
+                    notifications.sort((a, b) {
+                      final aData = a.data() as Map<String, dynamic>;
+                      final bData = b.data() as Map<String, dynamic>;
+                      final aTime = (aData['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now();
+                      final bTime = (bData['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now();
+                      return bTime.compareTo(aTime); // Descending order
+                    });
+
                     if (notifications.isEmpty) {
-                      return const Center(
+                      return Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(
                               Icons.notifications_none,
                               size: 64,
-                              color: Colors.grey,
+                              color: Colors.grey[400],
                             ),
-                            SizedBox(height: 16),
+                            const SizedBox(height: 16),
                             Text(
                               'No notifications yet',
-                              style: TextStyle(
-                                color: Colors.grey,
-                                fontSize: 16,
+                              style: ModernTheme.bodyLarge.copyWith(
+                                color: Colors.grey[600],
+                                fontWeight: FontWeight.w500,
                               ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Subscribe to threads to get notified of replies',
+                              style: ModernTheme.bodyMedium.copyWith(
+                                color: Colors.grey[500],
+                              ),
+                              textAlign: TextAlign.center,
                             ),
                           ],
                         ),
@@ -874,67 +916,9 @@ class _CommunityScreenState extends State<CommunityScreen>
                       itemCount: notifications.length,
                       itemBuilder: (context, index) {
                         final notification = notifications[index].data() as Map<String, dynamic>;
-                        final isRead = notification['isRead'] ?? false;
+                        final notificationId = notifications[index].id;
 
-                        return ListTile(
-                          leading: CircleAvatar(
-                            backgroundColor: isRead ? Colors.grey[200] : ModernTheme.primaryBlue.withOpacity(0.1),
-                            child: Icon(
-                              notification['type'] == 'thread_reply' ? Icons.chat : Icons.notifications,
-                              color: isRead ? Colors.grey : ModernTheme.primaryBlue,
-                            ),
-                          ),
-                          title: Text(
-                            notification['title'] ?? '',
-                            style: TextStyle(
-                              fontWeight: isRead ? FontWeight.normal : FontWeight.bold,
-                            ),
-                          ),
-                          subtitle: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(notification['message'] ?? ''),
-                              Text(
-                                _formatTimestamp((notification['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now()),
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                            ],
-                          ),
-                          trailing: !isRead
-                              ? Container(
-                                  width: 8,
-                                  height: 8,
-                                  decoration: const BoxDecoration(
-                                    color: Colors.blue,
-                                    shape: BoxShape.circle,
-                                  ),
-                                )
-                              : null,
-                          onTap: () async {
-                            // Mark as read
-                            await notifications[index].reference.update({'isRead': true});
-
-                            // Navigate to thread if it's a reply notification
-                            if (notification['threadId'] != null) {
-                              Navigator.pop(context);
-                              // Navigate to thread detail
-                              final threadDoc = await _firestore.collection('threads').doc(notification['threadId']).get();
-                              if (threadDoc.exists) {
-                                final threadData = threadDoc.data()!;
-                                final thread = ForumThread.fromMap(threadData, threadDoc.id);
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => ThreadDetailScreen(thread: thread),
-                                  ),
-                                );
-                              }
-                            }
-                          },
-                        );
+                        return _buildNotificationItem(notification, notificationId);
                       },
                     );
                   },
@@ -979,6 +963,70 @@ class _CommunityScreenState extends State<CommunityScreen>
     } else {
       return 'Just now';
     }
+  }
+
+  Widget _buildNotificationItem(Map<String, dynamic> notification, String notificationId) {
+    final isRead = notification['isRead'] ?? false;
+
+    return ListTile(
+      leading: CircleAvatar(
+        backgroundColor: isRead ? Colors.grey[200] : ModernTheme.primaryBlue.withOpacity(0.1),
+        child: Icon(
+          notification['type'] == 'thread_reply' ? Icons.chat : Icons.notifications,
+          color: isRead ? Colors.grey : ModernTheme.primaryBlue,
+        ),
+      ),
+      title: Text(
+        notification['title'] ?? '',
+        style: TextStyle(
+          fontWeight: isRead ? FontWeight.normal : FontWeight.bold,
+        ),
+      ),
+      subtitle: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(notification['message'] ?? ''),
+          Text(
+            _formatTimestamp((notification['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now()),
+            style: TextStyle(
+              fontSize: 12,
+              color: Colors.grey,
+            ),
+          ),
+        ],
+      ),
+      trailing: !isRead
+          ? Container(
+              width: 8,
+              height: 8,
+              decoration: const BoxDecoration(
+                color: Colors.blue,
+                shape: BoxShape.circle,
+              ),
+            )
+          : null,
+      onTap: () async {
+        // Mark as read
+        await _firestore.collection('notifications').doc(notificationId).update({'isRead': true});
+
+        // Navigate to thread if it's a reply notification
+        if (notification['threadId'] != null) {
+          Navigator.pop(context);
+          // Navigate to thread detail
+          final threadDoc = await _firestore.collection('threads').doc(notification['threadId']).get();
+          if (threadDoc.exists) {
+            final threadData = threadDoc.data()!;
+            final thread = ForumThread.fromMap(threadData, threadDoc.id);
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ThreadDetailScreen(thread: thread),
+              ),
+            );
+          }
+        }
+      },
+    );
   }
 }
 
@@ -1257,6 +1305,7 @@ class _ThreadDetailScreenState extends State<ThreadDetailScreen> {
               children: [
                 CircleAvatar(
                   radius: 18,
+                  backgroundColor: reply.authorAvatar.isEmpty ? ModernTheme.primaryBlue.withOpacity(0.2) : null,
                   backgroundImage: reply.authorAvatar.isNotEmpty
                       ? NetworkImage(reply.authorAvatar)
                       : null,
@@ -1374,6 +1423,7 @@ class _ThreadDetailScreenState extends State<ThreadDetailScreen> {
             ),
             // Show nested replies if any
             StreamBuilder<QuerySnapshot>(
+              key: ValueKey('nested_replies_${reply.id}'),
               stream: _firestore
                   .collection('threads')
                   .doc(widget.thread.id)
@@ -1383,7 +1433,18 @@ class _ThreadDetailScreenState extends State<ThreadDetailScreen> {
                   .orderBy('createdAt')
                   .snapshots(),
               builder: (context, nestedSnapshot) {
-                if (nestedSnapshot.hasError || !nestedSnapshot.hasData) {
+                if (nestedSnapshot.hasError) {
+                  return const SizedBox.shrink();
+                }
+
+                if (nestedSnapshot.connectionState == ConnectionState.waiting) {
+                  return const Padding(
+                    padding: EdgeInsets.all(16),
+                    child: Center(child: CircularProgressIndicator()),
+                  );
+                }
+
+                if (!nestedSnapshot.hasData || nestedSnapshot.data!.docs.isEmpty) {
                   return const SizedBox.shrink();
                 }
 
@@ -1391,10 +1452,6 @@ class _ThreadDetailScreenState extends State<ThreadDetailScreen> {
                     .map((doc) => ForumReply.fromMap(
                         doc.data() as Map<String, dynamic>, doc.id))
                     .toList();
-
-                if (nestedReplies.isEmpty) {
-                  return const SizedBox.shrink();
-                }
 
                 return Padding(
                   padding: const EdgeInsets.only(top: 12),
@@ -1601,9 +1658,9 @@ class _ThreadDetailScreenState extends State<ThreadDetailScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => Container(
+      builder: (modalContext) => Container(
         padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
+          bottom: MediaQuery.of(modalContext).viewInsets.bottom,
         ),
         child: Container(
           padding: const EdgeInsets.all(20),
@@ -1625,7 +1682,7 @@ class _ThreadDetailScreenState extends State<ThreadDetailScreen> {
                   ),
                   const Spacer(),
                   IconButton(
-                    onPressed: () => Navigator.pop(context),
+                    onPressed: () => Navigator.pop(modalContext),
                     icon: const Icon(Icons.close),
                   ),
                 ],
@@ -1648,7 +1705,7 @@ class _ThreadDetailScreenState extends State<ThreadDetailScreen> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () => _submitNestedReply(parentReply, nestedReplyController.text.trim()),
+                  onPressed: () => _submitNestedReply(parentReply, nestedReplyController.text.trim(), modalContext),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: ModernTheme.primaryBlue,
                     padding: const EdgeInsets.symmetric(vertical: 12),
@@ -1666,7 +1723,7 @@ class _ThreadDetailScreenState extends State<ThreadDetailScreen> {
     );
   }
 
-  Future<void> _submitNestedReply(ForumReply parentReply, String content) async {
+  Future<void> _submitNestedReply(ForumReply parentReply, String content, BuildContext modalContext) async {
     if (!AuthService.isAuthenticated || content.isEmpty) return;
 
     try {
@@ -1685,7 +1742,11 @@ class _ThreadDetailScreenState extends State<ThreadDetailScreen> {
         'likes': [],
       });
 
-      Navigator.pop(context);
+      Navigator.pop(modalContext);
+      
+      // Send notifications to subscribers
+      await _sendReplyNotifications(widget.thread, content);
+      
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Reply posted successfully!'),
@@ -1720,6 +1781,7 @@ class _ThreadDetailScreenState extends State<ThreadDetailScreen> {
               children: [
                 CircleAvatar(
                   radius: 14,
+                  backgroundColor: nestedReply.authorAvatar.isEmpty ? ModernTheme.primaryBlue.withOpacity(0.2) : null,
                   backgroundImage: nestedReply.authorAvatar.isNotEmpty
                       ? NetworkImage(nestedReply.authorAvatar)
                       : null,
