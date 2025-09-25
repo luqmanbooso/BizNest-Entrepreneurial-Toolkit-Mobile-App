@@ -12,16 +12,48 @@ class LearningScreen extends StatefulWidget {
   State<LearningScreen> createState() => _LearningScreenState();
 }
 
-class _LearningScreenState extends State<LearningScreen> {
+class _LearningScreenState extends State<LearningScreen>
+    with TickerProviderStateMixin {
   List<Map<String, dynamic>> _tutorials = [];
   Map<String, dynamic> _statistics = {};
   List<String> _badges = [];
   String _userLevel = 'novice';
 
+  late AnimationController _staggerController;
+  late List<Animation<double>> _animations;
+
   @override
   void initState() {
     super.initState();
+    _setupAnimations();
+    _staggerController.forward(); // Start animation immediately
     _loadLearningData();
+  }
+
+  void _setupAnimations() {
+    _staggerController = AnimationController(
+      duration: const Duration(milliseconds: 1200),
+      vsync: this,
+    );
+
+    _animations = List.generate(5, (index) {
+      return Tween<double>(begin: 0.0, end: 1.0).animate(
+        CurvedAnimation(
+          parent: _staggerController,
+          curve: Interval(
+            index * 0.15,
+            (index + 1) * 0.15 + 0.2,
+            curve: Curves.easeOutCubic,
+          ),
+        ),
+      );
+    });
+  }
+
+  @override
+  void dispose() {
+    _staggerController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadLearningData() async {
@@ -84,11 +116,6 @@ class _LearningScreenState extends State<LearningScreen> {
           _userLevel = level;
         });
       }
-
-      // Show content immediately without animation delay
-      if (mounted) {
-        setState(() {});
-      }
     } catch (e) {
       // Set some default tutorials even on error
       setState(() {
@@ -125,11 +152,6 @@ class _LearningScreenState extends State<LearningScreen> {
         _badges = [];
         _userLevel = 'novice';
       });
-
-      // Show content immediately even on error
-      if (mounted) {
-        setState(() {});
-      }
     }
   }
 
@@ -157,18 +179,73 @@ class _LearningScreenState extends State<LearningScreen> {
   Widget _buildLearningContent() {
     return Column(
       children: [
-        _buildHeader(),
+        AnimatedBuilder(
+          animation: _animations[0],
+          builder: (context, child) {
+            return Transform.translate(
+              offset: Offset(0, 50 * (1 - _animations[0].value)),
+              child: Opacity(
+                opacity: _animations[0].value,
+                child: _buildHeader(),
+              ),
+            );
+          },
+        ),
         Expanded(
           child: SingleChildScrollView(
             child: Column(
               children: [
-                _buildStatisticsCard(),
+                AnimatedBuilder(
+                  animation: _animations[1],
+                  builder: (context, child) {
+                    return Transform.translate(
+                      offset: Offset(0, 50 * (1 - _animations[1].value)),
+                      child: Opacity(
+                        opacity: _animations[1].value,
+                        child: _buildStatisticsCard(),
+                      ),
+                    );
+                  },
+                ),
                 const SizedBox(height: 20),
-                _buildBadgesSection(),
+                AnimatedBuilder(
+                  animation: _animations[2],
+                  builder: (context, child) {
+                    return Transform.translate(
+                      offset: Offset(0, 50 * (1 - _animations[2].value)),
+                      child: Opacity(
+                        opacity: _animations[2].value,
+                        child: _buildBadgesSection(),
+                      ),
+                    );
+                  },
+                ),
                 const SizedBox(height: 20),
-                _buildTutorialsSection(),
+                AnimatedBuilder(
+                  animation: _animations[3],
+                  builder: (context, child) {
+                    return Transform.translate(
+                      offset: Offset(0, 50 * (1 - _animations[3].value)),
+                      child: Opacity(
+                        opacity: _animations[3].value,
+                        child: _buildTutorialsSection(),
+                      ),
+                    );
+                  },
+                ),
                 const SizedBox(height: 20),
-                _buildQuickActions(),
+                AnimatedBuilder(
+                  animation: _animations[4],
+                  builder: (context, child) {
+                    return Transform.translate(
+                      offset: Offset(0, 50 * (1 - _animations[4].value)),
+                      child: Opacity(
+                        opacity: _animations[4].value,
+                        child: _buildQuickActions(),
+                      ),
+                    );
+                  },
+                ),
                 const SizedBox(height: 20),
               ],
             ),
