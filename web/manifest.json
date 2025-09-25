@@ -1,6 +1,6 @@
 {
-    "name": "entrepreneur_toolkit",
-    "short_name": "entrepreneur_toolkit",
+    "name": "BizNest Entrepreneurial Toolkit",
+    "short_name": "BizNest",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
