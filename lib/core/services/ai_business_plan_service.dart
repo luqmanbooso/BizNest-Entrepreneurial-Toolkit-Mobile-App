@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
-import 'firebase_data_service.dart';
+import 'storage_service.dart';
 
 class AIBusinessPlanService {
   static const String _apiKey = 'your_openrouter_api_key'; // Replace with actual API key
@@ -373,12 +373,12 @@ Phase 3 (Months 13-24):
   static Future<void> _saveBusinessPlan(Map<String, dynamic> businessPlan) async {
     final plans = await getSavedBusinessPlans();
     plans.add(businessPlan);
-    await FirebaseDataService.setString('saved_business_plans', json.encode(plans));
+    await StorageService.setString('saved_business_plans', json.encode(plans));
   }
 
   // Get saved business plans
   static Future<List<Map<String, dynamic>>> getSavedBusinessPlans() async {
-    final plansJson = await FirebaseDataService.getString('saved_business_plans');
+    final plansJson = await StorageService.getString('saved_business_plans');
     if (plansJson != null) {
       final List<dynamic> plansList = json.decode(plansJson);
       return plansList.cast<Map<String, dynamic>>();
@@ -402,7 +402,7 @@ Phase 3 (Months 13-24):
     final index = plans.indexWhere((plan) => plan['id'] == id);
     if (index != -1) {
       plans[index] = {...plans[index], ...updates};
-      await FirebaseDataService.setString('saved_business_plans', json.encode(plans));
+      await StorageService.setString('saved_business_plans', json.encode(plans));
     }
   }
 
@@ -410,7 +410,7 @@ Phase 3 (Months 13-24):
   static Future<void> deleteBusinessPlan(String id) async {
     final plans = await getSavedBusinessPlans();
     plans.removeWhere((plan) => plan['id'] == id);
-    await FirebaseDataService.setString('saved_business_plans', json.encode(plans));
+    await StorageService.setString('saved_business_plans', json.encode(plans));
   }
 
   // Get business plan templates

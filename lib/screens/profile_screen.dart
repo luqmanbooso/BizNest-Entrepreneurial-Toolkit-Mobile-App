@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 // kept minimal imports for profile editing
 import '../core/services/auth_service.dart';
 
@@ -32,34 +31,13 @@ class _ProfileScreenState extends State<ProfileScreen>
 
     _animationController.forward();
 
-    // Initialize controllers
-    _nameController = TextEditingController();
-    _emailController = TextEditingController();
-    _avatarController = TextEditingController();
-
-    // Load user data from current user
-    _loadUserProfile();
-  }
-
-  Future<void> _loadUserProfile() async {
-    try {
-      // Use current user data from AuthService
-      final user = AuthService.currentUser;
-      if (user != null) {
-        setState(() {
-          _nameController.text = user['name'] ?? user['full_name'] ?? user['displayName'] ?? '';
-          _emailController.text = user['email'] ?? '';
-          _avatarController.text = user['avatar'] ?? user['photoUrl'] ?? '';
-        });
-      }
-    } catch (e) {
-      // If loading fails, show error
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to load profile: $e')),
-        );
-      }
-    }
+    // initialize profile controllers from AuthService
+    final user = AuthService.currentUser ?? {};
+    _nameController = TextEditingController(
+        text: user['name'] ?? user['full_name'] ?? user['displayName'] ?? '');
+    _emailController = TextEditingController(text: user['email'] ?? '');
+    _avatarController =
+        TextEditingController(text: user['avatar'] ?? user['photoUrl'] ?? '');
   }
 
   @override
@@ -81,29 +59,13 @@ class _ProfileScreenState extends State<ProfileScreen>
       'avatar': _avatarController.text.trim(),
     };
     try {
-      final result = await AuthService.updateProfile(updates);
-      if (result.success) {
-        // Show success message
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Profile updated successfully')),
-          );
-          // Refresh the profile data
-          await _loadUserProfile();
-        }
-      } else {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Failed to save profile')),
-          );
-        }
-      }
+      await AuthService.updateProfile(updates);
+      // Optionally refresh local user cache
+      await AuthService.getUserProfile();
+      if (mounted) Navigator.of(context).pop(true);
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to save profile: $e')),
-        );
-      }
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Failed to save profile: $e')));
     } finally {
       if (mounted) setState(() => _isSaving = false);
     }
@@ -175,48 +137,10 @@ class _ProfileScreenState extends State<ProfileScreen>
                 icon: const Icon(Icons.save),
                 label: const Text('Save profile'),
               ),
-              const SizedBox(height: 16),
-              ElevatedButton.icon(
-                onPressed: _logout,
-                icon: const Icon(Icons.logout, color: Colors.white),
-                label: const Text('Logout'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
-                  foregroundColor: Colors.white,
-                ),
-              ),
             ],
           ),
         ),
       ),
     );
-  }
-
-  Future<void> _logout() async {
-    try {
-      await AuthService.logout();
-      if (mounted) {
-        // Navigate to splash screen which will check auth and redirect appropriately
-        Navigator.of(context).pushNamedAndRemoveUntil('/splash', (route) => false);
-      }
-    } catch (e) {
-      // Even if logout fails, try to navigate anyway
-      if (kDebugMode) {
-        print('Logout error: $e');
-      }
-      if (mounted) {
-        try {
-          Navigator.of(context).pushNamedAndRemoveUntil('/splash', (route) => false);
-        } catch (navError) {
-          if (kDebugMode) {
-            print('Navigation error: $navError');
-          }
-          // Last resort - show error to user
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Logout completed but navigation failed')),
-          );
-        }
-      }
-    }
   }
 }

@@ -23,10 +23,8 @@ class FirebaseAuthService {
         'is_verified': cred.user!.emailVerified,
       };
       return _FbResult(success: true, token: token, refreshToken: null, user: userMap);
-    } on FirebaseAuthException catch (e) {
-      return _FbResult(success: false, message: _getFirebaseErrorMessage(e));
     } catch (e) {
-      return _FbResult(success: false, message: 'Login failed: ${e.toString()}');
+      return _FbResult(success: false, message: e.toString());
     }
   }
 
@@ -40,10 +38,6 @@ class FirebaseAuthService {
         email: email,
         password: password,
       );
-      
-      // Update the display name in Firebase Auth
-      await cred.user?.updateDisplayName(name);
-      
       await _db.collection('users').doc(cred.user!.uid).set({
         'name': name,
         'email': email,
@@ -57,54 +51,9 @@ class FirebaseAuthService {
         'id': cred.user!.uid,
         'name': name,
         'email': email,
-        'avatar': '',
-        'role': 'entrepreneur',
-        'company': '',
-        'is_verified': cred.user!.emailVerified,
       });
-    } on FirebaseAuthException catch (e) {
-      return _FbResult(success: false, message: _getFirebaseErrorMessage(e));
     } catch (e) {
-      return _FbResult(success: false, message: 'Registration failed: ${e.toString()}');
-    }
-  }
-
-  static Future<_FbResult> checkEmailAvailability(String email) async {
-    try {
-      // Try to sign in with a dummy password to check if email exists
-      // This will throw an error if the email doesn't exist
-      final methods = await _auth.fetchSignInMethodsForEmail(email);
-      if (methods.isNotEmpty) {
-        return _FbResult(success: false, message: 'Email is already registered');
-      } else {
-        return _FbResult(success: true, message: 'Email is available');
-      }
-    } catch (e) {
-      // If we get an error, assume the email is available
-      return _FbResult(success: true, message: 'Email is available');
-    }
-  }
-
-  static String _getFirebaseErrorMessage(FirebaseAuthException e) {
-    switch (e.code) {
-      case 'email-already-in-use':
-        return 'This email is already registered. Please try logging in instead, or use a different email address.';
-      case 'weak-password':
-        return 'Password is too weak. Please choose a stronger password.';
-      case 'invalid-email':
-        return 'Invalid email address. Please check your email format.';
-      case 'user-disabled':
-        return 'This account has been disabled. Please contact support.';
-      case 'user-not-found':
-        return 'No account found with this email. Please register first.';
-      case 'wrong-password':
-        return 'Incorrect password. Please try again.';
-      case 'too-many-requests':
-        return 'Too many failed attempts. Please try again later.';
-      case 'operation-not-allowed':
-        return 'Email/password authentication is not enabled. Please contact support.';
-      default:
-        return 'Authentication error: ${e.message ?? 'Unknown error occurred'}';
+      return _FbResult(success: false, message: e.toString());
     }
   }
 }
