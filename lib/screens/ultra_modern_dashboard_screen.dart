@@ -4,13 +4,13 @@ import 'dart:math' as math;
 import 'package:shimmer/shimmer.dart';
 import '../core/theme/modern_theme.dart';
 import '../core/services/auth_service.dart';
-// analytics service not directly used in this screen (kept in services layer)
 import '../core/services/realtime_service.dart';
 import '../core/services/business_intelligence_service.dart';
-// ...modern animations not used in this simplified dashboard
 import 'business_screen.dart';
 import 'learning_screen.dart';
 import 'profile_screen.dart';
+import 'financial_screen.dart';
+import 'networking_screen.dart';
 
 class UltraModernDashboardScreen extends StatefulWidget {
   const UltraModernDashboardScreen({super.key});
@@ -126,7 +126,7 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
 
   Future<void> _openProfile() async {
     final result = await Navigator.of(context).push<bool?>(
-      MaterialPageRoute(builder: (_) => ProfileScreen()),
+      MaterialPageRoute(builder: (_) => const ProfileScreen()),
     );
     // If profile was saved/updated, refresh local view
     if (result == true) {
@@ -145,85 +145,8 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: ModernTheme.backgroundLight,
-      body: Stack(
-        children: [
-          _buildUltraModernBackground(),
-          // Main content
-          SafeArea(
-            child: _isLoading ? _buildLoadingState() : _buildDashboard(),
-          ),
-          // Full-width top bar overlay: left logo+name, right action icons
-          Positioned(
-            top: 6,
-            left: 12,
-            right: 12,
-            child: Material(
-              color: Colors.transparent,
-              elevation: 0,
-              child: Container(
-                // make explicit transparent background to avoid any white surface
-                decoration: const BoxDecoration(color: Colors.transparent),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        Image.asset(
-                          'assets/images/biznest.png',
-                          width: 80,
-                          height: 40,
-                          errorBuilder: (ctx, err, stack) =>
-                              const Text('💼', style: TextStyle(fontSize: 28)),
-                        ),
-                        const SizedBox(width: 20),
-                      ],
-                    ),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        // Use GestureDetector + Padding to avoid ripple/highlight
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                          child: GestureDetector(
-                            behavior: HitTestBehavior.opaque,
-                            onTap: () {
-                              // TODO: open settings screen
-                              _openSettings();
-                            },
-                            child: const Padding(
-                              padding: EdgeInsets.all(8.0),
-                              child: Icon(Icons.settings_rounded,
-                                  color: ModernTheme.textPrimary),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                          child: GestureDetector(
-                            behavior: HitTestBehavior.opaque,
-                            onTap: () async {
-                              await _openProfile();
-                            },
-                            child: const Padding(
-                              padding: EdgeInsets.all(8.0),
-                              child: Icon(Icons.person_rounded,
-                                  color: ModernTheme.textPrimary),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
+      backgroundColor: const Color(0xFFF8FAFC),
+      body: _isLoading ? _buildLoadingState() : _buildProfessionalDashboard(),
     );
   }
 
@@ -363,19 +286,144 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
     );
   }
 
-  Widget _buildDashboard() {
-    return Column(
-      children: [
-        _buildModernHeader(),
-        _buildTabBar(),
-        Expanded(
-          child: _buildTabContent(),
+  Widget _buildProfessionalDashboard() {
+    return CustomScrollView(
+      controller: _scrollController,
+      slivers: [
+        // Professional App Bar
+        _buildProfessionalAppBar(),
+        
+        // Welcome Section
+        SliverToBoxAdapter(
+          child: _buildWelcomeSection(),
+        ),
+        
+        // Business Metrics Cards
+        SliverToBoxAdapter(
+          child: _buildBusinessMetrics(),
+        ),
+        
+        // Charts and Analytics
+        SliverToBoxAdapter(
+          child: _buildAnalyticsSection(),
+        ),
+        
+        // Quick Actions
+        SliverToBoxAdapter(
+          child: _buildQuickActionsGrid(),
+        ),
+        
+        // Recent Activity
+        SliverToBoxAdapter(
+          child: _buildRecentActivity(),
+        ),
+        
+        // Bottom padding
+        const SliverToBoxAdapter(
+          child: SizedBox(height: 100),
         ),
       ],
     );
   }
 
-  Widget _buildModernHeader() {
+  // Professional Dashboard Methods
+  Widget _buildProfessionalAppBar() {
+    return SliverAppBar(
+      expandedHeight: 140,
+      floating: false,
+      pinned: true,
+      stretch: true,
+      backgroundColor: const Color(0xFFF8FAFC),
+      elevation: 0,
+      // NO title property - completely removed
+      flexibleSpace: FlexibleSpaceBar(
+        // NO title here either
+        stretchModes: const [StretchMode.zoomBackground],
+        background: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color(0xFF2D3748),
+                Color(0xFF4A5568),
+              ],
+            ),
+          ),
+          child: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Spacer(),
+                      Row(
+                        children: [
+                          // NO SEARCH ICON - completely removed
+                          _buildAppBarAction(Icons.notifications_outlined, () {}),
+                          const SizedBox(width: 8),
+                          _buildAppBarAction(Icons.settings_outlined, _openSettings),
+                          const SizedBox(width: 8),
+                          _buildProfileAvatar(),
+                        ],
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAppBarAction(IconData icon, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.2),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Icon(
+          icon,
+          color: Colors.white,
+          size: 20,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProfileAvatar() {
+    return GestureDetector(
+      onTap: _openProfile,
+      child: Container(
+        width: 36,
+        height: 36,
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [Color(0xFF4CAF50), Color(0xFF81C784)],
+          ),
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: Colors.white.withOpacity(0.3), width: 2),
+        ),
+        child: const Icon(
+          Icons.person,
+          color: Colors.white,
+          size: 18,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildWelcomeSection() {
     return AnimatedBuilder(
       animation: _fadeAnimation,
       builder: (context, child) {
@@ -483,7 +531,7 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
                                     ],
                                   ),
                                   const SizedBox(height: 12),
-                                  Text(
+                                  const Text(
                                     'Ready to grow your business?',
                                     style: TextStyle(
                                       color: ModernTheme.textSecondary,
@@ -589,7 +637,7 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
           padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
           decoration: BoxDecoration(
             gradient: isSelected
-                ? LinearGradient(
+                ? const LinearGradient(
                     colors: [
                       ModernTheme.primaryBlue,
                       ModernTheme.teal,
@@ -726,9 +774,9 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
+              const Text(
                 'Business Health',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w900,
                   color: ModernTheme.navy,
@@ -778,7 +826,7 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
   }
 
   Widget _buildHealthScoreChart(int score) {
-    return Container(
+    return SizedBox(
       height: 180,
       width: 180,
       child: Stack(
@@ -820,7 +868,7 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
                 const SizedBox(height: 4),
                 Text(
                   _getHealthLevel(score),
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
                     color: ModernTheme.textSecondary,
@@ -1039,7 +1087,7 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
                 const SizedBox(height: 4),
                 Text(
                   subtitle,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 15,
                     color: ModernTheme.textSecondary,
                     fontWeight: FontWeight.w500,
@@ -1057,7 +1105,7 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
             ),
             child: Text(
               time,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 12,
                 color: ModernTheme.textTertiary,
                 fontWeight: FontWeight.w600,
@@ -1144,7 +1192,7 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
                       Icons.add_business_rounded,
                       const Color(0xFF00D4FF),
                       () => Navigator.of(context).push(
-                        MaterialPageRoute(builder: (_) => BusinessScreen()),
+                        MaterialPageRoute(builder: (_) => const BusinessScreen()),
                       ),
                     ),
                     _buildActionCard(
@@ -1152,7 +1200,7 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
                       Icons.school_rounded,
                       const Color(0xFF10B981),
                       () => Navigator.of(context).push(
-                        MaterialPageRoute(builder: (_) => LearningScreen()),
+                        MaterialPageRoute(builder: (_) => const LearningScreen()),
                       ),
                     ),
                     _buildActionCard(
@@ -1230,7 +1278,7 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
                 const SizedBox(height: 10),
                 Text(
                   title,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
                     color: Colors.white,
@@ -1324,9 +1372,9 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
                             ),
                           ],
                         ),
-                        child: Column(
+                        child: const Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          children: const [
+                          children: [
                             Text(
                               'Trends & Forecast',
                               style: TextStyle(
@@ -1435,7 +1483,7 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Total',
+                    const Text('Total',
                         style: TextStyle(color: ModernTheme.textTertiary)),
                     const SizedBox(height: 6),
                     Text(total.round().toString(),
@@ -1448,7 +1496,7 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Average',
+                    const Text('Average',
                         style: TextStyle(color: ModernTheme.textTertiary)),
                     const SizedBox(height: 6),
                     Text(avg.round().toString(),
@@ -1461,7 +1509,7 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Growth',
+                    const Text('Growth',
                         style: TextStyle(color: ModernTheme.textTertiary)),
                     const SizedBox(height: 6),
                     Text('${growth.round()}%',
@@ -1798,10 +1846,10 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
           ),
         ],
       ),
-      child: Column(
+      child: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Market Trends',
             style: TextStyle(
               fontSize: 20,
@@ -1810,10 +1858,10 @@ class _UltraModernDashboardScreenState extends State<UltraModernDashboardScreen>
               letterSpacing: 0.5,
             ),
           ),
-          const SizedBox(height: 20),
-          Container(
+          SizedBox(height: 20),
+          SizedBox(
             height: 200,
-            child: const Center(
+            child: Center(
               child: Text(
                 'Trend data will be displayed here',
                 style: TextStyle(
@@ -1939,7 +1987,7 @@ class _HealthRingPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
     final radius = (size.width - 24) / 2;
-    final strokeWidth = 12.0;
+    const strokeWidth = 12.0;
 
     // Draw track
     final trackPaint = Paint()
@@ -1994,6 +2042,663 @@ class _HealthRingPainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
 
+  Widget _buildAppBarAction(IconData icon, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.2),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Icon(
+          icon,
+          color: Colors.white,
+          size: 20,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProfileAvatar() {
+    return GestureDetector(
+      onTap: _openProfile,
+      child: Container(
+        width: 36,
+        height: 36,
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [Color(0xFF4CAF50), Color(0xFF81C784)],
+          ),
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: Colors.white.withOpacity(0.3), width: 2),
+        ),
+        child: const Icon(
+          Icons.person,
+          color: Colors.white,
+          size: 18,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildWelcomeSection() {
+    return AnimatedBuilder(
+      animation: _fadeAnimation,
+      builder: (context, child) {
+        return Transform.translate(
+          offset: Offset(0, _slideAnimation.value * 0.5),
+          child: Opacity(
+            opacity: _fadeAnimation.value,
+            child: Container(
+              margin: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Good ${_getTimeOfDayGreeting()},',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      color: Color(0xFF64748B),
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  const Text(
+                    'Entrepreneur 👋',
+                    style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.w800,
+                      color: Color(0xFF1E293B),
+                      letterSpacing: -0.5,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Here\'s what\'s happening with your business today',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Color(0xFF64748B),
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  String _getTimeOfDayGreeting() {
+    final hour = DateTime.now().hour;
+    if (hour < 12) return 'Morning';
+    if (hour < 17) return 'Afternoon';
+    return 'Evening';
+  }
+
+  Widget _buildBusinessMetrics() {
+    return AnimatedBuilder(
+      animation: _fadeAnimation,
+      builder: (context, child) {
+        return Transform.translate(
+          offset: Offset(0, _slideAnimation.value * 0.3),
+          child: Opacity(
+            opacity: _fadeAnimation.value,
+            child: Container(
+              margin: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Business Overview',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF1E293B),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildMetricCard(
+                          'Revenue',
+                          '\$24,580',
+                          '+12.5%',
+                          Icons.trending_up,
+                          const Color(0xFF10B981),
+                          const Color(0xFFECFDF5),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _buildMetricCard(
+                          'Growth',
+                          '28.4%',
+                          '+5.2%',
+                          Icons.analytics,
+                          const Color(0xFF3B82F6),
+                          const Color(0xFFEFF6FF),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildMetricCard(
+                          'Customers',
+                          '1,247',
+                          '+18.3%',
+                          Icons.people,
+                          const Color(0xFF8B5CF6),
+                          const Color(0xFFF3E8FF),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _buildMetricCard(
+                          'Plans Active',
+                          '6',
+                          'This month',
+                          Icons.description,
+                          const Color(0xFFF59E0B),
+                          const Color(0xFFFEF3C7),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildMetricCard(
+    String title,
+    String value,
+    String change,
+    IconData icon,
+    Color iconColor,
+    Color backgroundColor,
+  ) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF1E293B).withOpacity(0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: backgroundColor,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  icon,
+                  color: iconColor,
+                  size: 20,
+                ),
+              ),
+              Text(
+                change,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: change.startsWith('+') 
+                    ? const Color(0xFF10B981) 
+                    : const Color(0xFF64748B),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            value,
+            style: const TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.w800,
+              color: Color(0xFF1E293B),
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color: Color(0xFF64748B),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAnalyticsSection() {
+    return AnimatedBuilder(
+      animation: _fadeAnimation,
+      builder: (context, child) {
+        return Transform.translate(
+          offset: Offset(0, _slideAnimation.value * 0.2),
+          child: Opacity(
+            opacity: _fadeAnimation.value,
+            child: Container(
+              margin: const EdgeInsets.symmetric(horizontal: 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Performance Analytics',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF1E293B),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFF1E293B).withOpacity(0.04),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              'Business Health Score',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFF1E293B),
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 6,
+                              ),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF10B981).withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: const Text(
+                                'Excellent',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: Color(0xFF10B981),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        _buildProgressIndicator('Overall Score', 0.87, const Color(0xFF10B981)),
+                        const SizedBox(height: 12),
+                        _buildProgressIndicator('Financial Health', 0.92, const Color(0xFF3B82F6)),
+                        const SizedBox(height: 12),
+                        _buildProgressIndicator('Market Position', 0.78, const Color(0xFF8B5CF6)),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildProgressIndicator(String label, double progress, Color color) {
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: Color(0xFF64748B),
+              ),
+            ),
+            Text(
+              '${(progress * 100).toInt()}%',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: color,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Container(
+          height: 6,
+          decoration: BoxDecoration(
+            color: const Color(0xFFF1F5F9),
+            borderRadius: BorderRadius.circular(3),
+          ),
+          child: FractionallySizedBox(
+            alignment: Alignment.centerLeft,
+            widthFactor: progress,
+            child: Container(
+              decoration: BoxDecoration(
+                color: color,
+                borderRadius: BorderRadius.circular(3),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildQuickActionsGrid() {
+    return AnimatedBuilder(
+      animation: _fadeAnimation,
+      builder: (context, child) {
+        return Transform.translate(
+          offset: Offset(0, _slideAnimation.value * 0.1),
+          child: Opacity(
+            opacity: _fadeAnimation.value,
+            child: Container(
+              margin: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Quick Actions',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF1E293B),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  GridView.count(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 12,
+                    mainAxisSpacing: 12,
+                    childAspectRatio: 1.5,
+                    children: [
+                      _buildActionCard(
+                        'Create Plan',
+                        Icons.add_business,
+                        const Color(0xFF3B82F6),
+                        () => Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const BusinessScreen()),
+                        ),
+                      ),
+                      _buildActionCard(
+                        'Learn & Grow',
+                        Icons.school,
+                        const Color(0xFF10B981),
+                        () => Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const LearningScreen()),
+                        ),
+                      ),
+                      _buildActionCard(
+                        'Analytics',
+                        Icons.analytics,
+                        const Color(0xFF8B5CF6),
+                        () => setState(() => _selectedTabIndex = 1),
+                      ),
+                      _buildActionCard(
+                        'View Profile',
+                        Icons.person,
+                        const Color(0xFFF59E0B),
+                        _openProfile,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildActionCard(
+    String title,
+    IconData icon,
+    Color color,
+    VoidCallback onTap,
+  ) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF1E293B).withOpacity(0.04),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(
+                icon,
+                color: color,
+                size: 24,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              title,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF1E293B),
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRecentActivity() {
+    return AnimatedBuilder(
+      animation: _fadeAnimation,
+      builder: (context, child) {
+        return Opacity(
+          opacity: _fadeAnimation.value,
+          child: Container(
+            margin: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF1E293B).withOpacity(0.04),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Padding(
+                  padding: EdgeInsets.all(20),
+                  child: Text(
+                    'Recent Activity',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF1E293B),
+                    ),
+                  ),
+                ),
+                _buildActivityItem(
+                  'Business Plan Created',
+                  'Tech Startup Plan completed',
+                  Icons.description,
+                  const Color(0xFF3B82F6),
+                  '2 hours ago',
+                ),
+                _buildActivityItem(
+                  'ROI Calculated',
+                  'Project Alpha analysis done',
+                  Icons.calculate,
+                  const Color(0xFF10B981),
+                  '5 hours ago',
+                ),
+                _buildActivityItem(
+                  'Learning Module',
+                  'Marketing Strategies completed',
+                  Icons.school,
+                  const Color(0xFF8B5CF6),
+                  '1 day ago',
+                ),
+                const SizedBox(height: 20),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildActivityItem(
+    String title,
+    String subtitle,
+    IconData icon,
+    Color color,
+    String time,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(
+              icon,
+              color: color,
+              size: 16,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF1E293B),
+                  ),
+                ),
+                Text(
+                  subtitle,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Color(0xFF64748B),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Text(
+            time,
+            style: const TextStyle(
+              fontSize: 12,
+              color: Color(0xFF64748B),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _openProfile() async {
+    final result = await Navigator.of(context).push<bool?>(
+      MaterialPageRoute(builder: (_) => const ProfileScreen()),
+    );
+    if (result == true) {
+      try {
+        await AuthService.getUserProfile();
+      } catch (_) {}
+      if (mounted) setState(() {});
+    }
+  }
+
+  void _openSettings() {
+    // Settings implementation
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Settings'),
+        content: const Text('Settings feature coming soon!'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
 class _GridPainter extends CustomPainter {
   final double spacing;
 
@@ -2030,8 +2735,7 @@ class _SimpleLineChart extends StatefulWidget {
   final Color color;
 
   const _SimpleLineChart(
-      {required this.values, this.labels, required this.color, Key? key})
-      : super(key: key);
+      {required this.values, this.labels, required this.color});
 
   @override
   State<_SimpleLineChart> createState() => _SimpleLineChartState();
@@ -2045,8 +2749,8 @@ class _SimpleLineChartState extends State<_SimpleLineChart> {
     if (box == null) return;
     final local = box.globalToLocal(details.globalPosition);
     final w = constraints.maxWidth;
-    final leftPad = 32.0;
-    final rightPad = 16.0;
+    const leftPad = 32.0;
+    const rightPad = 16.0;
     final usable = w - leftPad - rightPad;
     final n = widget.values.length;
     if (n == 0) return;
@@ -2103,10 +2807,10 @@ class _LineChartPainter extends CustomPainter {
 
     if (values.isEmpty) return;
 
-    final leftPad = 32.0;
-    final bottomPad = 28.0;
-    final topPad = 12.0;
-    final rightPad = 16.0;
+    const leftPad = 32.0;
+    const bottomPad = 28.0;
+    const topPad = 12.0;
+    const rightPad = 16.0;
     final usableWidth = size.width - leftPad - rightPad;
     final usableHeight = size.height - topPad - bottomPad;
 
@@ -2148,7 +2852,7 @@ class _LineChartPainter extends CustomPainter {
     }
 
     // labels (x-axis)
-    final textStyle = TextStyle(color: ModernTheme.textTertiary, fontSize: 10);
+    const textStyle = TextStyle(color: ModernTheme.textTertiary, fontSize: 10);
     final tp = TextPainter(textDirection: TextDirection.ltr);
     if (labels != null && labels!.isNotEmpty) {
       final step = (values.length / 6).ceil();

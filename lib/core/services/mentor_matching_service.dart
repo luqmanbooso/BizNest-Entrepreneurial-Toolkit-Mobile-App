@@ -122,7 +122,7 @@ class MentorMatchingService {
 
   // Check if experience levels are compatible
   static bool _isExperienceLevelCompatible(String mentorLevel, String userLevel) {
-    final levels = ['beginner', 'intermediate', 'advanced', 'expert'];
+    final levels = ['novice', 'intermediate', 'advanced', 'expert'];
     final mentorIndex = levels.indexOf(mentorLevel);
     final userIndex = levels.indexOf(userLevel);
     

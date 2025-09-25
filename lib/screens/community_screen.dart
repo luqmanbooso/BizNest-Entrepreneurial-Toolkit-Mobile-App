@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../core/theme/modern_theme.dart';
+import '../core/widgets/biznest_logo.dart';
 import '../core/services/auth_service.dart';
 import 'create_thread_screen.dart';
 
@@ -124,7 +125,6 @@ class _CommunityScreenState extends State<CommunityScreen>
           ),
         ),
         child: SafeArea(
-          
           child: Column(
             children: [
               _buildHeader(),
@@ -136,10 +136,7 @@ class _CommunityScreenState extends State<CommunityScreen>
                       begin: const Offset(0, 0.1),
                       end: Offset.zero,
                     ).animate(_slideAnimation),
-                    child: Transform.translate(
-                      offset: const Offset(0, -40),
-                      child: _buildContent(),
-                    ),
+                    child: _buildContent(),
                   ),
                 ),
               ),
@@ -166,7 +163,7 @@ class _CommunityScreenState extends State<CommunityScreen>
 
   Widget _buildHeader() {
     return Container(
-      padding: const EdgeInsets.fromLTRB(20, 1, 20, 0),
+      padding: const EdgeInsets.all(20),
       child: Column(
         children: [
           Row(
@@ -187,6 +184,7 @@ class _CommunityScreenState extends State<CommunityScreen>
                   ),
                 ),
               ),
+              const BizNestLogo(size: 40, showText: false),
               Row(
                 children: [
                   if (AuthService.isAuthenticated)
@@ -238,7 +236,7 @@ class _CommunityScreenState extends State<CommunityScreen>
               ),
             ],
           ),
-          const SizedBox(height: 2),
+          const SizedBox(height: 20),
           Text(
             'Community Forum',
             style: ModernTheme.headingLarge.copyWith(
@@ -246,7 +244,7 @@ class _CommunityScreenState extends State<CommunityScreen>
               fontWeight: FontWeight.bold,
             ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 8),
           Text(
             'Discuss, share, and learn together',
             style: ModernTheme.bodyLarge.copyWith(
@@ -280,7 +278,7 @@ class _CommunityScreenState extends State<CommunityScreen>
 
   Widget _buildCategoryFilter() {
     return Container(
-      padding: const EdgeInsets.fromLTRB(20, 15, 20, 10),
+      padding: const EdgeInsets.all(20),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: Row(

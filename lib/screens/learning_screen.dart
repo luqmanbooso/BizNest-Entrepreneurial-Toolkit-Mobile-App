@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:shimmer/shimmer.dart';
 import '../core/theme/modern_theme.dart';
-import '../core/widgets/biznest_logo.dart';
 import '../core/services/learning_engine.dart';
 import '../core/services/quiz_service.dart';
 import 'quiz_screen.dart';
+import 'tutorial_screen.dart';
 
 class LearningScreen extends StatefulWidget {
   const LearningScreen({super.key});
@@ -15,70 +14,145 @@ class LearningScreen extends StatefulWidget {
 
 class _LearningScreenState extends State<LearningScreen>
     with TickerProviderStateMixin {
-  late AnimationController _fadeController;
-  late AnimationController _slideController;
-  late AnimationController _pulseController;
-
-  bool _isLoading = true;
   List<Map<String, dynamic>> _tutorials = [];
   Map<String, dynamic> _statistics = {};
   List<String> _badges = [];
   String _userLevel = 'novice';
 
+  late AnimationController _staggerController;
+  late List<Animation<double>> _animations;
+
   @override
   void initState() {
     super.initState();
-    _initializeAnimations();
+    _setupAnimations();
+    _staggerController.forward(); // Start animation immediately
     _loadLearningData();
   }
 
-  void _initializeAnimations() {
-    _fadeController = AnimationController(
-      duration: const Duration(milliseconds: 800),
+  void _setupAnimations() {
+    _staggerController = AnimationController(
+      duration: const Duration(milliseconds: 1200),
       vsync: this,
     );
-    _slideController = AnimationController(
-      duration: const Duration(milliseconds: 600),
-      vsync: this,
-    );
-    _pulseController = AnimationController(
-      duration: const Duration(milliseconds: 1000),
-      vsync: this,
-    );
+
+    _animations = List.generate(5, (index) {
+      return Tween<double>(begin: 0.0, end: 1.0).animate(
+        CurvedAnimation(
+          parent: _staggerController,
+          curve: Interval(
+            index * 0.15,
+            (index + 1) * 0.15 + 0.2,
+            curve: Curves.easeOutCubic,
+          ),
+        ),
+      );
+    });
+  }
+
+  @override
+  void dispose() {
+    _staggerController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadLearningData() async {
-    setState(() => _isLoading = true);
-
     try {
       final tutorials = await LearningEngine.getPersonalizedTutorials();
       final statistics = await LearningEngine.getLearningStatistics();
       final badges = await LearningEngine.getUserBadges();
       final level = await QuizService.getUserLevel();
 
-      setState(() {
-        _tutorials = tutorials;
-        _statistics = statistics;
-        _badges = badges;
-        _userLevel = level;
-      });
+      // If no tutorials loaded, add some default ones for testing
+      List<Map<String, dynamic>> finalTutorials = tutorials;
+      if (tutorials.isEmpty) {
+        finalTutorials = [
+          {
+            'id': 'novice_1',
+            'title': 'Introduction to Entrepreneurship',
+            'description': 'Learn the basics of starting a business',
+            'duration': 15,
+            'category': 'fundamentals',
+            'difficulty': 'novice',
+            'content': {
+              'sections': [
+                {
+                  'title': 'What is Entrepreneurship?',
+                  'content': 'Entrepreneurship is the process of creating, developing, and managing a business venture...',
+                  'type': 'text'
+                }
+              ]
+            },
+            'prerequisites': [],
+            'badge': 'first_steps'
+          },
+          {
+            'id': 'novice_2',
+            'title': 'Understanding Your Market',
+            'description': 'Learn how to identify and understand your target market',
+            'duration': 20,
+            'category': 'market_research',
+            'difficulty': 'novice',
+            'content': {
+              'sections': [
+                {
+                  'title': 'What is Market Research?',
+                  'content': 'Market research helps you understand your customers and competition...',
+                  'type': 'text'
+                }
+              ]
+            },
+            'prerequisites': ['novice_1'],
+            'badge': 'market_researcher'
+          }
+        ];
+      }
 
-      await Future.delayed(const Duration(seconds: 1));
-
-      setState(() => _isLoading = false);
-      _fadeController.forward();
-      _slideController.forward();
+      if (mounted) {
+        setState(() {
+          _tutorials = finalTutorials;
+          _statistics = statistics;
+          _badges = badges;
+          _userLevel = level;
+        });
+      }
     } catch (e) {
-      setState(() => _isLoading = false);
+      // Set some default tutorials even on error
+      setState(() {
+        _tutorials = [
+          {
+            'id': 'default_1',
+            'title': 'Getting Started',
+            'description': 'Welcome to the learning hub',
+            'duration': 10,
+            'category': 'introduction',
+            'difficulty': 'novice',
+            'content': {
+              'sections': [
+                {
+                  'title': 'Welcome!',
+                  'content': 'This is your interactive learning experience.',
+                  'type': 'text'
+                }
+              ]
+            },
+            'prerequisites': [],
+            'badge': 'welcome'
+          }
+        ];
+        _statistics = {
+          'current_level': 'novice',
+          'completed_tutorials': 0,
+          'total_badges': 0,
+          'current_streak': 0,
+          'longest_streak': 0,
+          'total_time_spent': 0,
+          'badges': [],
+        };
+        _badges = [];
+        _userLevel = 'novice';
+      });
     }
-  }
-
-  @override
-  void dispose() {
-    _fadeController.dispose();
-    _slideController.dispose();
-    _pulseController.dispose();
-    super.dispose();
   }
 
   @override
@@ -96,69 +170,88 @@ class _LearningScreenState extends State<LearningScreen>
           ),
         ),
         child: SafeArea(
-          child: _isLoading ? _buildLoadingScreen() : _buildLearningContent(),
+          child: _buildLearningContent(),
         ),
-      ),
-    );
-  }
-
-  Widget _buildLoadingScreen() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Shimmer.fromColors(
-            baseColor: Colors.white.withOpacity(0.3),
-            highlightColor: Colors.white.withOpacity(0.8),
-            child: const BizNestLogo(size: 80),
-          ),
-          const SizedBox(height: 24),
-          const CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'Loading your personalized learning path...',
-            style: ModernTheme.headingMedium.copyWith(color: Colors.white),
-          ),
-        ],
       ),
     );
   }
 
   Widget _buildLearningContent() {
-    return FadeTransition(
-      opacity: _fadeController,
-      child: SlideTransition(
-        position: Tween<Offset>(
-          begin: const Offset(0, 0.1),
-          end: Offset.zero,
-        ).animate(CurvedAnimation(
-          parent: _slideController,
-          curve: Curves.easeOutCubic,
-        )),
-        child: Column(
-          children: [
-            _buildHeader(),
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    _buildStatisticsCard(),
-                    const SizedBox(height: 20),
-                    _buildBadgesSection(),
-                    const SizedBox(height: 20),
-                    _buildTutorialsSection(),
-                    const SizedBox(height: 20),
-                    _buildQuickActions(),
-                    const SizedBox(height: 20),
-                  ],
-                ),
+    return Column(
+      children: [
+        AnimatedBuilder(
+          animation: _animations[0],
+          builder: (context, child) {
+            return Transform.translate(
+              offset: Offset(0, 50 * (1 - _animations[0].value)),
+              child: Opacity(
+                opacity: _animations[0].value,
+                child: _buildHeader(),
               ),
-            ),
-          ],
+            );
+          },
         ),
-      ),
+        Expanded(
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                AnimatedBuilder(
+                  animation: _animations[1],
+                  builder: (context, child) {
+                    return Transform.translate(
+                      offset: Offset(0, 50 * (1 - _animations[1].value)),
+                      child: Opacity(
+                        opacity: _animations[1].value,
+                        child: _buildStatisticsCard(),
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 20),
+                AnimatedBuilder(
+                  animation: _animations[2],
+                  builder: (context, child) {
+                    return Transform.translate(
+                      offset: Offset(0, 50 * (1 - _animations[2].value)),
+                      child: Opacity(
+                        opacity: _animations[2].value,
+                        child: _buildBadgesSection(),
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 20),
+                AnimatedBuilder(
+                  animation: _animations[3],
+                  builder: (context, child) {
+                    return Transform.translate(
+                      offset: Offset(0, 50 * (1 - _animations[3].value)),
+                      child: Opacity(
+                        opacity: _animations[3].value,
+                        child: _buildTutorialsSection(),
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 20),
+                AnimatedBuilder(
+                  animation: _animations[4],
+                  builder: (context, child) {
+                    return Transform.translate(
+                      offset: Offset(0, 50 * (1 - _animations[4].value)),
+                      child: Opacity(
+                        opacity: _animations[4].value,
+                        child: _buildQuickActions(),
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 20),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -718,14 +811,10 @@ class _LearningScreenState extends State<LearningScreen>
     switch (difficulty.toLowerCase()) {
       case 'novice':
         return Colors.green;
-      case 'beginner':
-        return Colors.blue;
       case 'intermediate':
         return Colors.orange;
       case 'advanced':
         return Colors.red;
-      case 'expert':
-        return Colors.purple;
       default:
         return Colors.grey;
     }
@@ -733,26 +822,15 @@ class _LearningScreenState extends State<LearningScreen>
 
   void _startTutorial(Map<String, dynamic> tutorial) {
     // Navigate to tutorial screen
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(tutorial['title']),
-        content: Text(tutorial['description']),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              // Start tutorial
-            },
-            child: const Text('Start'),
-          ),
-        ],
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => TutorialScreen(tutorial: tutorial),
       ),
-    );
+    ).then((_) {
+      // Refresh tutorials when returning from tutorial
+      _loadLearningData();
+    });
   }
 
   void _takeQuiz() {
