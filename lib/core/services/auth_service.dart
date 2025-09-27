@@ -151,6 +151,7 @@ class AuthService {
         name: name,
         email: email,
         password: password,
+        role: role,
       );
       if (fbResult.success) {
         await _saveAuthData(
@@ -350,41 +351,48 @@ class AuthService {
   static Future<AuthResult> updateProfile(Map<String, dynamic> updates) async {
     try {
       final user = _auth.currentUser;
-      if (user != null) {
-        // Update Firebase Auth display name if name is being updated
-        if (updates.containsKey('name') && updates['name'] != null) {
-          await user.updateDisplayName(updates['name']);
-        }
-
-        // Update Firestore user document
-        final userUpdates = <String, dynamic>{};
-        if (updates.containsKey('name')) userUpdates['name'] = updates['name'];
-        if (updates.containsKey('email')) userUpdates['email'] = updates['email'];
-        if (updates.containsKey('avatar')) userUpdates['avatar'] = updates['avatar'];
-
-        if (userUpdates.isNotEmpty) {
-          await FirebaseFirestore.instance.collection('users').doc(user.uid).update(userUpdates);
-        }
-
-        // Update local user data
-        final updatedUser = {
-          ..._currentUser ?? {},
-          ...updates,
-        };
-        _currentUser = updatedUser;
-        await FirebaseDataService.setJson(_userKey, updatedUser);
-
-        return AuthResult.success(
-          user: updatedUser,
-          message: 'Profile updated successfully',
-        );
-      } else {
+      if (user == null) {
         return AuthResult.error(message: 'No user logged in');
       }
-    } catch (e) {
-      if (kDebugMode) {
-        print('Profile update error: $e');
+
+      // Update Firestore user document with all provided updates
+      final userUpdates = <String, dynamic>{};
+
+      // Handle name updates (combine firstName and lastName if provided)
+      if (updates.containsKey('firstName') && updates.containsKey('lastName')) {
+        final fullName = '${updates['firstName']} ${updates['lastName']}';
+        userUpdates['name'] = fullName;
+        await user.updateDisplayName(fullName);
+      } else if (updates.containsKey('name')) {
+        userUpdates['name'] = updates['name'];
+        await user.updateDisplayName(updates['name']);
       }
+
+      // Add all other updates to Firestore
+      updates.forEach((key, value) {
+        if (key != 'name' && key != 'firstName' && key != 'lastName') {
+          userUpdates[key] = value;
+        }
+      });
+
+      if (userUpdates.isNotEmpty) {
+        await FirebaseFirestore.instance.collection('users').doc(user.uid).set(userUpdates, SetOptions(merge: true));
+      }
+
+      // Update local user data
+      final updatedUser = {
+        ..._currentUser ?? {},
+        ...updates,
+      };
+      _currentUser = updatedUser;
+      await FirebaseDataService.setJson(_userKey, updatedUser);
+
+      return AuthResult.success(
+        user: updatedUser,
+        message: 'Profile updated successfully',
+      );
+    } catch (e) {
+      print('Profile update error: $e');
       return AuthResult.error(
         message: 'Failed to update profile. Please try again.',
       );
