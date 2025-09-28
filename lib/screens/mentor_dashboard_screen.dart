@@ -334,8 +334,6 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen>
         return _buildDashboardContent();
       case 1:
         return MentorshipRequestsScreen();
-      case 2:
-        return _buildCommunityWrapper();
       case 3:
         return _buildProfileWrapper();
       default:
@@ -343,27 +341,9 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen>
     }
   }
 
-  Widget _buildCommunityWrapper() {
-    return SafeArea(
-      child: Navigator(
-        onGenerateRoute: (settings) {
-          return MaterialPageRoute(
-            builder: (context) => const CommunityScreen(),
-          );
-        },
-      ),
-    );
-  }
-
   Widget _buildProfileWrapper() {
-    return SafeArea(
-      child: Navigator(
-        onGenerateRoute: (settings) {
-          return MaterialPageRoute(
-            builder: (context) => const ProfileScreen(),
-          );
-        },
-      ),
+    return const SafeArea(
+      child: ProfileScreen(),
     );
   }
 
@@ -1042,9 +1022,16 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen>
     final isSelected = _selectedIndex == index;
     return GestureDetector(
       onTap: () {
-        setState(() {
-          _selectedIndex = index;
-        });
+        if (index == 2) { // Community tab
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const CommunityScreen()),
+          );
+        } else {
+          setState(() {
+            _selectedIndex = index;
+          });
+        }
       },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
