@@ -56,28 +56,40 @@ class AuthService {
       final userData = await FirebaseDataService.getJson(_userKey);
       if (userData != null) {
         _currentUser = userData;
+        // Also try to get additional data from Firestore
+        await _refreshUserDataFromFirestore();
       } else {
         // Create user data from Firebase Auth and Firestore
         final user = _auth.currentUser;
         if (user != null) {
-          // Try to get name from Firestore first
-          final userDoc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
-          final firestoreName = userDoc.data()?['name'];
-          
+          await _refreshUserDataFromFirestore();
+        }
+      }
+    } catch (e) {
+      print('Error loading user data: $e');
+    }
+  }
+
+  // Refresh user data from Firestore
+  static Future<void> _refreshUserDataFromFirestore() async {
+    try {
+      final user = _auth.currentUser;
+      if (user != null) {
+        final userDoc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+        if (userDoc.exists) {
+          final firestoreData = userDoc.data()!;
           _currentUser = {
+            ..._currentUser ?? {},
+            ...firestoreData,
             'id': user.uid,
-            'name': firestoreName ?? user.displayName ?? user.email ?? 'User',
-            'email': user.email ?? '',
-            'avatar': user.photoURL ?? '',
-            'role': 'entrepreneur',
-            'company': '',
+            'email': user.email ?? firestoreData['email'] ?? '',
             'is_verified': user.emailVerified,
           };
           await FirebaseDataService.setJson(_userKey, _currentUser!);
         }
       }
     } catch (e) {
-      print('Error loading user data: $e');
+      print('Error refreshing user data from Firestore: $e');
     }
   }
 
@@ -477,11 +489,20 @@ class AuthService {
     _currentToken = null;
     _currentUser = null;
 
-    await Future.wait([
-      FirebaseDataService.remove(_tokenKey),
-      FirebaseDataService.remove(_refreshTokenKey),
-      FirebaseDataService.remove(_userKey),
-    ]);
+    // Clear local data - make this completely fail-safe
+    try {
+      await Future.wait([
+        FirebaseDataService.remove(_tokenKey).catchError((_) => null),
+        FirebaseDataService.remove(_refreshTokenKey).catchError((_) => null),
+        FirebaseDataService.remove(_userKey).catchError((_) => null),
+      ]);
+    } catch (e) {
+      // If clearing local data fails, just log it but don't throw
+      // This can happen if the user is already signed out
+      if (kDebugMode) {
+        print('Clear local auth data error (non-critical): $e');
+      }
+    }
   }
 
   // Get user profile

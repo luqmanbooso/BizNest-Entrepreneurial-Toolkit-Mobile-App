@@ -1,10 +1,5 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import '../core/theme/modern_theme.dart';
-import '../core/widgets/modern_animations.dart';
 import '../core/services/auth_service.dart';
 import 'mentor_dashboard_screen.dart';
 
@@ -42,8 +37,6 @@ class _MentorProfileSetupScreenState extends State<MentorProfileSetupScreen>
   late Animation<double> _scaleAnimation;
 
   bool _isLoading = false;
-  String? _profileImageUrl;
-  File? _profileImageFile;
 
   // Expertise and Industry selections
   List<String> _selectedExpertise = [];
@@ -206,18 +199,6 @@ class _MentorProfileSetupScreenState extends State<MentorProfileSetupScreen>
     });
 
     try {
-      // Upload profile image if selected
-      String? uploadedImageUrl;
-      if (_profileImageFile != null) {
-        try {
-          uploadedImageUrl = await _uploadProfileImage(_profileImageFile!);
-        } catch (e) {
-          // Log the error but don't fail the profile creation
-          print('Image upload failed: $e');
-          // Continue without the image
-        }
-      }
-
       // Prepare profile data
       final profileData = {
         'firstName': _firstNameController.text,
@@ -232,7 +213,6 @@ class _MentorProfileSetupScreenState extends State<MentorProfileSetupScreen>
         'expertise': _selectedExpertise,
         'industries': _selectedIndustries,
         'experienceLevel': _selectedExperienceLevel,
-        'profileImage': uploadedImageUrl ?? _profileImageUrl,
         'role': 'mentor',
         'isProfileComplete': true,
       };
@@ -295,52 +275,7 @@ class _MentorProfileSetupScreenState extends State<MentorProfileSetupScreen>
     );
   }
 
-  Future<void> _pickProfileImage() async {
-    final ImagePicker picker = ImagePicker();
-
-    try {
-      final XFile? image = await picker.pickImage(
-        source: ImageSource.gallery,
-        maxWidth: 512,
-        maxHeight: 512,
-        imageQuality: 80,
-      );
-
-      if (image != null) {
-        setState(() {
-          _profileImageFile = File(image.path);
-        });
-      }
-    } catch (e) {
-      _showErrorSnackBar('Failed to pick image');
-    }
-  }
-
-  Future<String?> _uploadProfileImage(File imageFile) async {
-    try {
-      // Generate a unique filename
-      final timestamp = DateTime.now().millisecondsSinceEpoch;
-      final userId = FirebaseAuth.instance.currentUser?.uid ?? 'unknown';
-      final fileName = 'profile_${userId}_$timestamp.jpg';
-      
-      // Create a reference to the Firebase Storage location
-      final storageRef = FirebaseStorage.instance.ref();
-      final profileImagesRef = storageRef.child('profile_images/$fileName');
-      
-      // Upload the file
-      final uploadTask = profileImagesRef.putFile(imageFile);
-      
-      // Wait for the upload to complete
-      final snapshot = await uploadTask.whenComplete(() => null);
-      
-      // Get the download URL
-      final downloadUrl = await snapshot.ref.getDownloadURL();
-      
-      return downloadUrl;
-    } catch (e) {
-      throw Exception('Failed to upload image: $e');
-    }
-  }  @override
+  @override  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
@@ -462,47 +397,20 @@ class _MentorProfileSetupScreenState extends State<MentorProfileSetupScreen>
           ),
           const SizedBox(height: 20),
 
-          // Profile Image
+          // Profile Avatar with name initial
           Center(
-            child: GestureDetector(
-              onTap: _pickProfileImage,
-              child: Container(
-                width: 120,
-                height: 120,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: ModernTheme.lightGray,
-                  border: Border.all(color: ModernTheme.electricBlue, width: 3),
-                ),
-                child: _profileImageFile != null
-                    ? ClipOval(
-                        child: Image.file(
-                          _profileImageFile!,
-                          fit: BoxFit.cover,
-                        ),
-                      )
-                    : const Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.camera_alt,
-                            size: 40,
-                            color: ModernTheme.mediumGray,
-                          ),
-                          SizedBox(height: 8),
-                          Text(
-                            'Add Photo',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: ModernTheme.mediumGray,
-                            ),
-                          ),
-                        ],
-                      ),
+            child: CircleAvatar(
+              radius: 48,
+              backgroundColor: ModernTheme.primaryColor.withOpacity(0.3),
+              child: Text(
+                _firstNameController.text.isNotEmpty
+                    ? _firstNameController.text[0].toUpperCase()
+                    : 'U',
+                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
             ),
           ),
-          const SizedBox(height: 30),
+          const SizedBox(height: 20),
 
           // Name fields
           Row(

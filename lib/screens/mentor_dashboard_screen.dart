@@ -413,7 +413,7 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen>
               children: [
                 CircleAvatar(
                   radius: 20,
-                  backgroundColor: Colors.white.withOpacity(0.2),
+                  backgroundColor: Colors.white.withOpacity(0.3),
                   child: Text(
                     AuthService.currentUser?['name']?.toString().substring(0, 1).toUpperCase() ?? 'M',
                     style: const TextStyle(
@@ -548,7 +548,7 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen>
       mainAxisSpacing: 16,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      childAspectRatio: 1.3,
+      childAspectRatio: 1.8, // Increased from 1.5 to provide more height
       children: [
         _buildStatCard(
           'Total Mentees',
