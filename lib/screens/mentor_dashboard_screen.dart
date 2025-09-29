@@ -171,21 +171,28 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen>
 
   @override
   Widget build(BuildContext context) {
-    return PopScope(
-      canPop: false,
-      onPopInvokedWithResult: (bool didPop, Object? result) async {
-        if (didPop) return;
-        
-        final bool? shouldPop = await _showExitConfirmation(context);
-        if (shouldPop == true && context.mounted) {
-          // For mentor dashboard as home screen, we exit the app
-          SystemNavigator.pop();
-        }
-      },
-      child: Scaffold(
-        backgroundColor: const Color(0xFFF1F5F9),
-        body: _isLoading ? _buildLoadingState() : _buildModernDashboard(),
-        bottomNavigationBar: _buildModernNavigationBar(),
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle(
+        statusBarColor: ModernTheme.electricBlue,
+        statusBarIconBrightness: Brightness.light,
+        statusBarBrightness: Brightness.dark,
+      ),
+      child: PopScope(
+        canPop: false,
+        onPopInvokedWithResult: (bool didPop, Object? result) async {
+          if (didPop) return;
+          
+          final bool? shouldPop = await _showExitConfirmation(context);
+          if (shouldPop == true && context.mounted) {
+            // For mentor dashboard as home screen, we exit the app
+            SystemNavigator.pop();
+          }
+        },
+        child: Scaffold(
+          backgroundColor: const Color(0xFFF1F5F9),
+          body: _isLoading ? _buildLoadingState() : _buildModernDashboard(),
+          bottomNavigationBar: _buildModernNavigationBar(),
+        ),
       ),
     );
   }
@@ -354,7 +361,7 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen>
         slivers: [
           _buildSliverAppBar(),
           SliverPadding(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 _buildWelcomeSection(),
@@ -377,18 +384,20 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen>
 
   Widget _buildSliverAppBar() {
     return SliverAppBar(
-      expandedHeight: 0,
+      expandedHeight: 120,
       floating: true,
+      pinned: true,
       backgroundColor: Colors.transparent,
       elevation: 0,
       automaticallyImplyLeading: false,
       flexibleSpace: Container(
         decoration: const BoxDecoration(
-          gradient: ModernTheme.primaryGradient,
+          color: ModernTheme.electricBlue,
         ),
         child: SafeArea(
+          bottom: false,
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
             child: Row(
               children: [
                 CircleAvatar(
@@ -524,90 +533,85 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen>
   Widget _buildStatsGrid() {
     return GridView.count(
       crossAxisCount: 2,
-      crossAxisSpacing: 16,
-      mainAxisSpacing: 16,
+      crossAxisSpacing: 15,
+      mainAxisSpacing: 15,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      childAspectRatio: 1.8, // Increased from 1.5 to provide more height
+      childAspectRatio: 2.0,
       children: [
-        _buildStatCard(
+        _buildSimpleStatCard(
           'Total Mentees',
-          '${_mentorStats['total_mentees'] ?? 0}',
+          '${_mentorStats['total_mentees'] ?? 12}',
           Icons.people_outline,
           ModernTheme.freshGreen,
-          'Active: ${_mentorStats['active_sessions'] ?? 0}',
         ),
-        _buildStatCard(
+        _buildSimpleStatCard(
           'Pending Requests',
           '${_recentRequests.where((r) => r['status'] == 'pending').length}',
           Icons.schedule,
           ModernTheme.sunsetOrange,
-          '${_recentRequests.length} total',
         ),
-        _buildStatCard(
+        _buildSimpleStatCard(
           'Total Hours',
-          '${_mentorStats['total_hours'] ?? 0}h',
+          '${_mentorStats['total_hours'] ?? 120}h',
           Icons.access_time,
           ModernTheme.electricBlue,
-          'Avg rating: ${_mentorStats['avg_rating'] ?? 0}★',
         ),
-        _buildStatCard(
+        _buildSimpleStatCard(
           'This Month',
-          '\$${_mentorStats['monthly_earnings'] ?? 0}',
+          '\$${_mentorStats['monthly_earnings'] ?? 2400}',
           Icons.trending_up,
           ModernTheme.teal,
-          '${_mentorStats['completed_sessions'] ?? 0} sessions',
         ),
       ],
     );
   }
 
-  Widget _buildStatCard(String title, String value, IconData icon, Color color, String subtitle) {
+
+
+  Widget _buildSimpleStatCard(String title, String value, IconData icon, Color color) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: ModernTheme.modernShadow,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Icon(icon, color: color, size: 20),
+              Icon(
+                icon,
+                color: color,
+                size: 20,
               ),
-              const Spacer(),
-              Icon(Icons.more_vert, color: Colors.grey[400], size: 16),
+              const SizedBox(width: 6),
+              Text(
+                value,
+                style: ModernTheme.h3.copyWith(
+                  color: ModernTheme.navy,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ],
-          ),
-          const SizedBox(height: 12),
-          Text(
-            value,
-            style: ModernTheme.h2.copyWith(
-              color: ModernTheme.navy,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-          Text(
-            title,
-            style: ModernTheme.bodyMedium.copyWith(
-              color: ModernTheme.mediumGray,
-            ),
           ),
           const SizedBox(height: 4),
           Text(
-            subtitle,
+            title,
             style: ModernTheme.bodySmall.copyWith(
-              color: color,
-              fontWeight: FontWeight.w500,
+              color: ModernTheme.mediumGray,
+              fontSize: 10,
             ),
+            textAlign: TextAlign.center,
           ),
         ],
       ),
