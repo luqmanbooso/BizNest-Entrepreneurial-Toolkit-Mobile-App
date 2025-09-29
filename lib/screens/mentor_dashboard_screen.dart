@@ -171,28 +171,21 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen>
 
   @override
   Widget build(BuildContext context) {
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle(
-        statusBarColor: ModernTheme.electricBlue,
-        statusBarIconBrightness: Brightness.light,
-        statusBarBrightness: Brightness.dark,
-      ),
-      child: PopScope(
-        canPop: false,
-        onPopInvokedWithResult: (bool didPop, Object? result) async {
-          if (didPop) return;
-          
-          final bool? shouldPop = await _showExitConfirmation(context);
-          if (shouldPop == true && context.mounted) {
-            // For mentor dashboard as home screen, we exit the app
-            SystemNavigator.pop();
-          }
-        },
-        child: Scaffold(
-          backgroundColor: const Color(0xFFF1F5F9),
-          body: _isLoading ? _buildLoadingState() : _buildModernDashboard(),
-          bottomNavigationBar: _buildModernNavigationBar(),
-        ),
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (bool didPop, Object? result) async {
+        if (didPop) return;
+        
+        final bool? shouldPop = await _showExitConfirmation(context);
+        if (shouldPop == true && context.mounted) {
+          // For mentor dashboard as home screen, we exit the app
+          SystemNavigator.pop();
+        }
+      },
+      child: Scaffold(
+        backgroundColor: const Color(0xFFF1F5F9),
+        body: _isLoading ? _buildLoadingState() : _buildModernDashboard(),
+        bottomNavigationBar: _buildModernNavigationBar(),
       ),
     );
   }
