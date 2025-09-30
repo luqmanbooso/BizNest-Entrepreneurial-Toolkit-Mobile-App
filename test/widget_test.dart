@@ -11,9 +11,9 @@ import 'package:entrepreneur_toolkit/main.dart';
 void main() {
   testWidgets('App smoke test', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(MyApp());
+    await tester.pumpWidget(const BizNestApp());
 
-    // Verify that the welcome screen loads
-    expect(find.text('Entrepreneur Toolkit'), findsOneWidget);
+    // Verify that the splash screen loads
+    expect(find.byType(BizNestApp), findsOneWidget);
   });
 }

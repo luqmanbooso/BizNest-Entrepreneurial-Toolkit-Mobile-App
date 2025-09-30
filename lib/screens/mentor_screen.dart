@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../core/theme/modern_theme.dart';
+import '../core/services/mentorship_service.dart';
+import 'mentorship_request_screen.dart';
 
 class MentorScreen extends StatefulWidget {
   const MentorScreen({super.key});
@@ -15,6 +17,10 @@ class _MentorScreenState extends State<MentorScreen>
   String _selectedExperience = 'All';
   String _selectedLocation = 'All';
   String _selectedGoal = 'All';
+
+  List<Map<String, dynamic>> _mentors = [];
+  bool _isLoading = true;
+  String? _errorMessage;
 
   late AnimationController _animationController;
   late AnimationController _cardController;
@@ -62,84 +68,53 @@ class _MentorScreenState extends State<MentorScreen>
     'Digital transformation',
   ];
 
-  final List<Map<String, dynamic>> _mentors = [
-    {
-      'id': '1',
-      'name': 'Sarah Johnson',
-      'expertise': 'Business Strategy',
-      'experience': '15 years',
-      'company': 'Former CEO, TechStartup Inc.',
-      'bio': 'Helping entrepreneurs build scalable business models and go-to-market strategies.',
-      'skills': ['Strategy', 'Fundraising', 'Scaling'],
-      'image': 'assets/images/mentor1.jpg',
-      'rating': 4.9,
-      'sessions': 127,
-    },
-    {
-      'id': '2',
-      'name': 'Michael Chen',
-      'expertise': 'Funding',
-      'experience': '12 years',
-      'company': 'VC Partner, Growth Capital',
-      'bio': 'Expert in startup funding, pitch preparation, and investor relations.',
-      'skills': ['VC', 'Pitch Deck', 'Term Sheets'],
-      'image': 'assets/images/mentor2.jpg',
-      'rating': 4.8,
-      'sessions': 89,
-    },
-    {
-      'id': '3',
-      'name': 'Emily Rodriguez',
-      'expertise': 'Marketing',
-      'experience': '10 years',
-      'company': 'CMO, Digital Agency Pro',
-      'bio': 'Specializing in digital marketing, brand building, and customer acquisition.',
-      'skills': ['Digital Marketing', 'SEO', 'Social Media'],
-      'image': 'assets/images/mentor3.jpg',
-      'rating': 4.7,
-      'sessions': 156,
-    },
-    {
-      'id': '4',
-      'name': 'David Kim',
-      'expertise': 'Technology',
-      'experience': '18 years',
-      'company': 'CTO, Innovation Labs',
-      'bio': 'Technical leadership and product development expertise for tech startups.',
-      'skills': ['Product Development', 'Tech Strategy', 'Engineering'],
-      'image': 'assets/images/mentor4.jpg',
-      'rating': 4.9,
-      'sessions': 203,
-    },
-  ];
+
 
   List<Map<String, dynamic>> get _filteredMentors {
-    return _mentors.where((mentor) {
-      final matchesExpertise = _selectedExpertise == 'All' || mentor['expertise'] == _selectedExpertise;
-      final matchesSearch = _searchController.text.isEmpty ||
-          mentor['name'].toLowerCase().contains(_searchController.text.toLowerCase()) ||
-          mentor['expertise'].toLowerCase().contains(_searchController.text.toLowerCase()) ||
-          mentor['bio'].toLowerCase().contains(_searchController.text.toLowerCase());
-
-      // For now, we'll assume all mentors match the advanced filters since we don't have this data in the mock data
-      // In a real app, you'd check against mentor['experience'], mentor['location'], mentor['goals']
+    print('🔍 [MentorScreen] _filteredMentors called. _mentors.length = ${_mentors.length}');
+    print('🔍 [MentorScreen] Filters: expertise=$_selectedExpertise, experience=$_selectedExperience, location=$_selectedLocation, goal=$_selectedGoal');
+    
+    final filtered = _mentors.where((mentor) {
+      // Updated to work with your database field structure
+      final matchesExpertise = _selectedExpertise == 'All' || 
+          (mentor['expertise'] is List && 
+           (mentor['expertise'] as List).any((exp) => 
+               exp.toString().toLowerCase().contains(_selectedExpertise.toLowerCase())));
+      
+      // Updated to use experienceLevel field from your database
       final matchesExperience = _selectedExperience == 'All' ||
-          (_selectedExperience == '1-3 years' && mentor['experience'].contains('1') ||
-           _selectedExperience == '3-5 years' && mentor['experience'].contains('3') ||
-           _selectedExperience == '5-10 years' && mentor['experience'].contains('5') ||
-           _selectedExperience == '10+ years' && mentor['experience'].contains('10'));
+          (mentor['experienceLevel']?.toString() == _selectedExperience);
 
-      final matchesLocation = _selectedLocation == 'All'; // All mentors are considered remote for now
-      final matchesGoal = _selectedGoal == 'All'; // All mentors can help with any goal for now
+      // Updated location matching - simplified since you don't have is_remote field
+      final matchesLocation = _selectedLocation == 'All' ||
+          (mentor['location']?.toString().toLowerCase().contains(_selectedLocation.toLowerCase()) ?? false);
+      
+      // Updated to use expertise array as specializations
+      final matchesGoal = _selectedGoal == 'All' ||
+          (mentor['expertise'] is List && 
+           (mentor['expertise'] as List).any((exp) => 
+               exp.toString().toLowerCase().contains(_selectedGoal.toLowerCase())));
 
-      return matchesExpertise && matchesSearch && matchesExperience && matchesLocation && matchesGoal;
+      final matches = matchesExpertise && matchesExperience && matchesLocation && matchesGoal;
+      
+      if (!matches) {
+        print('🔍 [MentorScreen] Mentor ${mentor['name']} filtered out: expertise=$matchesExpertise, experience=$matchesExperience, location=$matchesLocation, goal=$matchesGoal');
+      }
+      
+      return matches;
     }).toList();
+    
+    print('🔍 [MentorScreen] _filteredMentors returning ${filtered.length} mentors');
+    return filtered;
   }
+
+  // Removed _matchesExperienceLevel since we now directly match experienceLevel field
 
   @override
   void initState() {
     super.initState();
     _initializeAnimations();
+    _loadMentors();
   }
 
   void _initializeAnimations() {
@@ -179,6 +154,59 @@ class _MentorScreenState extends State<MentorScreen>
 
     _animationController.forward();
     _cardController.forward();
+  }
+
+  Future<void> _loadMentors() async {
+    print('🔍 [MentorScreen] Starting _loadMentors...');
+    
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final mentors = await MentorshipService.getAllMentors();
+      print('🔍 [MentorScreen] Received ${mentors.length} mentors from service');
+      
+      setState(() {
+        _mentors = mentors;
+        _isLoading = false;
+      });
+      
+      print('🔍 [MentorScreen] State updated. _mentors.length = ${_mentors.length}');
+      print('🔍 [MentorScreen] _filteredMentors.length = ${_filteredMentors.length}');
+    } catch (e) {
+      print('❌ [MentorScreen] Error loading mentors: $e');
+      
+      setState(() {
+        _isLoading = false;
+        _errorMessage = 'Failed to load mentors: $e';
+      });
+    }
+  }
+
+  Future<void> _searchMentors(String query) async {
+    if (query.isEmpty) {
+      _loadMentors();
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final mentors = await MentorshipService.searchMentors(query);
+      setState(() {
+        _mentors = mentors;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+        _errorMessage = 'Search failed: $e';
+      });
+    }
   }
 
   @override
@@ -293,12 +321,72 @@ class _MentorScreenState extends State<MentorScreen>
             // Search and Filter
             _buildSearchAndFilter(),
             Expanded(
-              child: _filteredMentors.isEmpty
-                  ? _buildEmptyState()
-                  : _buildMentorList(),
+              child: _isLoading
+                  ? _buildLoadingState()
+                  : _errorMessage != null
+                      ? _buildErrorState()
+                      : _filteredMentors.isEmpty
+                          ? _buildEmptyState()
+                          : _buildMentorList(),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildLoadingState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(ModernTheme.primaryBlue),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Loading mentors...',
+            style: ModernTheme.bodyLarge.copyWith(
+              color: Colors.grey[600],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildErrorState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.error_outline,
+            size: 64,
+            color: Colors.grey[400],
+          ),
+          const SizedBox(height: 16),
+          Text(
+            _errorMessage ?? 'An error occurred',
+            textAlign: TextAlign.center,
+            style: ModernTheme.bodyLarge.copyWith(
+              color: Colors.grey[600],
+            ),
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton(
+            onPressed: _loadMentors,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: ModernTheme.primaryBlue,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            child: const Text('Retry'),
+          ),
+        ],
       ),
     );
   }
@@ -412,7 +500,7 @@ class _MentorScreenState extends State<MentorScreen>
                         ),
                         onPressed: () {
                           _searchController.clear();
-                          setState(() {});
+                          _loadMentors(); // Reload all mentors when search is cleared
                         },
                       )
                     : null,
@@ -422,7 +510,7 @@ class _MentorScreenState extends State<MentorScreen>
                   vertical: 14,
                 ),
               ),
-              onChanged: (value) => setState(() {}),
+              onChanged: (value) => _searchMentors(value),
             ),
           ),
           const SizedBox(height: 16),
@@ -471,20 +559,24 @@ class _MentorScreenState extends State<MentorScreen>
   }
 
   Widget _buildMentorList() {
-    return ListView.builder(
-      padding: const EdgeInsets.all(20),
-      itemCount: _filteredMentors.length,
-      itemBuilder: (context, index) {
-        return AnimatedBuilder(
-          animation: _cardAnimation,
-          builder: (context, child) {
-            return Transform.scale(
-              scale: _cardAnimation.value,
-              child: _buildMentorCard(_filteredMentors[index]),
-            );
-          },
-        );
-      },
+    return RefreshIndicator(
+      color: ModernTheme.primaryBlue,
+      onRefresh: _loadMentors,
+      child: ListView.builder(
+        padding: const EdgeInsets.all(20),
+        itemCount: _filteredMentors.length,
+        itemBuilder: (context, index) {
+          return AnimatedBuilder(
+            animation: _cardAnimation,
+            builder: (context, child) {
+              return Transform.scale(
+                scale: _cardAnimation.value,
+                child: _buildMentorCard(_filteredMentors[index]),
+              );
+            },
+          );
+        },
+      ),
     );
   }
 
@@ -556,7 +648,7 @@ class _MentorScreenState extends State<MentorScreen>
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            mentor['name'],
+                            mentor['name'] ?? 'Unknown Mentor',
                             style: ModernTheme.bodyLarge.copyWith(
                               fontWeight: FontWeight.bold,
                               color: ModernTheme.primaryBlue,
@@ -573,7 +665,7 @@ class _MentorScreenState extends State<MentorScreen>
                               ),
                               const SizedBox(width: 4),
                               Text(
-                                '${mentor['rating']} (${mentor['sessions']} sessions)',
+                                '${mentor['rating'] ?? 5.0} (${mentor['total_sessions'] ?? 0} sessions)',
                                 style: ModernTheme.bodySmall.copyWith(
                                   color: Colors.grey[600],
                                   fontWeight: FontWeight.w500,
@@ -632,7 +724,9 @@ class _MentorScreenState extends State<MentorScreen>
                     ),
                   ),
                   child: Text(
-                    mentor['expertise'],
+                    mentor['expertise'] is List 
+                        ? (mentor['expertise'] as List).join(', ')
+                        : mentor['expertise']?.toString() ?? 'General Business',
                     style: ModernTheme.bodySmall.copyWith(
                       color: ModernTheme.primaryBlue,
                       fontWeight: FontWeight.w600,
@@ -645,7 +739,7 @@ class _MentorScreenState extends State<MentorScreen>
 
                 // Company and experience
                 Text(
-                  '${mentor['experience']} • ${mentor['company']}',
+                  '${mentor['experienceLevel'] ?? mentor['experience_years'] ?? 'Unknown'} years • ${mentor['company'] ?? 'Independent'}',
                   style: ModernTheme.bodyMedium.copyWith(
                     color: Colors.grey[700],
                     fontSize: 14,
@@ -656,7 +750,7 @@ class _MentorScreenState extends State<MentorScreen>
 
                 // Bio preview
                 Text(
-                  mentor['bio'],
+                  mentor['bio'] ?? mentor['description'] ?? 'Experienced mentor ready to help you succeed.',
                   style: ModernTheme.bodySmall.copyWith(
                     color: Colors.grey[600],
                     height: 1.4,
@@ -671,7 +765,7 @@ class _MentorScreenState extends State<MentorScreen>
                 Wrap(
                   spacing: 6,
                   runSpacing: 6,
-                  children: (mentor['skills'] as List<String>).take(3).map((skill) {
+                  children: _getSkillsList(mentor).take(3).map((skill) {
                     return Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
@@ -695,6 +789,32 @@ class _MentorScreenState extends State<MentorScreen>
         ),
       ),
     );
+  }
+
+  List<String> _getSkillsList(Map<String, dynamic> mentor) {
+    // Try different possible field names for skills
+    if (mentor['skills'] is List) {
+      return (mentor['skills'] as List).map((e) => e.toString()).toList();
+    }
+    if (mentor['specializations'] is List) {
+      return (mentor['specializations'] as List).map((e) => e.toString()).toList();
+    }
+    if (mentor['areas_of_expertise'] is List) {
+      return (mentor['areas_of_expertise'] as List).map((e) => e.toString()).toList();
+    }
+    
+    // Fallback based on expertise
+    if (mentor['expertise'] is List) {
+      return (mentor['expertise'] as List).map((e) => e.toString()).toList();
+    } else if (mentor['expertise'] != null) {
+      final expertise = mentor['expertise'].toString();
+      if (expertise.isNotEmpty) {
+        return [expertise];
+      }
+    }
+    
+    // Default fallback
+    return ['Business Strategy', 'Leadership', 'Growth'];
   }
 
   Widget _buildEmptyState() {
@@ -733,25 +853,34 @@ class _MentorScreenState extends State<MentorScreen>
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => DraggableScrollableSheet(
-        initialChildSize: 0.7,
-        maxChildSize: 0.9,
-        minChildSize: 0.5,
+        initialChildSize: 0.8,
+        maxChildSize: 0.95,
+        minChildSize: 0.6,
         builder: (context, scrollController) => Container(
           decoration: const BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(20),
-              topRight: Radius.circular(20),
+              topLeft: Radius.circular(24),
+              topRight: Radius.circular(24),
             ),
           ),
           child: Column(
             children: [
-              // Header
+              // Enhanced Header with gradient
               Container(
-                padding: const EdgeInsets.all(20),
-                decoration: const BoxDecoration(
-                  border: Border(
-                    bottom: BorderSide(color: Color(0xFFE0E0E0), width: 1),
+                padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      ModernTheme.primaryBlue,
+                      ModernTheme.primaryBlue.withOpacity(0.8),
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(24),
+                    topRight: Radius.circular(24),
                   ),
                 ),
                 child: Row(
@@ -759,20 +888,27 @@ class _MentorScreenState extends State<MentorScreen>
                     const Text(
                       'Mentor Profile',
                       style: TextStyle(
-                        fontSize: 20,
+                        fontSize: 22,
                         fontWeight: FontWeight.bold,
+                        color: Colors.white,
                       ),
                     ),
                     const Spacer(),
-                    IconButton(
-                      onPressed: () => Navigator.pop(context),
-                      icon: const Icon(Icons.close),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: IconButton(
+                        onPressed: () => Navigator.pop(context),
+                        icon: const Icon(Icons.close, color: Colors.white),
+                      ),
                     ),
                   ],
                 ),
               ),
 
-              // Profile Content
+              // Enhanced Profile Content
               Expanded(
                 child: SingleChildScrollView(
                   controller: scrollController,
@@ -780,56 +916,137 @@ class _MentorScreenState extends State<MentorScreen>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Avatar and Basic Info
+                      // Enhanced Avatar and Basic Info
                       Center(
                         child: Column(
                           children: [
-                            Container(
-                              width: 80,
-                              height: 80,
-                              decoration: BoxDecoration(
-                                color: ModernTheme.primaryBlue.withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              child: Icon(
-                                Icons.person,
-                                color: ModernTheme.primaryBlue,
-                                size: 40,
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              mentor['name'],
-                              style: ModernTheme.headingLarge.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: ModernTheme.primaryBlue,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              mentor['expertise'],
-                              style: ModernTheme.bodyLarge.copyWith(
-                                color: ModernTheme.accentGreen,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
+                            Stack(
                               children: [
-                                Icon(
-                                  Icons.star,
-                                  size: 18,
-                                  color: Colors.amber,
+                                Container(
+                                  width: 100,
+                                  height: 100,
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        ModernTheme.primaryBlue,
+                                        ModernTheme.accentGreen,
+                                      ],
+                                    ),
+                                    borderRadius: BorderRadius.circular(20),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: ModernTheme.primaryBlue.withOpacity(0.3),
+                                        blurRadius: 15,
+                                        offset: const Offset(0, 8),
+                                      ),
+                                    ],
+                                  ),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(20),
+                                    child: mentor['avatar'] != null && mentor['avatar'].toString().isNotEmpty
+                                        ? Image.network(
+                                            mentor['avatar'],
+                                            fit: BoxFit.cover,
+                                            errorBuilder: (context, error, stackTrace) => Icon(
+                                              Icons.person,
+                                              color: Colors.white,
+                                              size: 50,
+                                            ),
+                                          )
+                                        : Icon(
+                                            Icons.person,
+                                            color: Colors.white,
+                                            size: 50,
+                                          ),
+                                  ),
                                 ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  '${mentor['rating']} (${mentor['sessions']} sessions)',
-                                  style: ModernTheme.bodyMedium.copyWith(
-                                    color: Colors.grey[600],
+                                Positioned(
+                                  bottom: 0,
+                                  right: 0,
+                                  child: Container(
+                                    padding: const EdgeInsets.all(4),
+                                    decoration: BoxDecoration(
+                                      color: ModernTheme.accentGreen,
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(color: Colors.white, width: 2),
+                                    ),
+                                    child: const Icon(
+                                      Icons.verified,
+                                      color: Colors.white,
+                                      size: 16,
+                                    ),
                                   ),
                                 ),
                               ],
+                            ),
+                            const SizedBox(height: 20),
+                            Text(
+                              mentor['name'] ?? 'Unknown Mentor',
+                              style: ModernTheme.headingLarge.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: ModernTheme.primaryBlue,
+                                fontSize: 24,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    ModernTheme.accentGreen.withOpacity(0.1),
+                                    ModernTheme.accentGreen.withOpacity(0.05),
+                                  ],
+                                ),
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(
+                                  color: ModernTheme.accentGreen.withOpacity(0.3),
+                                ),
+                              ),
+                              child: Text(
+                                mentor['expertise'] is List 
+                                    ? (mentor['expertise'] as List).join(' • ')
+                                    : mentor['expertise']?.toString() ?? 'General Business',
+                                style: ModernTheme.bodyLarge.copyWith(
+                                  color: ModernTheme.accentGreen,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                              decoration: BoxDecoration(
+                                color: Colors.amber.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.star,
+                                    size: 18,
+                                    color: Colors.amber,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    '${mentor['rating'] ?? 4.8}',
+                                    style: ModernTheme.bodyMedium.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.amber[800],
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    '${mentor['total_sessions'] ?? 15} sessions',
+                                    style: ModernTheme.bodySmall.copyWith(
+                                      color: Colors.grey[600],
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ],
                         ),
@@ -837,99 +1054,237 @@ class _MentorScreenState extends State<MentorScreen>
 
                       const SizedBox(height: 32),
 
-                      // Experience & Company
-                      Text(
-                        'Experience',
-                        style: ModernTheme.bodyLarge.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: ModernTheme.primaryBlue,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        '${mentor['experience']} • ${mentor['company']}',
-                        style: ModernTheme.bodyMedium.copyWith(
-                          color: Colors.grey[700],
-                        ),
-                      ),
-
-                      const SizedBox(height: 24),
-
-                      // Bio
-                      Text(
-                        'About',
-                        style: ModernTheme.bodyLarge.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: ModernTheme.primaryBlue,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        mentor['bio'],
-                        style: ModernTheme.bodyMedium.copyWith(
-                          color: Colors.grey[700],
-                          height: 1.5,
-                        ),
-                      ),
-
-                      const SizedBox(height: 24),
-
-                      // Skills
-                      Text(
-                        'Expertise Areas',
-                        style: ModernTheme.bodyLarge.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: ModernTheme.primaryBlue,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: (mentor['skills'] as List<String>).map((skill) {
-                          return Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 6,
+                      // Professional Summary Card
+                      _buildInfoCard(
+                        icon: Icons.work_outline,
+                        title: 'Professional Background',
+                        content: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Icon(Icons.business, size: 16, color: Colors.grey[600]),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    mentor['company'] ?? 'Independent Consultant',
+                                    style: ModernTheme.bodyMedium.copyWith(
+                                      fontWeight: FontWeight.w600,
+                                      color: ModernTheme.primaryBlue,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
-                            decoration: BoxDecoration(
-                              color: ModernTheme.primaryBlue.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(20),
+                            const SizedBox(height: 8),
+                            Row(
+                              children: [
+                                Icon(Icons.schedule, size: 16, color: Colors.grey[600]),
+                                const SizedBox(width: 8),
+                                Text(
+                                  '${mentor['experienceLevel'] ?? mentor['experience_years'] ?? '5+'} years experience',
+                                  style: ModernTheme.bodyMedium.copyWith(
+                                    color: Colors.grey[700],
+                                  ),
+                                ),
+                              ],
                             ),
-                            child: Text(
-                              skill,
-                              style: ModernTheme.bodySmall.copyWith(
-                                color: ModernTheme.primaryBlue,
-                                fontWeight: FontWeight.w500,
+                            if (mentor['location'] != null) ...[
+                              const SizedBox(height: 8),
+                              Row(
+                                children: [
+                                  Icon(Icons.location_on, size: 16, color: Colors.grey[600]),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    mentor['location'],
+                                    style: ModernTheme.bodyMedium.copyWith(
+                                      color: Colors.grey[700],
+                                    ),
+                                  ),
+                                ],
                               ),
+                            ],
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      // About Section
+                      _buildInfoCard(
+                        icon: Icons.info_outline,
+                        title: 'About',
+                        content: Text(
+                          mentor['bio'] ?? mentor['description'] ?? 'Experienced mentor passionate about helping entrepreneurs succeed. I bring years of industry knowledge and a proven track record of guiding startups to success.',
+                          style: ModernTheme.bodyMedium.copyWith(
+                            color: Colors.grey[700],
+                            height: 1.6,
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      // Expertise Areas
+                      _buildInfoCard(
+                        icon: Icons.lightbulb_outline,
+                        title: 'Expertise Areas',
+                        content: Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: _getSkillsList(mentor).map((skill) {
+                            return Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 14,
+                                vertical: 8,
+                              ),
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    ModernTheme.primaryBlue.withOpacity(0.1),
+                                    ModernTheme.primaryBlue.withOpacity(0.05),
+                                  ],
+                                ),
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(
+                                  color: ModernTheme.primaryBlue.withOpacity(0.2),
+                                ),
+                              ),
+                              child: Text(
+                                skill,
+                                style: ModernTheme.bodySmall.copyWith(
+                                  color: ModernTheme.primaryBlue,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      // Availability & Pricing
+                      _buildInfoCard(
+                        icon: Icons.access_time,
+                        title: 'Availability & Pricing',
+                        content: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Icon(Icons.schedule, size: 16, color: Colors.grey[600]),
+                                const SizedBox(width: 8),
+                                Text(
+                                  mentor['availability'] ?? 'Flexible scheduling',
+                                  style: ModernTheme.bodyMedium.copyWith(
+                                    color: Colors.grey[700],
+                                  ),
+                                ),
+                              ],
                             ),
-                          );
-                        }).toList(),
+                            const SizedBox(height: 8),
+                            if (mentor['hourlyRate'] != null)
+                              Row(
+                                children: [
+                                  Icon(Icons.attach_money, size: 16, color: Colors.grey[600]),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    '\$${mentor['hourlyRate']}/hour',
+                                    style: ModernTheme.bodyMedium.copyWith(
+                                      color: ModernTheme.accentGreen,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                          ],
+                        ),
                       ),
 
                       const SizedBox(height: 32),
 
-                      // Contact Button
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: () => _contactMentor(mentor),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: ModernTheme.accentGreen,
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
+                      // Enhanced Contact Buttons
+                      Column(
+                        children: [
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton(
+                              onPressed: () => _contactMentor(mentor),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: ModernTheme.accentGreen,
+                                padding: const EdgeInsets.symmetric(vertical: 16),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                elevation: 3,
+                                shadowColor: ModernTheme.accentGreen.withOpacity(0.3),
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Icon(
+                                    Icons.message,
+                                    color: Colors.white,
+                                    size: 20,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    'Request Mentorship',
+                                    style: ModernTheme.bodyLarge.copyWith(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
-                          child: Text(
-                            'Request Mentorship',
-                            style: ModernTheme.bodyLarge.copyWith(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600,
+                          const SizedBox(height: 12),
+                          SizedBox(
+                            width: double.infinity,
+                            child: OutlinedButton(
+                              onPressed: () {
+                                // TODO: Implement view profile action
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Full profile coming soon!'),
+                                  ),
+                                );
+                              },
+                              style: OutlinedButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(vertical: 16),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                side: BorderSide(
+                                  color: ModernTheme.primaryBlue,
+                                  width: 1.5,
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.person_outline,
+                                    color: ModernTheme.primaryBlue,
+                                    size: 20,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    'View Full Profile',
+                                    style: ModernTheme.bodyLarge.copyWith(
+                                      color: ModernTheme.primaryBlue,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
-                        ),
+                        ],
                       ),
+                      const SizedBox(height: 20),
                     ],
                   ),
                 ),
@@ -941,52 +1296,68 @@ class _MentorScreenState extends State<MentorScreen>
     );
   }
 
-  void _contactMentor(Map<String, dynamic> mentor) {
-    // For MVP, show a simple contact form
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Contact ${mentor['name']}'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              'Send a mentorship request to ${mentor['name']}. They will be notified and can respond to your request.',
-              style: ModernTheme.bodyMedium,
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              maxLines: 3,
-              decoration: InputDecoration(
-                hintText: 'Briefly describe what you\'d like to discuss...',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-            ),
-          ],
+  Widget _buildInfoCard({
+    required IconData icon,
+    required String title,
+    required Widget content,
+  }) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: Colors.grey.withOpacity(0.1),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Mentorship request sent to ${mentor['name']}!'),
-                  backgroundColor: ModernTheme.accentGreen,
-                ),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: ModernTheme.accentGreen,
-            ),
-            child: const Text('Send Request'),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
         ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: ModernTheme.primaryBlue.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  icon,
+                  color: ModernTheme.primaryBlue,
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                title,
+                style: ModernTheme.bodyLarge.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: ModernTheme.primaryBlue,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          content,
+        ],
+      ),
+    );
+  }
+
+  void _contactMentor(Map<String, dynamic> mentor) {
+    Navigator.pop(context); // Close the profile modal first
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => MentorshipRequestScreen(mentor: mentor),
       ),
     );
   }

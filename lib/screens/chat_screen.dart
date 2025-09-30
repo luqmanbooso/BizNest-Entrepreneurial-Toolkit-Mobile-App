@@ -5,8 +5,19 @@ class ChatScreen extends StatelessWidget {
   final String? entrepreneurName;
   final String? entrepreneurAvatar;
   final String? businessName;
+  final String? recipientId;
+  final String? recipientName;
+  final String? recipientAvatar;
 
-  const ChatScreen({super.key, this.entrepreneurName, this.entrepreneurAvatar, this.businessName});
+  const ChatScreen({
+    super.key, 
+    this.entrepreneurName, 
+    this.entrepreneurAvatar, 
+    this.businessName,
+    this.recipientId,
+    this.recipientName,
+    this.recipientAvatar,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +28,7 @@ class ChatScreen extends StatelessWidget {
         foregroundColor: Colors.white,
       ),
       body: Center(
-        child: Text('Chat with ${entrepreneurName ?? 'user'} coming soon...'),
+        child: Text('Chat with ${recipientName ?? entrepreneurName ?? 'user'} coming soon...'),
       ),
     );
   }
