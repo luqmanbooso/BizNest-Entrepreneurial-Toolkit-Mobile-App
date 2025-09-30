@@ -106,10 +106,21 @@ class _MentorshipRequestsScreenState extends State<MentorshipRequestsScreen>
             );
           },
         ),
-        floatingActionButton: FloatingActionButton(
+        floatingActionButton: FloatingActionButton.extended(
           onPressed: _debugRequests,
           backgroundColor: ModernTheme.electricBlue,
-          child: const Icon(Icons.bug_report, color: Colors.white),
+          elevation: 8,
+          icon: const Icon(Icons.bug_report, color: Colors.white, size: 20),
+          label: const Text(
+            'Debug',
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
         ),
       ),
     );
@@ -120,15 +131,58 @@ class _MentorshipRequestsScreenState extends State<MentorshipRequestsScreen>
       backgroundColor: ModernTheme.electricBlue,
       foregroundColor: Colors.white,
       elevation: 0,
-      title: const Text(
-        'Mentorship Requests',
-        style: TextStyle(
-          fontSize: 20,
-          fontWeight: FontWeight.w600,
-        ),
+      title: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.2),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: const Icon(
+              Icons.people_outline,
+              size: 20,
+              color: Colors.white,
+            ),
+          ),
+          const SizedBox(width: 12),
+          const Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Mentorship Requests',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
+                ),
+              ),
+              Text(
+                'Manage your mentoring opportunities',
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w400,
+                  color: Colors.white70,
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back_ios),
+        icon: Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.2),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: const Icon(
+            Icons.arrow_back_ios,
+            size: 16,
+            color: Colors.white,
+          ),
+        ),
         onPressed: () => Navigator.pop(context),
       ),
     );
@@ -156,22 +210,28 @@ class _MentorshipRequestsScreenState extends State<MentorshipRequestsScreen>
   Widget _buildTabBar() {
     return Container(
       margin: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 15,
+            offset: const Offset(0, 4),
+          ),
+          BoxShadow(
+            color: ModernTheme.electricBlue.withOpacity(0.1),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
           ),
         ],
       ),
       child: Row(
         children: [
-          _buildTabItem('pending', 'Pending', Icons.schedule),
-          _buildTabItem('accepted', 'Accepted', Icons.check_circle),
-          _buildTabItem('rejected', 'Rejected', Icons.cancel),
+          _buildTabItem('pending', 'Pending', Icons.schedule_outlined),
+          _buildTabItem('accepted', 'Accepted', Icons.check_circle_outline),
+          _buildTabItem('rejected', 'Rejected', Icons.cancel_outlined),
         ],
       ),
     );
@@ -184,35 +244,50 @@ class _MentorshipRequestsScreenState extends State<MentorshipRequestsScreen>
     return Expanded(
       child: GestureDetector(
         onTap: () {
+          HapticFeedback.lightImpact();
           setState(() {
             _selectedTab = tabId;
           });
         },
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 12),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeInOut,
+          padding: const EdgeInsets.symmetric(vertical: 10),
           decoration: BoxDecoration(
             color: isSelected ? ModernTheme.electricBlue : Colors.transparent,
             borderRadius: BorderRadius.circular(10),
+            boxShadow: isSelected ? [
+              BoxShadow(
+                color: ModernTheme.electricBlue.withOpacity(0.3),
+                blurRadius: 6,
+                offset: const Offset(0, 2),
+              ),
+            ] : null,
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(
-                icon,
-                color: isSelected ? Colors.white : ModernTheme.mediumGray,
-                size: 20,
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 200),
+                child: Icon(
+                  isSelected ? _getSelectedIcon(tabId) : icon,
+                  key: ValueKey('$tabId-$isSelected'),
+                  color: isSelected ? Colors.white : ModernTheme.mediumGray,
+                  size: 18,
+                ),
               ),
               const SizedBox(height: 4),
               Text(
                 label,
                 style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
+                  fontSize: 11,
+                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
                   color: isSelected ? Colors.white : ModernTheme.mediumGray,
                 ),
               ),
               if (count > 0)
-                Container(
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
                   margin: const EdgeInsets.only(top: 4),
                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
@@ -221,9 +296,9 @@ class _MentorshipRequestsScreenState extends State<MentorshipRequestsScreen>
                   ),
                   child: Text(
                     count.toString(),
-                    style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w600,
+                    style: const TextStyle(
+                      fontSize: 9,
+                      fontWeight: FontWeight.w700,
                       color: Colors.white,
                     ),
                   ),
@@ -233,6 +308,19 @@ class _MentorshipRequestsScreenState extends State<MentorshipRequestsScreen>
         ),
       ),
     );
+  }
+
+  IconData _getSelectedIcon(String tabId) {
+    switch (tabId) {
+      case 'pending':
+        return Icons.schedule;
+      case 'accepted':
+        return Icons.check_circle;
+      case 'rejected':
+        return Icons.cancel;
+      default:
+        return Icons.schedule_outlined;
+    }
   }
 
   Widget _buildRequestsList() {
@@ -256,217 +344,428 @@ class _MentorshipRequestsScreenState extends State<MentorshipRequestsScreen>
 
   Widget _buildEmptyState() {
     String message;
+    String subtitle;
     IconData icon;
+    Color iconColor;
     
     switch (_selectedTab) {
       case 'pending':
-        message = 'No pending requests';
-        icon = Icons.schedule;
+        message = 'No Pending Requests';
+        subtitle = 'New mentorship requests will appear here';
+        icon = Icons.schedule_outlined;
+        iconColor = Colors.orange;
         break;
       case 'accepted':
-        message = 'No accepted requests';
-        icon = Icons.check_circle;
+        message = 'No Accepted Requests';
+        subtitle = 'Accepted requests will show here for easy access';
+        icon = Icons.check_circle_outline;
+        iconColor = ModernTheme.freshGreen;
         break;
       case 'rejected':
-        message = 'No rejected requests';
-        icon = Icons.cancel;
+        message = 'No Declined Requests';
+        subtitle = 'Declined requests are kept here for reference';
+        icon = Icons.cancel_outlined;
+        iconColor = Colors.red;
         break;
       default:
-        message = 'No requests found';
-        icon = Icons.inbox;
+        message = 'No Requests Found';
+        subtitle = 'Your mentorship requests will appear here';
+        icon = Icons.inbox_outlined;
+        iconColor = ModernTheme.mediumGray;
     }
 
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            icon,
-            size: 80,
-            color: ModernTheme.mediumGray.withOpacity(0.5),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            message,
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w500,
-              color: ModernTheme.mediumGray,
+      child: Padding(
+        padding: const EdgeInsets.all(40),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 120,
+              height: 120,
+              decoration: BoxDecoration(
+                color: iconColor.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(60),
+                border: Border.all(
+                  color: iconColor.withOpacity(0.2),
+                  width: 2,
+                ),
+              ),
+              child: Icon(
+                icon,
+                size: 60,
+                color: iconColor.withOpacity(0.7),
+              ),
             ),
-          ),
-        ],
+            const SizedBox(height: 24),
+            Text(
+              message,
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+                color: ModernTheme.navy,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              subtitle,
+              style: TextStyle(
+                fontSize: 14,
+                color: ModernTheme.mediumGray,
+                height: 1.4,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 32),
+            if (_selectedTab == 'pending')
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                decoration: BoxDecoration(
+                  color: ModernTheme.electricBlue.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: ModernTheme.electricBlue.withOpacity(0.2),
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.tips_and_updates_outlined,
+                      size: 16,
+                      color: ModernTheme.electricBlue,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Requests will appear when mentees contact you',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: ModernTheme.electricBlue,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildRequestCard(Map<String, dynamic> request) {
     final menteeInfo = request['mentee_info'] ?? {};
+    final createdAt = request['created_at'];
+    final timeAgo = _formatTimeAgo(createdAt);
     
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(20),
+      margin: const EdgeInsets.only(bottom: 20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 10,
+            color: Colors.black.withOpacity(0.06),
+            blurRadius: 15,
             offset: const Offset(0, 4),
+          ),
+          BoxShadow(
+            color: ModernTheme.electricBlue.withOpacity(0.08),
+            blurRadius: 25,
+            offset: const Offset(0, 8),
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 50,
-                height: 50,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  color: ModernTheme.electricBlue.withOpacity(0.1),
-                ),
-                child: Center(
-                  child: Text(
-                    (menteeInfo['name'] ?? 'U').toString().substring(0, 1).toUpperCase(),
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w700,
-                      color: ModernTheme.electricBlue,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      menteeInfo['name'] ?? 'Unknown User',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                        color: ModernTheme.navy,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      menteeInfo['business_name'] ?? 'Business not specified',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: ModernTheme.mediumGray,
-                      ),
-                    ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header with gradient
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    const Color(0xFFF8FAFC),
+                    Colors.white,
                   ],
                 ),
               ),
-              _buildStatusBadge(request['status']),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF8FAFC),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Request Type: ${request['request_type'] ?? 'Not specified'}',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: ModernTheme.electricBlue,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  request['message'] ?? 'No message provided',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: ModernTheme.navy,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Icon(
-                Icons.business,
-                size: 16,
-                color: ModernTheme.mediumGray,
-              ),
-              const SizedBox(width: 4),
-              Text(
-                'Industry: ${menteeInfo['industry'] ?? 'Not specified'}',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: ModernTheme.mediumGray,
-                ),
-              ),
-            ],
-          ),
-          if (_selectedTab == 'pending') ...[
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () => _acceptRequest(request),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: ModernTheme.freshGreen,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
+              child: Row(
+                children: [
+                  Hero(
+                    tag: 'mentee-${request['id']}',
+                    child: Container(
+                      width: 60,
+                      height: 60,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16),
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            ModernTheme.electricBlue,
+                            ModernTheme.electricBlue.withOpacity(0.8),
+                          ],
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: ModernTheme.electricBlue.withOpacity(0.3),
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
                       ),
-                      elevation: 0,
-                    ),
-                    child: const Text('Accept'),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () => _rejectRequest(request),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.red,
-                      side: const BorderSide(color: Colors.red),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
+                      child: Center(
+                        child: Text(
+                          (menteeInfo['name'] ?? 'U').toString().substring(0, 1).toUpperCase(),
+                          style: const TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.white,
+                          ),
+                        ),
                       ),
                     ),
-                    child: const Text('Decline'),
                   ),
-                ),
-              ],
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                menteeInfo['name'] ?? 'Unknown User',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w800,
+                                  color: ModernTheme.navy,
+                                ),
+                              ),
+                            ),
+                            _buildStatusBadge(request['status']),
+                          ],
+                        ),
+                        const SizedBox(height: 6),
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.business_outlined,
+                              size: 14,
+                              color: ModernTheme.mediumGray,
+                            ),
+                            const SizedBox(width: 4),
+                            Expanded(
+                              child: Text(
+                                menteeInfo['business_name'] ?? 'Business not specified',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  color: ModernTheme.mediumGray,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.access_time,
+                              size: 12,
+                              color: ModernTheme.mediumGray.withOpacity(0.7),
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              timeAgo,
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: ModernTheme.mediumGray.withOpacity(0.7),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ] else if (_selectedTab == 'accepted') ...[
-            const SizedBox(height: 16),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: () => _startChat(request),
-                icon: const Icon(Icons.chat),
-                label: const Text('Start Chat'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: ModernTheme.electricBlue,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
+            // Content
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Request type chip
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: ModernTheme.electricBlue.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: ModernTheme.electricBlue.withOpacity(0.2),
+                        width: 1,
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.star_outline,
+                          size: 14,
+                          color: ModernTheme.electricBlue,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          request['request_type'] ?? 'General Mentorship',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: ModernTheme.electricBlue,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                  elevation: 0,
-                ),
+                  const SizedBox(height: 16),
+                  // Message container
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF8FAFC),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: const Color(0xFFE2E8F0),
+                        width: 1,
+                      ),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.message_outlined,
+                              size: 16,
+                              color: ModernTheme.electricBlue,
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              'Message',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                                color: ModernTheme.electricBlue,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          request['message'] ?? 'No message provided',
+                          style: TextStyle(
+                            fontSize: 14,
+                            height: 1.4,
+                            color: ModernTheme.navy,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  // Additional info
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildInfoChip(
+                          Icons.category_outlined,
+                          'Industry',
+                          menteeInfo['industry'] ?? 'Not specified',
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _buildInfoChip(
+                          Icons.location_on_outlined,
+                          'Location',
+                          menteeInfo['location'] ?? 'Not specified',
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (_selectedTab == 'pending') ...[
+                    const SizedBox(height: 20),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: () => _acceptRequest(request),
+                            icon: const Icon(Icons.check_circle_outline, size: 18),
+                            label: const Text('Accept'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: ModernTheme.freshGreen,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              elevation: 0,
+                              shadowColor: ModernTheme.freshGreen.withOpacity(0.3),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            onPressed: () => _rejectRequest(request),
+                            icon: const Icon(Icons.cancel_outlined, size: 18),
+                            label: const Text('Decline'),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: Colors.red,
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              side: BorderSide(color: Colors.red.withOpacity(0.5)),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ] else if (_selectedTab == 'accepted') ...[
+                    const SizedBox(height: 20),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: () => _startChat(request),
+                        icon: const Icon(Icons.chat_bubble_outline, size: 18),
+                        label: const Text('Start Conversation'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: ModernTheme.electricBlue,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          elevation: 0,
+                          shadowColor: ModernTheme.electricBlue.withOpacity(0.3),
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
               ),
             ),
           ],
-        ],
+        ),
       ),
     );
   }
@@ -645,5 +944,83 @@ class _MentorshipRequestsScreenState extends State<MentorshipRequestsScreen>
         ),
       ),
     );
+  }
+
+  Widget _buildInfoChip(IconData icon, String label, String value) {
+    return Container(
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: const Color(0xFFE2E8F0),
+          width: 1,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                icon,
+                size: 12,
+                color: ModernTheme.mediumGray,
+              ),
+              const SizedBox(width: 4),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600,
+                  color: ModernTheme.mediumGray,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: ModernTheme.navy,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _formatTimeAgo(dynamic timestamp) {
+    if (timestamp == null) return 'Recently';
+    
+    try {
+      DateTime dateTime;
+      if (timestamp.runtimeType.toString().contains('Timestamp')) {
+        dateTime = timestamp.toDate();
+      } else if (timestamp is String) {
+        dateTime = DateTime.parse(timestamp);
+      } else {
+        return 'Recently';
+      }
+
+      final now = DateTime.now();
+      final difference = now.difference(dateTime);
+
+      if (difference.inDays > 0) {
+        return '${difference.inDays} day${difference.inDays > 1 ? 's' : ''} ago';
+      } else if (difference.inHours > 0) {
+        return '${difference.inHours} hour${difference.inHours > 1 ? 's' : ''} ago';
+      } else if (difference.inMinutes > 0) {
+        return '${difference.inMinutes} minute${difference.inMinutes > 1 ? 's' : ''} ago';
+      } else {
+        return 'Just now';
+      }
+    } catch (e) {
+      return 'Recently';
+    }
   }
 }
