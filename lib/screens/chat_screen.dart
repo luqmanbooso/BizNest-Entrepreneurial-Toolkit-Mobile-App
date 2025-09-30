@@ -151,7 +151,7 @@ class _ChatScreenState extends State<ChatScreen>
       foregroundColor: Colors.white,
       elevation: 0,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back_ios),
+        icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
         onPressed: () => Navigator.pop(context),
       ),
       title: Row(
@@ -209,7 +209,7 @@ class _ChatScreenState extends State<ChatScreen>
       ),
       actions: [
         IconButton(
-          icon: const Icon(Icons.more_vert),
+          icon: const Icon(Icons.more_vert, color: Colors.white),
           onPressed: () {
             // TODO: Show chat options
           },

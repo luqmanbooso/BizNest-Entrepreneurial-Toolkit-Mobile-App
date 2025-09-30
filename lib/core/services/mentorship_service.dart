@@ -149,17 +149,40 @@ class MentorshipService {
 
       print('🔍 [MentorshipService] Query completed. Found ${querySnapshot.docs.length} documents');
 
-      final requests = querySnapshot.docs.map((doc) {
+      final requests = <Map<String, dynamic>>[];
+      
+      for (final doc in querySnapshot.docs) {
         final data = doc.data();
-        final request = {
+        var request = {
           'id': doc.id,
           ...data,
         };
         
-        print('📋 [MentorshipService] Request: ${request['id']} - Status: ${request['status']} - From: ${request['mentee_info']?['name'] ?? 'Unknown'}');
+        // If mentee_info is missing or incomplete, fetch user info separately
+        if (request['mentee_info'] == null || request['mentee_info']['name'] == null) {
+          final menteeId = request['mentee_id'];
+          if (menteeId != null) {
+            try {
+              final userDoc = await _db.collection('users').doc(menteeId).get();
+              if (userDoc.exists) {
+                final userData = userDoc.data()!;
+                request['mentee_info'] = {
+                  'name': userData['name'] ?? 'Unknown User',
+                  'business_name': userData['business_name'] ?? 'Business not specified',
+                  'industry': userData['industry'] ?? 'Not specified',
+                  'location': userData['location'] ?? 'Not specified',
+                  'avatar': userData['avatar'] ?? '',
+                };
+              }
+            } catch (e) {
+              print('⚠️ [MentorshipService] Error fetching mentee info for ${menteeId}: $e');
+            }
+          }
+        }
         
-        return request;
-      }).toList();
+        requests.add(request);
+        print('📋 [MentorshipService] Request: ${request['id']} - Status: ${request['status']} - From: ${request['mentee_info']?['name'] ?? 'Unknown'}');
+      }
 
       // Sort by created_at timestamp (newest first) on client side to avoid Firestore index requirement
       requests.sort((a, b) {

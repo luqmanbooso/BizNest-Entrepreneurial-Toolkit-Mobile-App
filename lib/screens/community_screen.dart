@@ -1358,6 +1358,39 @@ class _ThreadDetailScreenState extends State<ThreadDetailScreen> {
                               fontWeight: FontWeight.bold,
                             ),
                           ),
+                          if (reply.authorRole == 'mentor') ...[
+                            const SizedBox(width: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [ModernTheme.electricBlue, ModernTheme.teal],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.verified,
+                                    size: 12,
+                                    color: Colors.white,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    'Mentor',
+                                    style: ModernTheme.bodySmall.copyWith(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 10,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                           if (isCurrentUserReply) ...[
                             const SizedBox(width: 8),
                             Container(
@@ -1569,6 +1602,7 @@ class _ThreadDetailScreenState extends State<ThreadDetailScreen> {
         'authorId': AuthService.currentUser!['id'],
         'authorName': AuthService.currentUser!['name'],
         'authorAvatar': AuthService.currentUser!['avatar'] ?? '',
+        'authorRole': AuthService.currentUser!['role'],
         'createdAt': FieldValue.serverTimestamp(),
       });
 
@@ -1764,6 +1798,7 @@ class _ThreadDetailScreenState extends State<ThreadDetailScreen> {
         'authorId': AuthService.currentUser!['id'],
         'authorName': AuthService.currentUser!['name'],
         'authorAvatar': AuthService.currentUser!['avatar'] ?? '',
+        'authorRole': AuthService.currentUser!['role'],
         'createdAt': FieldValue.serverTimestamp(),
         'likes': [],
       });
@@ -1835,6 +1870,39 @@ class _ThreadDetailScreenState extends State<ThreadDetailScreen> {
                               fontWeight: FontWeight.bold,
                             ),
                           ),
+                          if (nestedReply.authorRole == 'mentor') ...[
+                            const SizedBox(width: 6),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [ModernTheme.electricBlue, ModernTheme.teal],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.verified,
+                                    size: 10,
+                                    color: Colors.white,
+                                  ),
+                                  const SizedBox(width: 2),
+                                  Text(
+                                    'Mentor',
+                                    style: ModernTheme.bodySmall.copyWith(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 9,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                           if (isCurrentUserReply) ...[
                             const SizedBox(width: 6),
                             Container(
@@ -2147,6 +2215,7 @@ class ForumReply {
   final String authorId;
   final String authorName;
   final String authorAvatar;
+  final String? authorRole;
   final DateTime createdAt;
   final List<String>? likes;
   final List<ForumReply>? nestedReplies;
@@ -2157,6 +2226,7 @@ class ForumReply {
     required this.authorId,
     required this.authorName,
     required this.authorAvatar,
+    this.authorRole,
     required this.createdAt,
     this.likes,
     this.nestedReplies,
@@ -2169,6 +2239,7 @@ class ForumReply {
       authorId: data['authorId'] ?? '',
       authorName: data['authorName'] ?? 'Anonymous',
       authorAvatar: data['authorAvatar'] ?? '',
+      authorRole: data['authorRole'],
       createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
       likes: List<String>.from(data['likes'] ?? []),
       nestedReplies: null, // Will be populated separately for nested replies
