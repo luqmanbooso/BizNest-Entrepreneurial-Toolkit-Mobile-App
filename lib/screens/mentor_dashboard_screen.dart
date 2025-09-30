@@ -358,7 +358,7 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen>
         slivers: [
           _buildSliverAppBar(),
           SliverPadding(
-            padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+            padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 _buildWelcomeSection(),
@@ -381,22 +381,24 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen>
 
   Widget _buildSliverAppBar() {
     return SliverAppBar(
-      expandedHeight: 120,
-      floating: true,
+      toolbarHeight: 80,
+      floating: false,
       pinned: true,
-      backgroundColor: Colors.transparent,
+      snap: false,
+      backgroundColor: ModernTheme.electricBlue,
       elevation: 0,
       automaticallyImplyLeading: false,
       flexibleSpace: Container(
+        width: double.infinity,
+        height: 80,
         decoration: const BoxDecoration(
           color: ModernTheme.electricBlue,
         ),
         child: SafeArea(
-          bottom: false,
           child: Padding(
             padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
             child: Row(
-              children: [
+                children: [
                 CircleAvatar(
                   radius: 20,
                   backgroundColor: Colors.white.withOpacity(0.3),
