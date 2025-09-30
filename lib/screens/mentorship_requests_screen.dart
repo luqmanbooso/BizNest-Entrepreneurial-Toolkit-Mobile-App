@@ -70,10 +70,9 @@ class _MentorshipRequestsScreenState extends State<MentorshipRequestsScreen>
     }
   }
 
-  Future<void> _debugRequests() async {
-    await MentorshipService.debugMentorshipRequests();
-    _loadRequests(); // Refresh after debug
-  }
+
+
+
 
   @override
   void dispose() {
@@ -81,149 +80,132 @@ class _MentorshipRequestsScreenState extends State<MentorshipRequestsScreen>
     super.dispose();
   }
 
+
+
   @override
   Widget build(BuildContext context) {
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: const SystemUiOverlayStyle(
-        statusBarColor: ModernTheme.electricBlue,
-        statusBarIconBrightness: Brightness.light,
-        statusBarBrightness: Brightness.dark,
-        systemNavigationBarColor: Colors.white,
-        systemNavigationBarIconBrightness: Brightness.dark,
-      ),
-      child: Scaffold(
-        backgroundColor: const Color(0xFFF8FAFC),
-        appBar: _buildAppBar(),
-        body: AnimatedBuilder(
-          animation: _fadeAnimation,
-          builder: (context, child) {
-            return Opacity(
-              opacity: _fadeAnimation.value,
-              child: Transform.translate(
-                offset: Offset(0, _slideAnimation.value),
-                child: _buildBody(),
-              ),
-            );
-          },
-        ),
-        floatingActionButton: FloatingActionButton.extended(
-          onPressed: _debugRequests,
-          backgroundColor: ModernTheme.electricBlue,
-          elevation: 8,
-          icon: const Icon(Icons.bug_report, color: Colors.white, size: 20),
-          label: const Text(
-            'Debug',
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.w600,
-            ),
+    return Scaffold(
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              ModernTheme.primaryBlue,
+              ModernTheme.teal,
+            ],
           ),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+        ),
+        child: SafeArea(
+          child: AnimatedBuilder(
+            animation: _fadeAnimation,
+            builder: (context, child) {
+              return Opacity(
+                opacity: _fadeAnimation.value,
+                child: Transform.translate(
+                  offset: Offset(0, _slideAnimation.value),
+                  child: _buildBody(),
+                ),
+              );
+            },
           ),
         ),
       ),
     );
   }
 
-  PreferredSizeWidget _buildAppBar() {
-    return AppBar(
-      backgroundColor: ModernTheme.electricBlue,
-      foregroundColor: Colors.white,
-      elevation: 0,
-      title: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: const Icon(
-              Icons.people_outline,
-              size: 20,
-              color: Colors.white,
-            ),
-          ),
-          const SizedBox(width: 12),
-          const Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'Mentorship Requests',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.white,
-                ),
-              ),
-              Text(
-                'Manage your mentoring opportunities',
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w400,
-                  color: Colors.white70,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-      leading: IconButton(
-        icon: Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.2),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: const Icon(
-            Icons.arrow_back_ios,
-            size: 16,
-            color: Colors.white,
-          ),
-        ),
-        onPressed: () => Navigator.pop(context),
-      ),
-    );
-  }
+
 
   Widget _buildBody() {
     if (_isLoading) {
       return const Center(
         child: CircularProgressIndicator(
-          color: ModernTheme.electricBlue,
+          color: Colors.white,
         ),
       );
     }
 
     return Column(
       children: [
-        _buildTabBar(),
+        _buildHeader(),
         Expanded(
-          child: _buildRequestsList(),
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                _buildTabBar(),
+                _buildRequestsList(),
+                const SizedBox(height: 20),
+              ],
+            ),
+          ),
         ),
       ],
     );
   }
 
+  Widget _buildHeader() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          GestureDetector(
+            onTap: () => Navigator.pop(context),
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Icon(
+                Icons.arrow_back_ios_new,
+                color: Colors.white,
+                size: 20,
+              ),
+            ),
+          ),
+          Text(
+            'Mentorship Requests',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.2),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Text(
+              '${_requests.length}',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+
+
   Widget _buildTabBar() {
     return Container(
-      margin: const EdgeInsets.all(20),
+      margin: const EdgeInsets.symmetric(horizontal: 20),
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Colors.white.withOpacity(0.95),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 15,
-            offset: const Offset(0, 4),
-          ),
-          BoxShadow(
-            color: ModernTheme.electricBlue.withOpacity(0.1),
+            color: Colors.black.withOpacity(0.1),
             blurRadius: 20,
-            offset: const Offset(0, 8),
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -330,14 +312,10 @@ class _MentorshipRequestsScreenState extends State<MentorshipRequestsScreen>
       return _buildEmptyState();
     }
 
-    return RefreshIndicator(
-      onRefresh: _loadRequests,
-      child: ListView.builder(
-        padding: const EdgeInsets.all(20),
-        itemCount: filteredRequests.length,
-        itemBuilder: (context, index) {
-          return _buildRequestCard(filteredRequests[index]);
-        },
+    return Padding(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        children: filteredRequests.map((request) => _buildRequestCard(request)).toList(),
       ),
     );
   }

@@ -18,6 +18,8 @@ class MentorshipRequestScreen extends StatefulWidget {
 class _MentorshipRequestScreenState extends State<MentorshipRequestScreen>
     with TickerProviderStateMixin {
   final TextEditingController _messageController = TextEditingController();
+  final TextEditingController _industryController = TextEditingController();
+  final TextEditingController _locationController = TextEditingController();
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<double> _slideAnimation;
@@ -67,6 +69,8 @@ class _MentorshipRequestScreenState extends State<MentorshipRequestScreen>
   void dispose() {
     _animationController.dispose();
     _messageController.dispose();
+    _industryController.dispose();
+    _locationController.dispose();
     super.dispose();
   }
 
@@ -127,6 +131,8 @@ class _MentorshipRequestScreenState extends State<MentorshipRequestScreen>
           _buildMentorCard(),
           const SizedBox(height: 24),
           _buildRequestTypeSection(),
+          const SizedBox(height: 24),
+          _buildBusinessInfoSection(),
           const SizedBox(height: 24),
           _buildMessageSection(),
           const SizedBox(height: 32),
@@ -258,6 +264,120 @@ class _MentorshipRequestScreenState extends State<MentorshipRequestScreen>
     );
   }
 
+  Widget _buildBusinessInfoSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Business Information',
+          style: ModernTheme.h4.copyWith(
+            fontWeight: FontWeight.w600,
+            color: ModernTheme.navy,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Help the mentor understand your business background',
+          style: ModernTheme.bodyMedium.copyWith(
+            color: ModernTheme.mediumGray,
+          ),
+        ),
+        const SizedBox(height: 16),
+        Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Industry',
+                    style: ModernTheme.bodyMedium.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: ModernTheme.navy,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: Colors.grey.withOpacity(0.3),
+                      ),
+                    ),
+                    child: TextField(
+                      controller: _industryController,
+                      style: ModernTheme.bodyMedium.copyWith(
+                        color: ModernTheme.navy,
+                      ),
+                      decoration: InputDecoration(
+                        hintText: 'e.g. Technology, Healthcare',
+                        hintStyle: ModernTheme.bodyMedium.copyWith(
+                          color: ModernTheme.mediumGray,
+                        ),
+                        border: InputBorder.none,
+                        contentPadding: const EdgeInsets.all(16),
+                        prefixIcon: Icon(
+                          Icons.business_outlined,
+                          color: ModernTheme.mediumGray,
+                          size: 20,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Location',
+                    style: ModernTheme.bodyMedium.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: ModernTheme.navy,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: Colors.grey.withOpacity(0.3),
+                      ),
+                    ),
+                    child: TextField(
+                      controller: _locationController,
+                      style: ModernTheme.bodyMedium.copyWith(
+                        color: ModernTheme.navy,
+                      ),
+                      decoration: InputDecoration(
+                        hintText: 'e.g. New York, Remote',
+                        hintStyle: ModernTheme.bodyMedium.copyWith(
+                          color: ModernTheme.mediumGray,
+                        ),
+                        border: InputBorder.none,
+                        contentPadding: const EdgeInsets.all(16),
+                        prefixIcon: Icon(
+                          Icons.location_on_outlined,
+                          color: ModernTheme.mediumGray,
+                          size: 20,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
   Widget _buildMessageSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -354,6 +474,34 @@ class _MentorshipRequestScreenState extends State<MentorshipRequestScreen>
       return;
     }
 
+    if (_industryController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Please specify your industry'),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
+      );
+      return;
+    }
+
+    if (_locationController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Please specify your location'),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
+      );
+      return;
+    }
+
     setState(() {
       _isLoading = true;
     });
@@ -363,6 +511,8 @@ class _MentorshipRequestScreenState extends State<MentorshipRequestScreen>
         mentorId: widget.mentor['id'],
         message: _messageController.text.trim(),
         requestType: _selectedRequestType,
+        industry: _industryController.text.trim(),
+        location: _locationController.text.trim(),
       );
 
       if (success) {

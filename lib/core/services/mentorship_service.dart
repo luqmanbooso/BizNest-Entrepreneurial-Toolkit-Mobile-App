@@ -101,9 +101,14 @@ class MentorshipService {
     String? goals,
     String? timeline,
     String? requestType,
+    String? industry,
+    String? location,
   }) async {
     try {
       if (currentUserId == null) return false;
+      
+      // Get current user info to include in the request
+      final currentUserInfo = await getCurrentUserInfo();
       
       await _db.collection('mentorship_requests').add({
         'mentee_id': currentUserId,
@@ -114,6 +119,14 @@ class MentorshipService {
         'request_type': requestType,
         'status': 'pending',
         'created_at': FieldValue.serverTimestamp(),
+        // Include mentee info with industry and location
+        'mentee_info': {
+          'name': currentUserInfo?['name'] ?? 'Unknown User',
+          'business_name': currentUserInfo?['business_name'] ?? 'Business not specified',
+          'industry': industry ?? 'Not specified',
+          'location': location ?? 'Not specified',
+          'avatar': currentUserInfo?['avatar'] ?? '',
+        },
       });
       
       return true;
@@ -275,5 +288,56 @@ class MentorshipService {
         'company': 'TechVentures Inc.',
       },
     ];
+  }
+
+  // Get mentorship requests where current user is the mentee (entrepreneur)
+  static Future<List<Map<String, dynamic>>> getMenteeRequests() async {
+    try {
+      if (currentUserId == null) return [];
+
+      final querySnapshot = await _db
+          .collection('mentorship_requests')
+          .where('mentee_id', isEqualTo: currentUserId)
+          .get();
+
+      print('🔍 [MentorshipService] Mentee query completed. Found ${querySnapshot.docs.length} documents');
+
+      final requests = querySnapshot.docs.map((doc) {
+        final data = doc.data();
+        final request = {
+          'id': doc.id,
+          ...data,
+        };
+        
+        print('📋 [MentorshipService] Mentee Request: ${request['id']} - Status: ${request['status']}');
+        
+        return request;
+      }).toList();
+
+      // Sort by created_at timestamp (newest first)
+      requests.sort((a, b) {
+        final aTime = a['created_at'];
+        final bTime = b['created_at'];
+        
+        if (aTime == null && bTime == null) return 0;
+        if (aTime == null) return 1;
+        if (bTime == null) return -1;
+        
+        try {
+          if (aTime is Timestamp && bTime is Timestamp) {
+            return bTime.compareTo(aTime);
+          }
+          return bTime.toString().compareTo(aTime.toString());
+        } catch (e) {
+          return 0;
+        }
+      });
+
+      print('🔍 [MentorshipService] Returning ${requests.length} mentee requests');
+      return requests;
+    } catch (e) {
+      print('❌ [MentorshipService] Error getting mentee requests: $e');
+      return [];
+    }
   }
 }

@@ -8,6 +8,7 @@ import 'mentorship_requests_screen.dart';
 import 'chat_screen.dart';
 import 'community_screen.dart';
 import 'profile_screen.dart';
+import 'inbox_screen.dart';
 
 class MentorDashboardScreen extends StatefulWidget {
   const MentorDashboardScreen({super.key});
@@ -24,6 +25,7 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen>
 
   bool _isLoading = true;
   final ScrollController _scrollController = ScrollController();
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   int _selectedIndex = 0;
 
   @override
@@ -183,7 +185,9 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen>
         }
       },
       child: Scaffold(
+        key: _scaffoldKey,
         backgroundColor: const Color(0xFFF1F5F9),
+        drawer: _buildSidebar(),
         body: _isLoading ? _buildLoadingState() : _buildModernDashboard(),
         bottomNavigationBar: _buildModernNavigationBar(),
       ),
@@ -1007,7 +1011,7 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen>
               _buildNavItem(Icons.dashboard, 'Dashboard', 0),
               _buildNavItem(Icons.inbox, 'Requests', 1),
               _buildNavItem(Icons.people, 'Community', 2),
-              _buildNavItem(Icons.person, 'Profile', 3),
+              _buildNavItem(Icons.menu, 'Menu', 3),
             ],
           ),
         ),
@@ -1024,6 +1028,8 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen>
             context,
             MaterialPageRoute(builder: (_) => const CommunityScreen()),
           );
+        } else if (index == 3) { // Menu tab - open drawer
+          _scaffoldKey.currentState?.openDrawer();
         } else {
           setState(() {
             _selectedIndex = index;
@@ -1055,6 +1061,222 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen>
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSidebar() {
+    return Drawer(
+      backgroundColor: Colors.white,
+      child: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              ModernTheme.primaryBlue,
+              ModernTheme.teal,
+            ],
+          ),
+        ),
+        child: SafeArea(
+          child: Column(
+            children: [
+              // Header
+              Container(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  children: [
+                    Container(
+                      width: 80,
+                      height: 80,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(40),
+                        border: Border.all(
+                          color: Colors.white.withOpacity(0.3),
+                          width: 2,
+                        ),
+                      ),
+                      child: const Icon(
+                        Icons.person,
+                        size: 40,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Mentor Dashboard',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    const Text(
+                      'Manage your mentoring journey',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.white70,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+              // Menu Items
+              Expanded(
+                child: Container(
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(25),
+                      topRight: Radius.circular(25),
+                    ),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      children: [
+                        _buildSidebarItem(
+                          Icons.chat_bubble_outline,
+                          'Inbox',
+                          'Chat with your mentees',
+                          () {
+                            Navigator.pop(context);
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const InboxScreen(),
+                              ),
+                            );
+                          },
+                        ),
+                        const SizedBox(height: 16),
+                        _buildSidebarItem(
+                          Icons.person_outline,
+                          'Profile',
+                          'View and edit your profile',
+                          () {
+                            Navigator.pop(context);
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const ProfileScreen(),
+                              ),
+                            );
+                          },
+                        ),
+                        const SizedBox(height: 16),
+                        _buildSidebarItem(
+                          Icons.settings_outlined,
+                          'Settings',
+                          'App preferences and settings',
+                          () {
+                            Navigator.pop(context);
+                            // TODO: Navigate to settings
+                          },
+                        ),
+                        const Spacer(),
+                        _buildSidebarItem(
+                          Icons.logout,
+                          'Sign Out',
+                          'Sign out of your account',
+                          () async {
+                            Navigator.pop(context);
+                            await AuthService.logout();
+                            if (context.mounted) {
+                              Navigator.pushReplacementNamed(context, '/login');
+                            }
+                          },
+                          isDestructive: true,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSidebarItem(
+    IconData icon,
+    String title,
+    String subtitle,
+    VoidCallback onTap, {
+    bool isDestructive = false,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: Colors.grey.withOpacity(0.1),
+            ),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: isDestructive
+                      ? Colors.red.withOpacity(0.1)
+                      : ModernTheme.electricBlue.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  icon,
+                  color: isDestructive
+                      ? Colors.red
+                      : ModernTheme.electricBlue,
+                  size: 24,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: isDestructive
+                            ? Colors.red
+                            : ModernTheme.navy,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      subtitle,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: ModernTheme.mediumGray,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(
+                Icons.arrow_forward_ios,
+                size: 16,
+                color: ModernTheme.mediumGray,
+              ),
+            ],
+          ),
         ),
       ),
     );
