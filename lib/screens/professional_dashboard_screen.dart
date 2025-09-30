@@ -3,10 +3,14 @@ import 'package:shimmer/shimmer.dart';
 import '../core/services/auth_service.dart';
 import '../core/services/realtime_service.dart';
 import '../core/services/business_intelligence_service.dart';
+import '../core/services/mentorship_service.dart';
+import '../core/theme/modern_theme.dart';
 import 'business_screen.dart';
 import 'learning_screen.dart';
 import 'profile_screen.dart';
 import 'community_screen.dart';
+import 'mentor_screen.dart';
+import 'inbox_screen.dart';
 
 class ProfessionalDashboardScreen extends StatefulWidget {
   const ProfessionalDashboardScreen({super.key});
@@ -23,6 +27,7 @@ class _ProfessionalDashboardScreenState extends State<ProfessionalDashboardScree
   late Animation<double> _slideAnimation;
 
   bool _isLoading = true;
+  bool _hasAcceptedRequests = false;
   final ScrollController _scrollController = ScrollController();
 
   @override
@@ -63,6 +68,7 @@ class _ProfessionalDashboardScreenState extends State<ProfessionalDashboardScree
 
     try {
       await BusinessIntelligenceService.generateInsights();
+      await _checkAcceptedRequests();
       if (mounted) {
         setState(() {
           _isLoading = false;
@@ -72,6 +78,24 @@ class _ProfessionalDashboardScreenState extends State<ProfessionalDashboardScree
       if (mounted) {
         setState(() => _isLoading = false);
       }
+    }
+  }
+
+  Future<void> _checkAcceptedRequests() async {
+    try {
+      // For entrepreneurs (mentees), check their own requests
+      final requests = await MentorshipService.getMenteeRequests();
+      final hasAccepted = requests.any((request) => request['status'] == 'accepted');
+      print('🔍 [ProfessionalDashboard] Found ${requests.length} mentee requests, hasAccepted: $hasAccepted');
+      if (mounted) {
+        setState(() {
+          _hasAcceptedRequests = hasAccepted;
+        });
+        print('🔍 [ProfessionalDashboard] Updated _hasAcceptedRequests to: $_hasAcceptedRequests');
+      }
+    } catch (e) {
+      print('❌ [ProfessionalDashboard] Error checking accepted requests: $e');
+      // Handle error silently, inbox will remain hidden
     }
   }
 
@@ -1007,13 +1031,10 @@ class _ProfessionalDashboardScreenState extends State<ProfessionalDashboardScree
                 },
               ),
               _buildNavItem(
-                Icons.people,
-                'Community',
+                Icons.menu,
+                'More',
                 4,
-                () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const CommunityScreen()),
-                ),
+                () => _showSideMenu(context),
               ),
             ],
           ),
@@ -1094,6 +1115,169 @@ class _ProfessionalDashboardScreenState extends State<ProfessionalDashboardScree
             child: const Text('OK'),
           ),
         ],
+      ),
+    );
+  }
+
+  void _showSideMenu(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        width: MediaQuery.of(context).size.width * 0.8,
+        margin: EdgeInsets.only(
+          left: MediaQuery.of(context).size.width * 0.2,
+          top: 120,
+          bottom: 40,
+        ),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(20),
+            bottomLeft: Radius.circular(20),
+          ),
+        ),
+        child: Column(
+          children: [
+            // Header
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: const BoxDecoration(
+                border: Border(
+                  bottom: BorderSide(color: Color(0xFFE0E0E0), width: 1),
+                ),
+              ),
+              child: Row(
+                children: [
+                  Text(
+                    'Menu',
+                    style: ModernTheme.headingMedium.copyWith(
+                      color: ModernTheme.primaryBlue,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const Spacer(),
+                  IconButton(
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(Icons.close),
+                  ),
+                ],
+              ),
+            ),
+
+            // Menu Items
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.all(20),
+                children: [
+                  _buildMenuItem(
+                    Icons.people,
+                    'Community',
+                    'Connect with entrepreneurs',
+                    () {
+                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const CommunityScreen()),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  _buildMenuItem(
+                    Icons.school,
+                    'Mentors',
+                    'Find expert guidance',
+                    () {
+                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const MentorScreen()),
+                      );
+                    },
+                  ),
+                  if (_hasAcceptedRequests) ...[
+                    const SizedBox(height: 16),
+                    _buildMenuItem(
+                      Icons.chat_bubble_outline,
+                      'Messages',
+                      'Chat with your mentors',
+                      () {
+                        print('🔍 [ProfessionalDashboard] Messages menu tapped');
+                        Navigator.pop(context);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const InboxScreen()),
+                        );
+                      },
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMenuItem(IconData icon, String title, String subtitle, VoidCallback onTap) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF8FAFC),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: const Color(0xFFE2E8F0)),
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: ModernTheme.primaryBlue.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(
+                  icon,
+                  color: ModernTheme.primaryBlue,
+                  size: 24,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: ModernTheme.bodyLarge.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: ModernTheme.primaryBlue,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      subtitle,
+                      style: ModernTheme.bodySmall.copyWith(
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(
+                Icons.arrow_forward_ios,
+                size: 16,
+                color: Colors.grey[400],
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

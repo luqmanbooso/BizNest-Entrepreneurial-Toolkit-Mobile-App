@@ -26,6 +26,7 @@ class _CommunityScreenState extends State<CommunityScreen>
   String _selectedCategory = 'All';
   int _unreadNotifications = 0;
   Map<String, bool> _threadSubscriptions = {}; // Cache for subscription status
+  bool _subscriptionsLoaded = false;
 
   final List<String> _categories = [
     'All',
@@ -47,12 +48,14 @@ class _CommunityScreenState extends State<CommunityScreen>
 
   void _setupNotificationListener() {
     if (AuthService.isAuthenticated) {
+      print('👂 Setting up notification listener for user: ${AuthService.currentUser!['id']}');
       _firestore
           .collection('notifications')
           .where('userId', isEqualTo: AuthService.currentUser!['id'])
           .where('isRead', isEqualTo: false)
           .snapshots()
           .listen((snapshot) {
+            print('🔔 Notification listener triggered: ${snapshot.docs.length} unread notifications');
             if (mounted) {
               setState(() {
                 _unreadNotifications = snapshot.docs.length;
@@ -292,6 +295,7 @@ class _CommunityScreenState extends State<CommunityScreen>
                 onTap: () {
                   setState(() {
                     _selectedCategory = category;
+                    _subscriptionsLoaded = false; // Reset when category changes
                   });
                 },
                 child: Container(
@@ -370,13 +374,20 @@ class _CommunityScreenState extends State<CommunityScreen>
                 return data['category'] == _selectedCategory;
               }).toList();
 
-        // Load subscriptions for visible threads
-        if (AuthService.isAuthenticated && threads.isNotEmpty) {
+        // Load subscriptions for visible threads only once
+        if (AuthService.isAuthenticated && threads.isNotEmpty && !_subscriptionsLoaded) {
           final forumThreads = threads.map((doc) {
             final data = doc.data() as Map<String, dynamic>;
             return ForumThread.fromMap(data, doc.id);
           }).toList();
-          _loadSubscriptionsForThreads(forumThreads);
+          // Load subscriptions asynchronously
+          _loadSubscriptionsForThreads(forumThreads).then((_) {
+            if (mounted) {
+              setState(() {
+                _subscriptionsLoaded = true;
+              });
+            }
+          });
         }
 
         if (threads.isEmpty) {
@@ -415,9 +426,11 @@ class _CommunityScreenState extends State<CommunityScreen>
             final threadData = threads[index].data() as Map<String, dynamic>;
             final thread = ForumThread.fromMap(threadData, threads[index].id);
 
-            // Set subscription status from cache
-            if (AuthService.isAuthenticated) {
+            // Set subscription status from cache only when loaded
+            if (AuthService.isAuthenticated && _subscriptionsLoaded) {
               thread.isSubscribed = _threadSubscriptions[thread.id] ?? false;
+            } else if (AuthService.isAuthenticated && !_subscriptionsLoaded) {
+              thread.isSubscribed = false; // Default to unsubscribed while loading
             }
 
             return AnimatedBuilder(
@@ -686,8 +699,11 @@ class _CommunityScreenState extends State<CommunityScreen>
     }
   }
 
-  void _toggleThreadSubscription(ForumThread thread) {
+  Future<void> _toggleThreadSubscription(ForumThread thread) async {
+    print('🔄 _toggleThreadSubscription called for thread: ${thread.id}');
+
     if (!AuthService.isAuthenticated) {
+      print('❌ User not authenticated');
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Please login to subscribe to threads'),
@@ -697,9 +713,13 @@ class _CommunityScreenState extends State<CommunityScreen>
       return;
     }
 
+    print('✅ User authenticated, proceeding with subscription toggle');
+
     final newSubscriptionStatus = !thread.isSubscribed;
-    thread.isSubscribed = newSubscriptionStatus;
-    _threadSubscriptions[thread.id] = newSubscriptionStatus;
+    setState(() {
+      thread.isSubscribed = newSubscriptionStatus;
+      _threadSubscriptions[thread.id] = newSubscriptionStatus;
+    });
 
     // Store subscription in Firestore
     final subscriptionRef = _firestore
@@ -709,12 +729,16 @@ class _CommunityScreenState extends State<CommunityScreen>
         .doc(thread.id);
 
     if (newSubscriptionStatus) {
-      subscriptionRef.set({
+      print('💾 Creating subscription for user ${AuthService.currentUser!['id']} to thread ${thread.id}');
+      await subscriptionRef.set({
         'threadId': thread.id,
         'subscribedAt': FieldValue.serverTimestamp(),
       });
+      print('✅ Subscription created successfully');
     } else {
-      subscriptionRef.delete();
+      print('🗑️ Deleting subscription for user ${AuthService.currentUser!['id']} from thread ${thread.id}');
+      await subscriptionRef.delete();
+      print('✅ Subscription deleted successfully');
     }
 
     ScaffoldMessenger.of(context).showSnackBar(
@@ -870,6 +894,8 @@ class _CommunityScreenState extends State<CommunityScreen>
                     }
 
                     final notifications = snapshot.data?.docs ?? [];
+
+                    print('📱 Retrieved ${notifications.length} notifications from database');
 
                     // Sort notifications by createdAt in descending order (most recent first)
                     notifications.sort((a, b) {
@@ -1332,6 +1358,39 @@ class _ThreadDetailScreenState extends State<ThreadDetailScreen> {
                               fontWeight: FontWeight.bold,
                             ),
                           ),
+                          if (reply.authorRole == 'mentor') ...[
+                            const SizedBox(width: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [ModernTheme.electricBlue, ModernTheme.teal],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.verified,
+                                    size: 12,
+                                    color: Colors.white,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    'Mentor',
+                                    style: ModernTheme.bodySmall.copyWith(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 10,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                           if (isCurrentUserReply) ...[
                             const SizedBox(width: 8),
                             Container(
@@ -1543,6 +1602,7 @@ class _ThreadDetailScreenState extends State<ThreadDetailScreen> {
         'authorId': AuthService.currentUser!['id'],
         'authorName': AuthService.currentUser!['name'],
         'authorAvatar': AuthService.currentUser!['avatar'] ?? '',
+        'authorRole': AuthService.currentUser!['role'],
         'createdAt': FieldValue.serverTimestamp(),
       });
 
@@ -1738,6 +1798,7 @@ class _ThreadDetailScreenState extends State<ThreadDetailScreen> {
         'authorId': AuthService.currentUser!['id'],
         'authorName': AuthService.currentUser!['name'],
         'authorAvatar': AuthService.currentUser!['avatar'] ?? '',
+        'authorRole': AuthService.currentUser!['role'],
         'createdAt': FieldValue.serverTimestamp(),
         'likes': [],
       });
@@ -1809,6 +1870,39 @@ class _ThreadDetailScreenState extends State<ThreadDetailScreen> {
                               fontWeight: FontWeight.bold,
                             ),
                           ),
+                          if (nestedReply.authorRole == 'mentor') ...[
+                            const SizedBox(width: 6),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [ModernTheme.electricBlue, ModernTheme.teal],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.verified,
+                                    size: 10,
+                                    color: Colors.white,
+                                  ),
+                                  const SizedBox(width: 2),
+                                  Text(
+                                    'Mentor',
+                                    style: ModernTheme.bodySmall.copyWith(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 9,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                           if (isCurrentUserReply) ...[
                             const SizedBox(width: 6),
                             Container(
@@ -2046,21 +2140,22 @@ class _ThreadDetailScreenState extends State<ThreadDetailScreen> {
 
   Future<void> _sendReplyNotifications(ForumThread thread, String replyContent) async {
     try {
+      print('🔄 Sending notifications for thread: ${thread.title}');
+
       // Get all subscribers to this thread
-      final subscriptionsSnapshot = await _firestore
-          .collection('users')
-          .doc(thread.authorId)
-          .collection('thread_subscriptions')
-          .doc(thread.id)
-          .get();
-
-      if (!subscriptionsSnapshot.exists) return;
-
-      // Get thread subscribers (excluding the reply author)
       final subscribersQuery = await _firestore
           .collectionGroup('thread_subscriptions')
           .where('threadId', isEqualTo: thread.id)
           .get();
+
+      print('👥 Found ${subscribersQuery.docs.length} subscribers for thread ${thread.id}');
+      print('🔍 Thread ID being searched: ${thread.id}');
+
+      // Debug: Print all found subscription docs
+      for (final doc in subscribersQuery.docs) {
+        print('📄 Subscription doc: ${doc.id}, data: ${doc.data()}');
+        print('👤 Subscriber user ID: ${doc.reference.parent.parent!.id}');
+      }
 
       final currentUserId = AuthService.currentUser!['id'];
 
@@ -2068,7 +2163,12 @@ class _ThreadDetailScreenState extends State<ThreadDetailScreen> {
         final subscriberId = doc.reference.parent.parent!.id;
 
         // Don't notify the person who made the reply
-        if (subscriberId == currentUserId) continue;
+        if (subscriberId == currentUserId) {
+          print('🚫 Skipping notification to self: $subscriberId');
+          continue;
+        }
+
+        print('📤 Creating notification for user: $subscriberId');
 
         // Create in-app notification
         await _firestore.collection('notifications').add({
@@ -2083,10 +2183,13 @@ class _ThreadDetailScreenState extends State<ThreadDetailScreen> {
           'createdAt': FieldValue.serverTimestamp(),
           'isRead': false,
         });
+
+        print('✅ Notification created for user: $subscriberId');
       }
+
+      print('🎉 Finished sending notifications');
     } catch (e) {
-      // Don't show error for notification failures
-      print('Error sending notifications: $e');
+      print('❌ Error sending notifications: $e');
     }
   }
 
@@ -2112,6 +2215,7 @@ class ForumReply {
   final String authorId;
   final String authorName;
   final String authorAvatar;
+  final String? authorRole;
   final DateTime createdAt;
   final List<String>? likes;
   final List<ForumReply>? nestedReplies;
@@ -2122,6 +2226,7 @@ class ForumReply {
     required this.authorId,
     required this.authorName,
     required this.authorAvatar,
+    this.authorRole,
     required this.createdAt,
     this.likes,
     this.nestedReplies,
@@ -2134,6 +2239,7 @@ class ForumReply {
       authorId: data['authorId'] ?? '',
       authorName: data['authorName'] ?? 'Anonymous',
       authorAvatar: data['authorAvatar'] ?? '',
+      authorRole: data['authorRole'],
       createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
       likes: List<String>.from(data['likes'] ?? []),
       nestedReplies: null, // Will be populated separately for nested replies

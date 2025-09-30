@@ -34,6 +34,7 @@ class FirebaseAuthService {
     required String name,
     required String email,
     required String password,
+    String? role,
   }) async {
     try {
       final cred = await _auth.createUserWithEmailAndPassword(
@@ -47,7 +48,7 @@ class FirebaseAuthService {
       await _db.collection('users').doc(cred.user!.uid).set({
         'name': name,
         'email': email,
-        'role': 'entrepreneur',
+        'role': role ?? 'entrepreneur',
         'company': '',
         'created_at': DateTime.now(),
         'avatar': '',
@@ -58,7 +59,7 @@ class FirebaseAuthService {
         'name': name,
         'email': email,
         'avatar': '',
-        'role': 'entrepreneur',
+        'role': role ?? 'entrepreneur',
         'company': '',
         'is_verified': cred.user!.emailVerified,
       });
