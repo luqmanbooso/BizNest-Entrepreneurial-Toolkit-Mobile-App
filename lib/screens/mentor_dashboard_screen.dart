@@ -18,7 +18,7 @@ class MentorDashboardScreen extends StatefulWidget {
 }
 
 class _MentorDashboardScreenState extends State<MentorDashboardScreen>
-    with TickerProviderStateMixin {
+    with TickerProviderStateMixin, WidgetsBindingObserver {
   late AnimationController _mainController;
   late Animation<double> _fadeAnimation;
   late Animation<double> _slideAnimation;
@@ -31,9 +31,43 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen>
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _setupAnimations();
     _loadDashboardData();
     _setupRealtimeUpdates();
+    // Set status bar when dashboard is first displayed
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _setDashboardStatusBar();
+    });
+  }
+
+  void _setDashboardStatusBar() {
+    SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+        statusBarColor: ModernTheme.electricBlue,
+        statusBarIconBrightness: Brightness.light,
+        statusBarBrightness: Brightness.dark,
+      ),
+    );
+  }
+
+  void _resetStatusBar() {
+    SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.dark,
+        statusBarBrightness: Brightness.light,
+      ),
+    );
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    // When app resumes and we're on dashboard, restore status bar
+    if (state == AppLifecycleState.resumed) {
+      _setDashboardStatusBar();
+    }
   }
 
   void _setupAnimations() {
@@ -166,8 +200,10 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen>
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _mainController.dispose();
     _scrollController.dispose();
+    _resetStatusBar();
     super.dispose();
   }
 
@@ -325,29 +361,10 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen>
           opacity: _fadeAnimation.value,
           child: Transform.translate(
             offset: Offset(0, _slideAnimation.value),
-            child: _buildContent(),
+            child: _buildDashboardContent(),
           ),
         );
       },
-    );
-  }
-
-  Widget _buildContent() {
-    switch (_selectedIndex) {
-      case 0:
-        return _buildDashboardContent();
-      case 1:
-        return MentorshipRequestsScreen();
-      case 3:
-        return _buildProfileWrapper();
-      default:
-        return _buildDashboardContent();
-    }
-  }
-
-  Widget _buildProfileWrapper() {
-    return const SafeArea(
-      child: ProfileScreen(),
     );
   }
 
@@ -648,9 +665,11 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen>
                 Icons.inbox,
                 ModernTheme.sunsetOrange,
                 () {
-                  setState(() {
-                    _selectedIndex = 1;
-                  });
+                  _resetStatusBar();
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => MentorshipRequestsScreen()),
+                  ).then((_) => _setDashboardStatusBar());
                 },
               ),
             ),
@@ -1025,17 +1044,26 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen>
     final isSelected = _selectedIndex == index;
     return GestureDetector(
       onTap: () {
-        if (index == 2) { // Community tab
+        if (index == 0) {
+          // Already on dashboard, do nothing
+          return;
+        } else if (index == 1) {
+          // Navigate to Mentorship Requests
+          _resetStatusBar();
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => MentorshipRequestsScreen()),
+          ).then((_) => _setDashboardStatusBar());
+        } else if (index == 2) {
+          // Navigate to Community
+          _resetStatusBar();
           Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const CommunityScreen()),
-          );
-        } else if (index == 3) { // Menu tab - open drawer
+          ).then((_) => _setDashboardStatusBar());
+        } else if (index == 3) {
+          // Open menu drawer
           _scaffoldKey.currentState?.openDrawer();
-        } else {
-          setState(() {
-            _selectedIndex = index;
-          });
         }
       },
       child: AnimatedContainer(
@@ -1148,12 +1176,13 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen>
                           'Chat with your mentees',
                           () {
                             Navigator.pop(context);
+                            _resetStatusBar();
                             Navigator.push(
                               context,
                               MaterialPageRoute(
                                 builder: (context) => const InboxScreen(),
                               ),
-                            );
+                            ).then((_) => _setDashboardStatusBar());
                           },
                         ),
                         const SizedBox(height: 16),
@@ -1163,12 +1192,13 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen>
                           'View and edit your profile',
                           () {
                             Navigator.pop(context);
+                            _resetStatusBar();
                             Navigator.push(
                               context,
                               MaterialPageRoute(
                                 builder: (context) => const ProfileScreen(),
                               ),
-                            );
+                            ).then((_) => _setDashboardStatusBar());
                           },
                         ),
                         const SizedBox(height: 16),
