@@ -11,6 +11,7 @@ import 'profile_screen.dart';
 import 'community_screen.dart';
 import 'mentor_screen.dart';
 import 'inbox_screen.dart';
+import 'sessions_screen.dart';
 
 class ProfessionalDashboardScreen extends StatefulWidget {
   const ProfessionalDashboardScreen({super.key});
@@ -1197,6 +1198,19 @@ class _ProfessionalDashboardScreenState extends State<ProfessionalDashboardScree
                     },
                   ),
                   if (_hasAcceptedRequests) ...[
+                    const SizedBox(height: 16),
+                    _buildMenuItem(
+                      Icons.event_note,
+                      'Sessions',
+                      'View your mentorship sessions',
+                      () {
+                        Navigator.pop(context);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const SessionsScreen(isMentor: false)),
+                        );
+                      },
+                    ),
                     const SizedBox(height: 16),
                     _buildMenuItem(
                       Icons.chat_bubble_outline,

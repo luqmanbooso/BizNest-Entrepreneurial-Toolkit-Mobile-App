@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../core/theme/modern_theme.dart';
 import '../core/services/auth_service.dart';
 import '../core/services/realtime_service.dart';
+import '../core/services/session_service.dart';
 import 'mentorship_requests_screen.dart';
 import 'chat_screen.dart';
 import 'community_screen.dart';
 import 'profile_screen.dart';
 import 'inbox_screen.dart';
+import 'schedule_session_screen.dart';
+import 'sessions_screen.dart';
 
 class MentorDashboardScreen extends StatefulWidget {
   const MentorDashboardScreen({super.key});
@@ -167,27 +171,23 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen>
   }
 
   Future<void> _loadUpcomingSessions() async {
-    // Mock data - in real app, fetch from Firebase/API
-    _upcomingSessions = [
-      {
-        'id': '1',
-        'mentee_name': 'Alex Rodriguez',
-        'business_name': 'FoodieApp',
-        'session_type': '1-on-1 Strategy Session',
-        'scheduled_time': DateTime.now().add(const Duration(hours: 3)),
-        'duration': 60,
-        'meeting_link': 'https://meet.google.com/abc-defg-hij',
-      },
-      {
-        'id': '2',
-        'mentee_name': 'Lisa Wang',
-        'business_name': 'EduTech Platform',
-        'session_type': 'Product Review',
-        'scheduled_time': DateTime.now().add(const Duration(days: 1, hours: 2)),
-        'duration': 45,
-        'meeting_link': 'https://zoom.us/j/123456789',
-      },
-    ];
+    try {
+      final sessions = await SessionService.getUpcomingSessions(isMentor: true);
+      _upcomingSessions = sessions.map((session) {
+        return {
+          'id': session['id'],
+          'mentee_name': session['mentee_name'],
+          'business_name': '', // Can be added if needed
+          'session_type': session['session_title'],
+          'scheduled_time': (session['scheduled_date'] as Timestamp).toDate(),
+          'duration': session['duration_minutes'],
+          'meeting_link': session['meeting_link'],
+        };
+      }).toList();
+    } catch (e) {
+      print('Error loading upcoming sessions: $e');
+      _upcomingSessions = [];
+    }
   }
 
   void _setupRealtimeUpdates() {
@@ -1171,6 +1171,25 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen>
                     child: Column(
                       children: [
                         _buildSidebarItem(
+                          Icons.event_available,
+                          'Schedule Session',
+                          'Create a new mentorship session',
+                          () {
+                            Navigator.pop(context);
+                            _resetStatusBar();
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const ScheduleSessionScreen(),
+                              ),
+                            ).then((_) {
+                              _setDashboardStatusBar();
+                              _loadDashboardData(); // Refresh dashboard data
+                            });
+                          },
+                        ),
+                        const SizedBox(height: 16),
+                        _buildSidebarItem(
                           Icons.chat_bubble_outline,
                           'Inbox',
                           'Chat with your mentees',
@@ -1181,6 +1200,22 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen>
                               context,
                               MaterialPageRoute(
                                 builder: (context) => const InboxScreen(),
+                              ),
+                            ).then((_) => _setDashboardStatusBar());
+                          },
+                        ),
+                        const SizedBox(height: 16),
+                        _buildSidebarItem(
+                          Icons.event_note,
+                          'My Sessions',
+                          'View all your mentorship sessions',
+                          () {
+                            Navigator.pop(context);
+                            _resetStatusBar();
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const SessionsScreen(isMentor: true),
                               ),
                             ).then((_) => _setDashboardStatusBar());
                           },
