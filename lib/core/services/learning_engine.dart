@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'firebase_data_service.dart';
 import 'quiz_service.dart';
 
@@ -470,6 +471,31 @@ class LearningEngine {
         completed.add(tutorialId);
       }
 
+      // Update streak
+      final now = DateTime.now();
+      final lastCompletionDate = progress['last_completion_date'] != null
+          ? DateTime.parse(progress['last_completion_date'])
+          : null;
+      
+      if (lastCompletionDate == null || 
+          now.difference(lastCompletionDate).inDays == 1) {
+        // Continue or start streak
+        progress['current_streak'] = (progress['current_streak'] ?? 0) + 1;
+        if (progress['current_streak'] > (progress['longest_streak'] ?? 0)) {
+          progress['longest_streak'] = progress['current_streak'];
+        }
+      } else if (now.difference(lastCompletionDate).inDays > 1) {
+        // Streak broken, reset to 1
+        progress['current_streak'] = 1;
+      }
+      // If same day, don't update streak
+      
+      progress['last_completion_date'] = now.toIso8601String();
+
+      // Update total time spent
+      final timeSpent = completionData['time_spent'] as int? ?? 0;
+      progress['total_time_spent'] = (progress['total_time_spent'] ?? 0) + timeSpent;
+
       // Calculate score and determine if badge is earned
       final tutorial = _getTutorialById(tutorialId);
       final score = _calculateTutorialScore(completionData);
@@ -485,6 +511,9 @@ class LearningEngine {
 
       // Check for level up
       final newLevel = await _checkLevelUp();
+
+      // Update leaderboard entry with new score
+      await updateLeaderboardEntry();
 
       return TutorialCompletionResult(
         tutorialId: tutorialId,
@@ -601,6 +630,7 @@ class LearningEngine {
         'total_time_spent': 0,
         'current_streak': 0,
         'longest_streak': 0,
+        'last_completion_date': null,
       };
     } catch (e) {
       return {
@@ -609,6 +639,7 @@ class LearningEngine {
         'total_time_spent': 0,
         'current_streak': 0,
         'longest_streak': 0,
+        'last_completion_date': null,
       };
     }
   }
@@ -648,39 +679,144 @@ class LearningEngine {
     }
   }
 
+  // Update user's leaderboard entry
+  static Future<void> updateLeaderboardEntry() async {
+    try {
+      final userId = FirebaseDataService.currentUserId;
+      if (userId == null) return;
+
+      // Get current user's data
+      final progress = await getLearningProgress();
+      final badges = await getUserBadges();
+      final level = await QuizService.getUserLevel();
+      
+      // Calculate score
+      final completedTutorials = (progress['completed_tutorials'] as List).length;
+      final userScore = (completedTutorials * 100) + 
+                       (badges.length * 50) + 
+                       (progress['current_streak'] ?? 0) * 10;
+
+      // Get user profile data
+      final userProfile = await FirebaseDataService.getData('profile', 'info');
+      final userName = userProfile?['name'] ?? userProfile?['full_name'] ?? 'Anonymous';
+
+      // Update leaderboard entry in Firestore
+      await FirebaseFirestore.instance
+          .collection('leaderboard')
+          .doc(userId)
+          .set({
+        'user_id': userId,
+        'name': userName,
+        'level': level,
+        'score': userScore,
+        'badges': badges.length,
+        'completed_tutorials': completedTutorials,
+        'current_streak': progress['current_streak'] ?? 0,
+        'updated_at': FieldValue.serverTimestamp(),
+      });
+
+      if (kDebugMode) {
+        print('✅ Leaderboard entry updated for user: $userName (Score: $userScore)');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('❌ Error updating leaderboard entry: $e');
+      }
+    }
+  }
+
   // Get leaderboard data
   static Future<List<Map<String, dynamic>>> getLeaderboard() async {
-    // In a real app, this would fetch from a server
-    // For now, return mock data
-    return [
-      {
-        'user_id': 'user1',
-        'name': 'Alex Johnson',
-        'level': 'expert',
-        'score': 2850,
-        'badges': 12,
-        'avatar':
-            'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100'
-      },
-      {
-        'user_id': 'user2',
-        'name': 'Sarah Chen',
-        'level': 'advanced',
-        'score': 2650,
-        'badges': 10,
-        'avatar':
-            'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=100'
-      },
-      {
-        'user_id': 'user3',
-        'name': 'Mike Rodriguez',
-        'level': 'intermediate',
-        'score': 2100,
-        'badges': 8,
-        'avatar':
-            'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100'
+    try {
+      final userId = FirebaseDataService.currentUserId;
+      
+      // Fetch top users from Firestore
+      final querySnapshot = await FirebaseFirestore.instance
+          .collection('leaderboard')
+          .orderBy('score', descending: true)
+          .limit(50)
+          .get();
+
+      final leaderboard = <Map<String, dynamic>>[];
+
+      for (var doc in querySnapshot.docs) {
+        final data = doc.data();
+        leaderboard.add({
+          'user_id': data['user_id'] ?? doc.id,
+          'name': data['name'] ?? 'Anonymous',
+          'level': data['level'] ?? 'novice',
+          'score': data['score'] ?? 0,
+          'badges': data['badges'] ?? 0,
+          'is_current_user': doc.id == userId,
+        });
       }
-    ];
+
+      // If current user is not in top 50, fetch and add them
+      if (userId != null && !leaderboard.any((user) => user['is_current_user'])) {
+        final currentUserDoc = await FirebaseFirestore.instance
+            .collection('leaderboard')
+            .doc(userId)
+            .get();
+
+        if (currentUserDoc.exists) {
+          final data = currentUserDoc.data()!;
+          leaderboard.add({
+            'user_id': userId,
+            'name': 'You',
+            'level': data['level'] ?? 'novice',
+            'score': data['score'] ?? 0,
+            'badges': data['badges'] ?? 0,
+            'is_current_user': true,
+          });
+          
+          // Re-sort to put user in correct position
+          leaderboard.sort((a, b) => (b['score'] as int).compareTo(a['score'] as int));
+        } else {
+          // User doesn't have a leaderboard entry yet, create one
+          await updateLeaderboardEntry();
+          
+          // Fetch again after creating
+          final newUserDoc = await FirebaseFirestore.instance
+              .collection('leaderboard')
+              .doc(userId)
+              .get();
+          
+          if (newUserDoc.exists) {
+            final data = newUserDoc.data()!;
+            leaderboard.add({
+              'user_id': userId,
+              'name': 'You',
+              'level': data['level'] ?? 'novice',
+              'score': data['score'] ?? 0,
+              'badges': data['badges'] ?? 0,
+              'is_current_user': true,
+            });
+            
+            leaderboard.sort((a, b) => (b['score'] as int).compareTo(a['score'] as int));
+          }
+        }
+      } else {
+        // Update current user's name to "You" for display
+        for (var user in leaderboard) {
+          if (user['is_current_user'] == true) {
+            user['name'] = 'You';
+            break;
+          }
+        }
+      }
+
+      if (kDebugMode) {
+        print('📊 Loaded ${leaderboard.length} users from leaderboard');
+      }
+
+      return leaderboard;
+    } catch (e) {
+      if (kDebugMode) {
+        print('❌ Error getting leaderboard: $e');
+      }
+      // Return empty list on error
+      return [];
+    }
   }
 
   // Get recommended next tutorial
@@ -738,6 +874,31 @@ class LearningEngine {
 
     learningProgress['tutorial_progress'] = tutorialProgress;
     await _saveLearningProgress(learningProgress);
+  }
+
+  // Check and update streak on app launch
+  static Future<void> checkAndUpdateStreak() async {
+    try {
+      final progress = await getLearningProgress();
+      final lastCompletionDate = progress['last_completion_date'] != null
+          ? DateTime.parse(progress['last_completion_date'])
+          : null;
+      
+      if (lastCompletionDate != null) {
+        final now = DateTime.now();
+        final daysSinceLastCompletion = now.difference(lastCompletionDate).inDays;
+        
+        // If more than 1 day has passed, reset streak
+        if (daysSinceLastCompletion > 1) {
+          progress['current_streak'] = 0;
+          await _saveLearningProgress(progress);
+        }
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error checking streak: $e');
+      }
+    }
   }
 }
 
