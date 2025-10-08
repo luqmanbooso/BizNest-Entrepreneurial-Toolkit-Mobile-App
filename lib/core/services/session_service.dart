@@ -124,14 +124,13 @@ class SessionService {
     }
   }
 
-  /// Get upcoming sessions (within next 7 days)
+  /// Get upcoming sessions (scheduled and in the future)
   static Future<List<Map<String, dynamic>>> getUpcomingSessions({bool isMentor = true}) async {
     try {
       final userId = currentUserId;
       if (userId == null) return [];
 
       final now = DateTime.now();
-      final nextWeek = now.add(const Duration(days: 7));
 
       final field = isMentor ? 'mentor_id' : 'mentee_id';
 
@@ -141,7 +140,7 @@ class SessionService {
           .where(field, isEqualTo: userId)
           .get();
 
-      // Filter and sort on client side
+      // Filter and sort on client side - get all upcoming scheduled sessions
       final sessions = querySnapshot.docs.map((doc) {
         final data = doc.data();
         data['id'] = doc.id;
@@ -153,7 +152,7 @@ class SessionService {
         if (status != 'scheduled' || scheduledDate == null) return false;
         
         final date = scheduledDate.toDate();
-        return date.isAfter(now) && date.isBefore(nextWeek);
+        return date.isAfter(now); // Show all future sessions, not just next 7 days
       }).toList();
 
       sessions.sort((a, b) {
@@ -234,6 +233,36 @@ class SessionService {
     } catch (e) {
       print('❌ Error fetching mentees: $e');
       return [];
+    }
+  }
+
+  /// Mark a session as completed
+  static Future<void> completeSession(String sessionId) async {
+    try {
+      await _firestore.collection('sessions').doc(sessionId).update({
+        'status': 'completed',
+        'completed_at': FieldValue.serverTimestamp(),
+        'updated_at': FieldValue.serverTimestamp(),
+      });
+      print('✅ Session marked as completed: $sessionId');
+    } catch (e) {
+      print('❌ Error completing session: $e');
+      rethrow;
+    }
+  }
+
+  /// Cancel a session
+  static Future<void> cancelSession(String sessionId) async {
+    try {
+      await _firestore.collection('sessions').doc(sessionId).update({
+        'status': 'cancelled',
+        'cancelled_at': FieldValue.serverTimestamp(),
+        'updated_at': FieldValue.serverTimestamp(),
+      });
+      print('✅ Session cancelled: $sessionId');
+    } catch (e) {
+      print('❌ Error cancelling session: $e');
+      rethrow;
     }
   }
 }

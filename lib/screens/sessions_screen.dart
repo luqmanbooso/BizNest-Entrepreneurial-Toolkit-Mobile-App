@@ -81,6 +81,48 @@ class _SessionsScreenState extends State<SessionsScreen> {
     }
   }
 
+  Future<void> _completeSession(String sessionId) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Complete Session'),
+        content: const Text('Mark this session as completed?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(foregroundColor: ModernTheme.freshGreen),
+            child: const Text('Complete'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      try {
+        await SessionService.completeSession(sessionId);
+        _loadSessions();
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Session marked as completed!'),
+              backgroundColor: ModernTheme.freshGreen,
+            ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error completing session: $e')),
+          );
+        }
+      }
+    }
+  }
+
   Future<void> _cancelSession(String sessionId) async {
     final confirm = await showDialog<bool>(
       context: context,
@@ -380,6 +422,39 @@ class _SessionsScreenState extends State<SessionsScreen> {
                         icon: const Icon(Icons.cancel_outlined),
                         color: Colors.red,
                         tooltip: 'Cancel Session',
+                      ),
+                    ] else if (status == 'scheduled' && widget.isMentor) ...[
+                      // Show complete button for mentors when session time has passed
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: () => _completeSession(session['id']),
+                          icon: const Icon(Icons.check_circle, size: 18),
+                          label: const Text('Mark as Completed'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: ModernTheme.freshGreen,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: () => _launchMeetingLink(session['meeting_link']),
+                          icon: const Icon(Icons.link, size: 18),
+                          label: const Text('Meeting Link'),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: ModernTheme.electricBlue,
+                            side: const BorderSide(color: ModernTheme.electricBlue),
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                        ),
                       ),
                     ] else ...[
                       Expanded(
