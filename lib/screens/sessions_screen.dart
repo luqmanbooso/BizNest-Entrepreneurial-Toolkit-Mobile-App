@@ -184,10 +184,11 @@ class _SessionsScreenState extends State<SessionsScreen> {
             style: const TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w600,
+              color: Colors.white,
             ),
           ),
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios),
+            icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
             onPressed: () => Navigator.pop(context),
           ),
         ),

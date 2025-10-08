@@ -180,10 +180,11 @@ class _ScheduleSessionScreenState extends State<ScheduleSessionScreen> {
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w600,
+              color: Colors.white,
             ),
           ),
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios),
+            icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
             onPressed: () => Navigator.pop(context),
           ),
         ),
@@ -342,6 +343,7 @@ class _ScheduleSessionScreenState extends State<ScheduleSessionScreen> {
       ),
       child: DropdownButtonFormField<Map<String, dynamic>>(
         value: _selectedMentee,
+        isExpanded: true, // Fix overflow issue
         decoration: const InputDecoration(
           contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
           border: InputBorder.none,
@@ -355,22 +357,15 @@ class _ScheduleSessionScreenState extends State<ScheduleSessionScreen> {
                                   businessName.toString().isNotEmpty && 
                                   businessName != 'null';
           
+          // Create display text with business name if available
+          final displayText = hasBusinessName ? '$name ($businessName)' : name;
+          
           return DropdownMenuItem(
             value: mentee,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  name,
-                  style: const TextStyle(fontWeight: FontWeight.w600),
-                ),
-                if (hasBusinessName)
-                  Text(
-                    businessName,
-                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                  ),
-              ],
+            child: Text(
+              displayText,
+              style: const TextStyle(fontWeight: FontWeight.w600),
+              overflow: TextOverflow.ellipsis,
             ),
           );
         }).toList(),

@@ -1184,16 +1184,6 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen>
                             ).then((_) => _setDashboardStatusBar());
                           },
                         ),
-                        const SizedBox(height: 16),
-                        _buildSidebarItem(
-                          Icons.settings_outlined,
-                          'Settings',
-                          'App preferences and settings',
-                          () {
-                            Navigator.pop(context);
-                            // TODO: Navigate to settings
-                          },
-                        ),
                         const Spacer(),
                         _buildSidebarItem(
                           Icons.logout,
