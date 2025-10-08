@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../core/theme/modern_theme.dart';
 import '../core/services/auth_service.dart';
 import '../core/services/realtime_service.dart';
+import '../core/services/session_service.dart';
 import 'mentorship_requests_screen.dart';
-import 'chat_screen.dart';
 import 'community_screen.dart';
 import 'profile_screen.dart';
 import 'inbox_screen.dart';
+import 'schedule_session_screen.dart';
+import 'sessions_screen.dart';
 
 class MentorDashboardScreen extends StatefulWidget {
   const MentorDashboardScreen({super.key});
@@ -18,7 +22,7 @@ class MentorDashboardScreen extends StatefulWidget {
 }
 
 class _MentorDashboardScreenState extends State<MentorDashboardScreen>
-    with TickerProviderStateMixin {
+    with TickerProviderStateMixin, WidgetsBindingObserver {
   late AnimationController _mainController;
   late Animation<double> _fadeAnimation;
   late Animation<double> _slideAnimation;
@@ -31,9 +35,43 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen>
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _setupAnimations();
     _loadDashboardData();
     _setupRealtimeUpdates();
+    // Set status bar when dashboard is first displayed
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _setDashboardStatusBar();
+    });
+  }
+
+  void _setDashboardStatusBar() {
+    SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+        statusBarColor: ModernTheme.electricBlue,
+        statusBarIconBrightness: Brightness.light,
+        statusBarBrightness: Brightness.dark,
+      ),
+    );
+  }
+
+  void _resetStatusBar() {
+    SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.dark,
+        statusBarBrightness: Brightness.light,
+      ),
+    );
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    // When app resumes and we're on dashboard, restore status bar
+    if (state == AppLifecycleState.resumed) {
+      _setDashboardStatusBar();
+    }
   }
 
   void _setupAnimations() {
@@ -61,18 +99,20 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen>
     _mainController.forward();
   }
 
-  Map<String, dynamic> _mentorStats = {};
   List<Map<String, dynamic>> _recentRequests = [];
   List<Map<String, dynamic>> _upcomingSessions = [];
+  int _menteesHelpedCount = 0;
+  int _totalSessionsCount = 0;
 
   Future<void> _loadDashboardData() async {
     setState(() => _isLoading = true);
 
     try {
       // Load mentor-specific data
-      await _loadMentorStats();
       await _loadRecentRequests();
       await _loadUpcomingSessions();
+      await _loadMenteesCount();
+      await _loadSessionsCount();
       
       if (mounted) {
         setState(() {
@@ -86,74 +126,102 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen>
     }
   }
 
-  Future<void> _loadMentorStats() async {
-    // In a real app, this would fetch from Firebase/API
-    _mentorStats = {
-      'total_mentees': 12,
-      'active_sessions': 5,
-      'completed_sessions': 48,
-      'avg_rating': 4.8,
-      'total_hours': 120,
-      'monthly_earnings': 2400,
-      'growth_rate': 15.2,
-    };
+  Future<void> _loadMenteesCount() async {
+    try {
+      // Get all sessions for this mentor and filter on client side
+      final querySnapshot = await FirebaseFirestore.instance
+          .collection('sessions')
+          .where('mentor_id', isEqualTo: FirebaseAuth.instance.currentUser?.uid)
+          .get();
+      
+      // Filter for completed sessions and get unique mentee IDs
+      final uniqueMentees = <String>{};
+      for (var doc in querySnapshot.docs) {
+        final data = doc.data();
+        if (data['status'] == 'completed') {
+          final menteeId = data['mentee_id'];
+          if (menteeId != null) {
+            uniqueMentees.add(menteeId);
+          }
+        }
+      }
+      
+      _menteesHelpedCount = uniqueMentees.length;
+      print('✅ Mentees helped count: $_menteesHelpedCount');
+    } catch (e) {
+      print('❌ Error loading mentees count: $e');
+      _menteesHelpedCount = 0;
+    }
+  }
+
+  Future<void> _loadSessionsCount() async {
+    try {
+      // Get all sessions for this mentor and filter on client side
+      final querySnapshot = await FirebaseFirestore.instance
+          .collection('sessions')
+          .where('mentor_id', isEqualTo: FirebaseAuth.instance.currentUser?.uid)
+          .get();
+      
+      // Count only completed sessions
+      _totalSessionsCount = querySnapshot.docs.where((doc) {
+        return doc.data()['status'] == 'completed';
+      }).length;
+      
+      print('✅ Total sessions count: $_totalSessionsCount');
+    } catch (e) {
+      print('❌ Error loading sessions count: $e');
+      _totalSessionsCount = 0;
+    }
   }
 
   Future<void> _loadRecentRequests() async {
-    // Mock data - in real app, fetch from Firebase/API
-    _recentRequests = [
-      {
-        'id': '1',
-        'mentee_name': 'Sarah Johnson',
-        'mentee_avatar': 'https://ui-avatars.com/api/?name=Sarah+Johnson&background=random',
-        'business_name': 'TechStart Solutions',
-        'request_type': 'Business Strategy',
-        'timestamp': DateTime.now().subtract(const Duration(hours: 2)),
-        'status': 'pending',
-      },
-      {
-        'id': '2',
-        'mentee_name': 'Mike Chen',
-        'mentee_avatar': 'https://ui-avatars.com/api/?name=Mike+Chen&background=random',
-        'business_name': 'GreenTech Innovations',
-        'request_type': 'Funding Guidance',
-        'timestamp': DateTime.now().subtract(const Duration(hours: 5)),
-        'status': 'pending',
-      },
-      {
-        'id': '3',
-        'mentee_name': 'Emma Davis',
-        'mentee_avatar': 'https://ui-avatars.com/api/?name=Emma+Davis&background=random',
-        'business_name': 'Creative Studio',
-        'request_type': 'Marketing Strategy',
-        'timestamp': DateTime.now().subtract(const Duration(days: 1)),
-        'status': 'accepted',
-      },
-    ];
+    try {
+      // Fetch real mentorship requests from Firebase
+      final querySnapshot = await FirebaseFirestore.instance
+          .collection('mentorship_requests')
+          .where('mentor_id', isEqualTo: FirebaseAuth.instance.currentUser?.uid)
+          .orderBy('created_at', descending: true)
+          .limit(4)
+          .get();
+      
+      _recentRequests = querySnapshot.docs.map((doc) {
+        final data = doc.data();
+        return {
+          'id': doc.id,
+          'mentee_name': data['mentee_info']?['mentee_name'] ?? 'Unknown',
+          'mentee_avatar': 'https://ui-avatars.com/api/?name=${data['mentee_info']?['mentee_name']?.replaceAll(' ', '+') ?? 'User'}&background=random',
+          'business_name': data['mentee_info']?['business_name'] ?? '',
+          'request_type': data['request_type'] ?? 'Mentorship',
+          'timestamp': (data['created_at'] as Timestamp?)?.toDate() ?? DateTime.now(),
+          'status': data['status'] ?? 'pending',
+        };
+      }).toList();
+    } catch (e) {
+      print('Error loading recent requests: $e');
+      _recentRequests = [];
+    }
   }
 
   Future<void> _loadUpcomingSessions() async {
-    // Mock data - in real app, fetch from Firebase/API
-    _upcomingSessions = [
-      {
-        'id': '1',
-        'mentee_name': 'Alex Rodriguez',
-        'business_name': 'FoodieApp',
-        'session_type': '1-on-1 Strategy Session',
-        'scheduled_time': DateTime.now().add(const Duration(hours: 3)),
-        'duration': 60,
-        'meeting_link': 'https://meet.google.com/abc-defg-hij',
-      },
-      {
-        'id': '2',
-        'mentee_name': 'Lisa Wang',
-        'business_name': 'EduTech Platform',
-        'session_type': 'Product Review',
-        'scheduled_time': DateTime.now().add(const Duration(days: 1, hours: 2)),
-        'duration': 45,
-        'meeting_link': 'https://zoom.us/j/123456789',
-      },
-    ];
+    try {
+      final sessions = await SessionService.getUpcomingSessions(isMentor: true);
+      print('📊 Loaded ${sessions.length} upcoming sessions for dashboard');
+      _upcomingSessions = sessions.map((session) {
+        return {
+          'id': session['id'],
+          'mentee_name': session['mentee_name'],
+          'business_name': '', // Can be added if needed
+          'session_type': session['session_title'],
+          'scheduled_date': (session['scheduled_date'] as Timestamp).toDate(),
+          'scheduled_time': session['scheduled_time'], // Store the time string
+          'duration': session['duration_minutes'],
+          'meeting_link': session['meeting_link'],
+        };
+      }).toList();
+    } catch (e) {
+      print('Error loading upcoming sessions: $e');
+      _upcomingSessions = [];
+    }
   }
 
   void _setupRealtimeUpdates() {
@@ -166,8 +234,10 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen>
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _mainController.dispose();
     _scrollController.dispose();
+    _resetStatusBar();
     super.dispose();
   }
 
@@ -325,29 +395,10 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen>
           opacity: _fadeAnimation.value,
           child: Transform.translate(
             offset: Offset(0, _slideAnimation.value),
-            child: _buildContent(),
+            child: _buildDashboardContent(),
           ),
         );
       },
-    );
-  }
-
-  Widget _buildContent() {
-    switch (_selectedIndex) {
-      case 0:
-        return _buildDashboardContent();
-      case 1:
-        return MentorshipRequestsScreen();
-      case 3:
-        return _buildProfileWrapper();
-      default:
-        return _buildDashboardContent();
-    }
-  }
-
-  Widget _buildProfileWrapper() {
-    return const SafeArea(
-      child: ProfileScreen(),
     );
   }
 
@@ -362,8 +413,6 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen>
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 _buildWelcomeSection(),
-                const SizedBox(height: 24),
-                _buildStatsGrid(),
                 const SizedBox(height: 24),
                 _buildQuickActions(),
                 const SizedBox(height: 24),
@@ -494,11 +543,11 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen>
           const SizedBox(height: 20),
           Row(
             children: [
-              _buildImpactStat('23', 'Mentees Helped'),
+              _buildImpactStat('$_menteesHelpedCount', 'Mentees Helped'),
               const SizedBox(width: 24),
-              _buildImpactStat('156', 'Hours Mentored'),
+              _buildImpactStat('$_totalSessionsCount', 'Sessions'),
               const SizedBox(width: 24),
-              _buildImpactStat('4.9', 'Rating'),
+              _buildImpactStat('${_upcomingSessions.length}', 'Upcoming'),
             ],
           ),
         ],
@@ -529,94 +578,6 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen>
     );
   }
 
-  Widget _buildStatsGrid() {
-    return GridView.count(
-      crossAxisCount: 2,
-      crossAxisSpacing: 15,
-      mainAxisSpacing: 15,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      childAspectRatio: 2.0,
-      children: [
-        _buildSimpleStatCard(
-          'Total Mentees',
-          '${_mentorStats['total_mentees'] ?? 12}',
-          Icons.people_outline,
-          ModernTheme.freshGreen,
-        ),
-        _buildSimpleStatCard(
-          'Pending Requests',
-          '${_recentRequests.where((r) => r['status'] == 'pending').length}',
-          Icons.schedule,
-          ModernTheme.sunsetOrange,
-        ),
-        _buildSimpleStatCard(
-          'Total Hours',
-          '${_mentorStats['total_hours'] ?? 120}h',
-          Icons.access_time,
-          ModernTheme.electricBlue,
-        ),
-        _buildSimpleStatCard(
-          'This Month',
-          '\$${_mentorStats['monthly_earnings'] ?? 2400}',
-          Icons.trending_up,
-          ModernTheme.teal,
-        ),
-      ],
-    );
-  }
-
-
-
-  Widget _buildSimpleStatCard(String title, String value, IconData icon, Color color) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                icon,
-                color: color,
-                size: 20,
-              ),
-              const SizedBox(width: 6),
-              Text(
-                value,
-                style: ModernTheme.h3.copyWith(
-                  color: ModernTheme.navy,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 4),
-          Text(
-            title,
-            style: ModernTheme.bodySmall.copyWith(
-              color: ModernTheme.mediumGray,
-              fontSize: 10,
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildQuickActions() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -637,7 +598,11 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen>
                 Icons.calendar_today,
                 ModernTheme.electricBlue,
                 () {
-                  // TODO: Implement schedule session
+                  _resetStatusBar();
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const ScheduleSessionScreen()),
+                  ).then((_) => _setDashboardStatusBar());
                 },
               ),
             ),
@@ -648,9 +613,11 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen>
                 Icons.inbox,
                 ModernTheme.sunsetOrange,
                 () {
-                  setState(() {
-                    _selectedIndex = 1;
-                  });
+                  _resetStatusBar();
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => MentorshipRequestsScreen()),
+                  ).then((_) => _setDashboardStatusBar());
                 },
               ),
             ),
@@ -665,27 +632,26 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen>
                 Icons.chat_bubble_outline,
                 ModernTheme.teal,
                 () {
+                  _resetStatusBar();
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                      builder: (context) => const ChatScreen(
-                        entrepreneurName: 'Sarah Johnson',
-                        entrepreneurAvatar: 'https://via.placeholder.com/50',
-                        businessName: 'TechStart Solutions',
-                      ),
-                    ),
-                  );
+                    MaterialPageRoute(builder: (_) => const InboxScreen()),
+                  ).then((_) => _setDashboardStatusBar());
                 },
               ),
             ),
             const SizedBox(width: 12),
             Expanded(
               child: _buildActionButton(
-                'Resources',
-                Icons.library_books,
+                'View Sessions',
+                Icons.event_note,
                 ModernTheme.freshGreen,
                 () {
-                  // TODO: Implement resources
+                  _resetStatusBar();
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const SessionsScreen()),
+                  ).then((_) => _setDashboardStatusBar());
                 },
               ),
             ),
@@ -749,88 +715,88 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen>
             borderRadius: BorderRadius.circular(16),
             boxShadow: ModernTheme.modernShadow,
           ),
-          child: Column(
-            children: _recentRequests.isEmpty 
-              ? [
-                  Padding(
-                    padding: const EdgeInsets.all(32),
-                    child: Column(
-                      children: [
-                        Icon(
-                          Icons.history,
-                          size: 48,
-                          color: ModernTheme.mediumGray,
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          'No recent activity',
-                          style: ModernTheme.bodyLarge.copyWith(
-                            color: ModernTheme.mediumGray,
-                          ),
-                        ),
-                      ],
+          child: _recentRequests.isEmpty 
+            ? Padding(
+                padding: const EdgeInsets.all(32),
+                child: Column(
+                  children: [
+                    Icon(
+                      Icons.history,
+                      size: 48,
+                      color: ModernTheme.mediumGray,
                     ),
-                  ),
-                ]
-              : _recentRequests.take(4).map((request) {
+                    const SizedBox(height: 16),
+                    Text(
+                      'No recent activity',
+                      style: ModernTheme.bodyLarge.copyWith(
+                        color: ModernTheme.mediumGray,
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            : ListView.separated(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                padding: const EdgeInsets.all(16),
+                itemCount: _recentRequests.length > 4 ? 4 : _recentRequests.length,
+                separatorBuilder: (context, index) => const Divider(height: 1),
+                itemBuilder: (context, index) {
+                  final request = _recentRequests[index];
                   String timeAgo = _getTimeAgo(request['timestamp']);
-                  String activityText = 'New ${request['request_type'].toLowerCase()} request from ${request['mentee_name']}';
                   IconData activityIcon = request['status'] == 'pending' 
                     ? Icons.person_add 
                     : Icons.check_circle;
                   Color activityColor = request['status'] == 'pending' 
                     ? ModernTheme.sunsetOrange 
                     : ModernTheme.freshGreen;
-                    
-                  return _buildActivityItem(
-                    activityText,
-                    timeAgo,
-                    activityIcon,
-                    activityColor,
+                  
+                  return ListTile(
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                    leading: Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: activityColor.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(activityIcon, color: activityColor, size: 24),
+                    ),
+                    title: Text(
+                      request['mentee_name'],
+                      style: ModernTheme.bodyMedium.copyWith(
+                        color: ModernTheme.navy,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    subtitle: Text(
+                      'New ${request['request_type']} • $timeAgo',
+                      style: ModernTheme.bodySmall.copyWith(
+                        color: ModernTheme.mediumGray,
+                      ),
+                    ),
+                    trailing: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: request['status'] == 'pending' 
+                          ? ModernTheme.sunsetOrange.withOpacity(0.1)
+                          : ModernTheme.freshGreen.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        request['status'] == 'pending' ? 'Pending' : 'Accepted',
+                        style: ModernTheme.bodySmall.copyWith(
+                          color: request['status'] == 'pending' 
+                            ? ModernTheme.sunsetOrange
+                            : ModernTheme.freshGreen,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
                   );
-                }).toList(),
-          ),    ),
+                },
+              ),
+        ),
       ],
-    );
-  }
-
-  Widget _buildActivityItem(String title, String time, IconData icon, Color color) {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(icon, color: color, size: 16),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: ModernTheme.bodyMedium.copyWith(
-                    color: ModernTheme.navy,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                Text(
-                  time,
-                  style: ModernTheme.bodySmall.copyWith(
-                    color: ModernTheme.mediumGray,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Icon(Icons.chevron_right, color: Colors.grey[400], size: 20),
-        ],
-      ),
     );
   }
 
@@ -862,21 +828,19 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen>
     }
   }
 
-  String _formatSessionTime(DateTime scheduledTime) {
+  String _formatSessionTime(DateTime scheduledDate, String timeString) {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final tomorrow = today.add(const Duration(days: 1));
-    final sessionDate = DateTime(scheduledTime.year, scheduledTime.month, scheduledTime.day);
-    
-    String timeStr = '${scheduledTime.hour.toString().padLeft(2, '0')}:${scheduledTime.minute.toString().padLeft(2, '0')}';
+    final sessionDate = DateTime(scheduledDate.year, scheduledDate.month, scheduledDate.day);
     
     if (sessionDate == today) {
-      return 'Today, $timeStr';
+      return 'Today at $timeString';
     } else if (sessionDate == tomorrow) {
-      return 'Tomorrow, $timeStr';
+      return 'Tomorrow at $timeString';
     } else {
-      final weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-      return '${weekdays[scheduledTime.weekday - 1]}, $timeStr';
+      final months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      return '${months[scheduledDate.month - 1]} ${scheduledDate.day} at $timeString';
     }
   }
 
@@ -923,7 +887,10 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen>
                   bool isLast = index == _upcomingSessions.length - 1;
                   
                   Color sessionColor = _getSessionColor(session['session_type']);
-                  String formattedTime = _formatSessionTime(session['scheduled_time']);
+                  String formattedTime = _formatSessionTime(
+                    session['scheduled_date'] as DateTime,
+                    session['scheduled_time'] as String,
+                  );
                   
                   return Column(
                     children: [
@@ -1025,17 +992,26 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen>
     final isSelected = _selectedIndex == index;
     return GestureDetector(
       onTap: () {
-        if (index == 2) { // Community tab
+        if (index == 0) {
+          // Already on dashboard, do nothing
+          return;
+        } else if (index == 1) {
+          // Navigate to Mentorship Requests
+          _resetStatusBar();
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => MentorshipRequestsScreen()),
+          ).then((_) => _setDashboardStatusBar());
+        } else if (index == 2) {
+          // Navigate to Community
+          _resetStatusBar();
           Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const CommunityScreen()),
-          );
-        } else if (index == 3) { // Menu tab - open drawer
+          ).then((_) => _setDashboardStatusBar());
+        } else if (index == 3) {
+          // Open menu drawer
           _scaffoldKey.currentState?.openDrawer();
-        } else {
-          setState(() {
-            _selectedIndex = index;
-          });
         }
       },
       child: AnimatedContainer(
@@ -1143,17 +1119,53 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen>
                     child: Column(
                       children: [
                         _buildSidebarItem(
+                          Icons.event_available,
+                          'Schedule Session',
+                          'Create a new mentorship session',
+                          () {
+                            Navigator.pop(context);
+                            _resetStatusBar();
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const ScheduleSessionScreen(),
+                              ),
+                            ).then((_) {
+                              _setDashboardStatusBar();
+                              _loadDashboardData(); // Refresh dashboard data
+                            });
+                          },
+                        ),
+                        const SizedBox(height: 16),
+                        _buildSidebarItem(
                           Icons.chat_bubble_outline,
                           'Inbox',
                           'Chat with your mentees',
                           () {
                             Navigator.pop(context);
+                            _resetStatusBar();
                             Navigator.push(
                               context,
                               MaterialPageRoute(
                                 builder: (context) => const InboxScreen(),
                               ),
-                            );
+                            ).then((_) => _setDashboardStatusBar());
+                          },
+                        ),
+                        const SizedBox(height: 16),
+                        _buildSidebarItem(
+                          Icons.event_note,
+                          'My Sessions',
+                          'View all your mentorship sessions',
+                          () {
+                            Navigator.pop(context);
+                            _resetStatusBar();
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const SessionsScreen(isMentor: true),
+                              ),
+                            ).then((_) => _setDashboardStatusBar());
                           },
                         ),
                         const SizedBox(height: 16),
@@ -1163,22 +1175,13 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen>
                           'View and edit your profile',
                           () {
                             Navigator.pop(context);
+                            _resetStatusBar();
                             Navigator.push(
                               context,
                               MaterialPageRoute(
                                 builder: (context) => const ProfileScreen(),
                               ),
-                            );
-                          },
-                        ),
-                        const SizedBox(height: 16),
-                        _buildSidebarItem(
-                          Icons.settings_outlined,
-                          'Settings',
-                          'App preferences and settings',
-                          () {
-                            Navigator.pop(context);
-                            // TODO: Navigate to settings
+                            ).then((_) => _setDashboardStatusBar());
                           },
                         ),
                         const Spacer(),

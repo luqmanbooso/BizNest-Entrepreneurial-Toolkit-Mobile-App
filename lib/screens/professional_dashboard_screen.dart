@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../core/services/auth_service.dart';
 import '../core/services/realtime_service.dart';
 import '../core/services/business_intelligence_service.dart';
 import '../core/services/mentorship_service.dart';
+import '../core/services/session_service.dart';
 import '../core/theme/modern_theme.dart';
 import 'business_screen.dart';
 import 'learning_screen.dart';
@@ -11,6 +14,7 @@ import 'profile_screen.dart';
 import 'community_screen.dart';
 import 'mentor_screen.dart';
 import 'inbox_screen.dart';
+import 'sessions_screen.dart';
 
 class ProfessionalDashboardScreen extends StatefulWidget {
   const ProfessionalDashboardScreen({super.key});
@@ -29,6 +33,7 @@ class _ProfessionalDashboardScreenState extends State<ProfessionalDashboardScree
   bool _isLoading = true;
   bool _hasAcceptedRequests = false;
   final ScrollController _scrollController = ScrollController();
+  List<Map<String, dynamic>> _recentActivities = [];
 
   @override
   void initState() {
@@ -69,6 +74,7 @@ class _ProfessionalDashboardScreenState extends State<ProfessionalDashboardScree
     try {
       await BusinessIntelligenceService.generateInsights();
       await _checkAcceptedRequests();
+      await _loadRecentActivities();
       if (mounted) {
         setState(() {
           _isLoading = false;
@@ -78,6 +84,67 @@ class _ProfessionalDashboardScreenState extends State<ProfessionalDashboardScree
       if (mounted) {
         setState(() => _isLoading = false);
       }
+    }
+  }
+
+  Future<void> _loadRecentActivities() async {
+    try {
+      final userId = FirebaseAuth.instance.currentUser?.uid;
+      if (userId == null) return;
+
+      List<Map<String, dynamic>> activities = [];
+
+      // Get recent sessions
+      final sessions = await SessionService.getEntrpreneurSessions();
+      for (var session in sessions.take(2)) {
+        activities.add({
+          'title': 'Session with ${session['mentor_name']}',
+          'subtitle': session['session_title'] ?? 'Mentorship Session',
+          'icon': Icons.event,
+          'color': const Color(0xFF3B82F6),
+          'timestamp': (session['scheduled_date'] as Timestamp).toDate(),
+        });
+      }
+
+      // Get recent mentorship requests
+      final requests = await MentorshipService.getMenteeRequests();
+      for (var request in requests.take(2)) {
+        final status = request['status'];
+        activities.add({
+          'title': status == 'accepted' ? 'Request Accepted' : status == 'pending' ? 'Request Sent' : 'Request ${status[0].toUpperCase()}${status.substring(1)}',
+          'subtitle': 'Mentorship request to ${request['mentor_info']?['mentor_name'] ?? 'mentor'}',
+          'icon': status == 'accepted' ? Icons.check_circle : Icons.send,
+          'color': status == 'accepted' ? const Color(0xFF10B981) : const Color(0xFF8B5CF6),
+          'timestamp': (request['created_at'] as Timestamp).toDate(),
+        });
+      }
+
+      // Sort by timestamp descending
+      activities.sort((a, b) => (b['timestamp'] as DateTime).compareTo(a['timestamp'] as DateTime));
+
+      if (mounted) {
+        setState(() {
+          _recentActivities = activities.take(3).toList();
+        });
+      }
+    } catch (e) {
+      print('Error loading recent activities: $e');
+      _recentActivities = [];
+    }
+  }
+
+  String _getTimeAgo(DateTime timestamp) {
+    final now = DateTime.now();
+    final difference = now.difference(timestamp);
+
+    if (difference.inDays > 0) {
+      return '${difference.inDays} day${difference.inDays > 1 ? 's' : ''} ago';
+    } else if (difference.inHours > 0) {
+      return '${difference.inHours} hour${difference.inHours > 1 ? 's' : ''} ago';
+    } else if (difference.inMinutes > 0) {
+      return '${difference.inMinutes} minute${difference.inMinutes > 1 ? 's' : ''} ago';
+    } else {
+      return 'Just now';
     }
   }
 
@@ -189,7 +256,6 @@ class _ProfessionalDashboardScreenState extends State<ProfessionalDashboardScree
               children: [
                 _buildWelcomeSection(),
                 _buildBusinessMetrics(),
-                _buildAnalyticsSection(),
                 _buildQuickActionsGrid(),
                 _buildRecentActivity(),
                 const SizedBox(height: 120), // Extra space for main screen navigation
@@ -578,138 +644,6 @@ class _ProfessionalDashboardScreenState extends State<ProfessionalDashboardScree
     );
   }
 
-  Widget _buildAnalyticsSection() {
-    return AnimatedBuilder(
-      animation: _fadeAnimation,
-      builder: (context, child) {
-        return Transform.translate(
-          offset: Offset(0, _slideAnimation.value * 0.2),
-          child: Opacity(
-            opacity: _fadeAnimation.value,
-            child: Container(
-              margin: const EdgeInsets.symmetric(horizontal: 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Performance Analytics',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w700,
-                      color: Color(0xFF1E293B),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Container(
-                    padding: const EdgeInsets.all(24),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color(0xFF1E293B).withOpacity(0.04),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text(
-                              'Business Health Score',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: Color(0xFF1E293B),
-                              ),
-                            ),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 6,
-                              ),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF10B981).withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: const Text(
-                                'Excellent',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
-                                  color: Color(0xFF10B981),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-                        _buildProgressIndicator('Overall Score', 0.87, const Color(0xFF10B981)),
-                        const SizedBox(height: 12),
-                        _buildProgressIndicator('Financial Health', 0.92, const Color(0xFF3B82F6)),
-                        const SizedBox(height: 12),
-                        _buildProgressIndicator('Market Position', 0.78, const Color(0xFF8B5CF6)),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildProgressIndicator(String label, double progress, Color color) {
-    return Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              label,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: Color(0xFF64748B),
-              ),
-            ),
-            Text(
-              '${(progress * 100).toInt()}%',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: color,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 8),
-        Container(
-          height: 6,
-          decoration: BoxDecoration(
-            color: const Color(0xFFF1F5F9),
-            borderRadius: BorderRadius.circular(3),
-          ),
-          child: FractionallySizedBox(
-            alignment: Alignment.centerLeft,
-            widthFactor: progress,
-            child: Container(
-              decoration: BoxDecoration(
-                color: color,
-                borderRadius: BorderRadius.circular(3),
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
   Widget _buildQuickActionsGrid() {
     return AnimatedBuilder(
       animation: _fadeAnimation,
@@ -736,14 +670,32 @@ class _ProfessionalDashboardScreenState extends State<ProfessionalDashboardScree
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     crossAxisCount: 2,
-                    crossAxisSpacing: 12,
-                    mainAxisSpacing: 12,
-                    childAspectRatio: 2.2,
+                    crossAxisSpacing: 16,
+                    mainAxisSpacing: 16,
+                    childAspectRatio: 1.4,
                     children: [
                       _buildActionCard(
-                        'Create Plan',
-                        Icons.add_business,
+                        'Find Mentor',
+                        Icons.person_search,
                         const Color(0xFF3B82F6),
+                        () => Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const MentorScreen()),
+                        ),
+                      ),
+                      _buildActionCard(
+                        'My Sessions',
+                        Icons.event_note,
+                        const Color(0xFF10B981),
+                        () => Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const SessionsScreen(isMentor: false)),
+                        ),
+                      ),
+                      _buildActionCard(
+                        'Business Plan',
+                        Icons.add_business,
+                        const Color(0xFF8B5CF6),
                         () => Navigator.push(
                           context,
                           MaterialPageRoute(builder: (_) => const BusinessScreen()),
@@ -752,27 +704,11 @@ class _ProfessionalDashboardScreenState extends State<ProfessionalDashboardScree
                       _buildActionCard(
                         'Learn & Grow',
                         Icons.school,
-                        const Color(0xFF10B981),
+                        const Color(0xFFF59E0B),
                         () => Navigator.push(
                           context,
                           MaterialPageRoute(builder: (_) => const LearningScreen()),
                         ),
-                      ),
-                      _buildActionCard(
-                        'Analytics',
-                        Icons.analytics,
-                        const Color(0xFF8B5CF6),
-                        () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Analytics feature coming soon!')),
-                          );
-                        },
-                      ),
-                      _buildActionCard(
-                        'View Profile',
-                        Icons.person,
-                        const Color(0xFFF59E0B),
-                        _openProfile,
                       ),
                     ],
                   ),
@@ -794,60 +730,103 @@ class _ProfessionalDashboardScreenState extends State<ProfessionalDashboardScree
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              Colors.white,
-              color.withOpacity(0.02),
+              color,
+              color.withOpacity(0.8),
             ],
           ),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: color.withOpacity(0.1),
-            width: 1,
-          ),
+          borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: color.withOpacity(0.1),
-              blurRadius: 20,
-              offset: const Offset(0, 8),
+              color: color.withOpacity(0.3),
+              blurRadius: 12,
+              offset: const Offset(0, 6),
             ),
           ],
         ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
+        child: Stack(
           children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [color.withOpacity(0.1), color.withOpacity(0.05)],
-                ),
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(
-                  color: color.withOpacity(0.2),
-                  width: 1,
+            // Decorative circle in background
+            Positioned(
+              right: -20,
+              top: -20,
+              child: Container(
+                width: 80,
+                height: 80,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white.withOpacity(0.1),
                 ),
               ),
-              child: Icon(icon, color: color, size: 20),
             ),
-            const SizedBox(height: 8),
-            Flexible(
-              child: Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFF1E293B),
-                  letterSpacing: -0.1,
+            Positioned(
+              right: 10,
+              bottom: -10,
+              child: Container(
+                width: 50,
+                height: 50,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white.withOpacity(0.08),
                 ),
-                textAlign: TextAlign.center,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            // Content
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(
+                      icon,
+                      color: Colors.white,
+                      size: 24,
+                    ),
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                          letterSpacing: -0.2,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 4),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Text(
+                          'Tap to open',
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: Colors.white,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
           ],
@@ -889,27 +868,42 @@ class _ProfessionalDashboardScreenState extends State<ProfessionalDashboardScree
                     ),
                   ),
                 ),
-                _buildActivityItem(
-                  'Business Plan Created',
-                  'Tech Startup Plan completed',
-                  Icons.description,
-                  const Color(0xFF3B82F6),
-                  '2 hours ago',
-                ),
-                _buildActivityItem(
-                  'ROI Calculated',
-                  'Project Alpha analysis done',
-                  Icons.calculate,
-                  const Color(0xFF10B981),
-                  '5 hours ago',
-                ),
-                _buildActivityItem(
-                  'Learning Module',
-                  'Marketing Strategies completed',
-                  Icons.school,
-                  const Color(0xFF8B5CF6),
-                  '1 day ago',
-                ),
+                if (_recentActivities.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 40),
+                    child: Center(
+                      child: Column(
+                        children: [
+                          Icon(
+                            Icons.history,
+                            size: 48,
+                            color: Colors.grey.shade300,
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            'No recent activity',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey.shade600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                else
+                  ..._recentActivities.map((activity) {
+                    final DateTime timestamp = activity['timestamp'];
+                    final String timeAgo = _getTimeAgo(timestamp);
+                    
+                    return _buildActivityItem(
+                      activity['title'],
+                      activity['subtitle'],
+                      activity['icon'],
+                      activity['color'],
+                      timeAgo,
+                    );
+                  }).toList(),
                 const SizedBox(height: 20),
               ],
             ),
@@ -1197,6 +1191,19 @@ class _ProfessionalDashboardScreenState extends State<ProfessionalDashboardScree
                     },
                   ),
                   if (_hasAcceptedRequests) ...[
+                    const SizedBox(height: 16),
+                    _buildMenuItem(
+                      Icons.event_note,
+                      'Sessions',
+                      'View your mentorship sessions',
+                      () {
+                        Navigator.pop(context);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const SessionsScreen(isMentor: false)),
+                        );
+                      },
+                    ),
                     const SizedBox(height: 16),
                     _buildMenuItem(
                       Icons.chat_bubble_outline,

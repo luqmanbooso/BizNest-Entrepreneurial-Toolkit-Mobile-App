@@ -525,8 +525,11 @@ class _MentorshipRequestsScreenState extends State<MentorshipRequestsScreen>
                                   fontWeight: FontWeight.w800,
                                   color: ModernTheme.navy,
                                 ),
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
                               ),
                             ),
+                            const SizedBox(width: 8),
                             _buildStatusBadge(request['status']),
                           ],
                         ),
@@ -547,6 +550,8 @@ class _MentorshipRequestsScreenState extends State<MentorshipRequestsScreen>
                                   fontWeight: FontWeight.w500,
                                   color: ModernTheme.mediumGray,
                                 ),
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
                               ),
                             ),
                           ],
@@ -560,11 +565,14 @@ class _MentorshipRequestsScreenState extends State<MentorshipRequestsScreen>
                               color: ModernTheme.mediumGray.withOpacity(0.7),
                             ),
                             const SizedBox(width: 4),
-                            Text(
-                              timeAgo,
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: ModernTheme.mediumGray.withOpacity(0.7),
+                            Flexible(
+                              child: Text(
+                                timeAgo,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: ModernTheme.mediumGray.withOpacity(0.7),
+                                ),
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
                           ],
@@ -601,12 +609,16 @@ class _MentorshipRequestsScreenState extends State<MentorshipRequestsScreen>
                           color: ModernTheme.electricBlue,
                         ),
                         const SizedBox(width: 4),
-                        Text(
-                          request['request_type'] ?? 'General Mentorship',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: ModernTheme.electricBlue,
+                        Flexible(
+                          child: Text(
+                            request['request_type'] ?? 'General Mentorship',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: ModernTheme.electricBlue,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
                           ),
                         ),
                       ],
@@ -946,12 +958,15 @@ class _MentorshipRequestsScreenState extends State<MentorshipRequestsScreen>
                 color: ModernTheme.mediumGray,
               ),
               const SizedBox(width: 4),
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 10,
-                  fontWeight: FontWeight.w600,
-                  color: ModernTheme.mediumGray,
+              Flexible(
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w600,
+                    color: ModernTheme.mediumGray,
+                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],
