@@ -2041,9 +2041,6 @@ class _HealthRingPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
-      ),
-    );
-  }
 
   Widget _buildAppBarAction(IconData icon, VoidCallback onTap) {
     return GestureDetector(

@@ -3,6 +3,7 @@ import '../../core/theme/modern_theme.dart';
 import '../../core/widgets/modern_animations.dart';
 import '../../core/services/auth_service.dart';
 import '../main_screen.dart';
+import '../mentor_profile_setup_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -33,6 +34,7 @@ class _RegisterScreenState extends State<RegisterScreen>
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
   bool _agreeToTerms = false;
+  String _selectedRole = 'entrepreneur'; // Default role
 
   @override
   void initState() {
@@ -131,32 +133,61 @@ class _RegisterScreenState extends State<RegisterScreen>
         name: _nameController.text.trim(),
         email: _emailController.text.trim(),
         password: _passwordController.text,
+        role: _selectedRole,
       );
 
       if (result.success && mounted) {
-        Navigator.of(context).pushReplacement(
-          PageRouteBuilder(
-            pageBuilder: (context, animation, secondaryAnimation) =>
-                const MainScreen(),
-            transitionsBuilder:
-                (context, animation, secondaryAnimation, child) {
-              return FadeTransition(
-                opacity: animation,
-                child: SlideTransition(
-                  position: Tween<Offset>(
-                    begin: const Offset(1.0, 0.0),
-                    end: Offset.zero,
-                  ).animate(CurvedAnimation(
-                    parent: animation,
-                    curve: Curves.easeInOut,
-                  )),
-                  child: child,
-                ),
-              );
-            },
-            transitionDuration: const Duration(milliseconds: 600),
-          ),
-        );
+        if (_selectedRole == 'mentor') {
+          // Navigate to mentor profile setup
+          Navigator.of(context).pushReplacement(
+            PageRouteBuilder(
+              pageBuilder: (context, animation, secondaryAnimation) =>
+                  const MentorProfileSetupScreen(),
+              transitionsBuilder:
+                  (context, animation, secondaryAnimation, child) {
+                return FadeTransition(
+                  opacity: animation,
+                  child: SlideTransition(
+                    position: Tween<Offset>(
+                      begin: const Offset(1.0, 0.0),
+                      end: Offset.zero,
+                    ).animate(CurvedAnimation(
+                      parent: animation,
+                      curve: Curves.easeInOut,
+                    )),
+                    child: child,
+                  ),
+                );
+              },
+              transitionDuration: const Duration(milliseconds: 600),
+            ),
+          );
+        } else {
+          // Navigate to main screen for entrepreneurs
+          Navigator.of(context).pushReplacement(
+            PageRouteBuilder(
+              pageBuilder: (context, animation, secondaryAnimation) =>
+                  const MainScreen(),
+              transitionsBuilder:
+                  (context, animation, secondaryAnimation, child) {
+                return FadeTransition(
+                  opacity: animation,
+                  child: SlideTransition(
+                    position: Tween<Offset>(
+                      begin: const Offset(1.0, 0.0),
+                      end: Offset.zero,
+                    ).animate(CurvedAnimation(
+                      parent: animation,
+                      curve: Curves.easeInOut,
+                    )),
+                    child: child,
+                  ),
+                );
+              },
+              transitionDuration: const Duration(milliseconds: 600),
+            ),
+          );
+        }
       } else if (mounted) {
         _showErrorSnackBar(result.message);
       }
@@ -403,6 +434,11 @@ class _RegisterScreenState extends State<RegisterScreen>
 
                       // Confirm Password Field
                       _buildConfirmPasswordField(),
+
+                      const SizedBox(height: 20),
+
+                      // Role Selection
+                      _buildRoleSelection(),
                     ],
                   ),
                 ),
@@ -663,6 +699,105 @@ class _RegisterScreenState extends State<RegisterScreen>
           },
         ),
       ],
+    );
+  }
+
+  Widget _buildRoleSelection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'I am a',
+          style: ModernTheme.bodyMedium.copyWith(
+            color: ModernTheme.navy,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: _buildRoleOption(
+                title: 'Entrepreneur',
+                subtitle: 'Building my startup',
+                icon: Icons.business_center,
+                value: 'entrepreneur',
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: _buildRoleOption(
+                title: 'Mentor',
+                subtitle: 'Sharing my expertise',
+                icon: Icons.school,
+                value: 'mentor',
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildRoleOption({
+    required String title,
+    required String subtitle,
+    required IconData icon,
+    required String value,
+  }) {
+    final isSelected = _selectedRole == value;
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _selectedRole = value;
+        });
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: isSelected ? ModernTheme.freshGreen.withOpacity(0.1) : ModernTheme.lightGray.withOpacity(0.5),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isSelected ? ModernTheme.freshGreen : ModernTheme.mediumGray.withOpacity(0.3),
+            width: isSelected ? 2 : 1,
+          ),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: ModernTheme.freshGreen.withOpacity(0.2),
+                    blurRadius: 10,
+                    offset: const Offset(0, 5),
+                  ),
+                ]
+              : null,
+        ),
+        child: Column(
+          children: [
+            Icon(
+              icon,
+              color: isSelected ? ModernTheme.freshGreen : ModernTheme.mediumGray,
+              size: 32,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              title,
+              style: ModernTheme.bodyMedium.copyWith(
+                color: isSelected ? ModernTheme.navy : ModernTheme.mediumGray,
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              subtitle,
+              style: ModernTheme.bodySmall.copyWith(
+                color: ModernTheme.mediumGray,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
     );
   }
 

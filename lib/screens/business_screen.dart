@@ -19,6 +19,9 @@ class _BusinessScreenState extends State<BusinessScreen>
   // Loading states
   bool _isLoadingHistory = true;
 
+  // Stats
+  int _totalPlansCreated = 0;
+
   // Store generated business plans
   final List<BusinessPlanHistory> _businessPlanHistory = [];
   final List<Map<String, dynamic>> _marketResearchHistory = [];
@@ -50,6 +53,12 @@ class _BusinessScreenState extends State<BusinessScreen>
       icon: Icons.dashboard_rounded,
       color: const Color(0xFFF59E0B),
     ),
+    BusinessTool(
+      title: 'Smart Checklists',
+      description: 'Essential startup tasks and milestones tracker',
+      icon: Icons.checklist_rounded,
+      color: const Color(0xFF06B6D4),
+    ),
   ];
 
   @override
@@ -78,8 +87,13 @@ class _BusinessScreenState extends State<BusinessScreen>
     });
 
     try {
+      print('📊 Loading business plans from Firebase...');
+      print('📊 Current user ID: ${FirebaseDataService.currentUserId}');
+      
       // Load business plans
       final businessPlansData = await FirebaseDataService.getList('business_plans') ?? [];
+      print('📊 Retrieved ${businessPlansData.length} business plans from Firebase');
+      
       _businessPlanHistory.clear();
       for (final planData in businessPlansData) {
         if (planData is Map<String, dynamic>) {
@@ -94,6 +108,8 @@ class _BusinessScreenState extends State<BusinessScreen>
           ));
         }
       }
+      
+      print('📊 Parsed ${_businessPlanHistory.length} business plans');
 
       // Load market research
       final marketResearchData = await FirebaseDataService.getList('market_research') ?? [];
@@ -110,12 +126,20 @@ class _BusinessScreenState extends State<BusinessScreen>
       _businessModelCanvasHistory.clear();
       _businessModelCanvasHistory.addAll(canvasData.map((item) => item as Map<String, dynamic>));
 
+      if (mounted) {
+        setState(() {
+          _totalPlansCreated = _businessPlanHistory.length;
+          _isLoadingHistory = false;
+        });
+        print('📊 Set _totalPlansCreated to: $_totalPlansCreated');
+      }
     } catch (e) {
-      print('Error loading business history: $e');
-    } finally {
-      setState(() {
-        _isLoadingHistory = false;
-      });
+      print('❌ Error loading business history: $e');
+      if (mounted) {
+        setState(() {
+          _isLoadingHistory = false;
+        });
+      }
     }
   }
 
@@ -322,11 +346,12 @@ class _BusinessScreenState extends State<BusinessScreen>
   }
 
   Widget _buildQuickStats() {
+    print('📊 Building QuickStats with _totalPlansCreated = $_totalPlansCreated');
     return FadeTransition(
       opacity: _fadeAnimation,
       child: Row(
         children: [
-          Expanded(child: _buildStatCard('1000+', 'Plans Created', Icons.description, const Color(0xFF10B981))),
+          Expanded(child: _buildStatCard(_totalPlansCreated.toString(), 'Plans Created', Icons.description, const Color(0xFF10B981))),
           const SizedBox(width: 12),
           Expanded(child: _buildStatCard('98%', 'Success Rate', Icons.trending_up, const Color(0xFF3B82F6))),
           const SizedBox(width: 12),
@@ -849,6 +874,7 @@ class _BusinessScreenState extends State<BusinessScreen>
     print('   Company Name: $companyName');
     print('   Industry: $industry');
     print('   Business Plan Length: ${businessPlan.length} characters');
+    print('   Current user ID: ${FirebaseDataService.currentUserId}');
 
     final newPlan = BusinessPlanHistory(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
@@ -860,7 +886,14 @@ class _BusinessScreenState extends State<BusinessScreen>
 
     print('   Created new BusinessPlanHistory with ID: ${newPlan.id}');
 
-    // Save to Firebase
+    // First update the UI
+    setState(() {
+      _businessPlanHistory.insert(0, newPlan);
+      _totalPlansCreated = _businessPlanHistory.length;
+      print('   📊 Updated _totalPlansCreated to: $_totalPlansCreated');
+    });
+
+    // Then save to Firebase
     try {
       final plansData = _businessPlanHistory.map((plan) => {
         'id': plan.id,
@@ -870,25 +903,14 @@ class _BusinessScreenState extends State<BusinessScreen>
         'createdAt': plan.createdAt.toIso8601String(),
       }).toList();
 
-      // Add the new plan to the list
-      plansData.insert(0, {
-        'id': newPlan.id,
-        'companyName': newPlan.companyName,
-        'industry': newPlan.industry,
-        'businessPlan': newPlan.businessPlan,
-        'createdAt': newPlan.createdAt.toIso8601String(),
-      });
-
+      print('   💾 Saving ${plansData.length} plans to Firebase...');
       await FirebaseDataService.setList('business_plans', plansData);
-      print('   ✅ Business plan saved to Firebase');
+      print('   ✅ Business plan saved to Firebase successfully');
     } catch (e) {
       print('   ❌ Error saving business plan to Firebase: $e');
+      // Don't revert UI state even if Firebase save fails
     }
 
-    setState(() {
-      _businessPlanHistory.insert(0, newPlan); // Add to beginning of list
-      print('   Added to history. Total plans: ${_businessPlanHistory.length}');
-    });
   }
 
   void _addToMarketResearchHistory({
@@ -1545,6 +1567,9 @@ class _BusinessScreenState extends State<BusinessScreen>
       case 'Business Model Canvas':
         _showBusinessModelCanvas();
         break;
+      case 'Smart Checklists':
+        _showSmartChecklists();
+        break;
       case 'Pitch Deck Builder':
         _showPitchDeckBuilder();
         break;
@@ -1669,6 +1694,15 @@ class _BusinessScreenState extends State<BusinessScreen>
           });
         },
       ),
+    );
+  }
+
+  void _showSmartChecklists() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => const SmartChecklistsTool(),
     );
   }
 
@@ -4027,6 +4061,463 @@ class _BusinessModelCanvasToolState extends State<BusinessModelCanvasTool> {
       ),
     );
   }
-
-
 }
+
+// Smart Checklists Tool Widget
+class SmartChecklistsTool extends StatefulWidget {
+  const SmartChecklistsTool({super.key});
+
+  @override
+  State<SmartChecklistsTool> createState() => _SmartChecklistsToolState();
+}
+
+class _SmartChecklistsToolState extends State<SmartChecklistsTool> {
+  bool _isLoading = true;
+  
+  // Define checklist categories
+  final Map<String, List<ChecklistItem>> _checklists = {
+    'Pre-Launch': [
+      ChecklistItem(title: 'Validate your business idea', completed: false),
+      ChecklistItem(title: 'Conduct market research', completed: false),
+      ChecklistItem(title: 'Create a business plan', completed: false),
+      ChecklistItem(title: 'Choose a business structure', completed: false),
+      ChecklistItem(title: 'Register your business name', completed: false),
+      ChecklistItem(title: 'Get an EIN (Tax ID)', completed: false),
+      ChecklistItem(title: 'Open a business bank account', completed: false),
+      ChecklistItem(title: 'Set up accounting system', completed: false),
+    ],
+    'Legal & Compliance': [
+      ChecklistItem(title: 'Register business entity', completed: false),
+      ChecklistItem(title: 'Obtain necessary licenses and permits', completed: false),
+      ChecklistItem(title: 'Get business insurance', completed: false),
+      ChecklistItem(title: 'Trademark your brand', completed: false),
+      ChecklistItem(title: 'Create terms of service', completed: false),
+      ChecklistItem(title: 'Create privacy policy', completed: false),
+      ChecklistItem(title: 'Set up contracts and agreements', completed: false),
+    ],
+    'Financial Setup': [
+      ChecklistItem(title: 'Secure startup funding', completed: false),
+      ChecklistItem(title: 'Set up payment processing', completed: false),
+      ChecklistItem(title: 'Create financial projections', completed: false),
+      ChecklistItem(title: 'Set pricing strategy', completed: false),
+      ChecklistItem(title: 'Establish bookkeeping system', completed: false),
+      ChecklistItem(title: 'Hire an accountant/CPA', completed: false),
+    ],
+    'Product/Service Development': [
+      ChecklistItem(title: 'Develop MVP (Minimum Viable Product)', completed: false),
+      ChecklistItem(title: 'Test product with beta users', completed: false),
+      ChecklistItem(title: 'Gather and implement feedback', completed: false),
+      ChecklistItem(title: 'Finalize product/service offering', completed: false),
+      ChecklistItem(title: 'Create product documentation', completed: false),
+      ChecklistItem(title: 'Set up customer support system', completed: false),
+    ],
+    'Marketing & Branding': [
+      ChecklistItem(title: 'Design logo and brand identity', completed: false),
+      ChecklistItem(title: 'Build website', completed: false),
+      ChecklistItem(title: 'Set up social media accounts', completed: false),
+      ChecklistItem(title: 'Create marketing strategy', completed: false),
+      ChecklistItem(title: 'Develop content marketing plan', completed: false),
+      ChecklistItem(title: 'Launch email marketing campaigns', completed: false),
+      ChecklistItem(title: 'Set up analytics and tracking', completed: false),
+    ],
+    'Operations': [
+      ChecklistItem(title: 'Find office space or set up home office', completed: false),
+      ChecklistItem(title: 'Purchase equipment and supplies', completed: false),
+      ChecklistItem(title: 'Set up technology infrastructure', completed: false),
+      ChecklistItem(title: 'Establish vendor relationships', completed: false),
+      ChecklistItem(title: 'Create operational procedures', completed: false),
+      ChecklistItem(title: 'Build your team (if applicable)', completed: false),
+    ],
+  };
+
+  String _selectedCategory = 'Pre-Launch';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadChecklists();
+  }
+
+  Future<void> _loadChecklists() async {
+    try {
+      final savedData = await FirebaseDataService.getJson('smart_checklists');
+      if (savedData != null) {
+        setState(() {
+          // Load saved checklist states
+          savedData.forEach((category, items) {
+            if (_checklists.containsKey(category) && items is List) {
+              for (int i = 0; i < items.length && i < _checklists[category]!.length; i++) {
+                if (items[i] is Map && items[i]['completed'] != null) {
+                  _checklists[category]![i].completed = items[i]['completed'] as bool;
+                }
+              }
+            }
+          });
+          _isLoading = false;
+        });
+      } else {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      print('Error loading checklists: $e');
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _saveChecklists() async {
+    try {
+      final dataToSave = <String, dynamic>{};
+      _checklists.forEach((category, items) {
+        dataToSave[category] = items.map((item) => {
+          'title': item.title,
+          'completed': item.completed,
+        }).toList();
+      });
+      
+      await FirebaseDataService.setJson('smart_checklists', dataToSave);
+      print('✅ Checklists saved to Firebase');
+    } catch (e) {
+      print('❌ Error saving checklists: $e');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_isLoading) {
+      return Container(
+        height: MediaQuery.of(context).size.height * 0.85,
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(24),
+            topRight: Radius.circular(24),
+          ),
+        ),
+        child: const Center(
+          child: CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF06B6D4)),
+          ),
+        ),
+      );
+    }
+    
+
+    return Container(
+      height: MediaQuery.of(context).size.height * 0.85,
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(24),
+          topRight: Radius.circular(24),
+        ),
+      ),
+      child: Column(
+        children: [
+          // Header
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Color(0xFF06B6D4), Color(0xFF22D3EE)],
+              ),
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(24),
+                topRight: Radius.circular(24),
+              ),
+            ),
+            child: SafeArea(
+              bottom: false,
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Icon(
+                          Icons.checklist_rounded,
+                          color: Colors.white,
+                          size: 24,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      const Expanded(
+                        child: Text(
+                          'Smart Checklists',
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () => Navigator.pop(context),
+                        icon: const Icon(Icons.close, color: Colors.white),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  const Text(
+                    'Track essential startup tasks and milestones',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.white,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          // Category tabs
+          Container(
+            height: 50,
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              children: _checklists.keys.map((category) {
+                final isSelected = category == _selectedCategory;
+                final completedCount = _checklists[category]!.where((item) => item.completed).length;
+                final totalCount = _checklists[category]!.length;
+                
+                return Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: GestureDetector(
+                    onTap: () => setState(() => _selectedCategory = category),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      decoration: BoxDecoration(
+                        gradient: isSelected
+                            ? const LinearGradient(
+                                colors: [Color(0xFF06B6D4), Color(0xFF22D3EE)],
+                              )
+                            : null,
+                        color: isSelected ? null : const Color(0xFFF1F5F9),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Row(
+                        children: [
+                          Text(
+                            category,
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: isSelected ? Colors.white : const Color(0xFF64748B),
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: isSelected ? Colors.white.withOpacity(0.3) : const Color(0xFFE2E8F0),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Text(
+                              '$completedCount/$totalCount',
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w700,
+                                color: isSelected ? Colors.white : const Color(0xFF64748B),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+
+          // Progress indicator
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            child: _buildProgressBar(),
+          ),
+
+          // Checklist items
+          Expanded(
+            child: ListView.builder(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+              itemCount: _checklists[_selectedCategory]!.length,
+              itemBuilder: (context, index) {
+                final item = _checklists[_selectedCategory]![index];
+                return _buildChecklistItem(item, index);
+              },
+            ),
+          ),
+
+          // Bottom action buttons
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, -4),
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: _resetCategory,
+                    icon: const Icon(Icons.refresh, size: 18),
+                    label: const Text('Reset'),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      side: const BorderSide(color: Color(0xFF06B6D4)),
+                      foregroundColor: const Color(0xFF06B6D4),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: _markAllComplete,
+                    icon: const Icon(Icons.check_circle, size: 18),
+                    label: const Text('Mark All'),
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      backgroundColor: const Color(0xFF06B6D4),
+                      foregroundColor: Colors.white,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildProgressBar() {
+    final completedCount = _checklists[_selectedCategory]!.where((item) => item.completed).length;
+    final totalCount = _checklists[_selectedCategory]!.length;
+    final progress = totalCount > 0 ? completedCount / totalCount : 0.0;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Progress: $completedCount of $totalCount completed',
+              style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF64748B),
+              ),
+            ),
+            Text(
+              '${(progress * 100).toStringAsFixed(0)}%',
+              style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF06B6D4),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(10),
+          child: LinearProgressIndicator(
+            value: progress,
+            minHeight: 8,
+            backgroundColor: const Color(0xFFF1F5F9),
+            valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF06B6D4)),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildChecklistItem(ChecklistItem item, int index) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: item.completed ? const Color(0xFFF0FDF4) : Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: item.completed ? const Color(0xFF10B981).withOpacity(0.2) : const Color(0xFFE2E8F0),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF1E293B).withOpacity(0.03),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: CheckboxListTile(
+        value: item.completed,
+        onChanged: (value) {
+          setState(() {
+            _checklists[_selectedCategory]![index].completed = value ?? false;
+          });
+          _saveChecklists();
+        },
+        title: Text(
+          item.title,
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: item.completed ? const Color(0xFF10B981) : const Color(0xFF1E293B),
+            decoration: item.completed ? TextDecoration.lineThrough : null,
+          ),
+        ),
+        activeColor: const Color(0xFF06B6D4),
+        checkColor: Colors.white,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        controlAffinity: ListTileControlAffinity.leading,
+      ),
+    );
+  }
+
+  void _resetCategory() {
+    setState(() {
+      for (var item in _checklists[_selectedCategory]!) {
+        item.completed = false;
+      }
+    });
+    _saveChecklists();
+  }
+
+  void _markAllComplete() {
+    setState(() {
+      for (var item in _checklists[_selectedCategory]!) {
+        item.completed = true;
+      }
+    });
+    _saveChecklists();
+  }
+}
+
+// Checklist Item Model
+class ChecklistItem {
+  String title;
+  bool completed;
+
+  ChecklistItem({
+    required this.title,
+    required this.completed,
+  });
+}
+

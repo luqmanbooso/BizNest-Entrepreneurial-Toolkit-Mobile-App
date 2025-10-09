@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'firebase_data_service.dart';
 import 'api_service.dart';
 import 'firebase_auth_service.dart' as fb;
@@ -55,24 +56,40 @@ class AuthService {
       final userData = await FirebaseDataService.getJson(_userKey);
       if (userData != null) {
         _currentUser = userData;
+        // Also try to get additional data from Firestore
+        await _refreshUserDataFromFirestore();
       } else {
-        // Create user data from Firebase Auth
+        // Create user data from Firebase Auth and Firestore
         final user = _auth.currentUser;
         if (user != null) {
+          await _refreshUserDataFromFirestore();
+        }
+      }
+    } catch (e) {
+      print('Error loading user data: $e');
+    }
+  }
+
+  // Refresh user data from Firestore
+  static Future<void> _refreshUserDataFromFirestore() async {
+    try {
+      final user = _auth.currentUser;
+      if (user != null) {
+        final userDoc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+        if (userDoc.exists) {
+          final firestoreData = userDoc.data()!;
           _currentUser = {
+            ..._currentUser ?? {},
+            ...firestoreData,
             'id': user.uid,
-            'name': user.displayName ?? 'User',
-            'email': user.email ?? '',
-            'avatar': user.photoURL ?? '',
-            'role': 'entrepreneur',
-            'company': '',
+            'email': user.email ?? firestoreData['email'] ?? '',
             'is_verified': user.emailVerified,
           };
           await FirebaseDataService.setJson(_userKey, _currentUser!);
         }
       }
     } catch (e) {
-      print('Error loading user data: $e');
+      print('Error refreshing user data from Firestore: $e');
     }
   }
 
@@ -146,6 +163,7 @@ class AuthService {
         name: name,
         email: email,
         password: password,
+        role: role,
       );
       if (fbResult.success) {
         await _saveAuthData(
@@ -195,16 +213,27 @@ class AuthService {
 
   // Logout user
   static Future<void> logout() async {
+    // Since we primarily use Firebase Auth, skip API logout to avoid authentication errors
+    // Make logout completely fail-safe
     try {
-      if (_currentToken != null) {
-        await ApiService.post('/auth/logout', {}, requiresAuth: true);
+      final user = _auth.currentUser;
+      if (user != null) {
+        await _auth.signOut();
       }
     } catch (e) {
+      // Firebase sign out failed, but continue with clearing local data
       if (kDebugMode) {
-        print('Logout error: $e');
+        print('Firebase sign out error: $e');
       }
-    } finally {
+    }
+
+    // Always clear local data, even if Firebase sign out fails
+    try {
       await _clearAuthData();
+    } catch (e) {
+      if (kDebugMode) {
+        print('Clear auth data error: $e');
+      }
     }
   }
 
@@ -333,28 +362,51 @@ class AuthService {
   // Update user profile
   static Future<AuthResult> updateProfile(Map<String, dynamic> updates) async {
     try {
-      final response = await ApiService.put('/user/profile', updates);
-
-      if (response['success']) {
-        final updatedUser = response['data'];
-        _currentUser = updatedUser;
-        await FirebaseDataService.setJson(_userKey, updatedUser);
-
-        return AuthResult.success(
-          user: updatedUser,
-          message: 'Profile updated successfully',
-        );
-      } else {
-        return AuthResult.error(
-          message: response['message'] ?? 'Profile update failed',
-        );
+      final user = _auth.currentUser;
+      if (user == null) {
+        return AuthResult.error(message: 'No user logged in');
       }
+
+      // Update Firestore user document with all provided updates
+      final userUpdates = <String, dynamic>{};
+
+      // Handle name updates (combine firstName and lastName if provided)
+      if (updates.containsKey('firstName') && updates.containsKey('lastName')) {
+        final fullName = '${updates['firstName']} ${updates['lastName']}';
+        userUpdates['name'] = fullName;
+        await user.updateDisplayName(fullName);
+      } else if (updates.containsKey('name')) {
+        userUpdates['name'] = updates['name'];
+        await user.updateDisplayName(updates['name']);
+      }
+
+      // Add all other updates to Firestore
+      updates.forEach((key, value) {
+        if (key != 'name' && key != 'firstName' && key != 'lastName') {
+          userUpdates[key] = value;
+        }
+      });
+
+      if (userUpdates.isNotEmpty) {
+        await FirebaseFirestore.instance.collection('users').doc(user.uid).set(userUpdates, SetOptions(merge: true));
+      }
+
+      // Update local user data
+      final updatedUser = {
+        ..._currentUser ?? {},
+        ...updates,
+      };
+      _currentUser = updatedUser;
+      await FirebaseDataService.setJson(_userKey, updatedUser);
+
+      return AuthResult.success(
+        user: updatedUser,
+        message: 'Profile updated successfully',
+      );
     } catch (e) {
-      if (kDebugMode) {
-        print('Profile update error: $e');
-      }
+      print('Profile update error: $e');
       return AuthResult.error(
-        message: 'Network error. Please try again.',
+        message: 'Failed to update profile. Please try again.',
       );
     }
   }
@@ -437,11 +489,20 @@ class AuthService {
     _currentToken = null;
     _currentUser = null;
 
-    await Future.wait([
-      FirebaseDataService.remove(_tokenKey),
-      FirebaseDataService.remove(_refreshTokenKey),
-      FirebaseDataService.remove(_userKey),
-    ]);
+    // Clear local data - make this completely fail-safe
+    try {
+      await Future.wait([
+        FirebaseDataService.remove(_tokenKey).catchError((_) => null),
+        FirebaseDataService.remove(_refreshTokenKey).catchError((_) => null),
+        FirebaseDataService.remove(_userKey).catchError((_) => null),
+      ]);
+    } catch (e) {
+      // If clearing local data fails, just log it but don't throw
+      // This can happen if the user is already signed out
+      if (kDebugMode) {
+        print('Clear local auth data error (non-critical): $e');
+      }
+    }
   }
 
   // Get user profile
