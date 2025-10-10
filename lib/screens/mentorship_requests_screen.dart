@@ -8,7 +8,8 @@ class MentorshipRequestsScreen extends StatefulWidget {
   const MentorshipRequestsScreen({super.key});
 
   @override
-  State<MentorshipRequestsScreen> createState() => _MentorshipRequestsScreenState();
+  State<MentorshipRequestsScreen> createState() =>
+      _MentorshipRequestsScreenState();
 }
 
 class _MentorshipRequestsScreenState extends State<MentorshipRequestsScreen>
@@ -70,17 +71,11 @@ class _MentorshipRequestsScreenState extends State<MentorshipRequestsScreen>
     }
   }
 
-
-
-
-
   @override
   void dispose() {
     _animationController.dispose();
     super.dispose();
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -113,8 +108,6 @@ class _MentorshipRequestsScreenState extends State<MentorshipRequestsScreen>
       ),
     );
   }
-
-
 
   Widget _buildBody() {
     if (_isLoading) {
@@ -164,7 +157,7 @@ class _MentorshipRequestsScreenState extends State<MentorshipRequestsScreen>
               ),
             ),
           ),
-          Text(
+          const Text(
             'Mentorship Requests',
             style: TextStyle(
               fontSize: 20,
@@ -180,7 +173,7 @@ class _MentorshipRequestsScreenState extends State<MentorshipRequestsScreen>
             ),
             child: Text(
               '${_requests.length}',
-              style: TextStyle(
+              style: const TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
                 fontSize: 14,
@@ -191,8 +184,6 @@ class _MentorshipRequestsScreenState extends State<MentorshipRequestsScreen>
       ),
     );
   }
-
-
 
   Widget _buildTabBar() {
     return Container(
@@ -238,13 +229,15 @@ class _MentorshipRequestsScreenState extends State<MentorshipRequestsScreen>
           decoration: BoxDecoration(
             color: isSelected ? ModernTheme.electricBlue : Colors.transparent,
             borderRadius: BorderRadius.circular(10),
-            boxShadow: isSelected ? [
-              BoxShadow(
-                color: ModernTheme.electricBlue.withOpacity(0.3),
-                blurRadius: 6,
-                offset: const Offset(0, 2),
-              ),
-            ] : null,
+            boxShadow: isSelected
+                ? [
+                    BoxShadow(
+                      color: ModernTheme.electricBlue.withOpacity(0.3),
+                      blurRadius: 6,
+                      offset: const Offset(0, 2),
+                    ),
+                  ]
+                : null,
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -271,9 +264,12 @@ class _MentorshipRequestsScreenState extends State<MentorshipRequestsScreen>
                 AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
                   margin: const EdgeInsets.only(top: 4),
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
-                    color: isSelected ? Colors.white.withOpacity(0.2) : ModernTheme.electricBlue,
+                    color: isSelected
+                        ? Colors.white.withOpacity(0.2)
+                        : ModernTheme.electricBlue,
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Text(
@@ -306,7 +302,8 @@ class _MentorshipRequestsScreenState extends State<MentorshipRequestsScreen>
   }
 
   Widget _buildRequestsList() {
-    final filteredRequests = _requests.where((r) => r['status'] == _selectedTab).toList();
+    final filteredRequests =
+        _requests.where((r) => r['status'] == _selectedTab).toList();
 
     if (filteredRequests.isEmpty) {
       return _buildEmptyState();
@@ -315,7 +312,9 @@ class _MentorshipRequestsScreenState extends State<MentorshipRequestsScreen>
     return Padding(
       padding: const EdgeInsets.all(20),
       child: Column(
-        children: filteredRequests.map((request) => _buildRequestCard(request)).toList(),
+        children: filteredRequests
+            .map((request) => _buildRequestCard(request))
+            .toList(),
       ),
     );
   }
@@ -325,7 +324,7 @@ class _MentorshipRequestsScreenState extends State<MentorshipRequestsScreen>
     String subtitle;
     IconData icon;
     Color iconColor;
-    
+
     switch (_selectedTab) {
       case 'pending':
         message = 'No Pending Requests';
@@ -378,7 +377,7 @@ class _MentorshipRequestsScreenState extends State<MentorshipRequestsScreen>
             const SizedBox(height: 24),
             Text(
               message,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w700,
                 color: ModernTheme.navy,
@@ -388,7 +387,7 @@ class _MentorshipRequestsScreenState extends State<MentorshipRequestsScreen>
             const SizedBox(height: 8),
             Text(
               subtitle,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 14,
                 color: ModernTheme.mediumGray,
                 height: 1.4,
@@ -398,7 +397,8 @@ class _MentorshipRequestsScreenState extends State<MentorshipRequestsScreen>
             const SizedBox(height: 32),
             if (_selectedTab == 'pending')
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                 decoration: BoxDecoration(
                   color: ModernTheme.electricBlue.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(20),
@@ -406,7 +406,7 @@ class _MentorshipRequestsScreenState extends State<MentorshipRequestsScreen>
                     color: ModernTheme.electricBlue.withOpacity(0.2),
                   ),
                 ),
-                child: Row(
+                child: const Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(
@@ -414,7 +414,7 @@ class _MentorshipRequestsScreenState extends State<MentorshipRequestsScreen>
                       size: 16,
                       color: ModernTheme.electricBlue,
                     ),
-                    const SizedBox(width: 8),
+                    SizedBox(width: 8),
                     Text(
                       'Requests will appear when mentees contact you',
                       style: TextStyle(
@@ -436,7 +436,7 @@ class _MentorshipRequestsScreenState extends State<MentorshipRequestsScreen>
     final menteeInfo = request['mentee_info'] ?? {};
     final createdAt = request['created_at'];
     final timeAgo = _formatTimeAgo(createdAt);
-    
+
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
       decoration: BoxDecoration(
@@ -463,12 +463,12 @@ class _MentorshipRequestsScreenState extends State<MentorshipRequestsScreen>
             // Header with gradient
             Container(
               padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: [
-                    const Color(0xFFF8FAFC),
+                    Color(0xFFF8FAFC),
                     Colors.white,
                   ],
                 ),
@@ -500,7 +500,10 @@ class _MentorshipRequestsScreenState extends State<MentorshipRequestsScreen>
                       ),
                       child: Center(
                         child: Text(
-                          (menteeInfo['name'] ?? 'U').toString().substring(0, 1).toUpperCase(),
+                          (menteeInfo['name'] ?? 'U')
+                              .toString()
+                              .substring(0, 1)
+                              .toUpperCase(),
                           style: const TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.w800,
@@ -520,7 +523,7 @@ class _MentorshipRequestsScreenState extends State<MentorshipRequestsScreen>
                             Expanded(
                               child: Text(
                                 menteeInfo['name'] ?? 'Unknown User',
-                                style: TextStyle(
+                                style: const TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.w800,
                                   color: ModernTheme.navy,
@@ -536,7 +539,7 @@ class _MentorshipRequestsScreenState extends State<MentorshipRequestsScreen>
                         const SizedBox(height: 6),
                         Row(
                           children: [
-                            Icon(
+                            const Icon(
                               Icons.business_outlined,
                               size: 14,
                               color: ModernTheme.mediumGray,
@@ -544,8 +547,9 @@ class _MentorshipRequestsScreenState extends State<MentorshipRequestsScreen>
                             const SizedBox(width: 4),
                             Expanded(
                               child: Text(
-                                menteeInfo['business_name'] ?? 'Business not specified',
-                                style: TextStyle(
+                                menteeInfo['business_name'] ??
+                                    'Business not specified',
+                                style: const TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w500,
                                   color: ModernTheme.mediumGray,
@@ -570,7 +574,8 @@ class _MentorshipRequestsScreenState extends State<MentorshipRequestsScreen>
                                 timeAgo,
                                 style: TextStyle(
                                   fontSize: 12,
-                                  color: ModernTheme.mediumGray.withOpacity(0.7),
+                                  color:
+                                      ModernTheme.mediumGray.withOpacity(0.7),
                                 ),
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -591,7 +596,8 @@ class _MentorshipRequestsScreenState extends State<MentorshipRequestsScreen>
                 children: [
                   // Request type chip
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
                       color: ModernTheme.electricBlue.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(20),
@@ -603,7 +609,7 @@ class _MentorshipRequestsScreenState extends State<MentorshipRequestsScreen>
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.star_outline,
                           size: 14,
                           color: ModernTheme.electricBlue,
@@ -612,7 +618,7 @@ class _MentorshipRequestsScreenState extends State<MentorshipRequestsScreen>
                         Flexible(
                           child: Text(
                             request['request_type'] ?? 'General Mentorship',
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
                               color: ModernTheme.electricBlue,
@@ -640,14 +646,14 @@ class _MentorshipRequestsScreenState extends State<MentorshipRequestsScreen>
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
+                        const Row(
                           children: [
                             Icon(
                               Icons.message_outlined,
                               size: 16,
                               color: ModernTheme.electricBlue,
                             ),
-                            const SizedBox(width: 6),
+                            SizedBox(width: 6),
                             Text(
                               'Message',
                               style: TextStyle(
@@ -661,7 +667,7 @@ class _MentorshipRequestsScreenState extends State<MentorshipRequestsScreen>
                         const SizedBox(height: 8),
                         Text(
                           request['message'] ?? 'No message provided',
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 14,
                             height: 1.4,
                             color: ModernTheme.navy,
@@ -698,7 +704,8 @@ class _MentorshipRequestsScreenState extends State<MentorshipRequestsScreen>
                         Expanded(
                           child: ElevatedButton.icon(
                             onPressed: () => _acceptRequest(request),
-                            icon: const Icon(Icons.check_circle_outline, size: 18),
+                            icon: const Icon(Icons.check_circle_outline,
+                                size: 18),
                             label: const Text('Accept'),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: ModernTheme.freshGreen,
@@ -708,7 +715,8 @@ class _MentorshipRequestsScreenState extends State<MentorshipRequestsScreen>
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               elevation: 0,
-                              shadowColor: ModernTheme.freshGreen.withOpacity(0.3),
+                              shadowColor:
+                                  ModernTheme.freshGreen.withOpacity(0.3),
                             ),
                           ),
                         ),
@@ -721,7 +729,8 @@ class _MentorshipRequestsScreenState extends State<MentorshipRequestsScreen>
                             style: OutlinedButton.styleFrom(
                               foregroundColor: Colors.red,
                               padding: const EdgeInsets.symmetric(vertical: 14),
-                              side: BorderSide(color: Colors.red.withOpacity(0.5)),
+                              side: BorderSide(
+                                  color: Colors.red.withOpacity(0.5)),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
@@ -746,7 +755,8 @@ class _MentorshipRequestsScreenState extends State<MentorshipRequestsScreen>
                             borderRadius: BorderRadius.circular(12),
                           ),
                           elevation: 0,
-                          shadowColor: ModernTheme.electricBlue.withOpacity(0.3),
+                          shadowColor:
+                              ModernTheme.electricBlue.withOpacity(0.3),
                         ),
                       ),
                     ),
@@ -806,12 +816,14 @@ class _MentorshipRequestsScreenState extends State<MentorshipRequestsScreen>
 
   Future<void> _acceptRequest(Map<String, dynamic> request) async {
     try {
-      final success = await MentorshipService.acceptMentorshipRequest(request['id']);
-      
+      final success =
+          await MentorshipService.acceptMentorshipRequest(request['id']);
+
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('Request accepted! You can now chat with the mentee.'),
+            content: const Text(
+                'Request accepted! You can now chat with the mentee.'),
             backgroundColor: ModernTheme.freshGreen,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
@@ -845,7 +857,7 @@ class _MentorshipRequestsScreenState extends State<MentorshipRequestsScreen>
           request['id'],
           reason: reason,
         );
-        
+
         if (success) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -878,7 +890,7 @@ class _MentorshipRequestsScreenState extends State<MentorshipRequestsScreen>
 
   Future<String?> _showRejectDialog() async {
     final controller = TextEditingController();
-    
+
     return showDialog<String>(
       context: context,
       builder: (context) {
@@ -890,7 +902,8 @@ class _MentorshipRequestsScreenState extends State<MentorshipRequestsScreen>
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text('Would you like to provide a reason for declining this request?'),
+              const Text(
+                  'Would you like to provide a reason for declining this request?'),
               const SizedBox(height: 16),
               TextField(
                 controller: controller,
@@ -923,7 +936,7 @@ class _MentorshipRequestsScreenState extends State<MentorshipRequestsScreen>
 
   void _startChat(Map<String, dynamic> request) {
     final menteeInfo = request['mentee_info'] ?? {};
-    
+
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -961,7 +974,7 @@ class _MentorshipRequestsScreenState extends State<MentorshipRequestsScreen>
               Flexible(
                 child: Text(
                   label,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w600,
                     color: ModernTheme.mediumGray,
@@ -974,7 +987,7 @@ class _MentorshipRequestsScreenState extends State<MentorshipRequestsScreen>
           const SizedBox(height: 4),
           Text(
             value,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w600,
               color: ModernTheme.navy,
@@ -989,7 +1002,7 @@ class _MentorshipRequestsScreenState extends State<MentorshipRequestsScreen>
 
   String _formatTimeAgo(dynamic timestamp) {
     if (timestamp == null) return 'Recently';
-    
+
     try {
       DateTime dateTime;
       if (timestamp.runtimeType.toString().contains('Timestamp')) {

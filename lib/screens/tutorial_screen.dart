@@ -64,7 +64,8 @@ class _TutorialScreenState extends State<TutorialScreen>
   }
 
   Future<void> _loadTutorialData() async {
-    _sections = List<Map<String, dynamic>>.from(widget.tutorial['content']['sections']);
+    _sections =
+        List<Map<String, dynamic>>.from(widget.tutorial['content']['sections']);
     _progress = await LearningEngine.getTutorialProgress(widget.tutorial['id']);
 
     if (_progress.isNotEmpty) {
@@ -164,7 +165,8 @@ class _TutorialScreenState extends State<TutorialScreen>
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: _getDifficultyColor(widget.tutorial['difficulty']).withOpacity(0.2),
+              color: _getDifficultyColor(widget.tutorial['difficulty'])
+                  .withOpacity(0.2),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
@@ -395,7 +397,7 @@ class _TutorialScreenState extends State<TutorialScreen>
       ),
       child: Column(
         children: [
-          Icon(
+          const Icon(
             Icons.touch_app,
             size: 48,
             color: ModernTheme.primaryBlue,
@@ -489,7 +491,8 @@ class _TutorialScreenState extends State<TutorialScreen>
       'sections_completed': _progress['sections_completed'] ?? 0,
     };
 
-    await LearningEngine.completeTutorial(widget.tutorial['id'], completionData);
+    await LearningEngine.completeTutorial(
+        widget.tutorial['id'], completionData);
 
     if (mounted) {
       showDialog(
@@ -569,7 +572,8 @@ class _TutorialScreenState extends State<TutorialScreen>
       'completed': false,
     };
 
-    await LearningEngine.updateTutorialProgress(widget.tutorial['id'], progress);
+    await LearningEngine.updateTutorialProgress(
+        widget.tutorial['id'], progress);
   }
 
   Color _getDifficultyColor(String difficulty) {

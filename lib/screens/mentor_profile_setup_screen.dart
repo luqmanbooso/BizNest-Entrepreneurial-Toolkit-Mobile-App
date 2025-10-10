@@ -7,7 +7,8 @@ class MentorProfileSetupScreen extends StatefulWidget {
   const MentorProfileSetupScreen({super.key});
 
   @override
-  State<MentorProfileSetupScreen> createState() => _MentorProfileSetupScreenState();
+  State<MentorProfileSetupScreen> createState() =>
+      _MentorProfileSetupScreenState();
 }
 
 class _MentorProfileSetupScreenState extends State<MentorProfileSetupScreen>
@@ -39,8 +40,8 @@ class _MentorProfileSetupScreenState extends State<MentorProfileSetupScreen>
   bool _isLoading = false;
 
   // Expertise and Industry selections
-  List<String> _selectedExpertise = [];
-  List<String> _selectedIndustries = [];
+  final List<String> _selectedExpertise = [];
+  final List<String> _selectedIndustries = [];
   String? _selectedExperienceLevel;
 
   final List<String> _expertiseOptions = [
@@ -275,7 +276,8 @@ class _MentorProfileSetupScreenState extends State<MentorProfileSetupScreen>
     );
   }
 
-  @override  @override
+  @override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
@@ -406,7 +408,8 @@ class _MentorProfileSetupScreenState extends State<MentorProfileSetupScreen>
                 _firstNameController.text.isNotEmpty
                     ? _firstNameController.text[0].toUpperCase()
                     : 'U',
-                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                style:
+                    const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
             ),
           ),
@@ -502,7 +505,7 @@ class _MentorProfileSetupScreenState extends State<MentorProfileSetupScreen>
 
           // Experience Level Dropdown
           DropdownButtonFormField<String>(
-            value: _selectedExperienceLevel,
+            initialValue: _selectedExperienceLevel,
             decoration: InputDecoration(
               labelText: 'Years of Experience',
               prefixIcon: const Icon(Icons.timeline),
@@ -516,7 +519,8 @@ class _MentorProfileSetupScreenState extends State<MentorProfileSetupScreen>
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: ModernTheme.electricBlue, width: 2),
+                borderSide:
+                    const BorderSide(color: ModernTheme.electricBlue, width: 2),
               ),
             ),
             items: _experienceLevels.map((level) {
@@ -553,7 +557,8 @@ class _MentorProfileSetupScreenState extends State<MentorProfileSetupScreen>
             label: 'Professional Bio',
             prefixIcon: Icons.person,
             maxLines: 4,
-            hintText: 'Tell entrepreneurs about your background, achievements, and how you can help them...',
+            hintText:
+                'Tell entrepreneurs about your background, achievements, and how you can help them...',
             validator: (value) {
               if (value == null || value.isEmpty) {
                 return 'Please enter your bio';
@@ -589,7 +594,8 @@ class _MentorProfileSetupScreenState extends State<MentorProfileSetupScreen>
           const SizedBox(height: 10),
           Text(
             'Select up to 5 areas where you can provide mentorship',
-            style: ModernTheme.bodyMedium.copyWith(color: ModernTheme.mediumGray),
+            style:
+                ModernTheme.bodyMedium.copyWith(color: ModernTheme.mediumGray),
           ),
           const SizedBox(height: 15),
           Wrap(
@@ -612,7 +618,8 @@ class _MentorProfileSetupScreenState extends State<MentorProfileSetupScreen>
                 selectedColor: ModernTheme.electricBlue.withOpacity(0.2),
                 checkmarkColor: ModernTheme.electricBlue,
                 labelStyle: TextStyle(
-                  color: isSelected ? ModernTheme.electricBlue : ModernTheme.navy,
+                  color:
+                      isSelected ? ModernTheme.electricBlue : ModernTheme.navy,
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
                 ),
               );
@@ -641,7 +648,8 @@ class _MentorProfileSetupScreenState extends State<MentorProfileSetupScreen>
           const SizedBox(height: 10),
           Text(
             'Select industries you have experience in',
-            style: ModernTheme.bodyMedium.copyWith(color: ModernTheme.mediumGray),
+            style:
+                ModernTheme.bodyMedium.copyWith(color: ModernTheme.mediumGray),
           ),
           const SizedBox(height: 15),
           Wrap(
@@ -703,7 +711,8 @@ class _MentorProfileSetupScreenState extends State<MentorProfileSetupScreen>
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: ModernTheme.electricBlue, width: 2),
+          borderSide:
+              const BorderSide(color: ModernTheme.electricBlue, width: 2),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -739,16 +748,15 @@ class _MentorProfileSetupScreenState extends State<MentorProfileSetupScreen>
                 ),
               ),
             ),
-
           if (_currentPage > 0) const SizedBox(width: 16),
-
           Expanded(
             child: ElevatedButton(
               onPressed: _isLoading
-                ? null
-                : (_currentPage == _totalPages - 1 && _selectedExpertise.isEmpty)
                   ? null
-                  : _nextPage,
+                  : (_currentPage == _totalPages - 1 &&
+                          _selectedExpertise.isEmpty)
+                      ? null
+                      : _nextPage,
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white,
                 foregroundColor: ModernTheme.electricBlue,
@@ -759,21 +767,23 @@ class _MentorProfileSetupScreenState extends State<MentorProfileSetupScreen>
                 elevation: 0,
               ),
               child: _isLoading
-                ? const SizedBox(
-                    height: 20,
-                    width: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: ModernTheme.electricBlue,
+                  ? const SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: ModernTheme.electricBlue,
+                      ),
+                    )
+                  : Text(
+                      _currentPage == _totalPages - 1
+                          ? 'Complete Profile'
+                          : 'Next',
+                      style: ModernTheme.bodyLarge.copyWith(
+                        color: ModernTheme.electricBlue,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
-                  )
-                : Text(
-                    _currentPage == _totalPages - 1 ? 'Complete Profile' : 'Next',
-                    style: ModernTheme.bodyLarge.copyWith(
-                      color: ModernTheme.electricBlue,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
             ),
           ),
         ],

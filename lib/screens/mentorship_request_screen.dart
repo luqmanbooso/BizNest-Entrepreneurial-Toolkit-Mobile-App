@@ -12,7 +12,8 @@ class MentorshipRequestScreen extends StatefulWidget {
   });
 
   @override
-  State<MentorshipRequestScreen> createState() => _MentorshipRequestScreenState();
+  State<MentorshipRequestScreen> createState() =>
+      _MentorshipRequestScreenState();
 }
 
 class _MentorshipRequestScreenState extends State<MentorshipRequestScreen>
@@ -191,7 +192,7 @@ class _MentorshipRequestScreenState extends State<MentorshipRequestScreen>
                 const SizedBox(height: 8),
                 Row(
                   children: [
-                    Icon(
+                    const Icon(
                       Icons.star,
                       size: 16,
                       color: Colors.amber,
@@ -317,7 +318,7 @@ class _MentorshipRequestScreenState extends State<MentorshipRequestScreen>
                         ),
                         border: InputBorder.none,
                         contentPadding: const EdgeInsets.all(16),
-                        prefixIcon: Icon(
+                        prefixIcon: const Icon(
                           Icons.business_outlined,
                           color: ModernTheme.mediumGray,
                           size: 20,
@@ -361,7 +362,7 @@ class _MentorshipRequestScreenState extends State<MentorshipRequestScreen>
                         ),
                         border: InputBorder.none,
                         contentPadding: const EdgeInsets.all(16),
-                        prefixIcon: Icon(
+                        prefixIcon: const Icon(
                           Icons.location_on_outlined,
                           color: ModernTheme.mediumGray,
                           size: 20,
@@ -412,7 +413,8 @@ class _MentorshipRequestScreenState extends State<MentorshipRequestScreen>
               color: ModernTheme.navy,
             ),
             decoration: InputDecoration(
-              hintText: 'Hi ${widget.mentor['name']}, I\'m interested in your mentorship because...',
+              hintText:
+                  'Hi ${widget.mentor['name']}, I\'m interested in your mentorship because...',
               hintStyle: ModernTheme.bodyMedium.copyWith(
                 color: ModernTheme.mediumGray,
               ),
@@ -519,7 +521,8 @@ class _MentorshipRequestScreenState extends State<MentorshipRequestScreen>
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Mentorship request sent to ${widget.mentor['name']}!'),
+              content:
+                  Text('Mentorship request sent to ${widget.mentor['name']}!'),
               backgroundColor: ModernTheme.freshGreen,
               behavior: SnackBarBehavior.floating,
               shape: RoundedRectangleBorder(

@@ -25,7 +25,8 @@ class _CommunityScreenState extends State<CommunityScreen>
 
   String _selectedCategory = 'All';
   int _unreadNotifications = 0;
-  Map<String, bool> _threadSubscriptions = {}; // Cache for subscription status
+  final Map<String, bool> _threadSubscriptions =
+      {}; // Cache for subscription status
   bool _subscriptionsLoaded = false;
 
   final List<String> _categories = [
@@ -48,20 +49,22 @@ class _CommunityScreenState extends State<CommunityScreen>
 
   void _setupNotificationListener() {
     if (AuthService.isAuthenticated) {
-      print('👂 Setting up notification listener for user: ${AuthService.currentUser!['id']}');
+      print(
+          '👂 Setting up notification listener for user: ${AuthService.currentUser!['id']}');
       _firestore
           .collection('notifications')
           .where('userId', isEqualTo: AuthService.currentUser!['id'])
           .where('isRead', isEqualTo: false)
           .snapshots()
           .listen((snapshot) {
-            print('🔔 Notification listener triggered: ${snapshot.docs.length} unread notifications');
-            if (mounted) {
-              setState(() {
-                _unreadNotifications = snapshot.docs.length;
-              });
-            }
+        print(
+            '🔔 Notification listener triggered: ${snapshot.docs.length} unread notifications');
+        if (mounted) {
+          setState(() {
+            _unreadNotifications = snapshot.docs.length;
           });
+        }
+      });
     }
   }
 
@@ -127,7 +130,6 @@ class _CommunityScreenState extends State<CommunityScreen>
           ),
         ),
         child: SafeArea(
-          
           child: Column(
             children: [
               _buildHeader(),
@@ -214,7 +216,9 @@ class _CommunityScreenState extends State<CommunityScreen>
                                 shape: BoxShape.circle,
                               ),
                               child: Text(
-                                _unreadNotifications > 99 ? '99+' : _unreadNotifications.toString(),
+                                _unreadNotifications > 99
+                                    ? '99+'
+                                    : _unreadNotifications.toString(),
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 10,
@@ -375,7 +379,9 @@ class _CommunityScreenState extends State<CommunityScreen>
               }).toList();
 
         // Load subscriptions for visible threads only once
-        if (AuthService.isAuthenticated && threads.isNotEmpty && !_subscriptionsLoaded) {
+        if (AuthService.isAuthenticated &&
+            threads.isNotEmpty &&
+            !_subscriptionsLoaded) {
           final forumThreads = threads.map((doc) {
             final data = doc.data() as Map<String, dynamic>;
             return ForumThread.fromMap(data, doc.id);
@@ -430,7 +436,8 @@ class _CommunityScreenState extends State<CommunityScreen>
             if (AuthService.isAuthenticated && _subscriptionsLoaded) {
               thread.isSubscribed = _threadSubscriptions[thread.id] ?? false;
             } else if (AuthService.isAuthenticated && !_subscriptionsLoaded) {
-              thread.isSubscribed = false; // Default to unsubscribed while loading
+              thread.isSubscribed =
+                  false; // Default to unsubscribed while loading
             }
 
             return AnimatedBuilder(
@@ -514,7 +521,8 @@ class _CommunityScreenState extends State<CommunityScreen>
                         padding: const EdgeInsets.symmetric(
                             horizontal: 14, vertical: 8),
                         decoration: BoxDecoration(
-                          color: _getCategoryColor(thread.category).withOpacity(0.1),
+                          color: _getCategoryColor(thread.category)
+                              .withOpacity(0.1),
                           borderRadius: BorderRadius.circular(18),
                         ),
                         child: Text(
@@ -571,7 +579,9 @@ class _CommunityScreenState extends State<CommunityScreen>
                       const Spacer(),
                       Row(
                         children: [
-                          if (AuthService.isAuthenticated && AuthService.currentUser != null && thread.authorId == AuthService.currentUser!['id'])
+                          if (AuthService.isAuthenticated &&
+                              AuthService.currentUser != null &&
+                              thread.authorId == AuthService.currentUser!['id'])
                             IconButton(
                               onPressed: () => _deleteThread(thread),
                               icon: const Icon(
@@ -583,15 +593,23 @@ class _CommunityScreenState extends State<CommunityScreen>
                               padding: EdgeInsets.zero,
                               constraints: const BoxConstraints(),
                             )
-                          else if (AuthService.isAuthenticated && AuthService.currentUser != null)
+                          else if (AuthService.isAuthenticated &&
+                              AuthService.currentUser != null)
                             IconButton(
-                              onPressed: () => _toggleThreadSubscription(thread),
+                              onPressed: () =>
+                                  _toggleThreadSubscription(thread),
                               icon: Icon(
-                                thread.isSubscribed ? Icons.notifications : Icons.notifications_none,
-                                color: thread.isSubscribed ? ModernTheme.primaryBlue : Colors.grey[600],
+                                thread.isSubscribed
+                                    ? Icons.notifications
+                                    : Icons.notifications_none,
+                                color: thread.isSubscribed
+                                    ? ModernTheme.primaryBlue
+                                    : Colors.grey[600],
                                 size: 20,
                               ),
-                              tooltip: thread.isSubscribed ? 'Unsubscribe from thread' : 'Subscribe to thread',
+                              tooltip: thread.isSubscribed
+                                  ? 'Unsubscribe from thread'
+                                  : 'Subscribe to thread',
                               padding: EdgeInsets.zero,
                               constraints: const BoxConstraints(),
                             ),
@@ -630,7 +648,8 @@ class _CommunityScreenState extends State<CommunityScreen>
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Delete Thread'),
-        content: const Text('Are you sure you want to delete this thread? This action cannot be undone.'),
+        content: const Text(
+            'Are you sure you want to delete this thread? This action cannot be undone.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -729,14 +748,16 @@ class _CommunityScreenState extends State<CommunityScreen>
         .doc(thread.id);
 
     if (newSubscriptionStatus) {
-      print('💾 Creating subscription for user ${AuthService.currentUser!['id']} to thread ${thread.id}');
+      print(
+          '💾 Creating subscription for user ${AuthService.currentUser!['id']} to thread ${thread.id}');
       await subscriptionRef.set({
         'threadId': thread.id,
         'subscribedAt': FieldValue.serverTimestamp(),
       });
       print('✅ Subscription created successfully');
     } else {
-      print('🗑️ Deleting subscription for user ${AuthService.currentUser!['id']} from thread ${thread.id}');
+      print(
+          '🗑️ Deleting subscription for user ${AuthService.currentUser!['id']} from thread ${thread.id}');
       await subscriptionRef.delete();
       print('✅ Subscription deleted successfully');
     }
@@ -790,10 +811,12 @@ class _CommunityScreenState extends State<CommunityScreen>
           .collection('users')
           .doc(AuthService.currentUser!['id'])
           .collection('thread_subscriptions')
-          .where(FieldPath.documentId, whereIn: threadIds.take(10).toList()) // Firestore limit
+          .where(FieldPath.documentId,
+              whereIn: threadIds.take(10).toList()) // Firestore limit
           .get();
 
-      final subscribedThreadIds = subscriptionsQuery.docs.map((doc) => doc.id).toSet();
+      final subscribedThreadIds =
+          subscriptionsQuery.docs.map((doc) => doc.id).toSet();
 
       for (final thread in threads) {
         final isSubscribed = subscribedThreadIds.contains(thread.id);
@@ -855,7 +878,8 @@ class _CommunityScreenState extends State<CommunityScreen>
                 child: StreamBuilder<QuerySnapshot>(
                   stream: _firestore
                       .collection('notifications')
-                      .where('userId', isEqualTo: AuthService.currentUser!['id'])
+                      .where('userId',
+                          isEqualTo: AuthService.currentUser!['id'])
                       .snapshots(),
                   builder: (context, snapshot) {
                     if (snapshot.hasError) {
@@ -864,16 +888,19 @@ class _CommunityScreenState extends State<CommunityScreen>
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Icon(Icons.error_outline, size: 48, color: Colors.red),
+                            const Icon(Icons.error_outline,
+                                size: 48, color: Colors.red),
                             const SizedBox(height: 16),
                             Text(
                               'Error loading notifications',
-                              style: ModernTheme.bodyMedium.copyWith(color: Colors.grey),
+                              style: ModernTheme.bodyMedium
+                                  .copyWith(color: Colors.grey),
                             ),
                             const SizedBox(height: 8),
                             Text(
                               'Details: ${snapshot.error.toString()}',
-                              style: ModernTheme.bodySmall.copyWith(color: Colors.grey[600]),
+                              style: ModernTheme.bodySmall
+                                  .copyWith(color: Colors.grey[600]),
                               textAlign: TextAlign.center,
                             ),
                             const SizedBox(height: 16),
@@ -895,14 +922,19 @@ class _CommunityScreenState extends State<CommunityScreen>
 
                     final notifications = snapshot.data?.docs ?? [];
 
-                    print('📱 Retrieved ${notifications.length} notifications from database');
+                    print(
+                        '📱 Retrieved ${notifications.length} notifications from database');
 
                     // Sort notifications by createdAt in descending order (most recent first)
                     notifications.sort((a, b) {
                       final aData = a.data() as Map<String, dynamic>;
                       final bData = b.data() as Map<String, dynamic>;
-                      final aTime = (aData['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now();
-                      final bTime = (bData['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now();
+                      final aTime =
+                          (aData['createdAt'] as Timestamp?)?.toDate() ??
+                              DateTime.now();
+                      final bTime =
+                          (bData['createdAt'] as Timestamp?)?.toDate() ??
+                              DateTime.now();
                       return bTime.compareTo(aTime); // Descending order
                     });
 
@@ -941,10 +973,12 @@ class _CommunityScreenState extends State<CommunityScreen>
                       controller: scrollController,
                       itemCount: notifications.length,
                       itemBuilder: (context, index) {
-                        final notification = notifications[index].data() as Map<String, dynamic>;
+                        final notification =
+                            notifications[index].data() as Map<String, dynamic>;
                         final notificationId = notifications[index].id;
 
-                        return _buildNotificationItem(notification, notificationId);
+                        return _buildNotificationItem(
+                            notification, notificationId);
                       },
                     );
                   },
@@ -991,14 +1025,19 @@ class _CommunityScreenState extends State<CommunityScreen>
     }
   }
 
-  Widget _buildNotificationItem(Map<String, dynamic> notification, String notificationId) {
+  Widget _buildNotificationItem(
+      Map<String, dynamic> notification, String notificationId) {
     final isRead = notification['isRead'] ?? false;
 
     return ListTile(
       leading: CircleAvatar(
-        backgroundColor: isRead ? Colors.grey[200] : ModernTheme.primaryBlue.withOpacity(0.1),
+        backgroundColor: isRead
+            ? Colors.grey[200]
+            : ModernTheme.primaryBlue.withOpacity(0.1),
         child: Icon(
-          notification['type'] == 'thread_reply' ? Icons.chat : Icons.notifications,
+          notification['type'] == 'thread_reply'
+              ? Icons.chat
+              : Icons.notifications,
           color: isRead ? Colors.grey : ModernTheme.primaryBlue,
         ),
       ),
@@ -1013,8 +1052,10 @@ class _CommunityScreenState extends State<CommunityScreen>
         children: [
           Text(notification['message'] ?? ''),
           Text(
-            _formatTimestamp((notification['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now()),
-            style: TextStyle(
+            _formatTimestamp(
+                (notification['createdAt'] as Timestamp?)?.toDate() ??
+                    DateTime.now()),
+            style: const TextStyle(
               fontSize: 12,
               color: Colors.grey,
             ),
@@ -1033,13 +1074,19 @@ class _CommunityScreenState extends State<CommunityScreen>
           : null,
       onTap: () async {
         // Mark as read
-        await _firestore.collection('notifications').doc(notificationId).update({'isRead': true});
+        await _firestore
+            .collection('notifications')
+            .doc(notificationId)
+            .update({'isRead': true});
 
         // Navigate to thread if it's a reply notification
         if (notification['threadId'] != null) {
           Navigator.pop(context);
           // Navigate to thread detail
-          final threadDoc = await _firestore.collection('threads').doc(notification['threadId']).get();
+          final threadDoc = await _firestore
+              .collection('threads')
+              .doc(notification['threadId'])
+              .get();
           if (threadDoc.exists) {
             final threadData = threadDoc.data()!;
             final thread = ForumThread.fromMap(threadData, threadDoc.id);
@@ -1094,7 +1141,8 @@ class ForumThread {
       authorAvatar: data['authorAvatar'] ?? '',
       createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
       replyCount: data['replyCount'] ?? 0,
-      lastReplyAt: (data['lastReplyAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      lastReplyAt:
+          (data['lastReplyAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
       isSubscribed: false, // Will be set based on user subscriptions
     );
   }
@@ -1331,7 +1379,9 @@ class _ThreadDetailScreenState extends State<ThreadDetailScreen> {
               children: [
                 CircleAvatar(
                   radius: 18,
-                  backgroundColor: reply.authorAvatar.isEmpty ? ModernTheme.primaryBlue.withOpacity(0.2) : null,
+                  backgroundColor: reply.authorAvatar.isEmpty
+                      ? ModernTheme.primaryBlue.withOpacity(0.2)
+                      : null,
                   backgroundImage: reply.authorAvatar.isNotEmpty
                       ? NetworkImage(reply.authorAvatar)
                       : null,
@@ -1361,10 +1411,14 @@ class _ThreadDetailScreenState extends State<ThreadDetailScreen> {
                           if (reply.authorRole == 'mentor') ...[
                             const SizedBox(width: 8),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 6, vertical: 2),
                               decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: [ModernTheme.electricBlue, ModernTheme.teal],
+                                gradient: const LinearGradient(
+                                  colors: [
+                                    ModernTheme.electricBlue,
+                                    ModernTheme.teal
+                                  ],
                                   begin: Alignment.topLeft,
                                   end: Alignment.bottomRight,
                                 ),
@@ -1373,7 +1427,7 @@ class _ThreadDetailScreenState extends State<ThreadDetailScreen> {
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Icon(
+                                  const Icon(
                                     Icons.verified,
                                     size: 12,
                                     color: Colors.white,
@@ -1394,7 +1448,8 @@ class _ThreadDetailScreenState extends State<ThreadDetailScreen> {
                           if (isCurrentUserReply) ...[
                             const SizedBox(width: 8),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 6, vertical: 2),
                               decoration: BoxDecoration(
                                 color: ModernTheme.primaryBlue.withOpacity(0.1),
                                 borderRadius: BorderRadius.circular(8),
@@ -1444,7 +1499,8 @@ class _ThreadDetailScreenState extends State<ThreadDetailScreen> {
                         ),
                       ),
                     ],
-                    child: const Icon(Icons.more_vert, size: 20, color: Colors.grey),
+                    child: const Icon(Icons.more_vert,
+                        size: 20, color: Colors.grey),
                   ),
               ],
             ),
@@ -1462,7 +1518,9 @@ class _ThreadDetailScreenState extends State<ThreadDetailScreen> {
                   icon: Icons.thumb_up_outlined,
                   label: 'Like',
                   onPressed: () => _toggleReplyLike(reply),
-                  isActive: reply.likes?.contains(AuthService.currentUser?['id']) ?? false,
+                  isActive:
+                      reply.likes?.contains(AuthService.currentUser?['id']) ??
+                          false,
                 ),
                 const SizedBox(width: 16),
                 _buildReplyActionButton(
@@ -1503,7 +1561,8 @@ class _ThreadDetailScreenState extends State<ThreadDetailScreen> {
                   );
                 }
 
-                if (!nestedSnapshot.hasData || nestedSnapshot.data!.docs.isEmpty) {
+                if (!nestedSnapshot.hasData ||
+                    nestedSnapshot.data!.docs.isEmpty) {
                   return const SizedBox.shrink();
                 }
 
@@ -1765,7 +1824,8 @@ class _ThreadDetailScreenState extends State<ThreadDetailScreen> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () => _submitNestedReply(parentReply, nestedReplyController.text.trim(), modalContext),
+                  onPressed: () => _submitNestedReply(parentReply,
+                      nestedReplyController.text.trim(), modalContext),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: ModernTheme.primaryBlue,
                     padding: const EdgeInsets.symmetric(vertical: 12),
@@ -1783,7 +1843,8 @@ class _ThreadDetailScreenState extends State<ThreadDetailScreen> {
     );
   }
 
-  Future<void> _submitNestedReply(ForumReply parentReply, String content, BuildContext modalContext) async {
+  Future<void> _submitNestedReply(
+      ForumReply parentReply, String content, BuildContext modalContext) async {
     if (!AuthService.isAuthenticated || content.isEmpty) return;
 
     try {
@@ -1804,10 +1865,10 @@ class _ThreadDetailScreenState extends State<ThreadDetailScreen> {
       });
 
       Navigator.pop(modalContext);
-      
+
       // Send notifications to subscribers
       await _sendReplyNotifications(widget.thread, content);
-      
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Reply posted successfully!'),
@@ -1842,7 +1903,9 @@ class _ThreadDetailScreenState extends State<ThreadDetailScreen> {
               children: [
                 CircleAvatar(
                   radius: 14,
-                  backgroundColor: nestedReply.authorAvatar.isEmpty ? ModernTheme.primaryBlue.withOpacity(0.2) : null,
+                  backgroundColor: nestedReply.authorAvatar.isEmpty
+                      ? ModernTheme.primaryBlue.withOpacity(0.2)
+                      : null,
                   backgroundImage: nestedReply.authorAvatar.isNotEmpty
                       ? NetworkImage(nestedReply.authorAvatar)
                       : null,
@@ -1873,10 +1936,14 @@ class _ThreadDetailScreenState extends State<ThreadDetailScreen> {
                           if (nestedReply.authorRole == 'mentor') ...[
                             const SizedBox(width: 6),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 4, vertical: 1),
                               decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: [ModernTheme.electricBlue, ModernTheme.teal],
+                                gradient: const LinearGradient(
+                                  colors: [
+                                    ModernTheme.electricBlue,
+                                    ModernTheme.teal
+                                  ],
                                   begin: Alignment.topLeft,
                                   end: Alignment.bottomRight,
                                 ),
@@ -1885,7 +1952,7 @@ class _ThreadDetailScreenState extends State<ThreadDetailScreen> {
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Icon(
+                                  const Icon(
                                     Icons.verified,
                                     size: 10,
                                     color: Colors.white,
@@ -1906,7 +1973,8 @@ class _ThreadDetailScreenState extends State<ThreadDetailScreen> {
                           if (isCurrentUserReply) ...[
                             const SizedBox(width: 6),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 4, vertical: 1),
                               decoration: BoxDecoration(
                                 color: ModernTheme.primaryBlue.withOpacity(0.1),
                                 borderRadius: BorderRadius.circular(6),
@@ -1949,13 +2017,16 @@ class _ThreadDetailScreenState extends State<ThreadDetailScreen> {
                   onTap: () => _toggleNestedReplyLike(nestedReply, parentReply),
                   borderRadius: BorderRadius.circular(6),
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     child: Row(
                       children: [
                         Icon(
                           Icons.thumb_up,
                           size: 12,
-                          color: (nestedReply.likes?.contains(AuthService.currentUser?['id']) ?? false)
+                          color: (nestedReply.likes?.contains(
+                                      AuthService.currentUser?['id']) ??
+                                  false)
                               ? ModernTheme.primaryBlue
                               : Colors.grey[600],
                         ),
@@ -1964,7 +2035,9 @@ class _ThreadDetailScreenState extends State<ThreadDetailScreen> {
                           'Like',
                           style: ModernTheme.bodySmall.copyWith(
                             fontSize: 10,
-                            color: (nestedReply.likes?.contains(AuthService.currentUser?['id']) ?? false)
+                            color: (nestedReply.likes?.contains(
+                                        AuthService.currentUser?['id']) ??
+                                    false)
                                 ? ModernTheme.primaryBlue
                                 : Colors.grey[600],
                           ),
@@ -1973,7 +2046,8 @@ class _ThreadDetailScreenState extends State<ThreadDetailScreen> {
                     ),
                   ),
                 ),
-                if (nestedReply.likes != null && nestedReply.likes!.isNotEmpty) ...[
+                if (nestedReply.likes != null &&
+                    nestedReply.likes!.isNotEmpty) ...[
                   const SizedBox(width: 8),
                   Text(
                     '${nestedReply.likes!.length}',
@@ -1991,7 +2065,8 @@ class _ThreadDetailScreenState extends State<ThreadDetailScreen> {
     );
   }
 
-  Future<void> _toggleNestedReplyLike(ForumReply nestedReply, ForumReply parentReply) async {
+  Future<void> _toggleNestedReplyLike(
+      ForumReply nestedReply, ForumReply parentReply) async {
     if (!AuthService.isAuthenticated) return;
 
     final currentUserId = AuthService.currentUser!['id'];
@@ -2089,7 +2164,8 @@ class _ThreadDetailScreenState extends State<ThreadDetailScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Delete Reply'),
-        content: const Text('Are you sure you want to delete this reply? This action cannot be undone.'),
+        content: const Text(
+            'Are you sure you want to delete this reply? This action cannot be undone.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -2138,7 +2214,8 @@ class _ThreadDetailScreenState extends State<ThreadDetailScreen> {
     }
   }
 
-  Future<void> _sendReplyNotifications(ForumThread thread, String replyContent) async {
+  Future<void> _sendReplyNotifications(
+      ForumThread thread, String replyContent) async {
     try {
       print('🔄 Sending notifications for thread: ${thread.title}');
 
@@ -2148,7 +2225,8 @@ class _ThreadDetailScreenState extends State<ThreadDetailScreen> {
           .where('threadId', isEqualTo: thread.id)
           .get();
 
-      print('👥 Found ${subscribersQuery.docs.length} subscribers for thread ${thread.id}');
+      print(
+          '👥 Found ${subscribersQuery.docs.length} subscribers for thread ${thread.id}');
       print('🔍 Thread ID being searched: ${thread.id}');
 
       // Debug: Print all found subscription docs
@@ -2175,7 +2253,8 @@ class _ThreadDetailScreenState extends State<ThreadDetailScreen> {
           'userId': subscriberId,
           'type': 'thread_reply',
           'title': 'New reply in "${thread.title}"',
-          'message': '${AuthService.currentUser!['name']} replied: ${replyContent.length > 50 ? '${replyContent.substring(0, 50)}...' : replyContent}',
+          'message':
+              '${AuthService.currentUser!['name']} replied: ${replyContent.length > 50 ? '${replyContent.substring(0, 50)}...' : replyContent}',
           'threadId': thread.id,
           'threadTitle': thread.title,
           'replyAuthorId': currentUserId,

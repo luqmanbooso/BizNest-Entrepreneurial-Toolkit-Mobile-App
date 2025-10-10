@@ -923,7 +923,7 @@ class _ProfessionalDashboardScreenState
                       activity['color'],
                       timeAgo,
                     );
-                  }).toList(),
+                  }),
                 const SizedBox(height: 20),
               ],
             ),

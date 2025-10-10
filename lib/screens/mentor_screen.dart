@@ -68,43 +68,56 @@ class _MentorScreenState extends State<MentorScreen>
     'Digital transformation',
   ];
 
-
-
   List<Map<String, dynamic>> get _filteredMentors {
-    print('🔍 [MentorScreen] _filteredMentors called. _mentors.length = ${_mentors.length}');
-    print('🔍 [MentorScreen] Filters: expertise=$_selectedExpertise, experience=$_selectedExperience, location=$_selectedLocation, goal=$_selectedGoal');
-    
+    print(
+        '🔍 [MentorScreen] _filteredMentors called. _mentors.length = ${_mentors.length}');
+    print(
+        '🔍 [MentorScreen] Filters: expertise=$_selectedExpertise, experience=$_selectedExperience, location=$_selectedLocation, goal=$_selectedGoal');
+
     final filtered = _mentors.where((mentor) {
       // Updated to work with your database field structure
-      final matchesExpertise = _selectedExpertise == 'All' || 
-          (mentor['expertise'] is List && 
-           (mentor['expertise'] as List).any((exp) => 
-               exp.toString().toLowerCase().contains(_selectedExpertise.toLowerCase())));
-      
+      final matchesExpertise = _selectedExpertise == 'All' ||
+          (mentor['expertise'] is List &&
+              (mentor['expertise'] as List).any((exp) => exp
+                  .toString()
+                  .toLowerCase()
+                  .contains(_selectedExpertise.toLowerCase())));
+
       // Updated to use experienceLevel field from your database
       final matchesExperience = _selectedExperience == 'All' ||
           (mentor['experienceLevel']?.toString() == _selectedExperience);
 
       // Updated location matching - simplified since you don't have is_remote field
       final matchesLocation = _selectedLocation == 'All' ||
-          (mentor['location']?.toString().toLowerCase().contains(_selectedLocation.toLowerCase()) ?? false);
-      
+          (mentor['location']
+                  ?.toString()
+                  .toLowerCase()
+                  .contains(_selectedLocation.toLowerCase()) ??
+              false);
+
       // Updated to use expertise array as specializations
       final matchesGoal = _selectedGoal == 'All' ||
-          (mentor['expertise'] is List && 
-           (mentor['expertise'] as List).any((exp) => 
-               exp.toString().toLowerCase().contains(_selectedGoal.toLowerCase())));
+          (mentor['expertise'] is List &&
+              (mentor['expertise'] as List).any((exp) => exp
+                  .toString()
+                  .toLowerCase()
+                  .contains(_selectedGoal.toLowerCase())));
 
-      final matches = matchesExpertise && matchesExperience && matchesLocation && matchesGoal;
-      
+      final matches = matchesExpertise &&
+          matchesExperience &&
+          matchesLocation &&
+          matchesGoal;
+
       if (!matches) {
-        print('🔍 [MentorScreen] Mentor ${mentor['name']} filtered out: expertise=$matchesExpertise, experience=$matchesExperience, location=$matchesLocation, goal=$matchesGoal');
+        print(
+            '🔍 [MentorScreen] Mentor ${mentor['name']} filtered out: expertise=$matchesExpertise, experience=$matchesExperience, location=$matchesLocation, goal=$matchesGoal');
       }
-      
+
       return matches;
     }).toList();
-    
-    print('🔍 [MentorScreen] _filteredMentors returning ${filtered.length} mentors');
+
+    print(
+        '🔍 [MentorScreen] _filteredMentors returning ${filtered.length} mentors');
     return filtered;
   }
 
@@ -158,7 +171,7 @@ class _MentorScreenState extends State<MentorScreen>
 
   Future<void> _loadMentors() async {
     print('🔍 [MentorScreen] Starting _loadMentors...');
-    
+
     setState(() {
       _isLoading = true;
       _errorMessage = null;
@@ -166,18 +179,21 @@ class _MentorScreenState extends State<MentorScreen>
 
     try {
       final mentors = await MentorshipService.getAllMentors();
-      print('🔍 [MentorScreen] Received ${mentors.length} mentors from service');
-      
+      print(
+          '🔍 [MentorScreen] Received ${mentors.length} mentors from service');
+
       setState(() {
         _mentors = mentors;
         _isLoading = false;
       });
-      
-      print('🔍 [MentorScreen] State updated. _mentors.length = ${_mentors.length}');
-      print('🔍 [MentorScreen] _filteredMentors.length = ${_filteredMentors.length}');
+
+      print(
+          '🔍 [MentorScreen] State updated. _mentors.length = ${_mentors.length}');
+      print(
+          '🔍 [MentorScreen] _filteredMentors.length = ${_filteredMentors.length}');
     } catch (e) {
       print('❌ [MentorScreen] Error loading mentors: $e');
-      
+
       setState(() {
         _isLoading = false;
         _errorMessage = 'Failed to load mentors: $e';
@@ -340,7 +356,7 @@ class _MentorScreenState extends State<MentorScreen>
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          CircularProgressIndicator(
+          const CircularProgressIndicator(
             valueColor: AlwaysStoppedAnimation<Color>(ModernTheme.primaryBlue),
           ),
           const SizedBox(height: 16),
@@ -430,7 +446,7 @@ class _MentorScreenState extends State<MentorScreen>
       ),
       floatingActionButton: Container(
         decoration: BoxDecoration(
-          gradient: LinearGradient(
+          gradient: const LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
@@ -516,7 +532,7 @@ class _MentorScreenState extends State<MentorScreen>
           const SizedBox(height: 16),
 
           // Filter Chips
-          
+
           const SizedBox(height: 2),
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
@@ -529,7 +545,8 @@ class _MentorScreenState extends State<MentorScreen>
                     label: Text(
                       category,
                       style: ModernTheme.bodySmall.copyWith(
-                        color: isSelected ? Colors.white : ModernTheme.primaryBlue,
+                        color:
+                            isSelected ? Colors.white : ModernTheme.primaryBlue,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -545,7 +562,9 @@ class _MentorScreenState extends State<MentorScreen>
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
                       side: BorderSide(
-                        color: isSelected ? ModernTheme.primaryBlue : Colors.grey[300]!,
+                        color: isSelected
+                            ? ModernTheme.primaryBlue
+                            : Colors.grey[300]!,
                       ),
                     ),
                   ),
@@ -617,7 +636,7 @@ class _MentorScreenState extends State<MentorScreen>
                       width: 60,
                       height: 60,
                       decoration: BoxDecoration(
-                        gradient: LinearGradient(
+                        gradient: const LinearGradient(
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                           colors: [
@@ -658,7 +677,7 @@ class _MentorScreenState extends State<MentorScreen>
                           const SizedBox(height: 4),
                           Row(
                             children: [
-                              Icon(
+                              const Icon(
                                 Icons.star,
                                 size: 16,
                                 color: Colors.amber,
@@ -679,9 +698,10 @@ class _MentorScreenState extends State<MentorScreen>
 
                     // Contact Button
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 8),
                       decoration: BoxDecoration(
-                        gradient: LinearGradient(
+                        gradient: const LinearGradient(
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                           colors: [
@@ -714,7 +734,8 @@ class _MentorScreenState extends State<MentorScreen>
 
                 // Expertise badge
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
                     color: ModernTheme.primaryBlue.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(20),
@@ -724,7 +745,7 @@ class _MentorScreenState extends State<MentorScreen>
                     ),
                   ),
                   child: Text(
-                    mentor['expertise'] is List 
+                    mentor['expertise'] is List
                         ? (mentor['expertise'] as List).join(', ')
                         : mentor['expertise']?.toString() ?? 'General Business',
                     style: ModernTheme.bodySmall.copyWith(
@@ -750,7 +771,9 @@ class _MentorScreenState extends State<MentorScreen>
 
                 // Bio preview
                 Text(
-                  mentor['bio'] ?? mentor['description'] ?? 'Experienced mentor ready to help you succeed.',
+                  mentor['bio'] ??
+                      mentor['description'] ??
+                      'Experienced mentor ready to help you succeed.',
                   style: ModernTheme.bodySmall.copyWith(
                     color: Colors.grey[600],
                     height: 1.4,
@@ -767,7 +790,8 @@ class _MentorScreenState extends State<MentorScreen>
                   runSpacing: 6,
                   children: _getSkillsList(mentor).take(3).map((skill) {
                     return Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
                         color: Colors.grey[100],
                         borderRadius: BorderRadius.circular(12),
@@ -797,12 +821,16 @@ class _MentorScreenState extends State<MentorScreen>
       return (mentor['skills'] as List).map((e) => e.toString()).toList();
     }
     if (mentor['specializations'] is List) {
-      return (mentor['specializations'] as List).map((e) => e.toString()).toList();
+      return (mentor['specializations'] as List)
+          .map((e) => e.toString())
+          .toList();
     }
     if (mentor['areas_of_expertise'] is List) {
-      return (mentor['areas_of_expertise'] as List).map((e) => e.toString()).toList();
+      return (mentor['areas_of_expertise'] as List)
+          .map((e) => e.toString())
+          .toList();
     }
-    
+
     // Fallback based on expertise
     if (mentor['expertise'] is List) {
       return (mentor['expertise'] as List).map((e) => e.toString()).toList();
@@ -812,7 +840,7 @@ class _MentorScreenState extends State<MentorScreen>
         return [expertise];
       }
     }
-    
+
     // Default fallback
     return ['Business Strategy', 'Leadership', 'Growth'];
   }
@@ -926,7 +954,7 @@ class _MentorScreenState extends State<MentorScreen>
                                   width: 100,
                                   height: 100,
                                   decoration: BoxDecoration(
-                                    gradient: LinearGradient(
+                                    gradient: const LinearGradient(
                                       colors: [
                                         ModernTheme.primaryBlue,
                                         ModernTheme.accentGreen,
@@ -935,7 +963,8 @@ class _MentorScreenState extends State<MentorScreen>
                                     borderRadius: BorderRadius.circular(20),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: ModernTheme.primaryBlue.withOpacity(0.3),
+                                        color: ModernTheme.primaryBlue
+                                            .withOpacity(0.3),
                                         blurRadius: 15,
                                         offset: const Offset(0, 8),
                                       ),
@@ -943,17 +972,22 @@ class _MentorScreenState extends State<MentorScreen>
                                   ),
                                   child: ClipRRect(
                                     borderRadius: BorderRadius.circular(20),
-                                    child: mentor['avatar'] != null && mentor['avatar'].toString().isNotEmpty
+                                    child: mentor['avatar'] != null &&
+                                            mentor['avatar']
+                                                .toString()
+                                                .isNotEmpty
                                         ? Image.network(
                                             mentor['avatar'],
                                             fit: BoxFit.cover,
-                                            errorBuilder: (context, error, stackTrace) => Icon(
+                                            errorBuilder:
+                                                (context, error, stackTrace) =>
+                                                    const Icon(
                                               Icons.person,
                                               color: Colors.white,
                                               size: 50,
                                             ),
                                           )
-                                        : Icon(
+                                        : const Icon(
                                             Icons.person,
                                             color: Colors.white,
                                             size: 50,
@@ -968,7 +1002,8 @@ class _MentorScreenState extends State<MentorScreen>
                                     decoration: BoxDecoration(
                                       color: ModernTheme.accentGreen,
                                       borderRadius: BorderRadius.circular(12),
-                                      border: Border.all(color: Colors.white, width: 2),
+                                      border: Border.all(
+                                          color: Colors.white, width: 2),
                                     ),
                                     child: const Icon(
                                       Icons.verified,
@@ -991,7 +1026,8 @@ class _MentorScreenState extends State<MentorScreen>
                             ),
                             const SizedBox(height: 8),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 8),
                               decoration: BoxDecoration(
                                 gradient: LinearGradient(
                                   colors: [
@@ -1001,13 +1037,15 @@ class _MentorScreenState extends State<MentorScreen>
                                 ),
                                 borderRadius: BorderRadius.circular(20),
                                 border: Border.all(
-                                  color: ModernTheme.accentGreen.withOpacity(0.3),
+                                  color:
+                                      ModernTheme.accentGreen.withOpacity(0.3),
                                 ),
                               ),
                               child: Text(
-                                mentor['expertise'] is List 
+                                mentor['expertise'] is List
                                     ? (mentor['expertise'] as List).join(' • ')
-                                    : mentor['expertise']?.toString() ?? 'General Business',
+                                    : mentor['expertise']?.toString() ??
+                                        'General Business',
                                 style: ModernTheme.bodyLarge.copyWith(
                                   color: ModernTheme.accentGreen,
                                   fontWeight: FontWeight.w600,
@@ -1017,7 +1055,8 @@ class _MentorScreenState extends State<MentorScreen>
                             ),
                             const SizedBox(height: 12),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 8),
                               decoration: BoxDecoration(
                                 color: Colors.amber.withOpacity(0.1),
                                 borderRadius: BorderRadius.circular(16),
@@ -1025,7 +1064,7 @@ class _MentorScreenState extends State<MentorScreen>
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Icon(
+                                  const Icon(
                                     Icons.star,
                                     size: 18,
                                     color: Colors.amber,
@@ -1063,11 +1102,13 @@ class _MentorScreenState extends State<MentorScreen>
                           children: [
                             Row(
                               children: [
-                                Icon(Icons.business, size: 16, color: Colors.grey[600]),
+                                Icon(Icons.business,
+                                    size: 16, color: Colors.grey[600]),
                                 const SizedBox(width: 8),
                                 Expanded(
                                   child: Text(
-                                    mentor['company'] ?? 'Independent Consultant',
+                                    mentor['company'] ??
+                                        'Independent Consultant',
                                     style: ModernTheme.bodyMedium.copyWith(
                                       fontWeight: FontWeight.w600,
                                       color: ModernTheme.primaryBlue,
@@ -1079,7 +1120,8 @@ class _MentorScreenState extends State<MentorScreen>
                             const SizedBox(height: 8),
                             Row(
                               children: [
-                                Icon(Icons.schedule, size: 16, color: Colors.grey[600]),
+                                Icon(Icons.schedule,
+                                    size: 16, color: Colors.grey[600]),
                                 const SizedBox(width: 8),
                                 Text(
                                   '${mentor['experienceLevel'] ?? mentor['experience_years'] ?? '5+'} years experience',
@@ -1093,7 +1135,8 @@ class _MentorScreenState extends State<MentorScreen>
                               const SizedBox(height: 8),
                               Row(
                                 children: [
-                                  Icon(Icons.location_on, size: 16, color: Colors.grey[600]),
+                                  Icon(Icons.location_on,
+                                      size: 16, color: Colors.grey[600]),
                                   const SizedBox(width: 8),
                                   Text(
                                     mentor['location'],
@@ -1115,7 +1158,9 @@ class _MentorScreenState extends State<MentorScreen>
                         icon: Icons.info_outline,
                         title: 'About',
                         content: Text(
-                          mentor['bio'] ?? mentor['description'] ?? 'Experienced mentor passionate about helping entrepreneurs succeed. I bring years of industry knowledge and a proven track record of guiding startups to success.',
+                          mentor['bio'] ??
+                              mentor['description'] ??
+                              'Experienced mentor passionate about helping entrepreneurs succeed. I bring years of industry knowledge and a proven track record of guiding startups to success.',
                           style: ModernTheme.bodyMedium.copyWith(
                             color: Colors.grey[700],
                             height: 1.6,
@@ -1147,7 +1192,8 @@ class _MentorScreenState extends State<MentorScreen>
                                 ),
                                 borderRadius: BorderRadius.circular(20),
                                 border: Border.all(
-                                  color: ModernTheme.primaryBlue.withOpacity(0.2),
+                                  color:
+                                      ModernTheme.primaryBlue.withOpacity(0.2),
                                 ),
                               ),
                               child: Text(
@@ -1173,10 +1219,12 @@ class _MentorScreenState extends State<MentorScreen>
                           children: [
                             Row(
                               children: [
-                                Icon(Icons.schedule, size: 16, color: Colors.grey[600]),
+                                Icon(Icons.schedule,
+                                    size: 16, color: Colors.grey[600]),
                                 const SizedBox(width: 8),
                                 Text(
-                                  mentor['availability'] ?? 'Flexible scheduling',
+                                  mentor['availability'] ??
+                                      'Flexible scheduling',
                                   style: ModernTheme.bodyMedium.copyWith(
                                     color: Colors.grey[700],
                                   ),
@@ -1187,7 +1235,8 @@ class _MentorScreenState extends State<MentorScreen>
                             if (mentor['hourlyRate'] != null)
                               Row(
                                 children: [
-                                  Icon(Icons.attach_money, size: 16, color: Colors.grey[600]),
+                                  Icon(Icons.attach_money,
+                                      size: 16, color: Colors.grey[600]),
                                   const SizedBox(width: 8),
                                   Text(
                                     '\$${mentor['hourlyRate']}/hour',
@@ -1213,12 +1262,14 @@ class _MentorScreenState extends State<MentorScreen>
                               onPressed: () => _contactMentor(mentor),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: ModernTheme.accentGreen,
-                                padding: const EdgeInsets.symmetric(vertical: 16),
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 16),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(16),
                                 ),
                                 elevation: 3,
-                                shadowColor: ModernTheme.accentGreen.withOpacity(0.3),
+                                shadowColor:
+                                    ModernTheme.accentGreen.withOpacity(0.3),
                               ),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
@@ -1253,11 +1304,12 @@ class _MentorScreenState extends State<MentorScreen>
                                 );
                               },
                               style: OutlinedButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(vertical: 16),
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 16),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(16),
                                 ),
-                                side: BorderSide(
+                                side: const BorderSide(
                                   color: ModernTheme.primaryBlue,
                                   width: 1.5,
                                 ),
@@ -1265,7 +1317,7 @@ class _MentorScreenState extends State<MentorScreen>
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Icon(
+                                  const Icon(
                                     Icons.person_outline,
                                     color: ModernTheme.primaryBlue,
                                     size: 20,
@@ -1414,7 +1466,7 @@ class _MentorScreenState extends State<MentorScreen>
                             tempGoal = 'All';
                           });
                         },
-                        child: Text(
+                        child: const Text(
                           'Reset',
                           style: TextStyle(
                             color: ModernTheme.primaryBlue,
@@ -1456,7 +1508,9 @@ class _MentorScreenState extends State<MentorScreen>
                               label: Text(
                                 level,
                                 style: TextStyle(
-                                  color: isSelected ? Colors.white : ModernTheme.primaryBlue,
+                                  color: isSelected
+                                      ? Colors.white
+                                      : ModernTheme.primaryBlue,
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
@@ -1472,7 +1526,9 @@ class _MentorScreenState extends State<MentorScreen>
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(20),
                                 side: BorderSide(
-                                  color: isSelected ? ModernTheme.primaryBlue : Colors.grey,
+                                  color: isSelected
+                                      ? ModernTheme.primaryBlue
+                                      : Colors.grey,
                                 ),
                               ),
                             );
@@ -1499,7 +1555,9 @@ class _MentorScreenState extends State<MentorScreen>
                               label: Text(
                                 location,
                                 style: TextStyle(
-                                  color: isSelected ? Colors.white : ModernTheme.primaryBlue,
+                                  color: isSelected
+                                      ? Colors.white
+                                      : ModernTheme.primaryBlue,
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
@@ -1515,7 +1573,9 @@ class _MentorScreenState extends State<MentorScreen>
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(20),
                                 side: BorderSide(
-                                  color: isSelected ? ModernTheme.primaryBlue : Colors.grey,
+                                  color: isSelected
+                                      ? ModernTheme.primaryBlue
+                                      : Colors.grey,
                                 ),
                               ),
                             );
@@ -1542,7 +1602,9 @@ class _MentorScreenState extends State<MentorScreen>
                               label: Text(
                                 goal,
                                 style: TextStyle(
-                                  color: isSelected ? Colors.white : ModernTheme.primaryBlue,
+                                  color: isSelected
+                                      ? Colors.white
+                                      : ModernTheme.primaryBlue,
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
@@ -1558,7 +1620,9 @@ class _MentorScreenState extends State<MentorScreen>
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(20),
                                 side: BorderSide(
-                                  color: isSelected ? ModernTheme.primaryBlue : Colors.grey,
+                                  color: isSelected
+                                      ? ModernTheme.primaryBlue
+                                      : Colors.grey,
                                 ),
                               ),
                             );
@@ -1579,7 +1643,8 @@ class _MentorScreenState extends State<MentorScreen>
                         Wrap(
                           spacing: 8,
                           runSpacing: 8,
-                          children: ['All', '4.5+', '4.0+', '3.5+'].map((rating) {
+                          children:
+                              ['All', '4.5+', '4.0+', '3.5+'].map((rating) {
                             return FilterChip(
                               label: Text(rating),
                               selected: false, // TODO: implement rating filter

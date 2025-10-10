@@ -536,8 +536,10 @@ class _BusinessAnalyticsScreenState extends State<BusinessAnalyticsScreen>
           ),
           titlesData: FlTitlesData(
             show: true,
-            rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            rightTitles:
+                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            topTitles:
+                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
             bottomTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
@@ -667,13 +669,16 @@ class _BusinessAnalyticsScreenState extends State<BusinessAnalyticsScreen>
               },
             ),
           ),
-          gridData: FlGridData(show: false),
+          gridData: const FlGridData(show: false),
           borderData: FlBorderData(show: false),
           titlesData: FlTitlesData(
             show: true,
-            rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            rightTitles:
+                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            topTitles:
+                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            leftTitles:
+                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
             bottomTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
@@ -812,7 +817,7 @@ class _BusinessAnalyticsScreenState extends State<BusinessAnalyticsScreen>
                 ],
               ),
             );
-          }).toList(),
+          }),
         ],
       ),
     );
@@ -834,7 +839,7 @@ class _BusinessAnalyticsScreenState extends State<BusinessAnalyticsScreen>
         children: [
           Row(
             children: [
-              Icon(
+              const Icon(
                 Icons.lightbulb,
                 color: ModernTheme.goldenYellow,
                 size: 20,
@@ -860,7 +865,7 @@ class _BusinessAnalyticsScreenState extends State<BusinessAnalyticsScreen>
                     width: 6,
                     height: 6,
                     margin: const EdgeInsets.only(top: 6, right: 12),
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       color: ModernTheme.primaryColor,
                       shape: BoxShape.circle,
                     ),
@@ -877,7 +882,7 @@ class _BusinessAnalyticsScreenState extends State<BusinessAnalyticsScreen>
                 ],
               ),
             );
-          }).toList(),
+          }),
         ],
       ),
     );
@@ -896,7 +901,7 @@ class _BusinessAnalyticsScreenState extends State<BusinessAnalyticsScreen>
         children: [
           Row(
             children: [
-              Icon(
+              const Icon(
                 Icons.trending_up,
                 color: ModernTheme.freshGreen,
                 size: 20,

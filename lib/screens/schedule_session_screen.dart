@@ -225,7 +225,8 @@ class _ScheduleSessionScreenState extends State<ScheduleSessionScreen> {
               onPressed: () => Navigator.pop(context),
               style: ElevatedButton.styleFrom(
                 backgroundColor: ModernTheme.electricBlue,
-                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
               ),
               child: const Text('Go Back'),
             ),
@@ -342,7 +343,7 @@ class _ScheduleSessionScreenState extends State<ScheduleSessionScreen> {
         border: Border.all(color: Colors.grey[300]!),
       ),
       child: DropdownButtonFormField<Map<String, dynamic>>(
-        value: _selectedMentee,
+        initialValue: _selectedMentee,
         isExpanded: true, // Fix overflow issue
         decoration: const InputDecoration(
           contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
@@ -353,13 +354,13 @@ class _ScheduleSessionScreenState extends State<ScheduleSessionScreen> {
         items: _mentees.map((mentee) {
           final name = mentee['name'] ?? 'Unnamed Mentee';
           final businessName = mentee['business_name'];
-          final hasBusinessName = businessName != null && 
-                                  businessName.toString().isNotEmpty && 
-                                  businessName != 'null';
-          
+          final hasBusinessName = businessName != null &&
+              businessName.toString().isNotEmpty &&
+              businessName != 'null';
+
           // Create display text with business name if available
           final displayText = hasBusinessName ? '$name ($businessName)' : name;
-          
+
           return DropdownMenuItem(
             value: mentee,
             child: Text(
@@ -406,7 +407,8 @@ class _ScheduleSessionScreenState extends State<ScheduleSessionScreen> {
           hintText: hint,
           prefixIcon: Icon(icon, color: ModernTheme.electricBlue),
           border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         ),
         keyboardType: keyboardType,
         maxLines: maxLines,
@@ -430,7 +432,8 @@ class _ScheduleSessionScreenState extends State<ScheduleSessionScreen> {
           children: [
             Row(
               children: [
-                const Icon(Icons.calendar_today, color: ModernTheme.electricBlue, size: 20),
+                const Icon(Icons.calendar_today,
+                    color: ModernTheme.electricBlue, size: 20),
                 const SizedBox(width: 8),
                 Text(
                   'Date',
@@ -470,7 +473,8 @@ class _ScheduleSessionScreenState extends State<ScheduleSessionScreen> {
           children: [
             Row(
               children: [
-                const Icon(Icons.access_time, color: ModernTheme.electricBlue, size: 20),
+                const Icon(Icons.access_time,
+                    color: ModernTheme.electricBlue, size: 20),
                 const SizedBox(width: 8),
                 Text(
                   'Time',
@@ -508,7 +512,8 @@ class _ScheduleSessionScreenState extends State<ScheduleSessionScreen> {
         children: [
           Row(
             children: [
-              const Icon(Icons.timelapse, color: ModernTheme.electricBlue, size: 20),
+              const Icon(Icons.timelapse,
+                  color: ModernTheme.electricBlue, size: 20),
               const SizedBox(width: 8),
               Text(
                 'Duration',

@@ -7,7 +7,7 @@ class BusinessAnalyticsService {
   static const String _collection = 'business_analytics';
 
   // Business Analytics Data Model
-  static Map<String, dynamic> _mockAnalyticsData = {
+  static final Map<String, dynamic> _mockAnalyticsData = {
     'businessId': 'default_business',
     'lastUpdated': DateTime.now().toIso8601String(),
     'revenue': {

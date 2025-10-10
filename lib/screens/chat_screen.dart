@@ -14,9 +14,9 @@ class ChatScreen extends StatefulWidget {
   final String? recipientAvatar;
 
   const ChatScreen({
-    super.key, 
-    this.entrepreneurName, 
-    this.entrepreneurAvatar, 
+    super.key,
+    this.entrepreneurName,
+    this.entrepreneurAvatar,
     this.businessName,
     this.recipientId,
     this.recipientName,
@@ -27,16 +27,16 @@ class ChatScreen extends StatefulWidget {
   State<ChatScreen> createState() => _ChatScreenState();
 }
 
-class _ChatScreenState extends State<ChatScreen> 
+class _ChatScreenState extends State<ChatScreen>
     with TickerProviderStateMixin, WidgetsBindingObserver {
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  
+
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
-  
+
   String? _chatId;
   bool _isLoading = true;
   bool _isSending = false;
@@ -87,16 +87,16 @@ class _ChatScreenState extends State<ChatScreen>
     try {
       final currentUserId = _auth.currentUser?.uid;
       final recipientId = widget.recipientId;
-      
+
       if (currentUserId != null && recipientId != null) {
         // Create chat ID (consistent ordering)
         final userIds = [currentUserId, recipientId]..sort();
         _chatId = '${userIds[0]}_${userIds[1]}';
-        
+
         // Create chat document if it doesn't exist
         final chatRef = _firestore.collection('chats').doc(_chatId);
         final chatDoc = await chatRef.get();
-        
+
         if (!chatDoc.exists) {
           await chatRef.set({
             'participants': [currentUserId, recipientId],
@@ -106,11 +106,11 @@ class _ChatScreenState extends State<ChatScreen>
             'last_message_sender': '',
           });
         }
-        
+
         // Mark messages as read when user opens the chat
         await ChatService.markMessagesAsRead(_chatId!);
       }
-      
+
       setState(() {
         _isLoading = false;
       });
@@ -122,14 +122,11 @@ class _ChatScreenState extends State<ChatScreen>
     }
   }
 
-
-
   @override
   Widget build(BuildContext context) {
-    final displayName = widget.recipientName ?? 
-                       widget.entrepreneurName ?? 
-                       'User';
-    
+    final displayName =
+        widget.recipientName ?? widget.entrepreneurName ?? 'User';
+
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: _buildAppBar(displayName),
@@ -272,7 +269,7 @@ class _ChatScreenState extends State<ChatScreen>
                 itemBuilder: (context, index) {
                   final messageDoc = messages[index];
                   final messageData = messageDoc.data() as Map<String, dynamic>;
-                  
+
                   return _buildMessageBubble(messageData);
                 },
               );
@@ -298,14 +295,14 @@ class _ChatScreenState extends State<ChatScreen>
                 color: ModernTheme.electricBlue.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(40),
               ),
-              child: Icon(
+              child: const Icon(
                 Icons.chat_bubble_outline,
                 size: 40,
                 color: ModernTheme.electricBlue,
               ),
             ),
             const SizedBox(height: 16),
-            Text(
+            const Text(
               'Start your conversation',
               style: TextStyle(
                 fontSize: 18,
@@ -314,7 +311,7 @@ class _ChatScreenState extends State<ChatScreen>
               ),
             ),
             const SizedBox(height: 8),
-            Text(
+            const Text(
               'Send a message to begin your mentoring journey',
               textAlign: TextAlign.center,
               style: TextStyle(
@@ -332,11 +329,12 @@ class _ChatScreenState extends State<ChatScreen>
     final isMe = messageData['sender_id'] == _auth.currentUser?.uid;
     final message = messageData['message'] as String;
     final timestamp = messageData['timestamp'] as Timestamp?;
-    
+
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       child: Row(
-        mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+        mainAxisAlignment:
+            isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           if (!isMe) ...[
@@ -357,7 +355,8 @@ class _ChatScreenState extends State<ChatScreen>
               child: Center(
                 child: Text(
                   (widget.recipientName ?? widget.entrepreneurName ?? 'U')
-                      .substring(0, 1).toUpperCase(),
+                      .substring(0, 1)
+                      .toUpperCase(),
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
@@ -372,9 +371,7 @@ class _ChatScreenState extends State<ChatScreen>
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
-                color: isMe 
-                    ? ModernTheme.electricBlue 
-                    : Colors.white,
+                color: isMe ? ModernTheme.electricBlue : Colors.white,
                 borderRadius: BorderRadius.only(
                   topLeft: const Radius.circular(18),
                   topRight: const Radius.circular(18),
@@ -405,8 +402,8 @@ class _ChatScreenState extends State<ChatScreen>
                     _formatTimestamp(timestamp),
                     style: TextStyle(
                       fontSize: 11,
-                      color: isMe 
-                          ? Colors.white.withOpacity(0.7) 
+                      color: isMe
+                          ? Colors.white.withOpacity(0.7)
                           : ModernTheme.mediumGray,
                     ),
                   ),
@@ -472,17 +469,17 @@ class _ChatScreenState extends State<ChatScreen>
                 child: TextField(
                   controller: _messageController,
                   maxLines: null,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 15,
                     color: ModernTheme.navy,
                   ),
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     hintText: 'Type a message...',
                     hintStyle: TextStyle(
                       color: ModernTheme.mediumGray,
                     ),
                     border: InputBorder.none,
-                    contentPadding: const EdgeInsets.symmetric(
+                    contentPadding: EdgeInsets.symmetric(
                       horizontal: 20,
                       vertical: 12,
                     ),
@@ -559,10 +556,7 @@ class _ChatScreenState extends State<ChatScreen>
       });
 
       // Update chat document with last message
-      await _firestore
-          .collection('chats')
-          .doc(_chatId)
-          .update({
+      await _firestore.collection('chats').doc(_chatId).update({
         'last_message': message,
         'last_message_time': FieldValue.serverTimestamp(),
         'last_message_sender': currentUserId,
@@ -573,10 +567,10 @@ class _ChatScreenState extends State<ChatScreen>
 
       // Clear input and scroll to bottom
       _messageController.clear();
-      
+
       // Add haptic feedback
       HapticFeedback.lightImpact();
-      
+
       // Auto-scroll to bottom after a short delay
       Future.delayed(const Duration(milliseconds: 100), () {
         if (_scrollController.hasClients) {
@@ -587,7 +581,6 @@ class _ChatScreenState extends State<ChatScreen>
           );
         }
       });
-
     } catch (e) {
       print('Error sending message: $e');
       if (mounted) {
@@ -613,7 +606,7 @@ class _ChatScreenState extends State<ChatScreen>
 
   String _formatTimestamp(Timestamp? timestamp) {
     if (timestamp == null) return 'Now';
-    
+
     final now = DateTime.now();
     final messageTime = timestamp.toDate();
     final difference = now.difference(messageTime);

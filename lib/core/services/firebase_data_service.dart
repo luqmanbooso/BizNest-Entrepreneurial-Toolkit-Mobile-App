@@ -15,7 +15,8 @@ class FirebaseDataService {
   }
 
   // Generic data operations with user-specific collections
-  static Future<void> setData(String collection, String key, dynamic value) async {
+  static Future<void> setData(
+      String collection, String key, dynamic value) async {
     if (currentUserId == null) throw Exception('User not authenticated');
 
     try {
@@ -25,12 +26,12 @@ class FirebaseDataService {
           .collection(collection)
           .doc(key)
           .set({
-            'data': value,
-            'updated_at': FieldValue.serverTimestamp(),
-          });
+        'data': value,
+        'updated_at': FieldValue.serverTimestamp(),
+      });
     } catch (e) {
       print('Error setting data: $e');
-      throw e;
+      rethrow;
     }
   }
 
@@ -67,7 +68,7 @@ class FirebaseDataService {
           .delete();
     } catch (e) {
       print('Error removing data: $e');
-      throw e;
+      rethrow;
     }
   }
 

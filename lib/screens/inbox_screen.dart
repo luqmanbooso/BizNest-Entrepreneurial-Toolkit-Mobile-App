@@ -60,28 +60,29 @@ class _InboxScreenState extends State<InboxScreen>
       // Listen to real-time chat updates
       ChatService.getUserChats().listen((snapshot) async {
         final conversations = <Map<String, dynamic>>[];
-        
+
         for (final doc in snapshot.docs) {
           final chatData = doc.data() as Map<String, dynamic>;
           final chatId = doc.id;
           final currentUserId = ChatService.currentUserId;
-          
+
           if (currentUserId != null) {
             final participantInfo = await ChatService.getChatParticipantInfo(
               chatId,
               currentUserId,
             );
-            
+
             if (participantInfo != null) {
               final unreadCount = await ChatService.getUnreadCount(chatId);
-              
+
               conversations.add({
                 'id': chatId,
                 'participant_id': participantInfo['user_id'],
                 'participant_name': participantInfo['name'],
                 'participant_avatar': participantInfo['avatar'],
                 'last_message': chatData['last_message'] ?? 'No messages yet',
-                'last_message_time': _formatLastMessageTime(chatData['last_message_time']),
+                'last_message_time':
+                    _formatLastMessageTime(chatData['last_message_time']),
                 'unread_count': unreadCount,
                 'industry': participantInfo['industry'],
                 'location': participantInfo['location'],
@@ -90,7 +91,7 @@ class _InboxScreenState extends State<InboxScreen>
             }
           }
         }
-        
+
         if (mounted) {
           setState(() {
             _conversations = conversations;
@@ -106,10 +107,10 @@ class _InboxScreenState extends State<InboxScreen>
       }
     }
   }
-  
+
   String _formatLastMessageTime(dynamic timestamp) {
     if (timestamp == null) return 'Now';
-    
+
     try {
       final messageTime = (timestamp as Timestamp).toDate();
       final now = DateTime.now();
@@ -183,7 +184,8 @@ class _InboxScreenState extends State<InboxScreen>
                 topRight: Radius.circular(25),
               ),
             ),
-            child: _isLoading ? _buildLoadingState() : _buildConversationsList(),
+            child:
+                _isLoading ? _buildLoadingState() : _buildConversationsList(),
           ),
         ),
       ],
@@ -286,7 +288,7 @@ class _InboxScreenState extends State<InboxScreen>
               ),
             ),
             const SizedBox(height: 24),
-            Text(
+            const Text(
               'No Conversations Yet',
               style: TextStyle(
                 fontSize: 20,
@@ -297,10 +299,10 @@ class _InboxScreenState extends State<InboxScreen>
             ),
             const SizedBox(height: 8),
             Text(
-              _isMentor 
+              _isMentor
                   ? 'Accept mentorship requests to start conversations with mentees'
                   : 'Your accepted mentorship requests will appear here',
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 14,
                 color: ModernTheme.mediumGray,
                 height: 1.4,
@@ -354,7 +356,10 @@ class _InboxScreenState extends State<InboxScreen>
                       ),
                       child: Center(
                         child: Text(
-                          conversation['participant_name'].toString().substring(0, 1).toUpperCase(),
+                          conversation['participant_name']
+                              .toString()
+                              .substring(0, 1)
+                              .toUpperCase(),
                           style: const TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.w700,
@@ -389,7 +394,7 @@ class _InboxScreenState extends State<InboxScreen>
                           Expanded(
                             child: Text(
                               conversation['participant_name'],
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w700,
                                 color: ModernTheme.navy,
@@ -398,7 +403,7 @@ class _InboxScreenState extends State<InboxScreen>
                           ),
                           Text(
                             conversation['last_message_time'],
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 12,
                               color: ModernTheme.mediumGray,
                             ),
@@ -408,7 +413,7 @@ class _InboxScreenState extends State<InboxScreen>
                       const SizedBox(height: 4),
                       Text(
                         conversation['last_message'],
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 14,
                           color: ModernTheme.mediumGray,
                         ),
@@ -418,7 +423,7 @@ class _InboxScreenState extends State<InboxScreen>
                       const SizedBox(height: 4),
                       Row(
                         children: [
-                          Icon(
+                          const Icon(
                             Icons.business_outlined,
                             size: 12,
                             color: ModernTheme.mediumGray,
@@ -426,13 +431,13 @@ class _InboxScreenState extends State<InboxScreen>
                           const SizedBox(width: 4),
                           Text(
                             conversation['industry'],
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 12,
                               color: ModernTheme.mediumGray,
                             ),
                           ),
                           const SizedBox(width: 12),
-                          Icon(
+                          const Icon(
                             Icons.location_on_outlined,
                             size: 12,
                             color: ModernTheme.mediumGray,
@@ -441,7 +446,7 @@ class _InboxScreenState extends State<InboxScreen>
                           Expanded(
                             child: Text(
                               conversation['location'],
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 12,
                                 color: ModernTheme.mediumGray,
                               ),
@@ -455,7 +460,8 @@ class _InboxScreenState extends State<InboxScreen>
                 ),
                 if (conversation['unread_count'] > 0)
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
                       color: ModernTheme.electricBlue,
                       borderRadius: BorderRadius.circular(12),
@@ -479,31 +485,32 @@ class _InboxScreenState extends State<InboxScreen>
 
   Future<void> _refreshConversations() async {
     final conversations = <Map<String, dynamic>>[];
-    
+
     try {
       final snapshot = await ChatService.getUserChats().first;
-      
+
       for (final doc in snapshot.docs) {
         final chatData = doc.data() as Map<String, dynamic>;
         final chatId = doc.id;
         final currentUserId = ChatService.currentUserId;
-        
+
         if (currentUserId != null) {
           final participantInfo = await ChatService.getChatParticipantInfo(
             chatId,
             currentUserId,
           );
-          
+
           if (participantInfo != null) {
             final unreadCount = await ChatService.getUnreadCount(chatId);
-            
+
             conversations.add({
               'id': chatId,
               'participant_id': participantInfo['user_id'],
               'participant_name': participantInfo['name'],
               'participant_avatar': participantInfo['avatar'],
               'last_message': chatData['last_message'] ?? 'No messages yet',
-              'last_message_time': _formatLastMessageTime(chatData['last_message_time']),
+              'last_message_time':
+                  _formatLastMessageTime(chatData['last_message_time']),
               'unread_count': unreadCount,
               'industry': participantInfo['industry'],
               'location': participantInfo['location'],
@@ -512,7 +519,7 @@ class _InboxScreenState extends State<InboxScreen>
           }
         }
       }
-      
+
       if (mounted) {
         setState(() {
           _conversations = conversations;
@@ -534,7 +541,7 @@ class _InboxScreenState extends State<InboxScreen>
         ),
       ),
     );
-    
+
     // Refresh conversations when returning from chat to update unread counts
     await _refreshConversations();
   }
