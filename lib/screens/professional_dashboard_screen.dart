@@ -16,6 +16,7 @@ import 'mentor_screen.dart';
 import 'inbox_screen.dart';
 import 'sessions_screen.dart';
 import 'business_analytics_screen.dart';
+import 'business_data_entry_screen.dart';
 
 class ProfessionalDashboardScreen extends StatefulWidget {
   const ProfessionalDashboardScreen({super.key});
@@ -1209,6 +1210,20 @@ class _ProfessionalDashboardScreenState
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (_) => const MentorScreen()),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  _buildMenuItem(
+                    Icons.data_usage,
+                    'Manage Business Data',
+                    'Add your real business metrics',
+                    () {
+                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => const BusinessDataEntryScreen()),
                       );
                     },
                   ),
