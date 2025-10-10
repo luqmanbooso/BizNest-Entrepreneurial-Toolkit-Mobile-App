@@ -15,6 +15,7 @@ import 'community_screen.dart';
 import 'mentor_screen.dart';
 import 'inbox_screen.dart';
 import 'sessions_screen.dart';
+import 'business_analytics_screen.dart';
 
 class ProfessionalDashboardScreen extends StatefulWidget {
   const ProfessionalDashboardScreen({super.key});
@@ -24,8 +25,8 @@ class ProfessionalDashboardScreen extends StatefulWidget {
       _ProfessionalDashboardScreenState();
 }
 
-class _ProfessionalDashboardScreenState extends State<ProfessionalDashboardScreen>
-    with TickerProviderStateMixin {
+class _ProfessionalDashboardScreenState
+    extends State<ProfessionalDashboardScreen> with TickerProviderStateMixin {
   late AnimationController _mainController;
   late Animation<double> _fadeAnimation;
   late Animation<double> _slideAnimation;
@@ -111,16 +112,24 @@ class _ProfessionalDashboardScreenState extends State<ProfessionalDashboardScree
       for (var request in requests.take(2)) {
         final status = request['status'];
         activities.add({
-          'title': status == 'accepted' ? 'Request Accepted' : status == 'pending' ? 'Request Sent' : 'Request ${status[0].toUpperCase()}${status.substring(1)}',
-          'subtitle': 'Mentorship request to ${request['mentor_info']?['mentor_name'] ?? 'mentor'}',
+          'title': status == 'accepted'
+              ? 'Request Accepted'
+              : status == 'pending'
+                  ? 'Request Sent'
+                  : 'Request ${status[0].toUpperCase()}${status.substring(1)}',
+          'subtitle':
+              'Mentorship request to ${request['mentor_info']?['mentor_name'] ?? 'mentor'}',
           'icon': status == 'accepted' ? Icons.check_circle : Icons.send,
-          'color': status == 'accepted' ? const Color(0xFF10B981) : const Color(0xFF8B5CF6),
+          'color': status == 'accepted'
+              ? const Color(0xFF10B981)
+              : const Color(0xFF8B5CF6),
           'timestamp': (request['created_at'] as Timestamp).toDate(),
         });
       }
 
       // Sort by timestamp descending
-      activities.sort((a, b) => (b['timestamp'] as DateTime).compareTo(a['timestamp'] as DateTime));
+      activities.sort((a, b) =>
+          (b['timestamp'] as DateTime).compareTo(a['timestamp'] as DateTime));
 
       if (mounted) {
         setState(() {
@@ -152,13 +161,16 @@ class _ProfessionalDashboardScreenState extends State<ProfessionalDashboardScree
     try {
       // For entrepreneurs (mentees), check their own requests
       final requests = await MentorshipService.getMenteeRequests();
-      final hasAccepted = requests.any((request) => request['status'] == 'accepted');
-      print('🔍 [ProfessionalDashboard] Found ${requests.length} mentee requests, hasAccepted: $hasAccepted');
+      final hasAccepted =
+          requests.any((request) => request['status'] == 'accepted');
+      print(
+          '🔍 [ProfessionalDashboard] Found ${requests.length} mentee requests, hasAccepted: $hasAccepted');
       if (mounted) {
         setState(() {
           _hasAcceptedRequests = hasAccepted;
         });
-        print('🔍 [ProfessionalDashboard] Updated _hasAcceptedRequests to: $_hasAcceptedRequests');
+        print(
+            '🔍 [ProfessionalDashboard] Updated _hasAcceptedRequests to: $_hasAcceptedRequests');
       }
     } catch (e) {
       print('❌ [ProfessionalDashboard] Error checking accepted requests: $e');
@@ -258,7 +270,8 @@ class _ProfessionalDashboardScreenState extends State<ProfessionalDashboardScree
                 _buildBusinessMetrics(),
                 _buildQuickActionsGrid(),
                 _buildRecentActivity(),
-                const SizedBox(height: 120), // Extra space for main screen navigation
+                const SizedBox(
+                    height: 120), // Extra space for main screen navigation
               ],
             ),
           ),
@@ -600,11 +613,12 @@ class _ProfessionalDashboardScreenState extends State<ProfessionalDashboardScree
                 child: Icon(icon, color: Colors.white, size: 22),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                 decoration: BoxDecoration(
-                  color: change.startsWith('+') 
-                    ? const Color(0xFF10B981).withOpacity(0.1)
-                    : const Color(0xFF64748B).withOpacity(0.1),
+                  color: change.startsWith('+')
+                      ? const Color(0xFF10B981).withOpacity(0.1)
+                      : const Color(0xFF64748B).withOpacity(0.1),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
@@ -612,9 +626,9 @@ class _ProfessionalDashboardScreenState extends State<ProfessionalDashboardScree
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
-                    color: change.startsWith('+') 
-                      ? const Color(0xFF10B981) 
-                      : const Color(0xFF64748B),
+                    color: change.startsWith('+')
+                        ? const Color(0xFF10B981)
+                        : const Color(0xFF64748B),
                   ),
                 ),
               ),
@@ -680,7 +694,8 @@ class _ProfessionalDashboardScreenState extends State<ProfessionalDashboardScree
                         const Color(0xFF3B82F6),
                         () => Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (_) => const MentorScreen()),
+                          MaterialPageRoute(
+                              builder: (_) => const MentorScreen()),
                         ),
                       ),
                       _buildActionCard(
@@ -689,7 +704,9 @@ class _ProfessionalDashboardScreenState extends State<ProfessionalDashboardScree
                         const Color(0xFF10B981),
                         () => Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (_) => const SessionsScreen(isMentor: false)),
+                          MaterialPageRoute(
+                              builder: (_) =>
+                                  const SessionsScreen(isMentor: false)),
                         ),
                       ),
                       _buildActionCard(
@@ -698,7 +715,8 @@ class _ProfessionalDashboardScreenState extends State<ProfessionalDashboardScree
                         const Color(0xFF8B5CF6),
                         () => Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (_) => const BusinessScreen()),
+                          MaterialPageRoute(
+                              builder: (_) => const BusinessScreen()),
                         ),
                       ),
                       _buildActionCard(
@@ -707,7 +725,8 @@ class _ProfessionalDashboardScreenState extends State<ProfessionalDashboardScree
                         const Color(0xFFF59E0B),
                         () => Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (_) => const LearningScreen()),
+                          MaterialPageRoute(
+                              builder: (_) => const LearningScreen()),
                         ),
                       ),
                     ],
@@ -810,7 +829,8 @@ class _ProfessionalDashboardScreenState extends State<ProfessionalDashboardScree
                       ),
                       const SizedBox(height: 4),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 2),
                         decoration: BoxDecoration(
                           color: Colors.white.withOpacity(0.2),
                           borderRadius: BorderRadius.circular(8),
@@ -895,7 +915,7 @@ class _ProfessionalDashboardScreenState extends State<ProfessionalDashboardScree
                   ..._recentActivities.map((activity) {
                     final DateTime timestamp = activity['timestamp'];
                     final String timeAgo = _getTimeAgo(timestamp);
-                    
+
                     return _buildActivityItem(
                       activity['title'],
                       activity['subtitle'],
@@ -1018,11 +1038,11 @@ class _ProfessionalDashboardScreenState extends State<ProfessionalDashboardScree
                 Icons.analytics,
                 'Analytics',
                 3,
-                () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Analytics coming soon!')),
-                  );
-                },
+                () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) => const BusinessAnalyticsScreen()),
+                ),
               ),
               _buildNavItem(
                 Icons.menu,
@@ -1037,7 +1057,8 @@ class _ProfessionalDashboardScreenState extends State<ProfessionalDashboardScree
     );
   }
 
-  Widget _buildNavItem(IconData icon, String label, int index, VoidCallback onTap) {
+  Widget _buildNavItem(
+      IconData icon, String label, int index, VoidCallback onTap) {
     final isActive = index == 0; // Home is always active in dashboard
     return GestureDetector(
       onTap: onTap,
@@ -1173,7 +1194,8 @@ class _ProfessionalDashboardScreenState extends State<ProfessionalDashboardScree
                       Navigator.pop(context);
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => const CommunityScreen()),
+                        MaterialPageRoute(
+                            builder: (_) => const CommunityScreen()),
                       );
                     },
                   ),
@@ -1200,7 +1222,9 @@ class _ProfessionalDashboardScreenState extends State<ProfessionalDashboardScree
                         Navigator.pop(context);
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (_) => const SessionsScreen(isMentor: false)),
+                          MaterialPageRoute(
+                              builder: (_) =>
+                                  const SessionsScreen(isMentor: false)),
                         );
                       },
                     ),
@@ -1210,11 +1234,13 @@ class _ProfessionalDashboardScreenState extends State<ProfessionalDashboardScree
                       'Messages',
                       'Chat with your mentors',
                       () {
-                        print('🔍 [ProfessionalDashboard] Messages menu tapped');
+                        print(
+                            '🔍 [ProfessionalDashboard] Messages menu tapped');
                         Navigator.pop(context);
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (_) => const InboxScreen()),
+                          MaterialPageRoute(
+                              builder: (_) => const InboxScreen()),
                         );
                       },
                     ),
@@ -1228,7 +1254,8 @@ class _ProfessionalDashboardScreenState extends State<ProfessionalDashboardScree
     );
   }
 
-  Widget _buildMenuItem(IconData icon, String title, String subtitle, VoidCallback onTap) {
+  Widget _buildMenuItem(
+      IconData icon, String title, String subtitle, VoidCallback onTap) {
     return Material(
       color: Colors.transparent,
       child: InkWell(
