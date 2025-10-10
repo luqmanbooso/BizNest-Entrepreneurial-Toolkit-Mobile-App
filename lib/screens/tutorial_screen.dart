@@ -21,7 +21,7 @@ class _TutorialScreenState extends State<TutorialScreen>
   int _currentSection = 0;
   Map<String, dynamic> _progress = {};
   List<Map<String, dynamic>> _sections = [];
-  
+
   // Quiz state management
   bool _showQuizResults = false;
   int _currentQuizQuestionIndex = 0;
@@ -68,7 +68,8 @@ class _TutorialScreenState extends State<TutorialScreen>
   }
 
   Future<void> _loadTutorialData() async {
-    _sections = List<Map<String, dynamic>>.from(widget.tutorial['content']['sections']);
+    _sections =
+        List<Map<String, dynamic>>.from(widget.tutorial['content']['sections']);
     _progress = await LearningEngine.getTutorialProgress(widget.tutorial['id']);
 
     if (_progress.isNotEmpty) {
@@ -167,7 +168,8 @@ class _TutorialScreenState extends State<TutorialScreen>
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: _getDifficultyColor(widget.tutorial['difficulty']).withOpacity(0.2),
+              color: _getDifficultyColor(widget.tutorial['difficulty'])
+                  .withOpacity(0.2),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
@@ -300,7 +302,7 @@ class _TutorialScreenState extends State<TutorialScreen>
 
   Widget _buildQuizSection(Map<String, dynamic> section) {
     final questions = List<Map<String, dynamic>>.from(section['questions']);
-    
+
     // Initialize quiz if not already initialized
     if (!_quizInProgress && _currentQuizQuestions.isEmpty) {
       _currentQuizQuestions = questions;
@@ -365,7 +367,8 @@ class _TutorialScreenState extends State<TutorialScreen>
                 style: ElevatedButton.styleFrom(
                   backgroundColor: ModernTheme.primaryBlue,
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -387,7 +390,7 @@ class _TutorialScreenState extends State<TutorialScreen>
       _quizScore = 0;
       _showQuizResults = false;
     });
-    
+
     // Enhance questions with AI if available
     _enhanceQuizWithAI();
   }
@@ -401,23 +404,25 @@ class _TutorialScreenState extends State<TutorialScreen>
           tutorialContent += '${section['title']}: ${section['content']}\n\n';
         }
       }
-      
+
       if (tutorialContent.isNotEmpty && _currentQuizQuestions.isNotEmpty) {
         // Generate AI-enhanced explanations for existing questions
         for (int i = 0; i < _currentQuizQuestions.length; i++) {
           final question = _currentQuizQuestions[i];
-          if (question['explanation'] == null || question['explanation'].isEmpty) {
+          if (question['explanation'] == null ||
+              question['explanation'].isEmpty) {
             try {
               // Create a simple AI-enhanced explanation
               final enhancedExplanation = await _generateEnhancedExplanation(
                 tutorialContent,
                 question,
               );
-              
+
               if (enhancedExplanation.isNotEmpty) {
                 setState(() {
                   _currentQuizQuestions[i]['explanation'] = enhancedExplanation;
-                  _currentQuizQuestions[i]['learning_tip'] = 'Apply this concept from the tutorial: "${_extractKeyLearning(tutorialContent, question)}"';
+                  _currentQuizQuestions[i]['learning_tip'] =
+                      'Apply this concept from the tutorial: "${_extractKeyLearning(tutorialContent, question)}"';
                 });
               }
             } catch (e) {
@@ -433,16 +438,17 @@ class _TutorialScreenState extends State<TutorialScreen>
     }
   }
 
-  Future<String> _generateEnhancedExplanation(String tutorialContent, Map<String, dynamic> question) async {
+  Future<String> _generateEnhancedExplanation(
+      String tutorialContent, Map<String, dynamic> question) async {
     // For now, create a simple enhanced explanation based on the tutorial content
     // In a full implementation, this would call the OpenRouter AI service
-    
+
     final questionText = question['question'];
     final correctAnswer = question['options'][question['correct']];
-    
+
     // Simple keyword matching to relate to tutorial content
     final relevantContent = _findRelevantContent(tutorialContent, questionText);
-    
+
     if (relevantContent.isNotEmpty) {
       return 'The correct answer is "$correctAnswer" because, as explained in the tutorial: $relevantContent This demonstrates the key principles covered in this learning module.';
     } else {
@@ -454,7 +460,7 @@ class _TutorialScreenState extends State<TutorialScreen>
     // Simple implementation - in reality, this could use more sophisticated matching
     final questionWords = question.toLowerCase().split(' ');
     final contentSentences = tutorialContent.split('.');
-    
+
     for (final sentence in contentSentences) {
       final sentenceWords = sentence.toLowerCase().split(' ');
       int matchCount = 0;
@@ -464,27 +470,34 @@ class _TutorialScreenState extends State<TutorialScreen>
         }
       }
       if (matchCount >= 2 && sentence.trim().length > 20) {
-        return sentence.trim().substring(0, sentence.trim().length > 100 ? 100 : sentence.trim().length) + '...';
+        return sentence.trim().substring(0,
+                sentence.trim().length > 100 ? 100 : sentence.trim().length) +
+            '...';
       }
     }
     return '';
   }
 
-  String _extractKeyLearning(String tutorialContent, Map<String, dynamic> question) {
+  String _extractKeyLearning(
+      String tutorialContent, Map<String, dynamic> question) {
     // Extract a key learning point related to the question
-    final relevantContent = _findRelevantContent(tutorialContent, question['question']);
+    final relevantContent =
+        _findRelevantContent(tutorialContent, question['question']);
     if (relevantContent.isNotEmpty) {
-      return relevantContent.length > 60 ? '${relevantContent.substring(0, 60)}...' : relevantContent;
+      return relevantContent.length > 60
+          ? '${relevantContent.substring(0, 60)}...'
+          : relevantContent;
     }
     return 'Review the tutorial content to deepen your understanding';
   }
 
   Widget _buildProgressiveQuiz(Map<String, dynamic> section) {
     if (_currentQuizQuestions.isEmpty) return const SizedBox();
-    
+
     final currentQuestion = _currentQuizQuestions[_currentQuizQuestionIndex];
-    final progress = (_currentQuizQuestionIndex + 1) / _currentQuizQuestions.length;
-    
+    final progress =
+        (_currentQuizQuestionIndex + 1) / _currentQuizQuestions.length;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -520,13 +533,14 @@ class _TutorialScreenState extends State<TutorialScreen>
               LinearProgressIndicator(
                 value: progress,
                 backgroundColor: Colors.grey[300],
-                valueColor: const AlwaysStoppedAnimation<Color>(ModernTheme.primaryBlue),
+                valueColor: const AlwaysStoppedAnimation<Color>(
+                    ModernTheme.primaryBlue),
               ),
             ],
           ),
         ),
         const SizedBox(height: 20),
-        
+
         // Question card
         Container(
           padding: const EdgeInsets.all(20),
@@ -554,8 +568,9 @@ class _TutorialScreenState extends State<TutorialScreen>
               ),
               const SizedBox(height: 20),
               ...List.generate(currentQuestion['options'].length, (index) {
-                final isSelected = _quizAnswers[_currentQuizQuestionIndex] == index;
-                
+                final isSelected =
+                    _quizAnswers[_currentQuizQuestionIndex] == index;
+
                 return Container(
                   margin: const EdgeInsets.only(bottom: 12),
                   child: Material(
@@ -566,12 +581,12 @@ class _TutorialScreenState extends State<TutorialScreen>
                       child: Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: isSelected 
+                          color: isSelected
                               ? ModernTheme.primaryBlue.withOpacity(0.1)
                               : Colors.grey[50],
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color: isSelected 
+                            color: isSelected
                                 ? ModernTheme.primaryBlue
                                 : Colors.grey[300]!,
                             width: isSelected ? 2 : 1,
@@ -584,12 +599,12 @@ class _TutorialScreenState extends State<TutorialScreen>
                               height: 28,
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                color: isSelected 
-                                    ? ModernTheme.primaryBlue 
+                                color: isSelected
+                                    ? ModernTheme.primaryBlue
                                     : Colors.transparent,
                                 border: Border.all(
-                                  color: isSelected 
-                                      ? ModernTheme.primaryBlue 
+                                  color: isSelected
+                                      ? ModernTheme.primaryBlue
                                       : Colors.grey[400]!,
                                   width: 2,
                                 ),
@@ -598,8 +613,8 @@ class _TutorialScreenState extends State<TutorialScreen>
                                 child: Text(
                                   String.fromCharCode(65 + index),
                                   style: ModernTheme.bodyMedium.copyWith(
-                                    color: isSelected 
-                                        ? Colors.white 
+                                    color: isSelected
+                                        ? Colors.white
                                         : Colors.grey[600],
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -611,11 +626,11 @@ class _TutorialScreenState extends State<TutorialScreen>
                               child: Text(
                                 currentQuestion['options'][index],
                                 style: ModernTheme.bodyMedium.copyWith(
-                                  color: isSelected 
-                                      ? ModernTheme.primaryBlue 
+                                  color: isSelected
+                                      ? ModernTheme.primaryBlue
                                       : Colors.grey[800],
-                                  fontWeight: isSelected 
-                                      ? FontWeight.w600 
+                                  fontWeight: isSelected
+                                      ? FontWeight.w600
                                       : FontWeight.normal,
                                 ),
                               ),
@@ -630,9 +645,9 @@ class _TutorialScreenState extends State<TutorialScreen>
             ],
           ),
         ),
-        
+
         const SizedBox(height: 20),
-        
+
         // Navigation buttons
         Row(
           children: [
@@ -655,7 +670,8 @@ class _TutorialScreenState extends State<TutorialScreen>
             Expanded(
               child: ElevatedButton(
                 onPressed: _quizAnswers.containsKey(_currentQuizQuestionIndex)
-                    ? (_currentQuizQuestionIndex == _currentQuizQuestions.length - 1
+                    ? (_currentQuizQuestionIndex ==
+                            _currentQuizQuestions.length - 1
                         ? _completeQuiz
                         : _nextQuizQuestion)
                     : null,
@@ -710,7 +726,7 @@ class _TutorialScreenState extends State<TutorialScreen>
         correct++;
       }
     }
-    
+
     setState(() {
       _quizScore = correct;
       _quizInProgress = false;
@@ -719,8 +735,9 @@ class _TutorialScreenState extends State<TutorialScreen>
   }
 
   Widget _buildQuizResults(Map<String, dynamic> section) {
-    final percentage = (_quizScore / _currentQuizQuestions.length * 100).round();
-    
+    final percentage =
+        (_quizScore / _currentQuizQuestions.length * 100).round();
+
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -758,7 +775,7 @@ class _TutorialScreenState extends State<TutorialScreen>
             ),
           ),
           const SizedBox(height: 24),
-          
+
           // Results breakdown
           Container(
             padding: const EdgeInsets.all(16),
@@ -787,12 +804,12 @@ class _TutorialScreenState extends State<TutorialScreen>
                   final userAnswer = _quizAnswers[index];
                   final correctAnswer = question['correct'];
                   final isCorrect = userAnswer == correctAnswer;
-                  
+
                   return Container(
                     margin: const EdgeInsets.only(bottom: 12),
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: isCorrect 
+                      color: isCorrect
                           ? Colors.green.withOpacity(0.1)
                           : Colors.red.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(8),
@@ -855,7 +872,7 @@ class _TutorialScreenState extends State<TutorialScreen>
               ],
             ),
           ),
-          
+
           const SizedBox(height: 24),
           ElevatedButton(
             onPressed: _retakeQuiz,
@@ -987,7 +1004,8 @@ class _TutorialScreenState extends State<TutorialScreen>
       'sections_completed': _progress['sections_completed'] ?? 0,
     };
 
-    await LearningEngine.completeTutorial(widget.tutorial['id'], completionData);
+    await LearningEngine.completeTutorial(
+        widget.tutorial['id'], completionData);
 
     if (mounted) {
       showDialog(
@@ -1033,7 +1051,8 @@ class _TutorialScreenState extends State<TutorialScreen>
       'completed': false,
     };
 
-    await LearningEngine.updateTutorialProgress(widget.tutorial['id'], progress);
+    await LearningEngine.updateTutorialProgress(
+        widget.tutorial['id'], progress);
   }
 
   Color _getDifficultyColor(String difficulty) {
