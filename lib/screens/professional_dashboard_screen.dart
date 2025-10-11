@@ -1066,7 +1066,8 @@ class _ProfessionalDashboardScreenState
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        padding: const EdgeInsets.symmetric(
+            horizontal: 12, vertical: 2), // Reduced from 8 to 2
         decoration: BoxDecoration(
           gradient: isActive
               ? const LinearGradient(
@@ -1086,19 +1087,20 @@ class _ProfessionalDashboardScreenState
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
               icon,
               color: isActive ? Colors.white : const Color(0xFF64748B),
-              size: 24,
+              size: 12, // Reduced further from 14
             ),
-            const SizedBox(height: 4),
             Text(
               label,
               style: TextStyle(
                 color: isActive ? Colors.white : const Color(0xFF64748B),
-                fontSize: 12,
+                fontSize: 6, // Reduced from 7
                 fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
+                height: 1.0,
               ),
             ),
           ],

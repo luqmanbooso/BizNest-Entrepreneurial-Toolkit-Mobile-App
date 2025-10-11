@@ -30,18 +30,15 @@ class _BusinessDataEntryScreenState extends State<BusinessDataEntryScreen>
   final _rentController = TextEditingController();
   final _utilitiesController = TextEditingController();
 
-  // Customer controllers
-  final _totalCustomersController = TextEditingController();
-  final _retentionRateController = TextEditingController();
-  final _lifetimeValueController = TextEditingController();
-  final _acquisitionCostController = TextEditingController();
+  // Individual expense controllers
+  final _expenseNameController = TextEditingController();
+  final _expenseAmountController = TextEditingController();
+  final _expenseMonthController = TextEditingController();
+  final _expenseYearController = TextEditingController();
 
-  // Performance controllers
-  final _roiController = TextEditingController();
-  final _marketShareController = TextEditingController();
-  final _npsScoreController = TextEditingController();
-  final _runwayController = TextEditingController();
-  final _profitMarginController = TextEditingController();
+  // Expense data
+  DateTime? _selectedExpenseDate;
+  final List<Map<String, dynamic>> _individualExpenses = [];
 
   bool _isLoading = false;
   String? _businessId;
@@ -49,7 +46,7 @@ class _BusinessDataEntryScreenState extends State<BusinessDataEntryScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 4, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
     _businessId = FirebaseAuth.instance.currentUser?.uid ?? 'default_business';
   }
 
@@ -68,15 +65,10 @@ class _BusinessDataEntryScreenState extends State<BusinessDataEntryScreen>
     _salariesController.dispose();
     _rentController.dispose();
     _utilitiesController.dispose();
-    _totalCustomersController.dispose();
-    _retentionRateController.dispose();
-    _lifetimeValueController.dispose();
-    _acquisitionCostController.dispose();
-    _roiController.dispose();
-    _marketShareController.dispose();
-    _npsScoreController.dispose();
-    _runwayController.dispose();
-    _profitMarginController.dispose();
+    _expenseNameController.dispose();
+    _expenseAmountController.dispose();
+    _expenseMonthController.dispose();
+    _expenseYearController.dispose();
     super.dispose();
   }
 
@@ -103,7 +95,6 @@ class _BusinessDataEntryScreenState extends State<BusinessDataEntryScreen>
             Tab(text: 'Profile'),
             Tab(text: 'Revenue'),
             Tab(text: 'Expenses'),
-            Tab(text: 'Metrics'),
           ],
         ),
       ),
@@ -113,7 +104,6 @@ class _BusinessDataEntryScreenState extends State<BusinessDataEntryScreen>
           _buildBusinessProfileTab(),
           _buildRevenueTab(),
           _buildExpensesTab(),
-          _buildMetricsTab(),
         ],
       ),
     );
@@ -228,154 +218,192 @@ class _BusinessDataEntryScreenState extends State<BusinessDataEntryScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Expense Categories',
+            'Monthly Expenses',
             style: ModernTheme.h4.copyWith(
               color: ModernTheme.textPrimary,
               fontSize: 18,
             ),
           ),
           const SizedBox(height: 20),
-          _buildInputField(
-            controller: _marketingController,
-            label: 'Marketing (\$)',
-            hint: 'e.g., 5000',
-            icon: Icons.campaign,
-            keyboardType: TextInputType.number,
-          ),
-          const SizedBox(height: 16),
-          _buildInputField(
-            controller: _operationsController,
-            label: 'Operations (\$)',
-            hint: 'e.g., 8000',
-            icon: Icons.settings,
-            keyboardType: TextInputType.number,
-          ),
-          const SizedBox(height: 16),
-          _buildInputField(
-            controller: _salariesController,
-            label: 'Salaries (\$)',
-            hint: 'e.g., 15000',
-            icon: Icons.people,
-            keyboardType: TextInputType.number,
-          ),
-          const SizedBox(height: 16),
-          _buildInputField(
-            controller: _rentController,
-            label: 'Rent (\$)',
-            hint: 'e.g., 3000',
-            icon: Icons.home,
-            keyboardType: TextInputType.number,
-          ),
-          const SizedBox(height: 16),
-          _buildInputField(
-            controller: _utilitiesController,
-            label: 'Utilities (\$)',
-            hint: 'e.g., 500',
-            icon: Icons.electrical_services,
-            keyboardType: TextInputType.number,
-          ),
-          const SizedBox(height: 24),
-          _buildActionButton(
-            'Save Expense Data',
-            Icons.save,
-            () => _addExpenseData(),
-          ),
-        ],
-      ),
-    );
-  }
 
-  Widget _buildMetricsTab() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Business Metrics',
-            style: ModernTheme.h4.copyWith(
-              color: ModernTheme.textPrimary,
-              fontSize: 18,
+          // Date Selection Section
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: ModernTheme.surfaceLight,
+              borderRadius: BorderRadius.circular(12),
+              border:
+                  Border.all(color: ModernTheme.primaryColor.withOpacity(0.2)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Select Month & Year',
+                  style: ModernTheme.h4.copyWith(
+                    color: ModernTheme.textPrimary,
+                    fontSize: 16,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildInputField(
+                        controller: _expenseMonthController,
+                        label: 'Month (1-12)',
+                        hint: 'e.g., 11',
+                        icon: Icons.calendar_month,
+                        keyboardType: TextInputType.number,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: _buildInputField(
+                        controller: _expenseYearController,
+                        label: 'Year',
+                        hint: 'e.g., 2025',
+                        icon: Icons.calendar_today,
+                        keyboardType: TextInputType.number,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                ElevatedButton.icon(
+                  onPressed: _selectExpenseDate,
+                  icon: const Icon(Icons.date_range),
+                  label: Text(_selectedExpenseDate != null
+                      ? 'Selected: ${_getFormattedDate(_selectedExpenseDate!)}'
+                      : 'Pick Date from Calendar'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: ModernTheme.primaryColor.withOpacity(0.1),
+                    foregroundColor: ModernTheme.primaryColor,
+                    elevation: 0,
+                  ),
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: 20),
-          Row(
-            children: [
-              Expanded(
-                child: _buildInputField(
-                  controller: _totalCustomersController,
-                  label: 'Total Customers',
-                  hint: 'e.g., 150',
-                  icon: Icons.people_alt,
-                  keyboardType: TextInputType.number,
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: _buildInputField(
-                  controller: _retentionRateController,
-                  label: 'Retention Rate (%)',
-                  hint: 'e.g., 85',
-                  icon: Icons.favorite,
-                  keyboardType: TextInputType.number,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: _buildInputField(
-                  controller: _roiController,
-                  label: 'ROI (%)',
-                  hint: 'e.g., 25',
-                  icon: Icons.trending_up,
-                  keyboardType: TextInputType.number,
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: _buildInputField(
-                  controller: _profitMarginController,
-                  label: 'Profit Margin (%)',
-                  hint: 'e.g., 15',
-                  icon: Icons.account_balance_wallet,
-                  keyboardType: TextInputType.number,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: _buildInputField(
-                  controller: _npsScoreController,
-                  label: 'NPS Score (0-100)',
-                  hint: 'e.g., 70',
-                  icon: Icons.star,
-                  keyboardType: TextInputType.number,
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: _buildInputField(
-                  controller: _runwayController,
-                  label: 'Runway (months)',
-                  hint: 'e.g., 18',
-                  icon: Icons.schedule,
-                  keyboardType: TextInputType.number,
-                ),
-              ),
-            ],
-          ),
+
           const SizedBox(height: 24),
-          _buildActionButton(
-            'Save Business Metrics',
-            Icons.analytics,
-            () => _addBusinessMetrics(),
+
+          // Individual Expense Entry Section
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: ModernTheme.surfaceLight,
+              borderRadius: BorderRadius.circular(12),
+              border:
+                  Border.all(color: ModernTheme.sunsetOrange.withOpacity(0.2)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Add Individual Expense',
+                  style: ModernTheme.h4.copyWith(
+                    color: ModernTheme.textPrimary,
+                    fontSize: 16,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                _buildInputField(
+                  controller: _expenseNameController,
+                  label: 'Expense Name',
+                  hint: 'e.g., Office Rent, Marketing Campaign',
+                  icon: Icons.label,
+                ),
+                const SizedBox(height: 16),
+                _buildInputField(
+                  controller: _expenseAmountController,
+                  label: 'Amount (\$)',
+                  hint: 'e.g., 1500',
+                  icon: Icons.attach_money,
+                  keyboardType: TextInputType.number,
+                ),
+                const SizedBox(height: 16),
+                _buildActionButton(
+                  'Add Expense',
+                  Icons.add,
+                  () => _addIndividualExpense(),
+                ),
+              ],
+            ),
           ),
+
+          const SizedBox(height: 24),
+
+          // Added Expenses List
+          if (_individualExpenses.isNotEmpty) ...[
+            Text(
+              'Added Expenses',
+              style: ModernTheme.h4.copyWith(
+                color: ModernTheme.textPrimary,
+                fontSize: 16,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Container(
+              decoration: BoxDecoration(
+                color: ModernTheme.surfaceLight,
+                borderRadius: BorderRadius.circular(12),
+                border:
+                    Border.all(color: ModernTheme.freshGreen.withOpacity(0.2)),
+              ),
+              child: Column(
+                children: [
+                  ..._individualExpenses.asMap().entries.map((entry) {
+                    final index = entry.key;
+                    final expense = entry.value;
+                    return _buildExpenseListItem(expense, index);
+                  }),
+                  if (_individualExpenses.isNotEmpty) ...[
+                    const Divider(),
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Total:',
+                            style: ModernTheme.h4.copyWith(
+                              color: ModernTheme.textPrimary,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(
+                            '\$${_calculateTotalExpenses().toStringAsFixed(2)}',
+                            style: ModernTheme.h4.copyWith(
+                              color: ModernTheme.primaryColor,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+          ],
+
+          // Save All Expenses Button
+          if (_individualExpenses.isNotEmpty) ...[
+            _buildActionButton(
+              'Save All Expenses',
+              Icons.save,
+              () => _saveMonthlyExpenses(),
+            ),
+            const SizedBox(height: 16),
+            _buildActionButton(
+              'Clear All',
+              Icons.clear_all,
+              () => _clearAllExpenses(),
+              color: ModernTheme.errorRed,
+            ),
+          ],
         ],
       ),
     );
@@ -418,8 +446,9 @@ class _BusinessDataEntryScreenState extends State<BusinessDataEntryScreen>
     );
   }
 
-  Widget _buildActionButton(
-      String text, IconData icon, VoidCallback onPressed) {
+  Widget _buildActionButton(String text, IconData icon, VoidCallback onPressed,
+      {Color? color}) {
+    final buttonColor = color ?? ModernTheme.primaryColor;
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton.icon(
@@ -440,7 +469,7 @@ class _BusinessDataEntryScreenState extends State<BusinessDataEntryScreen>
           ),
         ),
         style: ElevatedButton.styleFrom(
-          backgroundColor: ModernTheme.primaryColor,
+          backgroundColor: buttonColor,
           padding: const EdgeInsets.symmetric(vertical: 16),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
@@ -516,121 +545,6 @@ class _BusinessDataEntryScreenState extends State<BusinessDataEntryScreen>
     }
   }
 
-  Future<void> _addExpenseData() async {
-    setState(() => _isLoading = true);
-
-    try {
-      final expenseCategories = <String, double>{};
-
-      if (_marketingController.text.isNotEmpty) {
-        expenseCategories['marketing'] =
-            double.parse(_marketingController.text);
-      }
-      if (_operationsController.text.isNotEmpty) {
-        expenseCategories['operations'] =
-            double.parse(_operationsController.text);
-      }
-      if (_salariesController.text.isNotEmpty) {
-        expenseCategories['salaries'] = double.parse(_salariesController.text);
-      }
-      if (_rentController.text.isNotEmpty) {
-        expenseCategories['rent'] = double.parse(_rentController.text);
-      }
-      if (_utilitiesController.text.isNotEmpty) {
-        expenseCategories['utilities'] =
-            double.parse(_utilitiesController.text);
-      }
-
-      if (expenseCategories.isEmpty) {
-        _showSnackBar('Please enter at least one expense category',
-            isError: true);
-        return;
-      }
-
-      await BusinessAnalyticsService.addExpenseData(
-        businessId: _businessId!,
-        categoryExpenses: expenseCategories,
-        month: DateTime.now().month,
-        year: DateTime.now().year,
-      );
-
-      _showSnackBar('Expense data saved successfully!');
-      _clearControllers([
-        _marketingController,
-        _operationsController,
-        _salariesController,
-        _rentController,
-        _utilitiesController
-      ]);
-    } catch (e) {
-      _showSnackBar('Error saving expense data', isError: true);
-    } finally {
-      setState(() => _isLoading = false);
-    }
-  }
-
-  Future<void> _addBusinessMetrics() async {
-    setState(() => _isLoading = true);
-
-    try {
-      // Add customer data if provided
-      if (_totalCustomersController.text.isNotEmpty) {
-        await BusinessAnalyticsService.addCustomerData(
-          businessId: _businessId!,
-          totalCustomers: int.parse(_totalCustomersController.text),
-          monthlyNew: _retentionRateController.text.isNotEmpty
-              ? (double.parse(_retentionRateController.text) *
-                      int.parse(_totalCustomersController.text) /
-                      100)
-                  .round()
-              : null,
-          month: DateTime.now().month,
-        );
-      }
-
-      // Add performance metrics if provided
-      Map<String, double> kpis = {};
-
-      if (_roiController.text.isNotEmpty) {
-        kpis['roi'] = double.parse(_roiController.text);
-      }
-      if (_profitMarginController.text.isNotEmpty) {
-        kpis['profit_margin'] = double.parse(_profitMarginController.text);
-      }
-
-      Map<String, dynamic> additionalMetrics = {};
-      if (_npsScoreController.text.isNotEmpty) {
-        additionalMetrics['nps_score'] = int.parse(_npsScoreController.text);
-      }
-      if (_runwayController.text.isNotEmpty) {
-        additionalMetrics['runway_months'] = int.parse(_runwayController.text);
-      }
-
-      if (kpis.isNotEmpty) {
-        await BusinessAnalyticsService.addPerformanceMetrics(
-          businessId: _businessId!,
-          kpis: kpis,
-          additionalMetrics:
-              additionalMetrics.isNotEmpty ? additionalMetrics : null,
-        );
-      }
-
-      _showSnackBar('Business metrics saved successfully!');
-      _clearControllers([
-        _totalCustomersController,
-        _retentionRateController,
-        _roiController,
-        _profitMarginController,
-        _npsScoreController,
-        _runwayController
-      ]);
-    } catch (e) {
-      _showSnackBar('Error saving business metrics', isError: true);
-    } finally {
-      setState(() => _isLoading = false);
-    }
-  }
-
   void _clearControllers(List<TextEditingController> controllers) {
     for (final controller in controllers) {
       controller.clear();
@@ -649,5 +563,204 @@ class _BusinessDataEntryScreenState extends State<BusinessDataEntryScreen>
         ),
       ),
     );
+  }
+
+  // Date and expense management methods
+  Future<void> _selectExpenseDate() async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedExpenseDate ?? DateTime.now(),
+      firstDate: DateTime(2020),
+      lastDate: DateTime(2030),
+      helpText: 'Select Expense Month',
+    );
+
+    if (picked != null) {
+      setState(() {
+        _selectedExpenseDate = picked;
+        _expenseMonthController.text = picked.month.toString();
+        _expenseYearController.text = picked.year.toString();
+      });
+    }
+  }
+
+  String _getFormattedDate(DateTime date) {
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec'
+    ];
+    return '${months[date.month - 1]} ${date.year}';
+  }
+
+  void _addIndividualExpense() {
+    if (_expenseNameController.text.isEmpty) {
+      _showSnackBar('Please enter expense name', isError: true);
+      return;
+    }
+
+    if (_expenseAmountController.text.isEmpty) {
+      _showSnackBar('Please enter expense amount', isError: true);
+      return;
+    }
+
+    final amount = double.tryParse(_expenseAmountController.text);
+    if (amount == null || amount <= 0) {
+      _showSnackBar('Please enter a valid amount', isError: true);
+      return;
+    }
+
+    setState(() {
+      _individualExpenses.add({
+        'name': _expenseNameController.text,
+        'amount': amount,
+        'timestamp': DateTime.now(),
+      });
+    });
+
+    // Clear the input fields
+    _expenseNameController.clear();
+    _expenseAmountController.clear();
+
+    _showSnackBar('Expense added successfully!');
+  }
+
+  Widget _buildExpenseListItem(Map<String, dynamic> expense, int index) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      child: ListTile(
+        leading: CircleAvatar(
+          backgroundColor: ModernTheme.primaryColor.withOpacity(0.1),
+          child: const Icon(
+            Icons.receipt_long,
+            color: ModernTheme.primaryColor,
+            size: 20,
+          ),
+        ),
+        title: Text(
+          expense['name'],
+          style: ModernTheme.body1.copyWith(
+            color: ModernTheme.textPrimary,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        subtitle: Text(
+          'Added: ${_getFormattedTime(expense['timestamp'])}',
+          style: ModernTheme.body2.copyWith(
+            color: ModernTheme.textSecondary,
+            fontSize: 12,
+          ),
+        ),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              '\$${(expense['amount'] ?? 0.0).toStringAsFixed(2)}',
+              style: ModernTheme.body1.copyWith(
+                color: ModernTheme.primaryColor,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(width: 8),
+            IconButton(
+              onPressed: () => _removeExpense(index),
+              icon: const Icon(
+                Icons.delete_outline,
+                color: ModernTheme.errorRed,
+                size: 20,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _getFormattedTime(DateTime time) {
+    return '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
+  }
+
+  void _removeExpense(int index) {
+    setState(() {
+      _individualExpenses.removeAt(index);
+    });
+    _showSnackBar('Expense removed');
+  }
+
+  double _calculateTotalExpenses() {
+    return _individualExpenses.fold(
+        0.0, (sum, expense) => sum + (expense['amount'] ?? 0.0));
+  }
+
+  Future<void> _saveMonthlyExpenses() async {
+    if (_individualExpenses.isEmpty) {
+      _showSnackBar('No expenses to save', isError: true);
+      return;
+    }
+
+    if (_expenseMonthController.text.isEmpty ||
+        _expenseYearController.text.isEmpty) {
+      _showSnackBar('Please select month and year', isError: true);
+      return;
+    }
+
+    final month = int.tryParse(_expenseMonthController.text);
+    final year = int.tryParse(_expenseYearController.text);
+
+    if (month == null || month < 1 || month > 12) {
+      _showSnackBar('Please enter a valid month (1-12)', isError: true);
+      return;
+    }
+
+    if (year == null || year < 2020 || year > 2030) {
+      _showSnackBar('Please enter a valid year', isError: true);
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      // Create expense categories map from individual expenses
+      final Map<String, double> expenseCategories = {};
+
+      for (var expense in _individualExpenses) {
+        final name = expense['name'].toString().toLowerCase();
+        expenseCategories[name] = expense['amount'] ?? 0.0;
+      }
+
+      await BusinessAnalyticsService.addExpenseData(
+        businessId: _businessId!,
+        categoryExpenses: expenseCategories,
+        month: month,
+        year: year,
+      );
+
+      _showSnackBar('Monthly expenses saved successfully!');
+      _clearAllExpenses();
+    } catch (e) {
+      _showSnackBar('Error saving expenses: ${e.toString()}', isError: true);
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
+
+  void _clearAllExpenses() {
+    setState(() {
+      _individualExpenses.clear();
+      _expenseNameController.clear();
+      _expenseAmountController.clear();
+      _expenseMonthController.clear();
+      _expenseYearController.clear();
+      _selectedExpenseDate = null;
+    });
   }
 }

@@ -163,7 +163,7 @@ class BusinessAnalyticsService {
 
       if (kDebugMode) {
         print(
-            '✅ Added monthly revenue: \$${amount} for ${month}/${year}${customerCount != null ? ' with $customerCount customers' : ''}');
+            '✅ Added monthly revenue: \$$amount for $month/$year${customerCount != null ? ' with $customerCount customers' : ''}');
       }
     } catch (e) {
       if (kDebugMode) {
@@ -262,7 +262,7 @@ class BusinessAnalyticsService {
 
       if (kDebugMode) {
         print(
-            '✅ Added monthly customers: $customerCount customers for ${month}/${year}');
+            '✅ Added monthly customers: $customerCount customers for $month/$year');
       }
     } catch (e) {
       if (kDebugMode) {
@@ -372,6 +372,116 @@ class BusinessAnalyticsService {
         print('❌ Error checking business data: $e');
       }
       return false;
+    }
+  }
+
+  /// Get performance data for chart visualization
+  /// Fetches revenue and expense data from separate collections and combines them
+  static Future<List<Map<String, dynamic>>> getPerformanceData(
+      String businessId) async {
+    try {
+      // Fetch revenue data from businesses/{businessId}/revenues collection
+      final revenueSnapshot = await _firestore
+          .collection('businesses')
+          .doc(businessId)
+          .collection('revenues')
+          .get();
+
+      // Fetch expense data from businesses/{businessId}/expenses collection
+      final expenseSnapshot = await _firestore
+          .collection('businesses')
+          .doc(businessId)
+          .collection('expenses')
+          .get();
+
+      // Create maps for easy lookup by month/year key
+      final Map<String, double> revenueMap = {};
+      final Map<String, double> expenseMap = {};
+
+      // Process revenue data
+      for (var doc in revenueSnapshot.docs) {
+        final data = doc.data();
+        final month = data['month'] as int?;
+        final year = data['year'] as int?;
+        final amount = (data['amount'] as num?)?.toDouble() ?? 0.0;
+
+        if (month != null && year != null) {
+          final key = '$year-${month.toString().padLeft(2, '0')}';
+          revenueMap[key] = (revenueMap[key] ?? 0.0) + amount;
+        }
+      }
+
+      // Process expense data
+      for (var doc in expenseSnapshot.docs) {
+        final data = doc.data();
+        final month = data['month'] as int?;
+        final year = data['year'] as int?;
+
+        if (month != null && year != null) {
+          final key = '$year-${month.toString().padLeft(2, '0')}';
+
+          // Handle different expense data structures
+          double totalExpenses = 0.0;
+
+          // If individual expense amount
+          if (data['amount'] != null) {
+            totalExpenses = (data['amount'] as num).toDouble();
+          }
+
+          // If category expenses map
+          if (data['categoryExpenses'] != null) {
+            final categoryExpenses =
+                data['categoryExpenses'] as Map<String, dynamic>;
+            for (var expense in categoryExpenses.values) {
+              totalExpenses += (expense as num?)?.toDouble() ?? 0.0;
+            }
+          }
+
+          expenseMap[key] = (expenseMap[key] ?? 0.0) + totalExpenses;
+        }
+      }
+
+      // Combine all unique month/year combinations
+      final Set<String> allKeys = {...revenueMap.keys, ...expenseMap.keys};
+
+      // Convert to list of performance data
+      final List<Map<String, dynamic>> performanceData = [];
+
+      for (final key in allKeys) {
+        final parts = key.split('-');
+        final year = int.parse(parts[0]);
+        final month = int.parse(parts[1]);
+
+        final revenue = revenueMap[key] ?? 0.0;
+        final expenses = expenseMap[key] ?? 0.0;
+        final profit = revenue - expenses;
+
+        performanceData.add({
+          'month': month,
+          'year': year,
+          'revenue': revenue,
+          'expenses': expenses,
+          'profit': profit,
+        });
+      }
+
+      // Sort by year then month
+      performanceData.sort((a, b) {
+        final yearCompare = (a['year'] as int).compareTo(b['year'] as int);
+        if (yearCompare != 0) return yearCompare;
+        return (a['month'] as int).compareTo(b['month'] as int);
+      });
+
+      if (kDebugMode) {
+        print('✅ Fetched performance data: ${performanceData.length} months');
+      }
+
+      return performanceData;
+    } catch (e) {
+      if (kDebugMode) {
+        print('❌ Error fetching performance data: $e');
+      }
+      return [];
     }
   }
 }
