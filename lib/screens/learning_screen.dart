@@ -60,10 +60,10 @@ class _LearningScreenState extends State<LearningScreen>
     try {
       // Check and update streak on load
       await LearningEngine.checkAndUpdateStreak();
-      
+
       // Update leaderboard entry on load
       await LearningEngine.updateLeaderboardEntry();
-      
+
       final tutorials = await LearningEngine.getPersonalizedTutorials();
       final statistics = await LearningEngine.getLearningStatistics();
       final badges = await LearningEngine.getUserBadges();
@@ -84,7 +84,8 @@ class _LearningScreenState extends State<LearningScreen>
               'sections': [
                 {
                   'title': 'What is Entrepreneurship?',
-                  'content': 'Entrepreneurship is the process of creating, developing, and managing a business venture...',
+                  'content':
+                      'Entrepreneurship is the process of creating, developing, and managing a business venture...',
                   'type': 'text'
                 }
               ]
@@ -95,7 +96,8 @@ class _LearningScreenState extends State<LearningScreen>
           {
             'id': 'novice_2',
             'title': 'Understanding Your Market',
-            'description': 'Learn how to identify and understand your target market',
+            'description':
+                'Learn how to identify and understand your target market',
             'duration': 20,
             'category': 'market_research',
             'difficulty': 'novice',
@@ -103,7 +105,8 @@ class _LearningScreenState extends State<LearningScreen>
               'sections': [
                 {
                   'title': 'What is Market Research?',
-                  'content': 'Market research helps you understand your customers and competition...',
+                  'content':
+                      'Market research helps you understand your customers and competition...',
                   'type': 'text'
                 }
               ]
@@ -1166,7 +1169,8 @@ class _LearningScreenState extends State<LearningScreen>
             mainAxisSize: MainAxisSize.min,
             children: [
               CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(ModernTheme.primaryBlue),
+                valueColor:
+                    AlwaysStoppedAnimation<Color>(ModernTheme.primaryBlue),
               ),
               SizedBox(height: 16),
               Text('Resetting progress...'),
@@ -1248,7 +1252,10 @@ class _LearningScreenState extends State<LearningScreen>
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
-                        colors: [Colors.orange.shade400, Colors.orange.shade600],
+                        colors: [
+                          Colors.orange.shade400,
+                          Colors.orange.shade600
+                        ],
                       ),
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -1294,9 +1301,9 @@ class _LearningScreenState extends State<LearningScreen>
                       Colors.grey[400]!,
                       Colors.brown[400]!,
                     ];
-                    
+
                     final isCurrentUser = user['is_current_user'] == true;
-                    
+
                     return Container(
                       margin: const EdgeInsets.only(bottom: 12),
                       padding: const EdgeInsets.all(16),
@@ -1316,7 +1323,8 @@ class _LearningScreenState extends State<LearningScreen>
                                     ],
                                   )
                                 : null,
-                        color: (isTop3 || isCurrentUser) ? null : Colors.grey[50],
+                        color:
+                            (isTop3 || isCurrentUser) ? null : Colors.grey[50],
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
                           color: isTop3
@@ -1336,7 +1344,9 @@ class _LearningScreenState extends State<LearningScreen>
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
-                                color: isTop3 ? medalColors[index] : Colors.grey[600],
+                                color: isTop3
+                                    ? medalColors[index]
+                                    : Colors.grey[600],
                               ),
                               textAlign: TextAlign.center,
                             ),
@@ -1344,13 +1354,16 @@ class _LearningScreenState extends State<LearningScreen>
                           const SizedBox(width: 8),
                           CircleAvatar(
                             radius: 20,
-                            backgroundColor: isTop3 ? medalColors[index].withOpacity(0.3) : Colors.grey[300],
+                            backgroundColor: isTop3
+                                ? medalColors[index].withOpacity(0.3)
+                                : Colors.grey[300],
                             child: Text(
                               (user['name'] ?? 'U').toString()[0].toUpperCase(),
                               style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
-                                color: isTop3 ? medalColors[index] : Colors.white,
+                                color:
+                                    isTop3 ? medalColors[index] : Colors.white,
                               ),
                             ),
                           ),
@@ -1367,8 +1380,12 @@ class _LearningScreenState extends State<LearningScreen>
                                         user['name'] ?? 'Unknown User',
                                         style: TextStyle(
                                           fontSize: 14,
-                                          fontWeight: isCurrentUser ? FontWeight.bold : FontWeight.w600,
-                                          color: isCurrentUser ? ModernTheme.primaryBlue : null,
+                                          fontWeight: isCurrentUser
+                                              ? FontWeight.bold
+                                              : FontWeight.w600,
+                                          color: isCurrentUser
+                                              ? ModernTheme.primaryBlue
+                                              : null,
                                         ),
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
@@ -1383,7 +1400,8 @@ class _LearningScreenState extends State<LearningScreen>
                                         ),
                                         decoration: BoxDecoration(
                                           color: ModernTheme.primaryBlue,
-                                          borderRadius: BorderRadius.circular(4),
+                                          borderRadius:
+                                              BorderRadius.circular(4),
                                         ),
                                         child: const Text(
                                           'YOU',
@@ -1408,11 +1426,15 @@ class _LearningScreenState extends State<LearningScreen>
                                           vertical: 2,
                                         ),
                                         decoration: BoxDecoration(
-                                          color: ModernTheme.primaryBlue.withOpacity(0.1),
-                                          borderRadius: BorderRadius.circular(6),
+                                          color: ModernTheme.primaryBlue
+                                              .withOpacity(0.1),
+                                          borderRadius:
+                                              BorderRadius.circular(6),
                                         ),
                                         child: Text(
-                                          (user['level'] ?? 'novice').toString().toUpperCase(),
+                                          (user['level'] ?? 'novice')
+                                              .toString()
+                                              .toUpperCase(),
                                           style: const TextStyle(
                                             fontSize: 9,
                                             fontWeight: FontWeight.w600,
@@ -1456,7 +1478,9 @@ class _LearningScreenState extends State<LearningScreen>
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
-                                  color: isTop3 ? medalColors[index] : ModernTheme.primaryBlue,
+                                  color: isTop3
+                                      ? medalColors[index]
+                                      : ModernTheme.primaryBlue,
                                 ),
                               ),
                               Text(
@@ -1615,7 +1639,8 @@ class _LearningScreenState extends State<LearningScreen>
                                 const SizedBox(width: 16),
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         'Recommendation ${index + 1}',

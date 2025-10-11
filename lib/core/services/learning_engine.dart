@@ -4,14 +4,14 @@ import 'firebase_data_service.dart';
 import 'quiz_service.dart';
 
 class LearningEngine {
-
   // Tutorial content based on skill levels
   static final Map<String, List<Map<String, dynamic>>> _tutorials = {
     'novice': [
       {
         'id': 'novice_1',
         'title': 'Introduction to Entrepreneurship',
-        'description': 'Master the fundamentals of starting and running a successful business',
+        'description':
+            'Master the fundamentals of starting and running a successful business',
         'duration': 25,
         'category': 'fundamentals',
         'difficulty': 'novice',
@@ -55,10 +55,12 @@ class LearningEngine {
                     'To become famous'
                   ],
                   'correct': 1,
-                  'explanation': 'Entrepreneurship is fundamentally about creating value for customers while solving real problems, though profit is often a natural outcome.'
+                  'explanation':
+                      'Entrepreneurship is fundamentally about creating value for customers while solving real problems, though profit is often a natural outcome.'
                 },
                 {
-                  'question': 'Which trait is NOT typically associated with successful entrepreneurs?',
+                  'question':
+                      'Which trait is NOT typically associated with successful entrepreneurs?',
                   'options': [
                     'Risk-taking',
                     'Creativity',
@@ -66,10 +68,12 @@ class LearningEngine {
                     'Resilience'
                   ],
                   'correct': 2,
-                  'explanation': 'Successful entrepreneurs embrace calculated risks and learn from failures rather than fearing them.'
+                  'explanation':
+                      'Successful entrepreneurs embrace calculated risks and learn from failures rather than fearing them.'
                 },
                 {
-                  'question': 'What type of entrepreneur focuses on solving social problems?',
+                  'question':
+                      'What type of entrepreneur focuses on solving social problems?',
                   'options': [
                     'Opportunity entrepreneur',
                     'Necessity entrepreneur',
@@ -77,7 +81,8 @@ class LearningEngine {
                     'Lifestyle entrepreneur'
                   ],
                   'correct': 2,
-                  'explanation': 'Social entrepreneurs prioritize social impact alongside or above financial returns.'
+                  'explanation':
+                      'Social entrepreneurs prioritize social impact alongside or above financial returns.'
                 }
               ]
             }
@@ -89,7 +94,8 @@ class LearningEngine {
       {
         'id': 'novice_2',
         'title': 'Understanding Your Market',
-        'description': 'Master market research and customer discovery to build products people want',
+        'description':
+            'Master market research and customer discovery to build products people want',
         'duration': 35,
         'category': 'market_research',
         'difficulty': 'novice',
@@ -156,10 +162,12 @@ class LearningEngine {
                     'To set high prices'
                   ],
                   'correct': 1,
-                  'explanation': 'Market research helps you understand what customers actually need and want, reducing the risk of building unwanted products.'
+                  'explanation':
+                      'Market research helps you understand what customers actually need and want, reducing the risk of building unwanted products.'
                 },
                 {
-                  'question': 'Which of these is an example of primary research?',
+                  'question':
+                      'Which of these is an example of primary research?',
                   'options': [
                     'Reading industry reports',
                     'Conducting customer interviews',
@@ -167,7 +175,8 @@ class LearningEngine {
                     'Studying government statistics'
                   ],
                   'correct': 1,
-                  'explanation': 'Primary research involves collecting data directly from customers through interviews, surveys, or observations.'
+                  'explanation':
+                      'Primary research involves collecting data directly from customers through interviews, surveys, or observations.'
                 },
                 {
                   'question': 'What does TAM stand for in market sizing?',
@@ -178,7 +187,8 @@ class LearningEngine {
                     'Targeted Advertising Market'
                   ],
                   'correct': 2,
-                  'explanation': 'TAM (Total Addressable Market) represents the total market demand for a product or service type.'
+                  'explanation':
+                      'TAM (Total Addressable Market) represents the total market demand for a product or service type.'
                 },
                 {
                   'question': 'Why is competitive analysis important?',
@@ -189,7 +199,8 @@ class LearningEngine {
                     'To focus only on pricing strategies'
                   ],
                   'correct': 1,
-                  'explanation': 'Competitive analysis helps you understand what works, what doesn\'t, and how to differentiate your business.'
+                  'explanation':
+                      'Competitive analysis helps you understand what works, what doesn\'t, and how to differentiate your business.'
                 }
               ]
             }
@@ -201,7 +212,8 @@ class LearningEngine {
       {
         'id': 'novice_3',
         'title': 'Business Model Canvas',
-        'description': 'Learn to design and validate your business model using the Business Model Canvas framework',
+        'description':
+            'Learn to design and validate your business model using the Business Model Canvas framework',
         'duration': 30,
         'category': 'business_planning',
         'difficulty': 'novice',
@@ -261,7 +273,8 @@ class LearningEngine {
               'type': 'quiz',
               'questions': [
                 {
-                  'question': 'What is the Business Model Canvas primarily used for?',
+                  'question':
+                      'What is the Business Model Canvas primarily used for?',
                   'options': [
                     'Creating financial projections',
                     'Designing and documenting business models',
@@ -269,10 +282,12 @@ class LearningEngine {
                     'Managing employee performance'
                   ],
                   'correct': 1,
-                  'explanation': 'The BMC is a strategic tool for developing and communicating business models visually.'
+                  'explanation':
+                      'The BMC is a strategic tool for developing and communicating business models visually.'
                 },
                 {
-                  'question': 'Which building block comes first when creating a BMC?',
+                  'question':
+                      'Which building block comes first when creating a BMC?',
                   'options': [
                     'Revenue Streams',
                     'Customer Segments',
@@ -280,10 +295,12 @@ class LearningEngine {
                     'Cost Structure'
                   ],
                   'correct': 1,
-                  'explanation': 'Start with Customer Segments to understand who you\'re creating value for.'
+                  'explanation':
+                      'Start with Customer Segments to understand who you\'re creating value for.'
                 },
                 {
-                  'question': 'What type of value proposition focuses on making things easier to use?',
+                  'question':
+                      'What type of value proposition focuses on making things easier to use?',
                   'options': [
                     'Performance',
                     'Design',
@@ -291,7 +308,8 @@ class LearningEngine {
                     'Cost Reduction'
                   ],
                   'correct': 2,
-                  'explanation': 'Convenience/Usability value propositions make products easier or more pleasant to use.'
+                  'explanation':
+                      'Convenience/Usability value propositions make products easier or more pleasant to use.'
                 },
                 {
                   'question': 'Which of these is typically a variable cost?',
@@ -302,7 +320,8 @@ class LearningEngine {
                     'Software licenses'
                   ],
                   'correct': 1,
-                  'explanation': 'Variable costs change with production volume, like raw materials needed for manufacturing.'
+                  'explanation':
+                      'Variable costs change with production volume, like raw materials needed for manufacturing.'
                 }
               ]
             }
@@ -394,16 +413,13 @@ class LearningEngine {
     try {
       final userLevel = await QuizService.getUserLevel();
       final progress = await getLearningProgress();
-      final completedTutorials = progress['completed_tutorials'] as List<dynamic>;
+      final completedTutorials =
+          progress['completed_tutorials'] as List<dynamic>;
 
       List<Map<String, dynamic>> availableTutorials = [];
 
       // Get tutorials for current level and below
-      for (String level in [
-        'novice',
-        'intermediate',
-        'advanced'
-      ]) {
+      for (String level in ['novice', 'intermediate', 'advanced']) {
         if (_isLevelAccessible(level, userLevel)) {
           final levelTutorials = _tutorials[level] ?? [];
           for (var tutorial in levelTutorials) {
@@ -425,11 +441,7 @@ class LearningEngine {
 
   // Check if level is accessible based on user's current level
   static bool _isLevelAccessible(String level, String userLevel) {
-    final levelOrder = [
-      'novice',
-      'intermediate',
-      'advanced'
-    ];
+    final levelOrder = ['novice', 'intermediate', 'advanced'];
     final userIndex = levelOrder.indexOf(userLevel);
     final levelIndex = levelOrder.indexOf(level);
     return levelIndex <= userIndex;
@@ -476,8 +488,8 @@ class LearningEngine {
       final lastCompletionDate = progress['last_completion_date'] != null
           ? DateTime.parse(progress['last_completion_date'])
           : null;
-      
-      if (lastCompletionDate == null || 
+
+      if (lastCompletionDate == null ||
           now.difference(lastCompletionDate).inDays == 1) {
         // Continue or start streak
         progress['current_streak'] = (progress['current_streak'] ?? 0) + 1;
@@ -489,12 +501,13 @@ class LearningEngine {
         progress['current_streak'] = 1;
       }
       // If same day, don't update streak
-      
+
       progress['last_completion_date'] = now.toIso8601String();
 
       // Update total time spent
       final timeSpent = completionData['time_spent'] as int? ?? 0;
-      progress['total_time_spent'] = (progress['total_time_spent'] ?? 0) + timeSpent;
+      progress['total_time_spent'] =
+          (progress['total_time_spent'] ?? 0) + timeSpent;
 
       // Calculate score and determine if badge is earned
       final tutorial = _getTutorialById(tutorialId);
@@ -624,14 +637,15 @@ class LearningEngine {
   static Future<Map<String, dynamic>> getLearningProgress() async {
     try {
       final progress = await FirebaseDataService.getJson('learning_progress');
-      return progress ?? {
-        'completed_tutorials': [],
-        'in_progress_tutorials': [],
-        'total_time_spent': 0,
-        'current_streak': 0,
-        'longest_streak': 0,
-        'last_completion_date': null,
-      };
+      return progress ??
+          {
+            'completed_tutorials': [],
+            'in_progress_tutorials': [],
+            'total_time_spent': 0,
+            'current_streak': 0,
+            'longest_streak': 0,
+            'last_completion_date': null,
+          };
     } catch (e) {
       return {
         'completed_tutorials': [],
@@ -689,16 +703,18 @@ class LearningEngine {
       final progress = await getLearningProgress();
       final badges = await getUserBadges();
       final level = await QuizService.getUserLevel();
-      
+
       // Calculate score
-      final completedTutorials = (progress['completed_tutorials'] as List).length;
-      final userScore = (completedTutorials * 100) + 
-                       (badges.length * 50) + 
-                       (progress['current_streak'] ?? 0) * 10;
+      final completedTutorials =
+          (progress['completed_tutorials'] as List).length;
+      final userScore = (completedTutorials * 100) +
+          (badges.length * 50) +
+          (progress['current_streak'] ?? 0) * 10;
 
       // Get user profile data
       final userProfile = await FirebaseDataService.getData('profile', 'info');
-      final userName = userProfile?['name'] ?? userProfile?['full_name'] ?? 'Anonymous';
+      final userName =
+          userProfile?['name'] ?? userProfile?['full_name'] ?? 'Anonymous';
 
       // Update leaderboard entry in Firestore
       await FirebaseFirestore.instance
@@ -716,7 +732,8 @@ class LearningEngine {
       });
 
       if (kDebugMode) {
-        print('✅ Leaderboard entry updated for user: $userName (Score: $userScore)');
+        print(
+            '✅ Leaderboard entry updated for user: $userName (Score: $userScore)');
       }
     } catch (e) {
       if (kDebugMode) {
@@ -729,7 +746,7 @@ class LearningEngine {
   static Future<List<Map<String, dynamic>>> getLeaderboard() async {
     try {
       final userId = FirebaseDataService.currentUserId;
-      
+
       // Fetch top users from Firestore
       final querySnapshot = await FirebaseFirestore.instance
           .collection('leaderboard')
@@ -752,7 +769,8 @@ class LearningEngine {
       }
 
       // If current user is not in top 50, fetch and add them
-      if (userId != null && !leaderboard.any((user) => user['is_current_user'])) {
+      if (userId != null &&
+          !leaderboard.any((user) => user['is_current_user'])) {
         final currentUserDoc = await FirebaseFirestore.instance
             .collection('leaderboard')
             .doc(userId)
@@ -768,19 +786,20 @@ class LearningEngine {
             'badges': data['badges'] ?? 0,
             'is_current_user': true,
           });
-          
+
           // Re-sort to put user in correct position
-          leaderboard.sort((a, b) => (b['score'] as int).compareTo(a['score'] as int));
+          leaderboard
+              .sort((a, b) => (b['score'] as int).compareTo(a['score'] as int));
         } else {
           // User doesn't have a leaderboard entry yet, create one
           await updateLeaderboardEntry();
-          
+
           // Fetch again after creating
           final newUserDoc = await FirebaseFirestore.instance
               .collection('leaderboard')
               .doc(userId)
               .get();
-          
+
           if (newUserDoc.exists) {
             final data = newUserDoc.data()!;
             leaderboard.add({
@@ -791,8 +810,9 @@ class LearningEngine {
               'badges': data['badges'] ?? 0,
               'is_current_user': true,
             });
-            
-            leaderboard.sort((a, b) => (b['score'] as int).compareTo(a['score'] as int));
+
+            leaderboard.sort(
+                (a, b) => (b['score'] as int).compareTo(a['score'] as int));
           }
         }
       } else {
@@ -865,7 +885,8 @@ class LearningEngine {
   static Future<void> updateTutorialProgress(
       String tutorialId, Map<String, dynamic> progress) async {
     final learningProgress = await getLearningProgress();
-    final tutorialProgress = learningProgress['tutorial_progress'] as Map<String, dynamic>? ?? {};
+    final tutorialProgress =
+        learningProgress['tutorial_progress'] as Map<String, dynamic>? ?? {};
 
     tutorialProgress[tutorialId] = {
       ...progress,
@@ -883,11 +904,12 @@ class LearningEngine {
       final lastCompletionDate = progress['last_completion_date'] != null
           ? DateTime.parse(progress['last_completion_date'])
           : null;
-      
+
       if (lastCompletionDate != null) {
         final now = DateTime.now();
-        final daysSinceLastCompletion = now.difference(lastCompletionDate).inDays;
-        
+        final daysSinceLastCompletion =
+            now.difference(lastCompletionDate).inDays;
+
         // If more than 1 day has passed, reset streak
         if (daysSinceLastCompletion > 1) {
           progress['current_streak'] = 0;
@@ -964,4 +986,3 @@ class TutorialCompletionResult {
     this.newLevel,
   });
 }
-
