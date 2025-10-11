@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import '../core/theme/modern_theme.dart';
 import '../core/services/learning_engine.dart';
 import '../core/services/quiz_service.dart';
@@ -69,86 +70,32 @@ class _LearningScreenState extends State<LearningScreen>
       final badges = await LearningEngine.getUserBadges();
       final level = await QuizService.getUserLevel();
 
-      // If no tutorials loaded, add some default ones for testing
-      List<Map<String, dynamic>> finalTutorials = tutorials;
-      if (tutorials.isEmpty) {
-        finalTutorials = [
-          {
-            'id': 'novice_1',
-            'title': 'Introduction to Entrepreneurship',
-            'description': 'Learn the basics of starting a business',
-            'duration': 15,
-            'category': 'fundamentals',
-            'difficulty': 'novice',
-            'content': {
-              'sections': [
-                {
-                  'title': 'What is Entrepreneurship?',
-                  'content':
-                      'Entrepreneurship is the process of creating, developing, and managing a business venture...',
-                  'type': 'text'
-                }
-              ]
-            },
-            'prerequisites': [],
-            'badge': 'first_steps'
-          },
-          {
-            'id': 'novice_2',
-            'title': 'Understanding Your Market',
-            'description':
-                'Learn how to identify and understand your target market',
-            'duration': 20,
-            'category': 'market_research',
-            'difficulty': 'novice',
-            'content': {
-              'sections': [
-                {
-                  'title': 'What is Market Research?',
-                  'content':
-                      'Market research helps you understand your customers and competition...',
-                  'type': 'text'
-                }
-              ]
-            },
-            'prerequisites': ['novice_1'],
-            'badge': 'market_researcher'
-          }
-        ];
+      if (kDebugMode) {
+        print('🎯 Learning Screen: Current level is $level');
+        print('🎯 Learning Screen: ${tutorials.length} tutorials loaded');
+        for (var tutorial in tutorials) {
+          print('  📚 ${tutorial['title']} (${tutorial['difficulty']})');
+        }
+      }
+
+      if (kDebugMode) {
+        print('🎯 Final tutorial count: ${tutorials.length}');
       }
 
       if (mounted) {
         setState(() {
-          _tutorials = finalTutorials;
+          _tutorials = tutorials;
           _statistics = statistics;
           _badges = badges;
           _userLevel = level;
         });
       }
     } catch (e) {
-      // Set some default tutorials even on error
+      if (kDebugMode) {
+        print('❌ Error loading learning data: $e');
+      }
       setState(() {
-        _tutorials = [
-          {
-            'id': 'default_1',
-            'title': 'Getting Started',
-            'description': 'Welcome to the learning hub',
-            'duration': 10,
-            'category': 'introduction',
-            'difficulty': 'novice',
-            'content': {
-              'sections': [
-                {
-                  'title': 'Welcome!',
-                  'content': 'This is your interactive learning experience.',
-                  'type': 'text'
-                }
-              ]
-            },
-            'prerequisites': [],
-            'badge': 'welcome'
-          }
-        ];
+        _tutorials = [];
         _statistics = {
           'current_level': 'novice',
           'completed_tutorials': 0,
@@ -755,11 +702,20 @@ class _LearningScreenState extends State<LearningScreen>
                 Row(
                   children: [
                     Expanded(
-                      child: _buildQuickActionButton(
-                        'Take Quiz',
-                        Icons.quiz,
-                        ModernTheme.primaryBlue,
-                        _takeQuiz,
+                      child: FutureBuilder<Map<String, dynamic>>(
+                        future: QuizService.getQuizEligibilityInfo(),
+                        builder: (context, snapshot) {
+                          final canTakeQuiz = snapshot.data?['canTakeQuiz'] ?? false;
+                          final remainingTutorials = snapshot.data?['remainingTutorials'] ?? 0;
+                          
+                          return _buildQuickActionButton(
+                            canTakeQuiz ? 'Take Quiz' : 'Quiz Locked',
+                            canTakeQuiz ? Icons.quiz : Icons.lock,
+                            canTakeQuiz ? ModernTheme.primaryBlue : Colors.orange,
+                            _takeQuiz,
+                            subtitle: canTakeQuiz ? null : '$remainingTutorials tutorials left',
+                          );
+                        },
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -807,8 +763,9 @@ class _LearningScreenState extends State<LearningScreen>
     String text,
     IconData icon,
     Color color,
-    VoidCallback onTap,
-  ) {
+    VoidCallback onTap, {
+    String? subtitle,
+  }) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -830,6 +787,17 @@ class _LearningScreenState extends State<LearningScreen>
               ),
               textAlign: TextAlign.center,
             ),
+            if (subtitle != null) ...[
+              const SizedBox(height: 4),
+              Text(
+                subtitle,
+                style: ModernTheme.bodySmall.copyWith(
+                  color: color.withOpacity(0.7),
+                  fontSize: 10,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
           ],
         ),
       ),
@@ -862,11 +830,97 @@ class _LearningScreenState extends State<LearningScreen>
     });
   }
 
-  void _takeQuiz() {
+  void _takeQuiz() async {
+    // Check if user can take quiz (completed current level tutorials)
+    final eligibilityInfo = await QuizService.getQuizEligibilityInfo();
+    final canTakeQuiz = eligibilityInfo['canTakeQuiz'] as bool;
+    final remainingTutorials = eligibilityInfo['remainingTutorials'] as int;
+    final userLevel = eligibilityInfo['userLevel'] as String;
+    final remainingTitles = eligibilityInfo['remainingTutorialTitles'] as List<dynamic>;
+
+    if (!canTakeQuiz) {
+      // Show dialog explaining what tutorials need to be completed
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Row(
+            children: [
+              Icon(Icons.lock, color: Colors.orange),
+              const SizedBox(width: 8),
+              Text('Quiz Locked'),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'You need to complete all ${userLevel.toUpperCase()} level tutorials before taking the quiz.',
+                style: const TextStyle(fontWeight: FontWeight.w500),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Remaining tutorials ($remainingTutorials):',
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              ...remainingTitles.map((title) => Padding(
+                padding: const EdgeInsets.only(bottom: 4),
+                child: Row(
+                  children: [
+                    Icon(Icons.circle, size: 6, color: Colors.grey),
+                    const SizedBox(width: 8),
+                    Expanded(child: Text(title.toString())),
+                  ],
+                ),
+              )),
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.blue.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.lightbulb, color: Colors.blue, size: 20),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Complete these tutorials to unlock the quiz and advance to the next level!',
+                        style: TextStyle(
+                          color: Colors.blue[700],
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Got it'),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
+
+    // If eligible, proceed with quiz
+    if (kDebugMode) {
+      print('🎯 Taking quiz - User level: $userLevel, Can take quiz: $canTakeQuiz');
+    }
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const QuizScreen()),
     ).then((_) {
+      if (kDebugMode) {
+        print('🔄 Returned from quiz screen, reloading learning data');
+      }
       // Refresh data when returning from quiz
       _loadLearningData();
     });

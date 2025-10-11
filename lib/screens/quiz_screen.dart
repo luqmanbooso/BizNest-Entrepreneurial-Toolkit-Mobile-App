@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'dart:async';
 import '../core/theme/modern_theme.dart';
 import '../core/services/quiz_service.dart';
@@ -33,7 +34,35 @@ class _QuizScreenState extends State<QuizScreen> {
 
   Future<void> _loadQuizData() async {
     try {
+      // Check if user is eligible to take quiz
+      final canTakeQuiz = await QuizService.canTakeQuiz();
+      if (!canTakeQuiz) {
+        if (kDebugMode) {
+          print('❌ User not eligible to take quiz - missing tutorial completion');
+        }
+        // Navigate back with error message
+        if (mounted) {
+          Navigator.pop(context);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Complete all current level tutorials before taking the quiz!'),
+              backgroundColor: Colors.orange,
+            ),
+          );
+        }
+        return;
+      }
+
+      // Run level progression test
+      if (kDebugMode) {
+        QuizService.testLevelProgression();
+        await QuizService.debugUserState();
+      }
+      
       final level = await QuizService.getUserLevel();
+      if (kDebugMode) {
+        print('🎯 Quiz starting for user level: $level');
+      }
       _questions = QuizService.getQuestionsByLevel(level);
       _userLevel = level;
 
@@ -41,12 +70,18 @@ class _QuizScreenState extends State<QuizScreen> {
         // Show 8 questions for novices, 10 for intermediate, 12 for advanced
         int questionCount = _userLevel == 'novice' ? 8 : _userLevel == 'intermediate' ? 10 : 12;
         _questions = QuizService.getQuizQuestions().take(questionCount).toList();
+        if (kDebugMode) {
+          print('🎯 Using fallback questions: $questionCount questions for $_userLevel level');
+        }
       }
 
       // Show content immediately without animation delay
       setState(() {});
       _startQuestionTimer();
     } catch (e) {
+      if (kDebugMode) {
+        print('❌ Error loading quiz data: $e');
+      }
       // Handle error
     }
   }
@@ -578,43 +613,112 @@ class _QuizScreenState extends State<QuizScreen> {
   Widget _buildResultsScreen() {
     if (_quizResult == null) return const SizedBox();
 
+    // Check if user reached expert level
+    bool reachedExpert = _quizResult!.level == 'expert' && _userLevel != 'expert';
+    
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
             const SizedBox(height: 40),
-            const Icon(
-              Icons.celebration,
-                size: 120,
+            Icon(
+              reachedExpert ? Icons.emoji_events : Icons.celebration,
+              size: 120,
+              color: Colors.white,
+            ),
+            const SizedBox(height: 24),
+            Text(
+              reachedExpert ? 'Expert Level Achieved!' : 'Quiz Completed!',
+              style: ModernTheme.headingLarge.copyWith(
                 color: Colors.white,
+                fontWeight: FontWeight.bold,
               ),
-              const SizedBox(height: 24),
-              Text(
-                'Quiz Completed!',
-                style: ModernTheme.headingLarge.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              reachedExpert 
+                ? '🎉 Congratulations! You\'ve mastered entrepreneurship!'
+                : 'Your Score: ${_quizResult!.percentage.round()}%',
+              style: ModernTheme.headingMedium.copyWith(
+                color: Colors.white.withOpacity(0.9),
+              ),
+              textAlign: TextAlign.center,
+            ),
+            if (reachedExpert) ...[
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(20),
+                margin: const EdgeInsets.symmetric(horizontal: 20),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: Colors.white.withOpacity(0.3)),
+                ),
+                child: Column(
+                  children: [
+                    Text(
+                      '🏆 Expert Entrepreneur',
+                      style: ModernTheme.headingMedium.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'You have completed all learning levels and are now ready to take on the entrepreneurial world! Continue learning through real-world experience.',
+                      style: ModernTheme.bodyMedium.copyWith(
+                        color: Colors.white.withOpacity(0.9),
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(height: 8),
-              Text(
-                'Your Score: ${_quizResult!.percentage.round()}%',
-                style: ModernTheme.headingMedium.copyWith(
-                  color: Colors.white.withOpacity(0.9),
-                ),
-              ),
-              const SizedBox(height: 32),
-              _buildResultsCard(),
-              const SizedBox(height: 24),
-              _buildActionButtons(),
             ],
-          ),
+            const SizedBox(height: 32),
+            _buildResultsCard(),
+            const SizedBox(height: 24),
+            _buildActionButtons(),
+          ],
         ),
-      );
+      ),
+    );
   }
 
   Widget _buildResultsCard() {
+    // Determine next level for display
+    String previousLevel = _userLevel;
+    String newLevel = _quizResult!.level;
+    String nextLevelLabel = '';
+    final levelOrder = ['novice', 'intermediate', 'advanced', 'expert'];
+    int prevIdx = levelOrder.indexOf(previousLevel);
+    int newIdx = levelOrder.indexOf(newLevel);
+    
+    if (kDebugMode) {
+      print('🎯 QUIZ RESULT DISPLAY DEBUG:');
+      print('Previous level: $previousLevel (index: $prevIdx)');
+      print('New level: $newLevel (index: $newIdx)');
+      print('Score: ${_quizResult!.percentage.round()}%');
+    }
+    
+    if (newIdx > prevIdx) {
+      nextLevelLabel = newLevel.toUpperCase();
+      if (kDebugMode) {
+        print('✅ Level advanced: $previousLevel → $newLevel');
+      }
+    } else if (newIdx < levelOrder.length - 1) {
+      nextLevelLabel = 'Next: ' + levelOrder[newIdx + 1].toUpperCase();
+      if (kDebugMode) {
+        print('➡️ No advancement, showing next target: ${levelOrder[newIdx + 1]}');
+      }
+    } else {
+      nextLevelLabel = newLevel.toUpperCase();
+      if (kDebugMode) {
+        print('🎯 At max level: $newLevel');
+      }
+    }
+
     return Card(
       elevation: 20,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
@@ -646,7 +750,39 @@ class _QuizScreenState extends State<QuizScreen> {
               _buildResultRow('Best Streak', _correctStreak.toString()),
               _buildResultRow('Average Time per Question',
                   '${(_answers.fold<int>(0, (sum, answer) => sum + (answer['time_taken'] as int)) / _answers.length).round()}s'),
-              _buildResultRow('New Level', _quizResult!.level.toUpperCase()),
+              _buildResultRow('Level', nextLevelLabel),
+              
+              // Show notice if score is less than 70%
+              if (_quizResult!.percentage < 70) ...[
+                const SizedBox(height: 16),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.orange.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.orange.withOpacity(0.3)),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.info_outline,
+                        color: Colors.orange,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          'You need 70% or higher to advance to the next level. Keep practicing!',
+                          style: ModernTheme.bodyMedium.copyWith(
+                            color: Colors.orange[700],
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ],
           ),
         ),
@@ -730,6 +866,11 @@ class _QuizScreenState extends State<QuizScreen> {
   }
 
   Widget _buildActionButtons() {
+    if (_quizResult == null) return const SizedBox();
+
+    // Check if user reached expert level
+    bool reachedExpert = _quizResult!.level == 'expert' && _userLevel != 'expert';
+    
     return Column(
       children: [
         _buildButton(
@@ -741,17 +882,19 @@ class _QuizScreenState extends State<QuizScreen> {
           text: 'View Recommendations',
           onPressed: _viewRecommendations,
         ),
+        if (!reachedExpert) ...[
+          const SizedBox(height: 12),
+          _buildButton(
+            text: 'Take Another Quiz',
+            onPressed: _retakeQuiz,
+            isSecondary: true,
+          ),
+        ],
         const SizedBox(height: 12),
         _buildButton(
-          text: 'Take Another Quiz',
-          onPressed: _retakeQuiz,
-          isSecondary: true,
-        ),
-        const SizedBox(height: 12),
-        _buildButton(
-          text: 'Continue Learning',
+          text: reachedExpert ? 'Back to Learning Hub' : 'Continue Learning',
           onPressed: _continueLearning,
-          isSecondary: true,
+          isSecondary: !reachedExpert,
         ),
       ],
     );
@@ -849,13 +992,33 @@ class _QuizScreenState extends State<QuizScreen> {
   }
 
   Future<void> _completeQuiz() async {
+    // Prevent multiple quiz completions
+    if (_quizCompleted) {
+      if (kDebugMode) {
+        print('⚠️ Quiz already completed, ignoring duplicate completion call');
+      }
+      return;
+    }
+
     try {
+      if (kDebugMode) {
+        print('🎯 Starting quiz completion...');
+      }
       final result = await QuizService.submitQuiz(_answers);
+      if (kDebugMode) {
+        print('✅ Quiz submitted successfully');
+      }
       setState(() {
         _quizResult = result;
         _quizCompleted = true;
       });
+      if (kDebugMode) {
+        print('✅ Quiz completion state updated');
+      }
     } catch (e) {
+      if (kDebugMode) {
+        print('❌ Error completing quiz: $e');
+      }
       // Handle error
     }
   }
@@ -914,6 +1077,12 @@ class _QuizScreenState extends State<QuizScreen> {
   }
 
   void _continueLearning() {
+    if (kDebugMode) {
+      print('🚀 Continue Learning button pressed');
+      print('🚀 Current quiz completed: $_quizCompleted');
+      print('🚀 User level: $_userLevel');
+      print('🚀 Navigating back to Learning Hub');
+    }
     Navigator.pop(context); // Go back to learning screen
   }
 

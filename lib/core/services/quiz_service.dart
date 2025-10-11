@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'firebase_data_service.dart';
+import 'learning_engine.dart';
 
 class QuizService {
   static const String _quizDataKey = 'quiz_data';
@@ -497,6 +498,9 @@ class QuizService {
   // Submit quiz answers and calculate score
   static Future<QuizResult> submitQuiz(
       List<Map<String, dynamic>> answers) async {
+    if (kDebugMode) {
+      print('🚀 SUBMIT_QUIZ CALLED - Starting quiz submission');
+    }
     try {
       int totalQuestions = answers.length;
       int correctAnswers = 0;
@@ -527,7 +531,18 @@ class QuizService {
 
       // Get current level for advancement logic
       String currentLevel = await getUserLevel();
+      if (kDebugMode) {
+        print('🎯 Quiz completed: $correctAnswers/$totalQuestions correct = $percentage%');
+        print('🎯 Current user level before progression check: $currentLevel');
+        print('🎯 About to call _determineUserLevel($percentage, $currentLevel)');
+      }
+      
       String newLevel = _determineUserLevel(percentage, currentLevel);
+      
+      if (kDebugMode) {
+        print('🎯 _determineUserLevel returned: $newLevel');
+        print('🎯 Level changed? ${newLevel != currentLevel}');
+      }
 
       var result = QuizResult(
         totalQuestions: totalQuestions,
@@ -544,7 +559,20 @@ class QuizService {
 
       // Update user level only if advanced
       if (newLevel != currentLevel) {
+        if (kDebugMode) {
+          print('🚀 Updating user level from $currentLevel to $newLevel');
+        }
         await updateUserLevel(newLevel);
+        if (kDebugMode) {
+          print('✅ User level updated successfully');
+          // Verify the update worked
+          final verifyLevel = await getUserLevel();
+          print('🔍 Verification: User level is now $verifyLevel');
+        }
+      } else {
+        if (kDebugMode) {
+          print('⭕ No level change needed: $currentLevel remains the same');
+        }
       }
 
       return result;
@@ -558,31 +586,73 @@ class QuizService {
 
   // Determine user level based on performance
   static String _determineUserLevel(double percentage, String currentLevel) {
-    // Only advance if score >= 60%
-    if (percentage >= 60) {
+    if (kDebugMode) {
+      print('=== LEVEL DETERMINATION DEBUG ===');
+      print('Input: Score $percentage%, Current level: $currentLevel');
+    }
+    
+    // Only advance if score >= 70%
+    if (percentage >= 70) {
+      String newLevel = currentLevel;
+      
+      // Sequential progression only - no level skipping
       if (currentLevel == 'novice') {
-        return 'intermediate';
+        newLevel = 'intermediate';
+        if (kDebugMode) print('✅ NOVICE -> INTERMEDIATE progression');
       } else if (currentLevel == 'intermediate') {
-        return 'advanced';
+        newLevel = 'advanced';
+        if (kDebugMode) print('✅ INTERMEDIATE -> ADVANCED progression');
+      } else if (currentLevel == 'advanced') {
+        newLevel = 'expert';
+        if (kDebugMode) print('✅ ADVANCED -> EXPERT progression');
+      } else if (currentLevel == 'expert') {
+        newLevel = 'expert'; // Stay at expert
+        if (kDebugMode) print('✅ Already at max level: EXPERT');
+      } else {
+        if (kDebugMode) print('⚠️ Unknown level: $currentLevel, staying same');
       }
+      
+      if (kDebugMode) {
+        print('Output: Level advancement: $currentLevel -> $newLevel');
+        print('=== END LEVEL DETERMINATION ===');
+      }
+      return newLevel;
     }
 
-    // Stay at current level if score < 60% or already at advanced
+    // Stay at current level if score < 70%
+    if (kDebugMode) {
+      print('❌ No level advancement: Score $percentage% < 70%');
+      print('Output: Staying at $currentLevel');
+      print('=== END LEVEL DETERMINATION ===');
+    }
     return currentLevel;
   }
 
   // Get user's current level
   static Future<String> getUserLevel() async {
     try {
-      return await FirebaseDataService.getString(_userLevelKey) ?? 'novice';
+      final level = await FirebaseDataService.getString(_userLevelKey) ?? 'novice';
+      if (kDebugMode) {
+        print('📖 Retrieved user level from database: $level');
+      }
+      return level;
     } catch (e) {
+      if (kDebugMode) {
+        print('❌ Error getting user level: $e, defaulting to novice');
+      }
       return 'novice';
     }
   }
 
   // Update user level
   static Future<void> updateUserLevel(String level) async {
+    if (kDebugMode) {
+      print('💾 Saving new user level to database: $level');
+    }
     await FirebaseDataService.setString(_userLevelKey, level);
+    if (kDebugMode) {
+      print('✅ User level saved successfully: $level');
+    }
   }
 
   // Save quiz result
@@ -771,6 +841,112 @@ class QuizService {
       'correct_answers': correctAnswers,
       'accuracy_percentage': accuracy,
     };
+  }
+
+  // Test function to verify level progression logic
+  static void testLevelProgression() {
+    if (kDebugMode) {
+      print('🧪 Testing Level Progression Logic:');
+      print('Test 1: novice with 80% -> ${_determineUserLevel(80.0, 'novice')}');
+      print('Test 2: intermediate with 75% -> ${_determineUserLevel(75.0, 'intermediate')}');
+      print('Test 3: advanced with 90% -> ${_determineUserLevel(90.0, 'advanced')}');
+      print('Test 4: expert with 85% -> ${_determineUserLevel(85.0, 'expert')}');
+      print('Test 5: novice with 60% -> ${_determineUserLevel(60.0, 'novice')}');
+      
+      // Verify exact progression
+      print('🔍 LEVEL PROGRESSION VERIFICATION:');
+      print('NOVICE should advance to: ${_determineUserLevel(70.0, 'novice')}');
+      print('INTERMEDIATE should advance to: ${_determineUserLevel(70.0, 'intermediate')}');
+      print('ADVANCED should advance to: ${_determineUserLevel(70.0, 'advanced')}');
+      print('🧪 Level Progression Test Complete');
+    }
+  }
+
+  // Debug function to check current user state
+  static Future<void> debugUserState() async {
+    if (kDebugMode) {
+      print('🔍 === USER STATE DEBUG ===');
+      final level = await getUserLevel();
+      print('Current Level: $level');
+      
+      final history = await getQuizHistory();
+      print('Quiz History Count: ${history.length}');
+      
+      if (history.isNotEmpty) {
+        final lastQuiz = history.last;
+        print('Last Quiz Score: ${lastQuiz['percentage']}%');
+        print('Last Quiz Level: ${lastQuiz['level']}');
+      }
+      print('🔍 === END USER STATE ===');
+    }
+  }
+
+  // Force reset user to novice (for testing)
+  static Future<void> forceResetToNovice() async {
+    if (kDebugMode) {
+      print('🔄 Force resetting user to novice level...');
+    }
+    await updateUserLevel('novice');
+    // Clear quiz history to start fresh
+    await FirebaseDataService.setString(_quizHistoryKey, '[]');
+    
+    // Also reset learning progress to ensure clean state
+    await LearningEngine.resetLearningProgress();
+    
+    if (kDebugMode) {
+      print('✅ User completely reset to novice level');
+      // Verify the reset
+      final currentLevel = await getUserLevel();
+      print('🔍 Verified current level: $currentLevel');
+    }
+  }
+
+  // Check if user should be allowed to take quiz (has completed current level tutorials)
+  static Future<bool> canTakeQuiz() async {
+    try {
+      final userLevel = await getUserLevel();
+      
+      // Import the learning engine to check tutorial completion
+      final tutorialsCompleted = await LearningEngine.areCurrentLevelTutorialsCompleted();
+      
+      if (kDebugMode) {
+        print('🎯 Quiz eligibility check for level: $userLevel');
+        print('🎯 Current level tutorials completed: $tutorialsCompleted');
+      }
+      
+      return tutorialsCompleted;
+    } catch (e) {
+      if (kDebugMode) {
+        print('❌ Error checking quiz eligibility: $e');
+      }
+      return false; // Default to not allowing quiz if error
+    }
+  }
+
+  // Get quiz eligibility info for UI display
+  static Future<Map<String, dynamic>> getQuizEligibilityInfo() async {
+    try {
+      final userLevel = await getUserLevel();
+      final canTake = await canTakeQuiz();
+      final remainingTutorials = await LearningEngine.getRemainingCurrentLevelTutorials();
+      
+      return {
+        'canTakeQuiz': canTake,
+        'userLevel': userLevel,
+        'remainingTutorials': remainingTutorials.length,
+        'remainingTutorialTitles': remainingTutorials.map((t) => t['title']).toList(),
+      };
+    } catch (e) {
+      if (kDebugMode) {
+        print('❌ Error getting quiz eligibility info: $e');
+      }
+      return {
+        'canTakeQuiz': false,
+        'userLevel': 'novice',
+        'remainingTutorials': 0,
+        'remainingTutorialTitles': [],
+      };
+    }
   }
 }
 
