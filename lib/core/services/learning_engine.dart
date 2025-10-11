@@ -366,7 +366,8 @@ class LearningEngine {
             },
             {
               'title': 'Hypothesis-Driven Development',
-              'content': '''Lean startups treat their business plans as a series of untested hypotheses that need validation.
+              'content':
+                  '''Lean startups treat their business plans as a series of untested hypotheses that need validation.
 
 **Business Model Hypotheses:**
 - **Value Hypothesis**: Do customers find value in your solution?
@@ -396,7 +397,8 @@ Define clear success metrics before testing. What would convince you the hypothe
             },
             {
               'title': 'Lean Analytics & Growth',
-              'content': '''Analytics in lean startups focus on learning and growth, not just reporting.
+              'content':
+                  '''Analytics in lean startups focus on learning and growth, not just reporting.
 
 **Analytics Stages:**
 
@@ -439,7 +441,8 @@ Define clear success metrics before testing. What would convince you the hypothe
               'type': 'quiz',
               'questions': [
                 {
-                  'question': 'What is the core principle of the Lean Startup methodology?',
+                  'question':
+                      'What is the core principle of the Lean Startup methodology?',
                   'options': [
                     'Build perfect products from the start',
                     'Validated learning through experimentation',
@@ -447,10 +450,12 @@ Define clear success metrics before testing. What would convince you the hypothe
                     'Focus only on technology development'
                   ],
                   'correct': 1,
-                  'explanation': 'Lean Startup emphasizes validated learning - testing assumptions with real customers to reduce uncertainty and waste.'
+                  'explanation':
+                      'Lean Startup emphasizes validated learning - testing assumptions with real customers to reduce uncertainty and waste.'
                 },
                 {
-                  'question': 'What does the Build-Measure-Learn loop help startups do?',
+                  'question':
+                      'What does the Build-Measure-Learn loop help startups do?',
                   'options': [
                     'Create detailed business plans',
                     'Turn ideas into products and learn from customer feedback',
@@ -458,7 +463,8 @@ Define clear success metrics before testing. What would convince you the hypothe
                     'Increase marketing spend'
                   ],
                   'correct': 1,
-                  'explanation': 'The Build-Measure-Learn loop creates feedback cycles to test ideas, measure results, and learn what works.'
+                  'explanation':
+                      'The Build-Measure-Learn loop creates feedback cycles to test ideas, measure results, and learn what works.'
                 },
                 {
                   'question': 'Which of these is a vanity metric?',
@@ -469,7 +475,8 @@ Define clear success metrics before testing. What would convince you the hypothe
                     'Customer retention rate'
                   ],
                   'correct': 2,
-                  'explanation': 'Total downloads is a vanity metric because it doesn\'t indicate customer engagement or business value.'
+                  'explanation':
+                      'Total downloads is a vanity metric because it doesn\'t indicate customer engagement or business value.'
                 },
                 {
                   'question': 'When should a startup consider pivoting?',
@@ -480,7 +487,8 @@ Define clear success metrics before testing. What would convince you the hypothe
                     'Never, persistence is always key'
                   ],
                   'correct': 1,
-                  'explanation': 'Pivoting should be considered when data shows the current approach isn\'t working despite genuine efforts to optimize.'
+                  'explanation':
+                      'Pivoting should be considered when data shows the current approach isn\'t working despite genuine efforts to optimize.'
                 },
                 {
                   'question': 'What makes a good hypothesis in lean startup?',
@@ -491,7 +499,8 @@ Define clear success metrics before testing. What would convince you the hypothe
                     'It should avoid customer input'
                   ],
                   'correct': 1,
-                  'explanation': 'Good hypotheses are specific, testable, and time-bound so you can validate or invalidate them with real data.'
+                  'explanation':
+                      'Good hypotheses are specific, testable, and time-bound so you can validate or invalidate them with real data.'
                 }
               ]
             }
@@ -548,7 +557,8 @@ Define clear success metrics before testing. What would convince you the hypothe
             },
             {
               'title': 'Quiz: MVP Development Mastery',
-              'content': 'Test your understanding of MVP development and testing',
+              'content':
+                  'Test your understanding of MVP development and testing',
               'type': 'quiz',
               'questions': [
                 {
@@ -560,10 +570,12 @@ Define clear success metrics before testing. What would convince you the hypothe
                     'To impress investors with advanced features'
                   ],
                   'correct': 1,
-                  'explanation': 'An MVP is designed to test your riskiest assumptions and learn from real customers with minimal investment.'
+                  'explanation':
+                      'An MVP is designed to test your riskiest assumptions and learn from real customers with minimal investment.'
                 },
                 {
-                  'question': 'Which MVP type involves manually delivering services that appear automated?',
+                  'question':
+                      'Which MVP type involves manually delivering services that appear automated?',
                   'options': [
                     'Landing Page MVP',
                     'Prototype MVP',
@@ -571,10 +583,12 @@ Define clear success metrics before testing. What would convince you the hypothe
                     'Feature MVP'
                   ],
                   'correct': 2,
-                  'explanation': 'Wizard of Oz MVP appears automated to users but is actually operated manually behind the scenes.'
+                  'explanation':
+                      'Wizard of Oz MVP appears automated to users but is actually operated manually behind the scenes.'
                 },
                 {
-                  'question': 'In the MoSCoW prioritization method, what does the "M" stand for?',
+                  'question':
+                      'In the MoSCoW prioritization method, what does the "M" stand for?',
                   'options': [
                     'Maybe Have',
                     'Must Have',
@@ -582,10 +596,12 @@ Define clear success metrics before testing. What would convince you the hypothe
                     'More Features'
                   ],
                   'correct': 1,
-                  'explanation': 'Must Have features are absolutely essential for your MVP to deliver core value.'
+                  'explanation':
+                      'Must Have features are absolutely essential for your MVP to deliver core value.'
                 },
                 {
-                  'question': 'What should you focus on when building your first MVP?',
+                  'question':
+                      'What should you focus on when building your first MVP?',
                   'options': [
                     'Including as many features as possible',
                     'Making it perfect before launch',
@@ -593,10 +609,12 @@ Define clear success metrics before testing. What would convince you the hypothe
                     'Competing on price alone'
                   ],
                   'correct': 2,
-                  'explanation': 'Focus on solving one core problem exceptionally well rather than trying to do everything.'
+                  'explanation':
+                      'Focus on solving one core problem exceptionally well rather than trying to do everything.'
                 },
                 {
-                  'question': 'What indicates you might be ready to scale beyond your MVP?',
+                  'question':
+                      'What indicates you might be ready to scale beyond your MVP?',
                   'options': [
                     'You have raised funding',
                     'Consistent user growth and strong retention rates',
@@ -604,7 +622,8 @@ Define clear success metrics before testing. What would convince you the hypothe
                     'Competitors have entered the market'
                   ],
                   'correct': 1,
-                  'explanation': 'Consistent growth and retention show you have achieved product-market fit and can scale sustainably.'
+                  'explanation':
+                      'Consistent growth and retention show you have achieved product-market fit and can scale sustainably.'
                 }
               ]
             }
@@ -618,7 +637,8 @@ Define clear success metrics before testing. What would convince you the hypothe
       {
         'id': 'intermediate_1',
         'title': 'Advanced Financial Modeling',
-        'description': 'Master financial modeling, forecasting, and startup valuation techniques',
+        'description':
+            'Master financial modeling, forecasting, and startup valuation techniques',
         'duration': 45,
         'category': 'financial_management',
         'difficulty': 'intermediate',
@@ -626,7 +646,8 @@ Define clear success metrics before testing. What would convince you the hypothe
           'sections': [
             {
               'title': 'Financial Modeling Fundamentals',
-              'content': '''Financial modeling is the process of creating a mathematical representation of your business's financial performance. For startups, this involves projecting future revenues, costs, and cash flows based on assumptions about market dynamics and business operations.
+              'content':
+                  '''Financial modeling is the process of creating a mathematical representation of your business's financial performance. For startups, this involves projecting future revenues, costs, and cash flows based on assumptions about market dynamics and business operations.
 
 **Why Financial Models Matter:**
 - **Investor Communication**: Demonstrate your understanding of the business
@@ -669,7 +690,8 @@ Define clear success metrics before testing. What would convince you the hypothe
             },
             {
               'title': 'Building Revenue Projections',
-              'content': '''Accurate revenue projections are the foundation of your financial model. They require deep understanding of your business model and market dynamics.
+              'content':
+                  '''Accurate revenue projections are the foundation of your financial model. They require deep understanding of your business model and market dynamics.
 
 **Revenue Forecasting Methods:**
 
@@ -723,7 +745,8 @@ Define clear success metrics before testing. What would convince you the hypothe
             },
             {
               'title': 'Cost Structure & Expense Planning',
-              'content': '''Understanding and projecting costs accurately is crucial for financial planning and pricing decisions.
+              'content':
+                  '''Understanding and projecting costs accurately is crucial for financial planning and pricing decisions.
 
 **Cost Categories:**
 
@@ -781,7 +804,8 @@ Define clear success metrics before testing. What would convince you the hypothe
             },
             {
               'title': 'Cash Flow Management',
-              'content': '''Cash flow is the lifeblood of any startup. Even profitable companies can fail due to poor cash flow management.
+              'content':
+                  '''Cash flow is the lifeblood of any startup. Even profitable companies can fail due to poor cash flow management.
 
 **Three Types of Cash Flow:**
 
@@ -845,7 +869,8 @@ Define clear success metrics before testing. What would convince you the hypothe
             },
             {
               'title': 'Startup Valuation Methods',
-              'content': '''Valuation is both an art and a science, especially for early-stage startups with limited financial history.
+              'content':
+                  '''Valuation is both an art and a science, especially for early-stage startups with limited financial history.
 
 **Pre-Revenue Valuation Methods:**
 
@@ -907,7 +932,8 @@ Define clear success metrics before testing. What would convince you the hypothe
             },
             {
               'title': 'Financial Planning & Analysis',
-              'content': '''Financial Planning & Analysis (FP&A) involves ongoing monitoring, analysis, and strategic planning based on financial data.
+              'content':
+                  '''Financial Planning & Analysis (FP&A) involves ongoing monitoring, analysis, and strategic planning based on financial data.
 
 **Key FP&A Activities:**
 
@@ -973,11 +999,13 @@ Define clear success metrics before testing. What would convince you the hypothe
             },
             {
               'title': 'Quiz: Financial Modeling Mastery',
-              'content': 'Test your understanding of advanced financial modeling concepts',
+              'content':
+                  'Test your understanding of advanced financial modeling concepts',
               'type': 'quiz',
               'questions': [
                 {
-                  'question': 'What is the primary purpose of financial modeling for startups?',
+                  'question':
+                      'What is the primary purpose of financial modeling for startups?',
                   'options': [
                     'To impress investors with complex calculations',
                     'To create mathematical representations for strategic planning and decision-making',
@@ -985,10 +1013,12 @@ Define clear success metrics before testing. What would convince you the hypothe
                     'To determine exact future profits'
                   ],
                   'correct': 1,
-                  'explanation': 'Financial models help startups make data-driven decisions, communicate with investors, and plan strategically based on projected performance.'
+                  'explanation':
+                      'Financial models help startups make data-driven decisions, communicate with investors, and plan strategically based on projected performance.'
                 },
                 {
-                  'question': 'Which valuation method is most appropriate for pre-revenue startups?',
+                  'question':
+                      'Which valuation method is most appropriate for pre-revenue startups?',
                   'options': [
                     'Discounted Cash Flow (DCF)',
                     'Revenue Multiple Method',
@@ -996,7 +1026,8 @@ Define clear success metrics before testing. What would convince you the hypothe
                     'Comparable Company Analysis'
                   ],
                   'correct': 2,
-                  'explanation': 'Pre-revenue startups lack financial history, so qualitative methods like Berkus or Scorecard that evaluate factors like team quality and market opportunity are most appropriate.'
+                  'explanation':
+                      'Pre-revenue startups lack financial history, so qualitative methods like Berkus or Scorecard that evaluate factors like team quality and market opportunity are most appropriate.'
                 },
                 {
                   'question': 'What does the Cash Conversion Cycle measure?',
@@ -1007,10 +1038,12 @@ Define clear success metrics before testing. What would convince you the hypothe
                     'Revenue growth rate'
                   ],
                   'correct': 0,
-                  'explanation': 'Cash Conversion Cycle measures how long it takes to convert investments in inventory and receivables back into cash, indicating working capital efficiency.'
+                  'explanation':
+                      'Cash Conversion Cycle measures how long it takes to convert investments in inventory and receivables back into cash, indicating working capital efficiency.'
                 },
                 {
-                  'question': 'For SaaS businesses, what is typically the most important revenue metric to track?',
+                  'question':
+                      'For SaaS businesses, what is typically the most important revenue metric to track?',
                   'options': [
                     'Total revenue',
                     'Monthly Recurring Revenue (MRR)',
@@ -1018,10 +1051,12 @@ Define clear success metrics before testing. What would convince you the hypothe
                     'Gross merchandise value'
                   ],
                   'correct': 1,
-                  'explanation': 'MRR is crucial for SaaS businesses as it represents predictable, recurring income and helps track subscription business health and growth trends.'
+                  'explanation':
+                      'MRR is crucial for SaaS businesses as it represents predictable, recurring income and helps track subscription business health and growth trends.'
                 },
                 {
-                  'question': 'What is the LTV/CAC ratio and why is it important?',
+                  'question':
+                      'What is the LTV/CAC ratio and why is it important?',
                   'options': [
                     'Revenue divided by costs, shows profitability',
                     'Customer Lifetime Value divided by Customer Acquisition Cost, indicates unit economics health',
@@ -1029,7 +1064,8 @@ Define clear success metrics before testing. What would convince you the hypothe
                     'Monthly growth rate, shows scalability'
                   ],
                   'correct': 1,
-                  'explanation': 'LTV/CAC ratio compares the value of a customer over their lifetime to the cost of acquiring them. A ratio above 3:1 generally indicates healthy unit economics.'
+                  'explanation':
+                      'LTV/CAC ratio compares the value of a customer over their lifetime to the cost of acquiring them. A ratio above 3:1 generally indicates healthy unit economics.'
                 }
               ]
             }
@@ -1041,7 +1077,8 @@ Define clear success metrics before testing. What would convince you the hypothe
       {
         'id': 'intermediate_2',
         'title': 'Digital Marketing & Growth Hacking',
-        'description': 'Master modern digital marketing strategies and growth hacking techniques',
+        'description':
+            'Master modern digital marketing strategies and growth hacking techniques',
         'duration': 50,
         'category': 'marketing',
         'difficulty': 'intermediate',
@@ -1049,7 +1086,8 @@ Define clear success metrics before testing. What would convince you the hypothe
           'sections': [
             {
               'title': 'Digital Marketing Fundamentals',
-              'content': '''Digital marketing encompasses all marketing efforts that use digital channels to reach and engage customers. For startups, it offers cost-effective ways to build brand awareness, generate leads, and drive sales.
+              'content':
+                  '''Digital marketing encompasses all marketing efforts that use digital channels to reach and engage customers. For startups, it offers cost-effective ways to build brand awareness, generate leads, and drive sales.
 
 **Digital Marketing vs Traditional Marketing:**
 - **Measurable**: Track every click, view, and conversion
@@ -1107,7 +1145,8 @@ Define clear success metrics before testing. What would convince you the hypothe
             },
             {
               'title': 'Growth Hacking Methodology',
-              'content': '''Growth hacking is a data-driven approach to rapid growth that combines marketing, product development, and analytics to find scalable ways to grow a business.
+              'content':
+                  '''Growth hacking is a data-driven approach to rapid growth that combines marketing, product development, and analytics to find scalable ways to grow a business.
 
 **Growth Hacking Principles:**
 
@@ -1183,7 +1222,8 @@ Define clear success metrics before testing. What would convince you the hypothe
             },
             {
               'title': 'Customer Acquisition Strategies',
-              'content': '''Effective customer acquisition requires understanding your target audience and choosing the right channels to reach them cost-effectively.
+              'content':
+                  '''Effective customer acquisition requires understanding your target audience and choosing the right channels to reach them cost-effectively.
 
 **Customer Acquisition Channel Analysis:**
 
@@ -1256,7 +1296,8 @@ Define clear success metrics before testing. What would convince you the hypothe
             },
             {
               'title': 'Retention & Engagement Strategies',
-              'content': '''Customer retention is often more cost-effective than acquisition and drives long-term business value through increased lifetime value and referrals.
+              'content':
+                  '''Customer retention is often more cost-effective than acquisition and drives long-term business value through increased lifetime value and referrals.
 
 **Understanding Customer Lifecycle:**
 
@@ -1335,7 +1376,8 @@ Define clear success metrics before testing. What would convince you the hypothe
             },
             {
               'title': 'Analytics & Performance Measurement',
-              'content': '''Effective measurement and analytics are crucial for optimizing digital marketing performance and making data-driven growth decisions.
+              'content':
+                  '''Effective measurement and analytics are crucial for optimizing digital marketing performance and making data-driven growth decisions.
 
 **Marketing Analytics Stack:**
 
@@ -1412,11 +1454,13 @@ Define clear success metrics before testing. What would convince you the hypothe
             },
             {
               'title': 'Quiz: Digital Marketing & Growth Hacking',
-              'content': 'Test your knowledge of digital marketing and growth hacking strategies',
+              'content':
+                  'Test your knowledge of digital marketing and growth hacking strategies',
               'type': 'quiz',
               'questions': [
                 {
-                  'question': 'What does the AARRR framework in growth hacking represent?',
+                  'question':
+                      'What does the AARRR framework in growth hacking represent?',
                   'options': [
                     'Acquisition, Activation, Retention, Revenue, Referral',
                     'Advertising, Analytics, Results, ROI, Reach',
@@ -1424,10 +1468,12 @@ Define clear success metrics before testing. What would convince you the hypothe
                     'Audience, Acquisition, Revenue, Retention, Reviews'
                   ],
                   'correct': 0,
-                  'explanation': 'AARRR (Pirate Metrics) stands for Acquisition, Activation, Retention, Revenue, and Referral - the key stages of the customer journey that growth hackers optimize.'
+                  'explanation':
+                      'AARRR (Pirate Metrics) stands for Acquisition, Activation, Retention, Revenue, and Referral - the key stages of the customer journey that growth hackers optimize.'
                 },
                 {
-                  'question': 'Which is the most important prerequisite for successful growth hacking?',
+                  'question':
+                      'Which is the most important prerequisite for successful growth hacking?',
                   'options': [
                     'Large marketing budget',
                     'Product-market fit',
@@ -1435,7 +1481,8 @@ Define clear success metrics before testing. What would convince you the hypothe
                     'Celebrity endorsements'
                   ],
                   'correct': 1,
-                  'explanation': 'Product-market fit is essential before growth hacking. You need a product people actually want before you can effectively scale acquisition and retention.'
+                  'explanation':
+                      'Product-market fit is essential before growth hacking. You need a product people actually want before you can effectively scale acquisition and retention.'
                 },
                 {
                   'question': 'What is Customer Acquisition Cost (CAC)?',
@@ -1446,10 +1493,12 @@ Define clear success metrics before testing. What would convince you the hypothe
                     'The lifetime value of a customer'
                   ],
                   'correct': 2,
-                  'explanation': 'CAC measures how much it costs to acquire one new customer, including all marketing and sales expenses divided by the number of customers acquired.'
+                  'explanation':
+                      'CAC measures how much it costs to acquire one new customer, including all marketing and sales expenses divided by the number of customers acquired.'
                 },
                 {
-                  'question': 'Which metric is most important for measuring customer retention?',
+                  'question':
+                      'Which metric is most important for measuring customer retention?',
                   'options': [
                     'Total number of customers',
                     'Churn rate and cohort retention analysis',
@@ -1457,7 +1506,8 @@ Define clear success metrics before testing. What would convince you the hypothe
                     'Social media followers'
                   ],
                   'correct': 1,
-                  'explanation': 'Churn rate and cohort retention analysis show how well you\'re keeping customers over time, which is crucial for sustainable growth and profitability.'
+                  'explanation':
+                      'Churn rate and cohort retention analysis show how well you\'re keeping customers over time, which is crucial for sustainable growth and profitability.'
                 },
                 {
                   'question': 'What characterizes a good LTV:CAC ratio?',
@@ -1468,7 +1518,8 @@ Define clear success metrics before testing. What would convince you the hypothe
                     '10:1 ratio'
                   ],
                   'correct': 2,
-                  'explanation': 'A 3:1 LTV:CAC ratio is generally considered healthy, meaning customers generate at least 3x more value than it costs to acquire them.'
+                  'explanation':
+                      'A 3:1 LTV:CAC ratio is generally considered healthy, meaning customers generate at least 3x more value than it costs to acquire them.'
                 }
               ]
             }
@@ -1482,7 +1533,8 @@ Define clear success metrics before testing. What would convince you the hypothe
       {
         'id': 'advanced_1',
         'title': 'Scaling Operations & Team Building',
-        'description': 'Master the art of scaling your startup operations and building high-performing teams',
+        'description':
+            'Master the art of scaling your startup operations and building high-performing teams',
         'duration': 60,
         'category': 'operations',
         'difficulty': 'advanced',
@@ -1490,7 +1542,8 @@ Define clear success metrics before testing. What would convince you the hypothe
           'sections': [
             {
               'title': 'Scaling Fundamentals',
-              'content': '''Scaling a startup requires transitioning from a scrappy, do-everything approach to building systematic, repeatable processes that can handle exponential growth.
+              'content':
+                  '''Scaling a startup requires transitioning from a scrappy, do-everything approach to building systematic, repeatable processes that can handle exponential growth.
 
 **The Scaling Challenge:**
 Most startups fail not because they can't get customers, but because they can't scale their operations to serve those customers effectively. Scaling requires:
@@ -1539,7 +1592,8 @@ Most startups fail not because they can't get customers, but because they can't 
             },
             {
               'title': 'Building High-Performance Teams',
-              'content': '''Your team is your most valuable asset when scaling. Building the right team with the right culture is crucial for sustainable growth.
+              'content':
+                  '''Your team is your most valuable asset when scaling. Building the right team with the right culture is crucial for sustainable growth.
 
 **Team Building Strategy:**
 
@@ -1606,7 +1660,8 @@ Most startups fail not because they can't get customers, but because they can't 
             },
             {
               'title': 'Operational Excellence',
-              'content': '''Operational excellence involves creating efficient, repeatable processes that can scale with your business growth.
+              'content':
+                  '''Operational excellence involves creating efficient, repeatable processes that can scale with your business growth.
 
 **Process Optimization Framework:**
 
@@ -1689,7 +1744,8 @@ Most startups fail not because they can't get customers, but because they can't 
             },
             {
               'title': 'Technology & Infrastructure Scaling',
-              'content': '''Technology infrastructure must evolve to support increased user load, data volume, and feature complexity as your startup scales.
+              'content':
+                  '''Technology infrastructure must evolve to support increased user load, data volume, and feature complexity as your startup scales.
 
 **Infrastructure Scaling Strategies:**
 
@@ -1766,7 +1822,8 @@ Most startups fail not because they can't get customers, but because they can't 
             },
             {
               'title': 'Strategic Partnerships & Alliances',
-              'content': '''Strategic partnerships can accelerate growth, provide access to new markets, and create competitive advantages during scaling.
+              'content':
+                  '''Strategic partnerships can accelerate growth, provide access to new markets, and create competitive advantages during scaling.
 
 **Types of Strategic Partnerships:**
 
@@ -1845,11 +1902,13 @@ Most startups fail not because they can't get customers, but because they can't 
             },
             {
               'title': 'Quiz: Scaling Operations Mastery',
-              'content': 'Test your understanding of scaling operations and team building',
+              'content':
+                  'Test your understanding of scaling operations and team building',
               'type': 'quiz',
               'questions': [
                 {
-                  'question': 'What is the most critical factor for successful startup scaling?',
+                  'question':
+                      'What is the most critical factor for successful startup scaling?',
                   'options': [
                     'Having unlimited funding',
                     'Achieving product-market fit before scaling',
@@ -1857,10 +1916,12 @@ Most startups fail not because they can't get customers, but because they can't 
                     'Building the most advanced technology'
                   ],
                   'correct': 1,
-                  'explanation': 'Product-market fit is essential before scaling. Without it, you\'ll scale problems rather than solutions, leading to inefficient resource use.'
+                  'explanation':
+                      'Product-market fit is essential before scaling. Without it, you\'ll scale problems rather than solutions, leading to inefficient resource use.'
                 },
                 {
-                  'question': 'Which scaling approach adds more servers rather than upgrading existing ones?',
+                  'question':
+                      'Which scaling approach adds more servers rather than upgrading existing ones?',
                   'options': [
                     'Vertical scaling',
                     'Horizontal scaling',
@@ -1868,10 +1929,12 @@ Most startups fail not because they can't get customers, but because they can't 
                     'Network scaling'
                   ],
                   'correct': 1,
-                  'explanation': 'Horizontal scaling (scale out) involves adding more servers or instances to handle increased load, while vertical scaling increases the capacity of existing servers.'
+                  'explanation':
+                      'Horizontal scaling (scale out) involves adding more servers or instances to handle increased load, while vertical scaling increases the capacity of existing servers.'
                 },
                 {
-                  'question': 'What should be prioritized when hiring for a scaling startup?',
+                  'question':
+                      'What should be prioritized when hiring for a scaling startup?',
                   'options': [
                     'Experience over potential',
                     'Technical skills over soft skills',
@@ -1879,10 +1942,12 @@ Most startups fail not because they can't get customers, but because they can't 
                     'Lowest salary requirements'
                   ],
                   'correct': 2,
-                  'explanation': 'Cultural fit and growth potential are crucial for scaling startups, as employees need to adapt quickly and maintain company culture during rapid growth.'
+                  'explanation':
+                      'Cultural fit and growth potential are crucial for scaling startups, as employees need to adapt quickly and maintain company culture during rapid growth.'
                 },
                 {
-                  'question': 'Which operational metric is most important for scaling efficiency?',
+                  'question':
+                      'Which operational metric is most important for scaling efficiency?',
                   'options': [
                     'Total number of employees',
                     'Revenue per employee',
@@ -1890,10 +1955,12 @@ Most startups fail not because they can't get customers, but because they can't 
                     'Number of meetings per day'
                   ],
                   'correct': 1,
-                  'explanation': 'Revenue per employee measures how efficiently the organization generates revenue relative to its workforce, indicating scaling effectiveness.'
+                  'explanation':
+                      'Revenue per employee measures how efficiently the organization generates revenue relative to its workforce, indicating scaling effectiveness.'
                 },
                 {
-                  'question': 'What is the primary benefit of strategic partnerships during scaling?',
+                  'question':
+                      'What is the primary benefit of strategic partnerships during scaling?',
                   'options': [
                     'Reducing competition',
                     'Accelerating growth and accessing new markets',
@@ -1901,7 +1968,8 @@ Most startups fail not because they can't get customers, but because they can't 
                     'Guaranteeing profitability'
                   ],
                   'correct': 1,
-                  'explanation': 'Strategic partnerships can accelerate growth by providing access to new markets, customers, technologies, and capabilities without building everything internally.'
+                  'explanation':
+                      'Strategic partnerships can accelerate growth by providing access to new markets, customers, technologies, and capabilities without building everything internally.'
                 }
               ]
             }
@@ -1913,7 +1981,8 @@ Most startups fail not because they can't get customers, but because they can't 
       {
         'id': 'advanced_2',
         'title': 'Fundraising & Investor Relations',
-        'description': 'Master the art of fundraising, investor relations, and equity management',
+        'description':
+            'Master the art of fundraising, investor relations, and equity management',
         'duration': 55,
         'category': 'fundraising',
         'difficulty': 'advanced',
@@ -1921,7 +1990,8 @@ Most startups fail not because they can't get customers, but because they can't 
           'sections': [
             {
               'title': 'Fundraising Fundamentals',
-              'content': '''Fundraising is a critical skill for scaling startups, involving raising capital from investors to fuel growth while maintaining strategic control of your business.
+              'content':
+                  '''Fundraising is a critical skill for scaling startups, involving raising capital from investors to fuel growth while maintaining strategic control of your business.
 
 **Types of Funding:**
 
@@ -1979,7 +2049,8 @@ Most startups fail not because they can't get customers, but because they can't 
             },
             {
               'title': 'Preparing for Fundraising',
-              'content': '''Successful fundraising requires thorough preparation, compelling storytelling, and robust business fundamentals.
+              'content':
+                  '''Successful fundraising requires thorough preparation, compelling storytelling, and robust business fundamentals.
 
 **The Fundraising Preparation Checklist:**
 
@@ -2060,7 +2131,8 @@ Most startups fail not because they can't get customers, but because they can't 
             },
             {
               'title': 'Investor Relations & Communication',
-              'content': '''Building strong relationships with investors requires ongoing communication, transparency, and strategic alignment beyond just raising capital.
+              'content':
+                  '''Building strong relationships with investors requires ongoing communication, transparency, and strategic alignment beyond just raising capital.
 
 **Types of Investors:**
 
@@ -2134,7 +2206,8 @@ Most startups fail not because they can't get customers, but because they can't 
             },
             {
               'title': 'Equity Management & Cap Table',
-              'content': '''Understanding equity distribution, cap table management, and employee compensation is crucial for long-term success and fundraising.
+              'content':
+                  '''Understanding equity distribution, cap table management, and employee compensation is crucial for long-term success and fundraising.
 
 **Cap Table Fundamentals:**
 
@@ -2209,7 +2282,8 @@ Most startups fail not because they can't get customers, but because they can't 
             },
             {
               'title': 'Exit Strategies & Liquidity',
-              'content': '''Understanding exit strategies helps guide long-term strategic decisions and ensures alignment between founders, employees, and investors.
+              'content':
+                  '''Understanding exit strategies helps guide long-term strategic decisions and ensures alignment between founders, employees, and investors.
 
 **Types of Exit Strategies:**
 
@@ -2300,11 +2374,13 @@ Most startups fail not because they can't get customers, but because they can't 
             },
             {
               'title': 'Quiz: Fundraising & Investor Relations',
-              'content': 'Test your knowledge of fundraising and investor relations',
+              'content':
+                  'Test your knowledge of fundraising and investor relations',
               'type': 'quiz',
               'questions': [
                 {
-                  'question': 'What is the most important factor investors consider when evaluating startups?',
+                  'question':
+                      'What is the most important factor investors consider when evaluating startups?',
                   'options': [
                     'Size of the market opportunity',
                     'Quality and experience of the team',
@@ -2312,21 +2388,20 @@ Most startups fail not because they can't get customers, but because they can't 
                     'Amount of funding requested'
                   ],
                   'correct': 1,
-                  'explanation': 'While all factors matter, investors consistently rank team quality as the most important factor, as great teams can adapt and execute even when other elements change.'
+                  'explanation':
+                      'While all factors matter, investors consistently rank team quality as the most important factor, as great teams can adapt and execute even when other elements change.'
                 },
                 {
-                  'question': 'What is typically the appropriate employee stock option pool size for a growing startup?',
-                  'options': [
-                    '5-8%',
-                    '10-20%',
-                    '25-30%',
-                    '35-40%'
-                  ],
+                  'question':
+                      'What is typically the appropriate employee stock option pool size for a growing startup?',
+                  'options': ['5-8%', '10-20%', '25-30%', '35-40%'],
                   'correct': 1,
-                  'explanation': 'Most startups allocate 10-20% of shares for employee stock options to attract and retain talent while preserving equity for founders and investors.'
+                  'explanation':
+                      'Most startups allocate 10-20% of shares for employee stock options to attract and retain talent while preserving equity for founders and investors.'
                 },
                 {
-                  'question': 'Which fundraising timing indicator is most critical?',
+                  'question':
+                      'Which fundraising timing indicator is most critical?',
                   'options': [
                     'Competitor fundraising activity',
                     'Strong product-market fit evidence',
@@ -2334,10 +2409,12 @@ Most startups fail not because they can't get customers, but because they can't 
                     'Low current valuation'
                   ],
                   'correct': 1,
-                  'explanation': 'Strong product-market fit evidence shows investors that the business model works and additional capital can accelerate proven growth rather than fund experiments.'
+                  'explanation':
+                      'Strong product-market fit evidence shows investors that the business model works and additional capital can accelerate proven growth rather than fund experiments.'
                 },
                 {
-                  'question': 'What should be included in regular investor updates?',
+                  'question':
+                      'What should be included in regular investor updates?',
                   'options': [
                     'Only positive news and achievements',
                     'Detailed technical product specifications',
@@ -2345,10 +2422,12 @@ Most startups fail not because they can't get customers, but because they can't 
                     'Personal updates about founder activities'
                   ],
                   'correct': 2,
-                  'explanation': 'Effective investor updates are transparent about both progress and challenges, helping investors understand how they can provide value beyond capital.'
+                  'explanation':
+                      'Effective investor updates are transparent about both progress and challenges, helping investors understand how they can provide value beyond capital.'
                 },
                 {
-                  'question': 'What is the most common exit strategy for venture-backed startups?',
+                  'question':
+                      'What is the most common exit strategy for venture-backed startups?',
                   'options': [
                     'Initial Public Offering (IPO)',
                     'Management buyout',
@@ -2356,7 +2435,8 @@ Most startups fail not because they can't get customers, but because they can't 
                     'Liquidation and shutdown'
                   ],
                   'correct': 2,
-                  'explanation': 'Over 90% of successful startup exits are through acquisition by larger companies, as IPOs require significant scale that most startups don\'t achieve.'
+                  'explanation':
+                      'Over 90% of successful startup exits are through acquisition by larger companies, as IPOs require significant scale that most startups don\'t achieve.'
                 }
               ]
             }
@@ -2370,7 +2450,8 @@ Most startups fail not because they can't get customers, but because they can't 
       {
         'id': 'expert_1',
         'title': 'Strategic Leadership & Vision',
-        'description': 'Master strategic thinking, visionary leadership, and long-term business planning',
+        'description':
+            'Master strategic thinking, visionary leadership, and long-term business planning',
         'duration': 50,
         'category': 'leadership',
         'difficulty': 'expert',
@@ -2378,7 +2459,8 @@ Most startups fail not because they can't get customers, but because they can't 
           'sections': [
             {
               'title': 'Strategic Thinking Fundamentals',
-              'content': '''Strategic thinking is the ability to analyze complex situations, anticipate future trends, and make decisions that position your organization for long-term success.
+              'content':
+                  '''Strategic thinking is the ability to analyze complex situations, anticipate future trends, and make decisions that position your organization for long-term success.
 
 **Core Elements of Strategic Thinking:**
 
@@ -2444,7 +2526,8 @@ Most startups fail not because they can't get customers, but because they can't 
             },
             {
               'title': 'Visionary Leadership',
-              'content': '''Visionary leadership involves creating compelling futures, inspiring others to achieve extraordinary results, and navigating uncertainty with confidence.
+              'content':
+                  '''Visionary leadership involves creating compelling futures, inspiring others to achieve extraordinary results, and navigating uncertainty with confidence.
 
 **Components of Visionary Leadership:**
 
@@ -2524,7 +2607,8 @@ Most startups fail not because they can't get customers, but because they can't 
             },
             {
               'title': 'Innovation & Disruption',
-              'content': '''Innovation leadership requires creating environments where breakthrough ideas emerge and managing the tension between current operations and future possibilities.
+              'content':
+                  '''Innovation leadership requires creating environments where breakthrough ideas emerge and managing the tension between current operations and future possibilities.
 
 **Types of Innovation:**
 
@@ -2611,7 +2695,8 @@ Most startups fail not because they can't get customers, but because they can't 
             },
             {
               'title': 'Global Market Expansion',
-              'content': '''Expanding into global markets requires strategic planning, cultural sensitivity, and operational excellence across diverse environments.
+              'content':
+                  '''Expanding into global markets requires strategic planning, cultural sensitivity, and operational excellence across diverse environments.
 
 **Global Expansion Strategy:**
 
@@ -2706,7 +2791,8 @@ Most startups fail not because they can't get customers, but because they can't 
             },
             {
               'title': 'Mentoring & Knowledge Transfer',
-              'content': '''Expert-level leaders have a responsibility to develop others and transfer knowledge to ensure sustainable success beyond their individual contributions.
+              'content':
+                  '''Expert-level leaders have a responsibility to develop others and transfer knowledge to ensure sustainable success beyond their individual contributions.
 
 **Mentoring Excellence:**
 
@@ -2816,7 +2902,8 @@ Most startups fail not because they can't get customers, but because they can't 
               'type': 'quiz',
               'questions': [
                 {
-                  'question': 'What is the key characteristic of strategic thinking?',
+                  'question':
+                      'What is the key characteristic of strategic thinking?',
                   'options': [
                     'Making quick tactical decisions',
                     'Focusing only on short-term results',
@@ -2824,10 +2911,12 @@ Most startups fail not because they can't get customers, but because they can't 
                     'Following industry best practices'
                   ],
                   'correct': 2,
-                  'explanation': 'Strategic thinking involves analyzing complex situations, understanding interconnections, and making decisions with a long-term perspective that positions the organization for sustained success.'
+                  'explanation':
+                      'Strategic thinking involves analyzing complex situations, understanding interconnections, and making decisions with a long-term perspective that positions the organization for sustained success.'
                 },
                 {
-                  'question': 'Which innovation type creates new markets and eventually displaces established companies?',
+                  'question':
+                      'Which innovation type creates new markets and eventually displaces established companies?',
                   'options': [
                     'Incremental innovation',
                     'Process innovation',
@@ -2835,10 +2924,12 @@ Most startups fail not because they can't get customers, but because they can't 
                     'Sustaining innovation'
                   ],
                   'correct': 2,
-                  'explanation': 'Disruptive innovation creates new markets or value networks and eventually displaces established market leaders, often starting with "inferior" products for new customer segments.'
+                  'explanation':
+                      'Disruptive innovation creates new markets or value networks and eventually displaces established market leaders, often starting with "inferior" products for new customer segments.'
                 },
                 {
-                  'question': 'What is the most important factor for successful global market expansion?',
+                  'question':
+                      'What is the most important factor for successful global market expansion?',
                   'options': [
                     'Having the lowest prices',
                     'Cultural intelligence and local adaptation',
@@ -2846,10 +2937,12 @@ Most startups fail not because they can't get customers, but because they can't 
                     'Entering all markets simultaneously'
                   ],
                   'correct': 1,
-                  'explanation': 'Cultural intelligence and the ability to adapt to local needs, preferences, and business practices is crucial for successful global expansion.'
+                  'explanation':
+                      'Cultural intelligence and the ability to adapt to local needs, preferences, and business practices is crucial for successful global expansion.'
                 },
                 {
-                  'question': 'Which leadership style is most effective for navigating uncertainty and driving innovation?',
+                  'question':
+                      'Which leadership style is most effective for navigating uncertainty and driving innovation?',
                   'options': [
                     'Authoritarian leadership',
                     'Micromanagement',
@@ -2857,10 +2950,12 @@ Most startups fail not because they can't get customers, but because they can't 
                     'Laissez-faire leadership'
                   ],
                   'correct': 2,
-                  'explanation': 'Adaptive leadership is most effective in uncertain environments as it emphasizes experimentation, learning from failures, and adjusting approaches based on new information.'
+                  'explanation':
+                      'Adaptive leadership is most effective in uncertain environments as it emphasizes experimentation, learning from failures, and adjusting approaches based on new information.'
                 },
                 {
-                  'question': 'What is the primary benefit of effective mentoring programs?',
+                  'question':
+                      'What is the primary benefit of effective mentoring programs?',
                   'options': [
                     'Reducing employee salaries',
                     'Knowledge transfer and leadership development',
@@ -2868,7 +2963,8 @@ Most startups fail not because they can't get customers, but because they can't 
                     'Increasing work hours'
                   ],
                   'correct': 1,
-                  'explanation': 'Effective mentoring programs facilitate knowledge transfer, develop future leaders, and create sustainable organizational capabilities that extend beyond individual contributions.'
+                  'explanation':
+                      'Effective mentoring programs facilitate knowledge transfer, develop future leaders, and create sustainable organizational capabilities that extend beyond individual contributions.'
                 }
               ]
             }
@@ -2880,7 +2976,8 @@ Most startups fail not because they can't get customers, but because they can't 
       {
         'id': 'expert_2',
         'title': 'Ecosystem Building & Industry Impact',
-        'description': 'Master ecosystem development, industry transformation, and creating lasting impact',
+        'description':
+            'Master ecosystem development, industry transformation, and creating lasting impact',
         'duration': 45,
         'category': 'ecosystem',
         'difficulty': 'expert',
@@ -2888,7 +2985,8 @@ Most startups fail not because they can't get customers, but because they can't 
           'sections': [
             {
               'title': 'Ecosystem Thinking',
-              'content': '''Ecosystem thinking involves understanding and influencing the complex web of relationships, resources, and interactions that create value in modern business environments.
+              'content':
+                  '''Ecosystem thinking involves understanding and influencing the complex web of relationships, resources, and interactions that create value in modern business environments.
 
 **Ecosystem Fundamentals:**
 
@@ -2949,7 +3047,8 @@ Most startups fail not because they can't get customers, but because they can't 
             },
             {
               'title': 'Industry Transformation Leadership',
-              'content': '''Industry transformation leaders drive systemic change, challenge established norms, and create new paradigms for how industries operate.
+              'content':
+                  '''Industry transformation leaders drive systemic change, challenge established norms, and create new paradigms for how industries operate.
 
 **Transformation Leadership Strategies:**
 
@@ -3032,7 +3131,8 @@ Most startups fail not because they can't get customers, but because they can't 
             },
             {
               'title': 'Sustainable Impact Creation',
-              'content': '''Creating sustainable impact requires balancing economic success with environmental stewardship and social responsibility, building businesses that generate long-term value for all stakeholders.
+              'content':
+                  '''Creating sustainable impact requires balancing economic success with environmental stewardship and social responsibility, building businesses that generate long-term value for all stakeholders.
 
 **Triple Bottom Line Framework:**
 
@@ -3129,7 +3229,8 @@ Most startups fail not because they can't get customers, but because they can't 
             },
             {
               'title': 'Global Influence & Policy Impact',
-              'content': '''Expert leaders often have opportunities to influence policy, shape regulation, and contribute to global conversations about business, technology, and society.
+              'content':
+                  '''Expert leaders often have opportunities to influence policy, shape regulation, and contribute to global conversations about business, technology, and society.
 
 **Policy Engagement Strategies:**
 
@@ -3232,11 +3333,13 @@ Most startups fail not because they can't get customers, but because they can't 
             },
             {
               'title': 'Quiz: Ecosystem Building & Industry Impact',
-              'content': 'Test your understanding of ecosystem development and industry transformation',
+              'content':
+                  'Test your understanding of ecosystem development and industry transformation',
               'type': 'quiz',
               'questions': [
                 {
-                  'question': 'What is the key characteristic of successful business ecosystems?',
+                  'question':
+                      'What is the key characteristic of successful business ecosystems?',
                   'options': [
                     'Complete control by a single company',
                     'Shared value creation and mutual dependence',
@@ -3244,10 +3347,12 @@ Most startups fail not because they can't get customers, but because they can't 
                     'Focus only on financial returns'
                   ],
                   'correct': 1,
-                  'explanation': 'Successful ecosystems are characterized by shared value creation where all participants benefit and develop mutual dependence that strengthens the overall network.'
+                  'explanation':
+                      'Successful ecosystems are characterized by shared value creation where all participants benefit and develop mutual dependence that strengthens the overall network.'
                 },
                 {
-                  'question': 'Which framework helps evaluate sustainable business impact?',
+                  'question':
+                      'Which framework helps evaluate sustainable business impact?',
                   'options': [
                     'Single bottom line (profit only)',
                     'Double bottom line (profit + people)',
@@ -3255,10 +3360,12 @@ Most startups fail not because they can't get customers, but because they can't 
                     'Quadruple bottom line (adding purpose)'
                   ],
                   'correct': 2,
-                  'explanation': 'The triple bottom line framework evaluates business success based on three dimensions: people (social impact), planet (environmental impact), and profit (economic impact).'
+                  'explanation':
+                      'The triple bottom line framework evaluates business success based on three dimensions: people (social impact), planet (environmental impact), and profit (economic impact).'
                 },
                 {
-                  'question': 'What is the most effective approach for driving industry transformation?',
+                  'question':
+                      'What is the most effective approach for driving industry transformation?',
                   'options': [
                     'Working alone to maintain competitive advantage',
                     'Building coalitions and facilitating collaboration',
@@ -3266,10 +3373,12 @@ Most startups fail not because they can't get customers, but because they can't 
                     'Avoiding engagement with competitors'
                   ],
                   'correct': 1,
-                  'explanation': 'Industry transformation requires building coalitions, facilitating collaboration among diverse stakeholders, and creating shared vision for systemic change.'
+                  'explanation':
+                      'Industry transformation requires building coalitions, facilitating collaboration among diverse stakeholders, and creating shared vision for systemic change.'
                 },
                 {
-                  'question': 'How should expert leaders measure their global impact?',
+                  'question':
+                      'How should expert leaders measure their global impact?',
                   'options': [
                     'Only through financial metrics',
                     'Through influence metrics, network growth, and systemic change',
@@ -3277,10 +3386,12 @@ Most startups fail not because they can't get customers, but because they can't 
                     'Through media mentions alone'
                   ],
                   'correct': 1,
-                  'explanation': 'Global impact should be measured through influence metrics, network growth, and evidence of systemic change in industries, policies, and social outcomes.'
+                  'explanation':
+                      'Global impact should be measured through influence metrics, network growth, and evidence of systemic change in industries, policies, and social outcomes.'
                 },
                 {
-                  'question': 'What is the primary goal of ecosystem orchestration?',
+                  'question':
+                      'What is the primary goal of ecosystem orchestration?',
                   'options': [
                     'Controlling all ecosystem participants',
                     'Maximizing personal profits',
@@ -3288,7 +3399,8 @@ Most startups fail not because they can't get customers, but because they can't 
                     'Eliminating competition'
                   ],
                   'correct': 2,
-                  'explanation': 'Ecosystem orchestration aims to facilitate value creation for all participants by creating platforms, governance mechanisms, and incentive structures that benefit the entire network.'
+                  'explanation':
+                      'Ecosystem orchestration aims to facilitate value creation for all participants by creating platforms, governance mechanisms, and incentive structures that benefit the entire network.'
                 }
               ]
             }
@@ -3305,32 +3417,36 @@ Most startups fail not because they can't get customers, but because they can't 
     try {
       final userLevel = await QuizService.getUserLevel();
       final progress = await getLearningProgress();
-      final completedTutorials = progress['completed_tutorials'] as List<dynamic>;
-      
+      final completedTutorials =
+          progress['completed_tutorials'] as List<dynamic>;
+
       // Get all tutorials for current level only
       final currentLevelTutorials = _tutorials[userLevel] ?? [];
-      
+
       if (kDebugMode) {
         print('🔍 Checking tutorial completion for level: $userLevel');
-        print('🔍 Total tutorials for $userLevel: ${currentLevelTutorials.length}');
+        print(
+            '🔍 Total tutorials for $userLevel: ${currentLevelTutorials.length}');
         print('🔍 Completed tutorials: ${completedTutorials.length}');
       }
-      
+
       // Check if all current level tutorials are completed
       for (var tutorial in currentLevelTutorials) {
         if (!completedTutorials.contains(tutorial['id'])) {
           if (kDebugMode) {
-            print('❌ Tutorial "${tutorial['title']}" (${tutorial['id']}) not completed');
+            print(
+                '❌ Tutorial "${tutorial['title']}" (${tutorial['id']}) not completed');
           }
           return false;
         }
       }
-      
+
       if (kDebugMode) {
         print('✅ All $userLevel level tutorials completed!');
       }
-      
-      return currentLevelTutorials.isNotEmpty; // Must have at least one tutorial completed
+
+      return currentLevelTutorials
+          .isNotEmpty; // Must have at least one tutorial completed
     } catch (e) {
       if (kDebugMode) {
         print('❌ Error checking tutorial completion: $e');
@@ -3340,28 +3456,31 @@ Most startups fail not because they can't get customers, but because they can't 
   }
 
   // Get remaining tutorials for current level
-  static Future<List<Map<String, dynamic>>> getRemainingCurrentLevelTutorials() async {
+  static Future<List<Map<String, dynamic>>>
+      getRemainingCurrentLevelTutorials() async {
     try {
       final userLevel = await QuizService.getUserLevel();
       final progress = await getLearningProgress();
-      final completedTutorials = progress['completed_tutorials'] as List<dynamic>;
-      
+      final completedTutorials =
+          progress['completed_tutorials'] as List<dynamic>;
+
       final currentLevelTutorials = _tutorials[userLevel] ?? [];
       final remainingTutorials = <Map<String, dynamic>>[];
-      
+
       for (var tutorial in currentLevelTutorials) {
         if (!completedTutorials.contains(tutorial['id'])) {
           remainingTutorials.add(tutorial);
         }
       }
-      
+
       if (kDebugMode) {
-        print('📚 Remaining tutorials for $userLevel: ${remainingTutorials.length}');
+        print(
+            '📚 Remaining tutorials for $userLevel: ${remainingTutorials.length}');
         for (var tutorial in remainingTutorials) {
           print('  - ${tutorial['title']}');
         }
       }
-      
+
       return remainingTutorials;
     } catch (e) {
       if (kDebugMode) {
@@ -3391,7 +3510,8 @@ Most startups fail not because they can't get customers, but because they can't 
         if (_isLevelAccessible(level, userLevel)) {
           final levelTutorials = _tutorials[level] ?? [];
           if (kDebugMode) {
-            print('✅ Level $level accessible: ${levelTutorials.length} tutorials available');
+            print(
+                '✅ Level $level accessible: ${levelTutorials.length} tutorials available');
           }
           for (var tutorial in levelTutorials) {
             if (!completedTutorials.contains(tutorial['id']) &&
@@ -3399,7 +3519,8 @@ Most startups fail not because they can't get customers, but because they can't 
                     tutorial['prerequisites'], completedTutorials)) {
               availableTutorials.add(tutorial);
               if (kDebugMode) {
-                print('  ➕ Added tutorial: ${tutorial['title']} (Level: ${tutorial['difficulty']})');
+                print(
+                    '  ➕ Added tutorial: ${tutorial['title']} (Level: ${tutorial['difficulty']})');
               }
             }
           }
@@ -3429,11 +3550,12 @@ Most startups fail not because they can't get customers, but because they can't 
     final levelOrder = ['novice', 'intermediate', 'advanced', 'expert'];
     final userIndex = levelOrder.indexOf(userLevel);
     final levelIndex = levelOrder.indexOf(level);
-    
+
     if (kDebugMode) {
-      print('  🔍 Checking level access: $level (index $levelIndex) for user $userLevel (index $userIndex)');
+      print(
+          '  🔍 Checking level access: $level (index $levelIndex) for user $userLevel (index $userIndex)');
     }
-    
+
     return levelIndex <= userIndex;
   }
 
@@ -3597,7 +3719,6 @@ Most startups fail not because they can't get customers, but because they can't 
   }
 
   // Check if user should level up
-
 
   // Get learning progress
   static Future<Map<String, dynamic>> getLearningProgress() async {

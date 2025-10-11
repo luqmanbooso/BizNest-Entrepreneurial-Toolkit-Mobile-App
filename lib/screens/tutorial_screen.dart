@@ -305,7 +305,8 @@ class _TutorialScreenState extends State<TutorialScreen>
             listBullet: ModernTheme.bodyMedium.copyWith(
               color: ModernTheme.primaryBlue,
             ),
-            blockquotePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            blockquotePadding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             blockquoteDecoration: BoxDecoration(
               color: ModernTheme.primaryBlue.withOpacity(0.1),
               borderRadius: BorderRadius.circular(8),

@@ -705,15 +705,21 @@ class _LearningScreenState extends State<LearningScreen>
                       child: FutureBuilder<Map<String, dynamic>>(
                         future: QuizService.getQuizEligibilityInfo(),
                         builder: (context, snapshot) {
-                          final canTakeQuiz = snapshot.data?['canTakeQuiz'] ?? false;
-                          final remainingTutorials = snapshot.data?['remainingTutorials'] ?? 0;
-                          
+                          final canTakeQuiz =
+                              snapshot.data?['canTakeQuiz'] ?? false;
+                          final remainingTutorials =
+                              snapshot.data?['remainingTutorials'] ?? 0;
+
                           return _buildQuickActionButton(
                             canTakeQuiz ? 'Take Quiz' : 'Quiz Locked',
                             canTakeQuiz ? Icons.quiz : Icons.lock,
-                            canTakeQuiz ? ModernTheme.primaryBlue : Colors.orange,
+                            canTakeQuiz
+                                ? ModernTheme.primaryBlue
+                                : Colors.orange,
                             _takeQuiz,
-                            subtitle: canTakeQuiz ? null : '$remainingTutorials tutorials left',
+                            subtitle: canTakeQuiz
+                                ? null
+                                : '$remainingTutorials tutorials left',
                           );
                         },
                       ),
@@ -836,7 +842,8 @@ class _LearningScreenState extends State<LearningScreen>
     final canTakeQuiz = eligibilityInfo['canTakeQuiz'] as bool;
     final remainingTutorials = eligibilityInfo['remainingTutorials'] as int;
     final userLevel = eligibilityInfo['userLevel'] as String;
-    final remainingTitles = eligibilityInfo['remainingTutorialTitles'] as List<dynamic>;
+    final remainingTitles =
+        eligibilityInfo['remainingTutorialTitles'] as List<dynamic>;
 
     if (!canTakeQuiz) {
       // Show dialog explaining what tutorials need to be completed
@@ -865,15 +872,15 @@ class _LearningScreenState extends State<LearningScreen>
               ),
               const SizedBox(height: 8),
               ...remainingTitles.map((title) => Padding(
-                padding: const EdgeInsets.only(bottom: 4),
-                child: Row(
-                  children: [
-                    Icon(Icons.circle, size: 6, color: Colors.grey),
-                    const SizedBox(width: 8),
-                    Expanded(child: Text(title.toString())),
-                  ],
-                ),
-              )),
+                    padding: const EdgeInsets.only(bottom: 4),
+                    child: Row(
+                      children: [
+                        Icon(Icons.circle, size: 6, color: Colors.grey),
+                        const SizedBox(width: 8),
+                        Expanded(child: Text(title.toString())),
+                      ],
+                    ),
+                  )),
               const SizedBox(height: 16),
               Container(
                 padding: const EdgeInsets.all(12),
@@ -912,7 +919,8 @@ class _LearningScreenState extends State<LearningScreen>
 
     // If eligible, proceed with quiz
     if (kDebugMode) {
-      print('🎯 Taking quiz - User level: $userLevel, Can take quiz: $canTakeQuiz');
+      print(
+          '🎯 Taking quiz - User level: $userLevel, Can take quiz: $canTakeQuiz');
     }
     Navigator.push(
       context,

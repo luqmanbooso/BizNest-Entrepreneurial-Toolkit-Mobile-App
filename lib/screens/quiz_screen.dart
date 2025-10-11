@@ -38,14 +38,16 @@ class _QuizScreenState extends State<QuizScreen> {
       final canTakeQuiz = await QuizService.canTakeQuiz();
       if (!canTakeQuiz) {
         if (kDebugMode) {
-          print('❌ User not eligible to take quiz - missing tutorial completion');
+          print(
+              '❌ User not eligible to take quiz - missing tutorial completion');
         }
         // Navigate back with error message
         if (mounted) {
           Navigator.pop(context);
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Complete all current level tutorials before taking the quiz!'),
+              content: Text(
+                  'Complete all current level tutorials before taking the quiz!'),
               backgroundColor: Colors.orange,
             ),
           );
@@ -58,7 +60,7 @@ class _QuizScreenState extends State<QuizScreen> {
         QuizService.testLevelProgression();
         await QuizService.debugUserState();
       }
-      
+
       final level = await QuizService.getUserLevel();
       if (kDebugMode) {
         print('🎯 Quiz starting for user level: $level');
@@ -68,10 +70,16 @@ class _QuizScreenState extends State<QuizScreen> {
 
       if (_questions.isEmpty) {
         // Show 8 questions for novices, 10 for intermediate, 12 for advanced
-        int questionCount = _userLevel == 'novice' ? 8 : _userLevel == 'intermediate' ? 10 : 12;
-        _questions = QuizService.getQuizQuestions().take(questionCount).toList();
+        int questionCount = _userLevel == 'novice'
+            ? 8
+            : _userLevel == 'intermediate'
+                ? 10
+                : 12;
+        _questions =
+            QuizService.getQuizQuestions().take(questionCount).toList();
         if (kDebugMode) {
-          print('🎯 Using fallback questions: $questionCount questions for $_userLevel level');
+          print(
+              '🎯 Using fallback questions: $questionCount questions for $_userLevel level');
         }
       }
 
@@ -226,23 +234,30 @@ class _QuizScreenState extends State<QuizScreen> {
                   const SizedBox(width: 12),
                 ],
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: _timeRemaining <= 10 ? Colors.red.withOpacity(0.8) : Colors.white.withOpacity(0.2),
+                    color: _timeRemaining <= 10
+                        ? Colors.red.withOpacity(0.8)
+                        : Colors.white.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Row(
                     children: [
                       Icon(
                         Icons.timer,
-                        color: _timeRemaining <= 10 ? Colors.white : Colors.white.withOpacity(0.8),
+                        color: _timeRemaining <= 10
+                            ? Colors.white
+                            : Colors.white.withOpacity(0.8),
                         size: 14,
                       ),
                       const SizedBox(width: 4),
                       Text(
                         '${_timeRemaining}s',
                         style: ModernTheme.bodySmall.copyWith(
-                          color: _timeRemaining <= 10 ? Colors.white : Colors.white.withOpacity(0.8),
+                          color: _timeRemaining <= 10
+                              ? Colors.white
+                              : Colors.white.withOpacity(0.8),
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -267,7 +282,9 @@ class _QuizScreenState extends State<QuizScreen> {
               alignment: Alignment.centerLeft,
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 300),
-                width: _questions.isEmpty ? 0 : MediaQuery.of(context).size.width * progress,
+                width: _questions.isEmpty
+                    ? 0
+                    : MediaQuery.of(context).size.width * progress,
                 height: 6,
                 decoration: const BoxDecoration(
                   color: Colors.white,
@@ -391,9 +408,8 @@ class _QuizScreenState extends State<QuizScreen> {
       backgroundColor = isSelected
           ? ModernTheme.primaryBlue.withOpacity(0.1)
           : Colors.grey.withOpacity(0.05);
-      borderColor = isSelected
-          ? ModernTheme.primaryBlue
-          : Colors.grey.withOpacity(0.2);
+      borderColor =
+          isSelected ? ModernTheme.primaryBlue : Colors.grey.withOpacity(0.2);
       textColor = isSelected ? ModernTheme.primaryBlue : Colors.black87;
       trailingIcon = isSelected ? Icons.check_circle : null;
     }
@@ -420,8 +436,14 @@ class _QuizScreenState extends State<QuizScreen> {
                 height: 24,
                 decoration: BoxDecoration(
                   color: showResult
-                      ? (isCorrect ? Colors.green : isSelected ? Colors.red : Colors.grey.withOpacity(0.3))
-                      : (isSelected ? ModernTheme.primaryBlue : Colors.grey.withOpacity(0.3)),
+                      ? (isCorrect
+                          ? Colors.green
+                          : isSelected
+                              ? Colors.red
+                              : Colors.grey.withOpacity(0.3))
+                      : (isSelected
+                          ? ModernTheme.primaryBlue
+                          : Colors.grey.withOpacity(0.3)),
                   shape: BoxShape.circle,
                 ),
                 child: Center(
@@ -429,7 +451,9 @@ class _QuizScreenState extends State<QuizScreen> {
                     String.fromCharCode(65 + index), // A, B, C, D
                     style: TextStyle(
                       color: showResult
-                          ? (isCorrect || isSelected ? Colors.white : Colors.grey)
+                          ? (isCorrect || isSelected
+                              ? Colors.white
+                              : Colors.grey)
                           : (isSelected ? Colors.white : Colors.grey),
                       fontWeight: FontWeight.bold,
                       fontSize: 12,
@@ -443,7 +467,8 @@ class _QuizScreenState extends State<QuizScreen> {
                   option,
                   style: ModernTheme.bodyMedium.copyWith(
                     color: textColor,
-                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                    fontWeight:
+                        isSelected ? FontWeight.w600 : FontWeight.normal,
                   ),
                 ),
               ),
@@ -468,7 +493,9 @@ class _QuizScreenState extends State<QuizScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: isCorrect ? Colors.green.withOpacity(0.1) : Colors.orange.withOpacity(0.1),
+        color: isCorrect
+            ? Colors.green.withOpacity(0.1)
+            : Colors.orange.withOpacity(0.1),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: isCorrect ? Colors.green : Colors.orange,
@@ -566,10 +593,14 @@ class _QuizScreenState extends State<QuizScreen> {
           Expanded(
             child: _buildButton(
               text: _showExplanation
-                  ? (_currentQuestionIndex == _questions.length - 1 ? 'Complete Quiz' : 'Next Question')
+                  ? (_currentQuestionIndex == _questions.length - 1
+                      ? 'Complete Quiz'
+                      : 'Next Question')
                   : 'Submit Answer',
               onPressed: _showExplanation
-                  ? (_currentQuestionIndex == _questions.length - 1 ? _completeQuiz : _nextQuestion)
+                  ? (_currentQuestionIndex == _questions.length - 1
+                      ? _completeQuiz
+                      : _nextQuestion)
                   : (_selectedAnswer != null ? _submitAnswer : null),
             ),
           ),
@@ -614,8 +645,9 @@ class _QuizScreenState extends State<QuizScreen> {
     if (_quizResult == null) return const SizedBox();
 
     // Check if user reached expert level
-    bool reachedExpert = _quizResult!.level == 'expert' && _userLevel != 'expert';
-    
+    bool reachedExpert =
+        _quizResult!.level == 'expert' && _userLevel != 'expert';
+
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.all(20),
@@ -637,9 +669,9 @@ class _QuizScreenState extends State<QuizScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              reachedExpert 
-                ? '🎉 Congratulations! You\'ve mastered entrepreneurship!'
-                : 'Your Score: ${_quizResult!.percentage.round()}%',
+              reachedExpert
+                  ? '🎉 Congratulations! You\'ve mastered entrepreneurship!'
+                  : 'Your Score: ${_quizResult!.percentage.round()}%',
               style: ModernTheme.headingMedium.copyWith(
                 color: Colors.white.withOpacity(0.9),
               ),
@@ -694,14 +726,14 @@ class _QuizScreenState extends State<QuizScreen> {
     final levelOrder = ['novice', 'intermediate', 'advanced', 'expert'];
     int prevIdx = levelOrder.indexOf(previousLevel);
     int newIdx = levelOrder.indexOf(newLevel);
-    
+
     if (kDebugMode) {
       print('🎯 QUIZ RESULT DISPLAY DEBUG:');
       print('Previous level: $previousLevel (index: $prevIdx)');
       print('New level: $newLevel (index: $newIdx)');
       print('Score: ${_quizResult!.percentage.round()}%');
     }
-    
+
     if (newIdx > prevIdx) {
       nextLevelLabel = newLevel.toUpperCase();
       if (kDebugMode) {
@@ -710,7 +742,8 @@ class _QuizScreenState extends State<QuizScreen> {
     } else if (newIdx < levelOrder.length - 1) {
       nextLevelLabel = 'Next: ' + levelOrder[newIdx + 1].toUpperCase();
       if (kDebugMode) {
-        print('➡️ No advancement, showing next target: ${levelOrder[newIdx + 1]}');
+        print(
+            '➡️ No advancement, showing next target: ${levelOrder[newIdx + 1]}');
       }
     } else {
       nextLevelLabel = newLevel.toUpperCase();
@@ -751,7 +784,7 @@ class _QuizScreenState extends State<QuizScreen> {
               _buildResultRow('Average Time per Question',
                   '${(_answers.fold<int>(0, (sum, answer) => sum + (answer['time_taken'] as int)) / _answers.length).round()}s'),
               _buildResultRow('Level', nextLevelLabel),
-              
+
               // Show notice if score is less than 70%
               if (_quizResult!.percentage < 70) ...[
                 const SizedBox(height: 16),
@@ -869,8 +902,9 @@ class _QuizScreenState extends State<QuizScreen> {
     if (_quizResult == null) return const SizedBox();
 
     // Check if user reached expert level
-    bool reachedExpert = _quizResult!.level == 'expert' && _userLevel != 'expert';
-    
+    bool reachedExpert =
+        _quizResult!.level == 'expert' && _userLevel != 'expert';
+
     return Column(
       children: [
         _buildButton(
@@ -980,7 +1014,8 @@ class _QuizScreenState extends State<QuizScreen> {
     if (_currentQuestionIndex > 0) {
       setState(() {
         _currentQuestionIndex--;
-        _selectedAnswer = _answers.isNotEmpty ? _answers.last['selected_answer'] : null;
+        _selectedAnswer =
+            _answers.isNotEmpty ? _answers.last['selected_answer'] : null;
         _showExplanation = false;
         // Restore previous answer correctness
         if (_answerCorrectness.isNotEmpty) {
@@ -1179,7 +1214,8 @@ class _ReviewAnswersScreenState extends State<ReviewAnswersScreen> {
                 child: Row(
                   children: List.generate(widget.questions.length, (index) {
                     final isAnswered = index < widget.answers.length;
-                    final isCorrect = isAnswered ? widget.answerCorrectness[index] : false;
+                    final isCorrect =
+                        isAnswered ? widget.answerCorrectness[index] : false;
 
                     return Expanded(
                       child: Container(
@@ -1206,7 +1242,8 @@ class _ReviewAnswersScreenState extends State<ReviewAnswersScreen> {
                     margin: const EdgeInsets.all(20),
                     child: Card(
                       elevation: 20,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(24)),
                       child: Container(
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(24),
@@ -1222,13 +1259,18 @@ class _ReviewAnswersScreenState extends State<ReviewAnswersScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 6),
                                 decoration: BoxDecoration(
-                                  color: ModernTheme.primaryBlue.withOpacity(0.1),
+                                  color:
+                                      ModernTheme.primaryBlue.withOpacity(0.1),
                                   borderRadius: BorderRadius.circular(20),
                                 ),
                                 child: Text(
-                                  question['category'].toString().replaceAll('_', ' ').toUpperCase(),
+                                  question['category']
+                                      .toString()
+                                      .replaceAll('_', ' ')
+                                      .toUpperCase(),
                                   style: ModernTheme.bodySmall.copyWith(
                                     color: ModernTheme.primaryBlue,
                                     fontWeight: FontWeight.bold,
@@ -1244,9 +1286,12 @@ class _ReviewAnswersScreenState extends State<ReviewAnswersScreen> {
                                 ),
                               ),
                               const SizedBox(height: 24),
-                              ...List.generate(question['options'].length, (index) {
-                                final isSelected = answer['selected_answer'] == index;
-                                final isCorrectOption = index == question['correct_answer'];
+                              ...List.generate(question['options'].length,
+                                  (index) {
+                                final isSelected =
+                                    answer['selected_answer'] == index;
+                                final isCorrectOption =
+                                    index == question['correct_answer'];
 
                                 return Container(
                                   margin: const EdgeInsets.only(bottom: 12),
@@ -1277,7 +1322,8 @@ class _ReviewAnswersScreenState extends State<ReviewAnswersScreen> {
                                               ? Colors.green
                                               : (isSelected && !isCorrectOption)
                                                   ? Colors.red
-                                                  : Colors.grey.withOpacity(0.3),
+                                                  : Colors.grey
+                                                      .withOpacity(0.3),
                                           shape: BoxShape.circle,
                                         ),
                                         child: Center(
@@ -1295,10 +1341,12 @@ class _ReviewAnswersScreenState extends State<ReviewAnswersScreen> {
                                       Expanded(
                                         child: Text(
                                           question['options'][index],
-                                          style: ModernTheme.bodyMedium.copyWith(
+                                          style:
+                                              ModernTheme.bodyMedium.copyWith(
                                             color: isCorrectOption
                                                 ? Colors.green
-                                                : (isSelected && !isCorrectOption)
+                                                : (isSelected &&
+                                                        !isCorrectOption)
                                                     ? Colors.red
                                                     : Colors.black87,
                                             fontWeight: FontWeight.w600,
@@ -1306,9 +1354,11 @@ class _ReviewAnswersScreenState extends State<ReviewAnswersScreen> {
                                         ),
                                       ),
                                       if (isCorrectOption)
-                                        const Icon(Icons.check_circle, color: Colors.green, size: 20)
+                                        const Icon(Icons.check_circle,
+                                            color: Colors.green, size: 20)
                                       else if (isSelected && !isCorrectOption)
-                                        const Icon(Icons.cancel, color: Colors.red, size: 20),
+                                        const Icon(Icons.cancel,
+                                            color: Colors.red, size: 20),
                                     ],
                                   ),
                                 );
@@ -1317,10 +1367,14 @@ class _ReviewAnswersScreenState extends State<ReviewAnswersScreen> {
                               Container(
                                 padding: const EdgeInsets.all(20),
                                 decoration: BoxDecoration(
-                                  color: isCorrect ? Colors.green.withOpacity(0.1) : Colors.orange.withOpacity(0.1),
+                                  color: isCorrect
+                                      ? Colors.green.withOpacity(0.1)
+                                      : Colors.orange.withOpacity(0.1),
                                   borderRadius: BorderRadius.circular(16),
                                   border: Border.all(
-                                    color: isCorrect ? Colors.green : Colors.orange,
+                                    color: isCorrect
+                                        ? Colors.green
+                                        : Colors.orange,
                                     width: 1,
                                   ),
                                 ),
@@ -1330,15 +1384,21 @@ class _ReviewAnswersScreenState extends State<ReviewAnswersScreen> {
                                     Row(
                                       children: [
                                         Icon(
-                                          isCorrect ? Icons.check_circle : Icons.lightbulb,
-                                          color: isCorrect ? Colors.green : Colors.orange,
+                                          isCorrect
+                                              ? Icons.check_circle
+                                              : Icons.lightbulb,
+                                          color: isCorrect
+                                              ? Colors.green
+                                              : Colors.orange,
                                           size: 24,
                                         ),
                                         const SizedBox(width: 12),
                                         Text(
                                           isCorrect ? 'Correct!' : 'Incorrect',
                                           style: ModernTheme.bodyLarge.copyWith(
-                                            color: isCorrect ? Colors.green : Colors.orange,
+                                            color: isCorrect
+                                                ? Colors.green
+                                                : Colors.orange,
                                             fontWeight: FontWeight.bold,
                                           ),
                                         ),
@@ -1357,10 +1417,12 @@ class _ReviewAnswersScreenState extends State<ReviewAnswersScreen> {
                                         padding: const EdgeInsets.all(12),
                                         decoration: BoxDecoration(
                                           color: Colors.purple.withOpacity(0.1),
-                                          borderRadius: BorderRadius.circular(8),
+                                          borderRadius:
+                                              BorderRadius.circular(8),
                                         ),
                                         child: Row(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
                                             const Icon(
                                               Icons.school,
@@ -1371,7 +1433,8 @@ class _ReviewAnswersScreenState extends State<ReviewAnswersScreen> {
                                             Expanded(
                                               child: Text(
                                                 'Learning Tip: ${question['learning_tip']}',
-                                                style: ModernTheme.bodySmall.copyWith(
+                                                style: ModernTheme.bodySmall
+                                                    .copyWith(
                                                   color: Colors.purple[700],
                                                   fontWeight: FontWeight.w500,
                                                 ),
@@ -1391,7 +1454,7 @@ class _ReviewAnswersScreenState extends State<ReviewAnswersScreen> {
                     ),
                   ),
                 ),
-              ),              // Navigation
+              ), // Navigation
               Container(
                 padding: const EdgeInsets.all(20),
                 child: Row(
@@ -1441,7 +1504,9 @@ class _ReviewAnswersScreenState extends State<ReviewAnswersScreen> {
                           ),
                           child: Center(
                             child: Text(
-                              _currentReviewIndex == widget.questions.length - 1 ? 'Finish Review' : 'Next',
+                              _currentReviewIndex == widget.questions.length - 1
+                                  ? 'Finish Review'
+                                  : 'Next',
                               style: ModernTheme.bodyLarge.copyWith(
                                 color: ModernTheme.primaryBlue,
                                 fontWeight: FontWeight.bold,
