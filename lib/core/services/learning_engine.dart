@@ -900,6 +900,52 @@ class LearningEngine {
       }
     }
   }
+
+  // Reset all learning progress
+  static Future<void> resetLearningProgress() async {
+    try {
+      // Reset learning progress
+      await FirebaseDataService.setJson('learning_progress', {
+        'completed_tutorials': [],
+        'in_progress_tutorials': [],
+        'total_time_spent': 0,
+        'current_streak': 0,
+        'longest_streak': 0,
+        'last_completion_date': null,
+      });
+
+      // Reset user level to novice
+      await QuizService.updateUserLevel('novice');
+
+      // Reset user badges (as a map structure)
+      await FirebaseDataService.setJson('user_badges', {'badges': []});
+
+      // Reset learning statistics
+      await FirebaseDataService.setJson('learning_statistics', {
+        'completed_tutorials': 0,
+        'total_time_spent': 0,
+        'current_streak': 0,
+        'longest_streak': 0,
+        'total_badges': 0,
+        'current_level': 'novice',
+        'quiz_completed': 0,
+        'average_score': 0.0,
+      });
+
+      // Reset quiz history and results
+      await FirebaseDataService.setJson('quiz_results', {'results': []});
+      await FirebaseDataService.setJson('quiz_history', {'history': []});
+
+      if (kDebugMode) {
+        print('✅ Learning progress reset successfully');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('❌ Error resetting learning progress: $e');
+      }
+      throw e;
+    }
+  }
 }
 
 // Tutorial completion result model
