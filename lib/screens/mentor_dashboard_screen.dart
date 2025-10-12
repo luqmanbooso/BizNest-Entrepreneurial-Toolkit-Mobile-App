@@ -176,21 +176,41 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen>
 
   Future<void> _loadRecentRequests() async {
     try {
+      final currentUser = FirebaseAuth.instance.currentUser;
+      final userRole = await _getCurrentUserRole();
+      print('🔍 Loading recent requests for mentor: ${currentUser?.uid}');
+      print('🔍 Current user role: $userRole');
+      
+      if (currentUser == null) {
+        print('❌ No current user found');
+        _recentRequests = [];
+        return;
+      }
+
+      if (userRole != 'mentor') {
+        print('❌ Current user is not a mentor (role: $userRole)');
+        _recentRequests = [];
+        return;
+      }
+
       // Fetch real mentorship requests from Firebase
       final querySnapshot = await FirebaseFirestore.instance
           .collection('mentorship_requests')
-          .where('mentor_id', isEqualTo: FirebaseAuth.instance.currentUser?.uid)
+          .where('mentor_id', isEqualTo: currentUser.uid)
           .orderBy('created_at', descending: true)
           .limit(4)
           .get();
 
       _recentRequests = querySnapshot.docs.map((doc) {
         final data = doc.data();
+        print('📋 Request ${doc.id}: ${data['mentee_info']?['name']} - ${data['status']}');
         return {
           'id': doc.id,
           'mentee_name': data['mentee_info']?['mentee_name'] ?? 'Unknown',
           'mentee_avatar':
               'https://ui-avatars.com/api/?name=${data['mentee_info']?['mentee_name']?.replaceAll(' ', '+') ?? 'User'}&background=random',
+          'mentee_name': data['mentee_info']?['name'] ?? 'Unknown',
+          'mentee_avatar': 'https://ui-avatars.com/api/?name=${data['mentee_info']?['name']?.replaceAll(' ', '+') ?? 'User'}&background=random',
           'business_name': data['mentee_info']?['business_name'] ?? '',
           'request_type': data['request_type'] ?? 'Mentorship',
           'timestamp':
@@ -198,9 +218,28 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen>
           'status': data['status'] ?? 'pending',
         };
       }).toList();
+      
+      print('✅ Loaded ${_recentRequests.length} recent requests');
     } catch (e) {
-      print('Error loading recent requests: $e');
+      print('❌ Error loading recent requests: $e');
       _recentRequests = [];
+    }
+  }
+
+  Future<String?> _getCurrentUserRole() async {
+    try {
+      final currentUser = FirebaseAuth.instance.currentUser;
+      if (currentUser == null) return null;
+      
+      final userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(currentUser.uid)
+          .get();
+      
+      return userDoc.data()?['role'];
+    } catch (e) {
+      print('Error getting user role: $e');
+      return null;
     }
   }
 
