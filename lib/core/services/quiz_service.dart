@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'firebase_data_service.dart';
+import 'learning_engine.dart';
 
 class QuizService {
   static const String _quizDataKey = 'quiz_data';
@@ -21,9 +22,11 @@ class QuizService {
       'correct_answer': 1,
       'category': 'business_planning',
       'difficulty': 'novice',
-      'explanation': 'A business plan serves as a roadmap for your business, outlining your strategy, goals, and how you plan to achieve them. While securing funding is important, the primary purpose is to provide a clear direction for your business operations.',
+      'explanation':
+          'A business plan serves as a roadmap for your business, outlining your strategy, goals, and how you plan to achieve them. While securing funding is important, the primary purpose is to provide a clear direction for your business operations.',
       'hint': 'Think about what guides your business decisions and operations.',
-      'learning_tip': 'A good business plan should be reviewed and updated regularly as your business evolves.'
+      'learning_tip':
+          'A good business plan should be reviewed and updated regularly as your business evolves.'
     },
     {
       'id': 2,
@@ -38,9 +41,11 @@ class QuizService {
       'correct_answer': 2,
       'category': 'market_research',
       'difficulty': 'novice',
-      'explanation': 'Market research focuses on objective data about markets, customers, and competitors. Personal preferences are subjective and not part of formal market research methodology.',
+      'explanation':
+          'Market research focuses on objective data about markets, customers, and competitors. Personal preferences are subjective and not part of formal market research methodology.',
       'hint': 'Market research should be based on data, not personal opinions.',
-      'learning_tip': 'Always validate your assumptions with real market data before making business decisions.'
+      'learning_tip':
+          'Always validate your assumptions with real market data before making business decisions.'
     },
     {
       'id': 3,
@@ -54,9 +59,12 @@ class QuizService {
       'correct_answer': 1,
       'category': 'product_development',
       'difficulty': 'intermediate',
-      'explanation': 'MVP stands for Minimum Viable Product - the simplest version of your product that allows you to test your business hypothesis with real customers.',
-      'hint': 'It\'s about testing your idea with the least amount of resources.',
-      'learning_tip': 'Focus on building an MVP that solves the core problem for your target customers.'
+      'explanation':
+          'MVP stands for Minimum Viable Product - the simplest version of your product that allows you to test your business hypothesis with real customers.',
+      'hint':
+          'It\'s about testing your idea with the least amount of resources.',
+      'learning_tip':
+          'Focus on building an MVP that solves the core problem for your target customers.'
     },
     {
       'id': 4,
@@ -66,9 +74,11 @@ class QuizService {
       'correct_answer': 1,
       'category': 'financial_management',
       'difficulty': 'intermediate',
-      'explanation': 'Runway measures how many months a company can continue operating with its current cash reserves. It\'s calculated by dividing current cash by monthly burn rate.',
+      'explanation':
+          'Runway measures how many months a company can continue operating with its current cash reserves. It\'s calculated by dividing current cash by monthly burn rate.',
       'hint': 'It\'s about how long your current cash will last.',
-      'learning_tip': 'Monitor your runway closely and plan fundraising before you run out of cash.'
+      'learning_tip':
+          'Monitor your runway closely and plan fundraising before you run out of cash.'
     },
     {
       'id': 5,
@@ -82,9 +92,12 @@ class QuizService {
       'correct_answer': 1,
       'category': 'customer_development',
       'difficulty': 'advanced',
-      'explanation': 'Customer validation proves that your product solves a real problem for a specific group of customers who are willing to pay for it.',
-      'hint': 'It\'s about confirming that customers actually want and need your solution.',
-      'learning_tip': 'Never assume you know what customers want - always validate with real users.'
+      'explanation':
+          'Customer validation proves that your product solves a real problem for a specific group of customers who are willing to pay for it.',
+      'hint':
+          'It\'s about confirming that customers actually want and need your solution.',
+      'learning_tip':
+          'Never assume you know what customers want - always validate with real users.'
     },
     {
       'id': 6,
@@ -93,9 +106,11 @@ class QuizService {
       'correct_answer': 1,
       'category': 'funding',
       'difficulty': 'intermediate',
-      'explanation': 'The typical startup funding progression is: Pre-seed → Seed → Series A → Series B → Series C. Series A comes after seed funding.',
+      'explanation':
+          'The typical startup funding progression is: Pre-seed → Seed → Series A → Series B → Series C. Series A comes after seed funding.',
       'hint': 'Seed funding is the first institutional round of funding.',
-      'learning_tip': 'Each funding stage has different requirements and expectations from investors.'
+      'learning_tip':
+          'Each funding stage has different requirements and expectations from investors.'
     },
     {
       'id': 7,
@@ -109,9 +124,12 @@ class QuizService {
       'correct_answer': 1,
       'category': 'strategic_planning',
       'difficulty': 'novice',
-      'explanation': 'SWOT (Strengths, Weaknesses, Opportunities, Threats) analysis helps you understand your internal capabilities and external environment.',
-      'hint': 'It examines both internal and external factors affecting your business.',
-      'learning_tip': 'Conduct SWOT analysis regularly as your business and market conditions change.'
+      'explanation':
+          'SWOT (Strengths, Weaknesses, Opportunities, Threats) analysis helps you understand your internal capabilities and external environment.',
+      'hint':
+          'It examines both internal and external factors affecting your business.',
+      'learning_tip':
+          'Conduct SWOT analysis regularly as your business and market conditions change.'
     },
     {
       'id': 8,
@@ -121,9 +139,11 @@ class QuizService {
       'correct_answer': 2,
       'category': 'legal',
       'difficulty': 'intermediate',
-      'explanation': 'A corporation provides the strongest liability protection by creating a separate legal entity. However, it also has more complex requirements and potential double taxation.',
+      'explanation':
+          'A corporation provides the strongest liability protection by creating a separate legal entity. However, it also has more complex requirements and potential double taxation.',
       'hint': 'It creates a separate legal entity from its owners.',
-      'learning_tip': 'Choose your legal structure based on liability protection, tax implications, and operational complexity.'
+      'learning_tip':
+          'Choose your legal structure based on liability protection, tax implications, and operational complexity.'
     },
     {
       'id': 9,
@@ -138,9 +158,12 @@ class QuizService {
       'correct_answer': 1,
       'category': 'networking',
       'difficulty': 'novice',
-      'explanation': 'Networking provides access to mentors, partners, investors, customers, and other valuable resources that can accelerate your business growth.',
-      'hint': 'It\'s about building relationships that provide value to your business.',
-      'learning_tip': 'Focus on building genuine relationships rather than just collecting business cards.'
+      'explanation':
+          'Networking provides access to mentors, partners, investors, customers, and other valuable resources that can accelerate your business growth.',
+      'hint':
+          'It\'s about building relationships that provide value to your business.',
+      'learning_tip':
+          'Focus on building genuine relationships rather than just collecting business cards.'
     },
     {
       'id': 10,
@@ -155,13 +178,16 @@ class QuizService {
       'correct_answer': 1,
       'category': 'marketing',
       'difficulty': 'advanced',
-      'explanation': 'CAC measures how much it costs to acquire each new customer. It\'s crucial for understanding the efficiency of your marketing and sales efforts.',
+      'explanation':
+          'CAC measures how much it costs to acquire each new customer. It\'s crucial for understanding the efficiency of your marketing and sales efforts.',
       'hint': 'It measures the cost effectiveness of gaining new customers.',
-      'learning_tip': 'Compare your CAC with customer lifetime value (LTV) to ensure profitability.'
+      'learning_tip':
+          'Compare your CAC with customer lifetime value (LTV) to ensure profitability.'
     },
     {
       'id': 11,
-      'question': 'What is the main difference between a product and a service?',
+      'question':
+          'What is the main difference between a product and a service?',
       'options': [
         'Products are tangible, services are intangible',
         'Products are cheaper than services',
@@ -171,9 +197,12 @@ class QuizService {
       'correct_answer': 0,
       'category': 'business_fundamentals',
       'difficulty': 'novice',
-      'explanation': 'Products are physical items that customers can touch and own, while services are intangible experiences or actions performed for customers.',
-      'hint': 'Think about what you can hold in your hand vs. what you experience.',
-      'learning_tip': 'Understanding this difference helps you choose the right business model and marketing strategies.'
+      'explanation':
+          'Products are physical items that customers can touch and own, while services are intangible experiences or actions performed for customers.',
+      'hint':
+          'Think about what you can hold in your hand vs. what you experience.',
+      'learning_tip':
+          'Understanding this difference helps you choose the right business model and marketing strategies.'
     },
     {
       'id': 12,
@@ -187,9 +216,12 @@ class QuizService {
       'correct_answer': 3,
       'category': 'pricing_strategy',
       'difficulty': 'novice',
-      'explanation': 'Random pricing is not a legitimate pricing strategy. Businesses use cost-plus, value-based, or competition-based pricing to set prices strategically.',
-      'hint': 'Businesses set prices for specific business reasons, not randomly.',
-      'learning_tip': 'Choose a pricing strategy that aligns with your business goals and target market.'
+      'explanation':
+          'Random pricing is not a legitimate pricing strategy. Businesses use cost-plus, value-based, or competition-based pricing to set prices strategically.',
+      'hint':
+          'Businesses set prices for specific business reasons, not randomly.',
+      'learning_tip':
+          'Choose a pricing strategy that aligns with your business goals and target market.'
     },
     {
       'id': 13,
@@ -203,9 +235,12 @@ class QuizService {
       'correct_answer': 0,
       'category': 'financial_management',
       'difficulty': 'novice',
-      'explanation': 'ROI (Return on Investment) measures the profitability of an investment by comparing the gain or loss relative to the cost.',
-      'hint': 'It\'s a percentage that shows how much profit you make from your investment.',
-      'learning_tip': 'Always calculate ROI before making business investments to ensure they\'re worthwhile.'
+      'explanation':
+          'ROI (Return on Investment) measures the profitability of an investment by comparing the gain or loss relative to the cost.',
+      'hint':
+          'It\'s a percentage that shows how much profit you make from your investment.',
+      'learning_tip':
+          'Always calculate ROI before making business investments to ensure they\'re worthwhile.'
     },
     {
       'id': 14,
@@ -219,25 +254,24 @@ class QuizService {
       'correct_answer': 1,
       'category': 'market_research',
       'difficulty': 'novice',
-      'explanation': 'A target market is a specific group of customers who are most likely to buy your products or services based on demographics, interests, and needs.',
+      'explanation':
+          'A target market is a specific group of customers who are most likely to buy your products or services based on demographics, interests, and needs.',
       'hint': 'It\'s about knowing who your ideal customers are.',
-      'learning_tip': 'Define your target market clearly to focus your marketing efforts effectively.'
+      'learning_tip':
+          'Define your target market clearly to focus your marketing efforts effectively.'
     },
     {
       'id': 15,
       'question': 'Which of these is a fixed cost for most businesses?',
-      'options': [
-        'Raw materials',
-        'Rent',
-        'Packaging',
-        'Shipping'
-      ],
+      'options': ['Raw materials', 'Rent', 'Packaging', 'Shipping'],
       'correct_answer': 1,
       'category': 'financial_management',
       'difficulty': 'novice',
-      'explanation': 'Fixed costs remain the same regardless of business activity level, like rent, insurance, and salaries. Variable costs change with production volume.',
+      'explanation':
+          'Fixed costs remain the same regardless of business activity level, like rent, insurance, and salaries. Variable costs change with production volume.',
       'hint': 'It doesn\'t change based on how much you sell.',
-      'learning_tip': 'Understanding fixed vs. variable costs helps with pricing and profitability analysis.'
+      'learning_tip':
+          'Understanding fixed vs. variable costs helps with pricing and profitability analysis.'
     },
     {
       'id': 16,
@@ -251,9 +285,11 @@ class QuizService {
       'correct_answer': 1,
       'category': 'strategic_planning',
       'difficulty': 'intermediate',
-      'explanation': 'A competitive advantage is any factor that allows a company to provide value to customers better than its competitors, such as unique products, better service, or cost efficiency.',
+      'explanation':
+          'A competitive advantage is any factor that allows a company to provide value to customers better than its competitors, such as unique products, better service, or cost efficiency.',
       'hint': 'It\'s what sets you apart from the competition.',
-      'learning_tip': 'Identify and leverage your competitive advantages to stand out in the market.'
+      'learning_tip':
+          'Identify and leverage your competitive advantages to stand out in the market.'
     },
     {
       'id': 17,
@@ -267,9 +303,11 @@ class QuizService {
       'correct_answer': 1,
       'category': 'financial_management',
       'difficulty': 'intermediate',
-      'explanation': 'The break-even point is when total revenue equals total costs, meaning you\'re neither making nor losing money.',
+      'explanation':
+          'The break-even point is when total revenue equals total costs, meaning you\'re neither making nor losing money.',
       'hint': 'It\'s the point where you stop losing money.',
-      'learning_tip': 'Calculate your break-even point to understand how much you need to sell to be profitable.'
+      'learning_tip':
+          'Calculate your break-even point to understand how much you need to sell to be profitable.'
     },
     {
       'id': 18,
@@ -283,9 +321,11 @@ class QuizService {
       'correct_answer': 1,
       'category': 'marketing',
       'difficulty': 'intermediate',
-      'explanation': 'A value proposition is a clear statement of the unique value your product or service provides to customers and why they should choose you over competitors.',
+      'explanation':
+          'A value proposition is a clear statement of the unique value your product or service provides to customers and why they should choose you over competitors.',
       'hint': 'It\'s about what makes your offering special and valuable.',
-      'learning_tip': 'Craft a compelling value proposition to attract and retain customers.'
+      'learning_tip':
+          'Craft a compelling value proposition to attract and retain customers.'
     },
     {
       'id': 19,
@@ -299,9 +339,11 @@ class QuizService {
       'correct_answer': 1,
       'category': 'marketing',
       'difficulty': 'intermediate',
-      'explanation': 'Market penetration involves selling more of your existing products to your existing market through strategies like increasing market share or frequency of purchase.',
+      'explanation':
+          'Market penetration involves selling more of your existing products to your existing market through strategies like increasing market share or frequency of purchase.',
       'hint': 'It\'s about growing within your current market.',
-      'learning_tip': 'Market penetration is often the first growth strategy businesses should consider.'
+      'learning_tip':
+          'Market penetration is often the first growth strategy businesses should consider.'
     },
     {
       'id': 20,
@@ -315,9 +357,11 @@ class QuizService {
       'correct_answer': 0,
       'category': 'strategic_planning',
       'difficulty': 'intermediate',
-      'explanation': 'A pivot is a fundamental change in a business strategy, often involving changing the product, target market, or business model when the original approach isn\'t working.',
+      'explanation':
+          'A pivot is a fundamental change in a business strategy, often involving changing the product, target market, or business model when the original approach isn\'t working.',
       'hint': 'It\'s when you change course dramatically.',
-      'learning_tip': 'Be willing to pivot when data shows your current strategy isn\'t working.'
+      'learning_tip':
+          'Be willing to pivot when data shows your current strategy isn\'t working.'
     },
     {
       'id': 21,
@@ -331,9 +375,12 @@ class QuizService {
       'correct_answer': 0,
       'category': 'financial_management',
       'difficulty': 'advanced',
-      'explanation': 'CAC payback period is the time it takes for a customer to generate enough revenue to cover the cost of acquiring them.',
-      'hint': 'It measures how quickly you recover your customer acquisition investment.',
-      'learning_tip': 'Aim for a CAC payback period of 12 months or less for sustainable growth.'
+      'explanation':
+          'CAC payback period is the time it takes for a customer to generate enough revenue to cover the cost of acquiring them.',
+      'hint':
+          'It measures how quickly you recover your customer acquisition investment.',
+      'learning_tip':
+          'Aim for a CAC payback period of 12 months or less for sustainable growth.'
     },
     {
       'id': 22,
@@ -347,9 +394,12 @@ class QuizService {
       'correct_answer': 0,
       'category': 'analytics',
       'difficulty': 'advanced',
-      'explanation': 'Cohort analysis groups customers by shared characteristics (like signup date) and tracks their behavior over time to understand retention and engagement patterns.',
-      'hint': 'It\'s about studying groups of customers with similar characteristics.',
-      'learning_tip': 'Use cohort analysis to understand customer lifetime value and retention strategies.'
+      'explanation':
+          'Cohort analysis groups customers by shared characteristics (like signup date) and tracks their behavior over time to understand retention and engagement patterns.',
+      'hint':
+          'It\'s about studying groups of customers with similar characteristics.',
+      'learning_tip':
+          'Use cohort analysis to understand customer lifetime value and retention strategies.'
     },
     {
       'id': 23,
@@ -363,9 +413,12 @@ class QuizService {
       'correct_answer': 1,
       'category': 'product_development',
       'difficulty': 'advanced',
-      'explanation': 'Product-market fit occurs when your product satisfies a strong market demand and customers are enthusiastic about it, often evidenced by high retention and organic growth.',
-      'hint': 'It\'s when your product meets a real need that customers are excited about.',
-      'learning_tip': 'Focus on achieving product-market fit before scaling your business.'
+      'explanation':
+          'Product-market fit occurs when your product satisfies a strong market demand and customers are enthusiastic about it, often evidenced by high retention and organic growth.',
+      'hint':
+          'It\'s when your product meets a real need that customers are excited about.',
+      'learning_tip':
+          'Focus on achieving product-market fit before scaling your business.'
     },
     {
       'id': 24,
@@ -379,9 +432,11 @@ class QuizService {
       'correct_answer': 0,
       'category': 'business_models',
       'difficulty': 'advanced',
-      'explanation': 'SaaS (Software as a Service) is a software delivery model where customers pay a subscription fee to access software hosted by the provider, rather than purchasing it outright.',
+      'explanation':
+          'SaaS (Software as a Service) is a software delivery model where customers pay a subscription fee to access software hosted by the provider, rather than purchasing it outright.',
       'hint': 'It\'s subscription-based software that you access online.',
-      'learning_tip': 'SaaS businesses benefit from recurring revenue and scalable delivery.'
+      'learning_tip':
+          'SaaS businesses benefit from recurring revenue and scalable delivery.'
     },
     {
       'id': 25,
@@ -395,9 +450,12 @@ class QuizService {
       'correct_answer': 1,
       'category': 'financial_management',
       'difficulty': 'advanced',
-      'explanation': 'Gross margin is revenue minus cost of goods sold (COGS). Net margin is gross profit minus all operating expenses, taxes, and other costs.',
-      'hint': 'Gross margin shows profitability from sales, net margin shows overall profitability.',
-      'learning_tip': 'Monitor both margins to understand different aspects of your business profitability.'
+      'explanation':
+          'Gross margin is revenue minus cost of goods sold (COGS). Net margin is gross profit minus all operating expenses, taxes, and other costs.',
+      'hint':
+          'Gross margin shows profitability from sales, net margin shows overall profitability.',
+      'learning_tip':
+          'Monitor both margins to understand different aspects of your business profitability.'
     },
     {
       'id': 26,
@@ -411,9 +469,11 @@ class QuizService {
       'correct_answer': 0,
       'category': 'analytics',
       'difficulty': 'intermediate',
-      'explanation': 'KPIs are measurable values that demonstrate how effectively a company is achieving key business objectives.',
+      'explanation':
+          'KPIs are measurable values that demonstrate how effectively a company is achieving key business objectives.',
       'hint': 'It\'s a metric that shows if you\'re meeting your goals.',
-      'learning_tip': 'Choose KPIs that align with your business objectives and track them regularly.'
+      'learning_tip':
+          'Choose KPIs that align with your business objectives and track them regularly.'
     },
     {
       'id': 27,
@@ -427,9 +487,11 @@ class QuizService {
       'correct_answer': 0,
       'category': 'marketing',
       'difficulty': 'intermediate',
-      'explanation': 'A/B testing compares two versions of a webpage, email, or other marketing element to determine which one performs better.',
+      'explanation':
+          'A/B testing compares two versions of a webpage, email, or other marketing element to determine which one performs better.',
       'hint': 'It\'s about comparing option A vs. option B.',
-      'learning_tip': 'Use A/B testing to optimize your marketing and improve conversion rates.'
+      'learning_tip':
+          'Use A/B testing to optimize your marketing and improve conversion rates.'
     },
     {
       'id': 28,
@@ -443,9 +505,12 @@ class QuizService {
       'correct_answer': 0,
       'category': 'customer_experience',
       'difficulty': 'intermediate',
-      'explanation': 'The customer journey maps all the touchpoints and experiences a customer has with your brand from initial awareness to post-purchase.',
-      'hint': 'It\'s the complete experience customers have with your business.',
-      'learning_tip': 'Map your customer journey to identify opportunities for improvement.'
+      'explanation':
+          'The customer journey maps all the touchpoints and experiences a customer has with your brand from initial awareness to post-purchase.',
+      'hint':
+          'It\'s the complete experience customers have with your business.',
+      'learning_tip':
+          'Map your customer journey to identify opportunities for improvement.'
     },
     {
       'id': 29,
@@ -459,9 +524,11 @@ class QuizService {
       'correct_answer': 1,
       'category': 'analytics',
       'difficulty': 'advanced',
-      'explanation': 'Churn rate measures the percentage of customers who stop using your product or service over a given period.',
+      'explanation':
+          'Churn rate measures the percentage of customers who stop using your product or service over a given period.',
       'hint': 'It measures customer loss, not gain.',
-      'learning_tip': 'Monitor churn rate closely and implement retention strategies to reduce it.'
+      'learning_tip':
+          'Monitor churn rate closely and implement retention strategies to reduce it.'
     },
     {
       'id': 30,
@@ -475,9 +542,11 @@ class QuizService {
       'correct_answer': 1,
       'category': 'product_development',
       'difficulty': 'intermediate',
-      'explanation': 'An MVP is the most basic version of your product that allows you to test your business hypothesis with real customers and gather feedback.',
+      'explanation':
+          'An MVP is the most basic version of your product that allows you to test your business hypothesis with real customers and gather feedback.',
       'hint': 'It\'s about testing your idea with the least effort possible.',
-      'learning_tip': 'Launch an MVP early to validate your assumptions and learn from real users.'
+      'learning_tip':
+          'Launch an MVP early to validate your assumptions and learn from real users.'
     }
   ];
   static List<Map<String, dynamic>> getQuizQuestions() {
@@ -497,6 +566,9 @@ class QuizService {
   // Submit quiz answers and calculate score
   static Future<QuizResult> submitQuiz(
       List<Map<String, dynamic>> answers) async {
+    if (kDebugMode) {
+      print('🚀 SUBMIT_QUIZ CALLED - Starting quiz submission');
+    }
     try {
       int totalQuestions = answers.length;
       int correctAnswers = 0;
@@ -527,7 +599,20 @@ class QuizService {
 
       // Get current level for advancement logic
       String currentLevel = await getUserLevel();
+      if (kDebugMode) {
+        print(
+            '🎯 Quiz completed: $correctAnswers/$totalQuestions correct = $percentage%');
+        print('🎯 Current user level before progression check: $currentLevel');
+        print(
+            '🎯 About to call _determineUserLevel($percentage, $currentLevel)');
+      }
+
       String newLevel = _determineUserLevel(percentage, currentLevel);
+
+      if (kDebugMode) {
+        print('🎯 _determineUserLevel returned: $newLevel');
+        print('🎯 Level changed? ${newLevel != currentLevel}');
+      }
 
       var result = QuizResult(
         totalQuestions: totalQuestions,
@@ -544,7 +629,20 @@ class QuizService {
 
       // Update user level only if advanced
       if (newLevel != currentLevel) {
+        if (kDebugMode) {
+          print('🚀 Updating user level from $currentLevel to $newLevel');
+        }
         await updateUserLevel(newLevel);
+        if (kDebugMode) {
+          print('✅ User level updated successfully');
+          // Verify the update worked
+          final verifyLevel = await getUserLevel();
+          print('🔍 Verification: User level is now $verifyLevel');
+        }
+      } else {
+        if (kDebugMode) {
+          print('⭕ No level change needed: $currentLevel remains the same');
+        }
       }
 
       return result;
@@ -558,31 +656,74 @@ class QuizService {
 
   // Determine user level based on performance
   static String _determineUserLevel(double percentage, String currentLevel) {
-    // Only advance if score >= 60%
-    if (percentage >= 60) {
-      if (currentLevel == 'novice') {
-        return 'intermediate';
-      } else if (currentLevel == 'intermediate') {
-        return 'advanced';
-      }
+    if (kDebugMode) {
+      print('=== LEVEL DETERMINATION DEBUG ===');
+      print('Input: Score $percentage%, Current level: $currentLevel');
     }
 
-    // Stay at current level if score < 60% or already at advanced
+    // Only advance if score >= 70%
+    if (percentage >= 70) {
+      String newLevel = currentLevel;
+
+      // Sequential progression only - no level skipping
+      if (currentLevel == 'novice') {
+        newLevel = 'intermediate';
+        if (kDebugMode) print('✅ NOVICE -> INTERMEDIATE progression');
+      } else if (currentLevel == 'intermediate') {
+        newLevel = 'advanced';
+        if (kDebugMode) print('✅ INTERMEDIATE -> ADVANCED progression');
+      } else if (currentLevel == 'advanced') {
+        newLevel = 'expert';
+        if (kDebugMode) print('✅ ADVANCED -> EXPERT progression');
+      } else if (currentLevel == 'expert') {
+        newLevel = 'expert'; // Stay at expert
+        if (kDebugMode) print('✅ Already at max level: EXPERT');
+      } else {
+        if (kDebugMode) print('⚠️ Unknown level: $currentLevel, staying same');
+      }
+
+      if (kDebugMode) {
+        print('Output: Level advancement: $currentLevel -> $newLevel');
+        print('=== END LEVEL DETERMINATION ===');
+      }
+      return newLevel;
+    }
+
+    // Stay at current level if score < 70%
+    if (kDebugMode) {
+      print('❌ No level advancement: Score $percentage% < 70%');
+      print('Output: Staying at $currentLevel');
+      print('=== END LEVEL DETERMINATION ===');
+    }
     return currentLevel;
   }
 
   // Get user's current level
   static Future<String> getUserLevel() async {
     try {
-      return await FirebaseDataService.getString(_userLevelKey) ?? 'novice';
+      final level =
+          await FirebaseDataService.getString(_userLevelKey) ?? 'novice';
+      if (kDebugMode) {
+        print('📖 Retrieved user level from database: $level');
+      }
+      return level;
     } catch (e) {
+      if (kDebugMode) {
+        print('❌ Error getting user level: $e, defaulting to novice');
+      }
       return 'novice';
     }
   }
 
   // Update user level
   static Future<void> updateUserLevel(String level) async {
+    if (kDebugMode) {
+      print('💾 Saving new user level to database: $level');
+    }
     await FirebaseDataService.setString(_userLevelKey, level);
+    if (kDebugMode) {
+      print('✅ User level saved successfully: $level');
+    }
   }
 
   // Save quiz result
@@ -771,6 +912,122 @@ class QuizService {
       'correct_answers': correctAnswers,
       'accuracy_percentage': accuracy,
     };
+  }
+
+  // Test function to verify level progression logic
+  static void testLevelProgression() {
+    if (kDebugMode) {
+      print('🧪 Testing Level Progression Logic:');
+      print(
+          'Test 1: novice with 80% -> ${_determineUserLevel(80.0, 'novice')}');
+      print(
+          'Test 2: intermediate with 75% -> ${_determineUserLevel(75.0, 'intermediate')}');
+      print(
+          'Test 3: advanced with 90% -> ${_determineUserLevel(90.0, 'advanced')}');
+      print(
+          'Test 4: expert with 85% -> ${_determineUserLevel(85.0, 'expert')}');
+      print(
+          'Test 5: novice with 60% -> ${_determineUserLevel(60.0, 'novice')}');
+
+      // Verify exact progression
+      print('🔍 LEVEL PROGRESSION VERIFICATION:');
+      print('NOVICE should advance to: ${_determineUserLevel(70.0, 'novice')}');
+      print(
+          'INTERMEDIATE should advance to: ${_determineUserLevel(70.0, 'intermediate')}');
+      print(
+          'ADVANCED should advance to: ${_determineUserLevel(70.0, 'advanced')}');
+      print('🧪 Level Progression Test Complete');
+    }
+  }
+
+  // Debug function to check current user state
+  static Future<void> debugUserState() async {
+    if (kDebugMode) {
+      print('🔍 === USER STATE DEBUG ===');
+      final level = await getUserLevel();
+      print('Current Level: $level');
+
+      final history = await getQuizHistory();
+      print('Quiz History Count: ${history.length}');
+
+      if (history.isNotEmpty) {
+        final lastQuiz = history.last;
+        print('Last Quiz Score: ${lastQuiz['percentage']}%');
+        print('Last Quiz Level: ${lastQuiz['level']}');
+      }
+      print('🔍 === END USER STATE ===');
+    }
+  }
+
+  // Force reset user to novice (for testing)
+  static Future<void> forceResetToNovice() async {
+    if (kDebugMode) {
+      print('🔄 Force resetting user to novice level...');
+    }
+    await updateUserLevel('novice');
+    // Clear quiz history to start fresh
+    await FirebaseDataService.setString(_quizHistoryKey, '[]');
+
+    // Also reset learning progress to ensure clean state
+    await LearningEngine.resetLearningProgress();
+
+    if (kDebugMode) {
+      print('✅ User completely reset to novice level');
+      // Verify the reset
+      final currentLevel = await getUserLevel();
+      print('🔍 Verified current level: $currentLevel');
+    }
+  }
+
+  // Check if user should be allowed to take quiz (has completed current level tutorials)
+  static Future<bool> canTakeQuiz() async {
+    try {
+      final userLevel = await getUserLevel();
+
+      // Import the learning engine to check tutorial completion
+      final tutorialsCompleted =
+          await LearningEngine.areCurrentLevelTutorialsCompleted();
+
+      if (kDebugMode) {
+        print('🎯 Quiz eligibility check for level: $userLevel');
+        print('🎯 Current level tutorials completed: $tutorialsCompleted');
+      }
+
+      return tutorialsCompleted;
+    } catch (e) {
+      if (kDebugMode) {
+        print('❌ Error checking quiz eligibility: $e');
+      }
+      return false; // Default to not allowing quiz if error
+    }
+  }
+
+  // Get quiz eligibility info for UI display
+  static Future<Map<String, dynamic>> getQuizEligibilityInfo() async {
+    try {
+      final userLevel = await getUserLevel();
+      final canTake = await canTakeQuiz();
+      final remainingTutorials =
+          await LearningEngine.getRemainingCurrentLevelTutorials();
+
+      return {
+        'canTakeQuiz': canTake,
+        'userLevel': userLevel,
+        'remainingTutorials': remainingTutorials.length,
+        'remainingTutorialTitles':
+            remainingTutorials.map((t) => t['title']).toList(),
+      };
+    } catch (e) {
+      if (kDebugMode) {
+        print('❌ Error getting quiz eligibility info: $e');
+      }
+      return {
+        'canTakeQuiz': false,
+        'userLevel': 'novice',
+        'remainingTutorials': 0,
+        'remainingTutorialTitles': [],
+      };
+    }
   }
 }
 

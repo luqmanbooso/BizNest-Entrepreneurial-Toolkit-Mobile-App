@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 import '../core/theme/modern_theme.dart';
 import '../core/services/learning_engine.dart';
 
@@ -278,11 +279,53 @@ class _TutorialScreenState extends State<TutorialScreen>
   Widget _buildSectionContent(Map<String, dynamic> section) {
     switch (section['type']) {
       case 'text':
-        return Text(
-          section['content'],
-          style: ModernTheme.bodyLarge.copyWith(
-            height: 1.6,
-            color: Colors.grey[800],
+        return MarkdownBody(
+          data: section['content'],
+          styleSheet: MarkdownStyleSheet(
+            p: ModernTheme.bodyLarge.copyWith(
+              height: 1.6,
+              color: Colors.grey[800],
+            ),
+            h1: ModernTheme.headingLarge.copyWith(
+              color: ModernTheme.primaryBlue,
+              fontWeight: FontWeight.bold,
+            ),
+            h2: ModernTheme.headingMedium.copyWith(
+              color: ModernTheme.primaryBlue,
+              fontWeight: FontWeight.bold,
+            ),
+            h3: ModernTheme.h4.copyWith(
+              color: ModernTheme.primaryBlue,
+              fontWeight: FontWeight.w600,
+            ),
+            strong: ModernTheme.bodyLarge.copyWith(
+              fontWeight: FontWeight.bold,
+              color: Colors.grey[900],
+            ),
+            listBullet: ModernTheme.bodyMedium.copyWith(
+              color: ModernTheme.primaryBlue,
+            ),
+            blockquotePadding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            blockquoteDecoration: BoxDecoration(
+              color: ModernTheme.primaryBlue.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
+              border: Border(
+                left: BorderSide(
+                  color: ModernTheme.primaryBlue,
+                  width: 4,
+                ),
+              ),
+            ),
+            code: ModernTheme.bodyMedium.copyWith(
+              fontFamily: 'monospace',
+              backgroundColor: Colors.grey[100],
+              color: Colors.grey[800],
+            ),
+            codeblockDecoration: BoxDecoration(
+              color: Colors.grey[100],
+              borderRadius: BorderRadius.circular(8),
+            ),
           ),
         );
       case 'quiz':
@@ -290,11 +333,13 @@ class _TutorialScreenState extends State<TutorialScreen>
       case 'interactive':
         return _buildInteractiveSection(section);
       default:
-        return Text(
-          section['content'],
-          style: ModernTheme.bodyLarge.copyWith(
-            height: 1.6,
-            color: Colors.grey[800],
+        return MarkdownBody(
+          data: section['content'],
+          styleSheet: MarkdownStyleSheet(
+            p: ModernTheme.bodyLarge.copyWith(
+              height: 1.6,
+              color: Colors.grey[800],
+            ),
           ),
         );
     }
