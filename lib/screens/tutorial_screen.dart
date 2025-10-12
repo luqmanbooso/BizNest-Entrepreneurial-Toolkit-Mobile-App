@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_markdown/flutter_markdown.dart';
 import '../core/theme/modern_theme.dart';
 import '../core/services/learning_engine.dart';
 
@@ -955,7 +954,7 @@ class _TutorialScreenState extends State<TutorialScreen>
       ),
       child: Column(
         children: [
-          Icon(
+          const Icon(
             Icons.touch_app,
             size: 48,
             color: ModernTheme.primaryBlue,

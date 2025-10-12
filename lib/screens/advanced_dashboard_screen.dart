@@ -1145,7 +1145,8 @@ class _AdvancedDashboardScreenState extends State<AdvancedDashboardScreen>
                         Icons.add_business,
                         ModernTheme.primaryBlue,
                         () => Navigator.of(context).push(
-                          MaterialPageRoute(builder: (_) => const BusinessScreen()),
+                          MaterialPageRoute(
+                              builder: (_) => const BusinessScreen()),
                         ),
                       ),
                       _buildActionCard(
@@ -1153,7 +1154,8 @@ class _AdvancedDashboardScreenState extends State<AdvancedDashboardScreen>
                         Icons.school,
                         ModernTheme.freshGreen,
                         () => Navigator.of(context).push(
-                          MaterialPageRoute(builder: (_) => const LearningScreen()),
+                          MaterialPageRoute(
+                              builder: (_) => const LearningScreen()),
                         ),
                       ),
                       _buildActionCard(
@@ -1221,8 +1223,6 @@ class _AdvancedDashboardScreenState extends State<AdvancedDashboardScreen>
           child: Column(
             children: [
               _buildUsageChart(),
-              const SizedBox(height: 20),
-              _buildPerformanceMetrics(),
             ],
           ),
         );
@@ -1269,63 +1269,6 @@ class _AdvancedDashboardScreenState extends State<AdvancedDashboardScreen>
                       borderData: FlBorderData(show: false),
                     ),
                   ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPerformanceMetrics() {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(28),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 30,
-            offset: const Offset(0, 15),
-            spreadRadius: -5,
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Performance Metrics',
-            style: ModernTheme.headingMedium.copyWith(
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-          const SizedBox(height: 20),
-          _buildMetricRow('Completion Rate', '85%', ModernTheme.freshGreen),
-          _buildMetricRow('Average Score', '78', ModernTheme.primaryBlue),
-          _buildMetricRow('Time Saved', '12h', ModernTheme.goldenYellow),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildMetricRow(String label, String value, Color color) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            label,
-            style: ModernTheme.bodyLarge.copyWith(
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          Text(
-            value,
-            style: ModernTheme.bodyLarge.copyWith(
-              fontWeight: FontWeight.w700,
-              color: color,
-            ),
           ),
         ],
       ),

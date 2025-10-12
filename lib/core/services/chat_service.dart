@@ -62,10 +62,7 @@ class ChatService {
       });
 
       // Update chat document with last message
-      await _firestore
-          .collection('chats')
-          .doc(chatId)
-          .update({
+      await _firestore.collection('chats').doc(chatId).update({
         'last_message': message,
         'last_message_time': FieldValue.serverTimestamp(),
         'last_message_sender': currentUserId,
@@ -111,7 +108,8 @@ class ChatService {
       final chatDoc = await _firestore.collection('chats').doc(chatId).get();
       if (!chatDoc.exists) return null;
 
-      final participants = List<String>.from(chatDoc.data()?['participants'] ?? []);
+      final participants =
+          List<String>.from(chatDoc.data()?['participants'] ?? []);
       final otherUserId = participants.firstWhere(
         (id) => id != currentUserId,
         orElse: () => '',
@@ -120,7 +118,8 @@ class ChatService {
       if (otherUserId.isEmpty) return null;
 
       // Get other user's info
-      final userDoc = await _firestore.collection('users').doc(otherUserId).get();
+      final userDoc =
+          await _firestore.collection('users').doc(otherUserId).get();
       if (!userDoc.exists) return null;
 
       return {
@@ -145,11 +144,8 @@ class ChatService {
 
       // Update unread messages (this would require additional fields in message documents)
       // For now, we'll implement this as a placeholder
-      await _firestore
-          .collection('chats')
-          .doc(chatId)
-          .update({
-        'last_read_by_${currentUserId}': FieldValue.serverTimestamp(),
+      await _firestore.collection('chats').doc(chatId).update({
+        'last_read_by_$currentUserId': FieldValue.serverTimestamp(),
       });
     } catch (e) {
       print('Error marking messages as read: $e');
@@ -167,7 +163,7 @@ class ChatService {
           .get();
 
       final batch = _firestore.batch();
-      
+
       for (final doc in messagesSnapshot.docs) {
         batch.delete(doc.reference);
       }
@@ -192,8 +188,9 @@ class ChatService {
       final chatDoc = await _firestore.collection('chats').doc(chatId).get();
       if (!chatDoc.exists) return 0;
 
-      final lastReadTime = chatDoc.data()?['last_read_by_$currentUserId'] as Timestamp?;
-      
+      final lastReadTime =
+          chatDoc.data()?['last_read_by_$currentUserId'] as Timestamp?;
+
       if (lastReadTime == null) {
         // If never read, count all messages from other users
         final messagesSnapshot = await _firestore

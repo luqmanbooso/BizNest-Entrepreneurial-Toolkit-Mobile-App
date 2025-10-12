@@ -13,7 +13,7 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   final _formKey = GlobalKey<FormState>();
   bool _isSaving = false;
-  
+
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _titleController = TextEditingController();
@@ -68,7 +68,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         foregroundColor: ModernTheme.navy,
       ),
       body: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
@@ -131,7 +131,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     _nameController.text.isNotEmpty
                         ? _nameController.text[0].toUpperCase()
                         : user['name']?.toString()[0].toUpperCase() ?? 'M',
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 32,
                       fontWeight: FontWeight.w700,
                       color: ModernTheme.electricBlue,
@@ -162,10 +162,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
           const SizedBox(height: 20),
           // Name with improved typography
           Text(
-            _nameController.text.isNotEmpty 
-                ? _nameController.text 
+            _nameController.text.isNotEmpty
+                ? _nameController.text
                 : user['name']?.toString() ?? 'Mentor',
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 28,
               fontWeight: FontWeight.w700,
               color: ModernTheme.navy,
@@ -187,10 +187,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
             child: Text(
-              _titleController.text.isNotEmpty 
-                  ? _titleController.text 
+              _titleController.text.isNotEmpty
+                  ? _titleController.text
                   : user['title']?.toString() ?? 'Professional Mentor',
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
                 color: ModernTheme.electricBlue,
@@ -204,17 +204,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
+              const Icon(
                 Icons.location_on_outlined,
                 color: ModernTheme.mediumGray,
                 size: 18,
               ),
               const SizedBox(width: 6),
               Text(
-                _locationController.text.isNotEmpty 
-                    ? _locationController.text 
+                _locationController.text.isNotEmpty
+                    ? _locationController.text
                     : user['location']?.toString() ?? 'Location',
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 15,
                   color: ModernTheme.mediumGray,
                   fontWeight: FontWeight.w500,
@@ -224,19 +224,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Container(
                 width: 4,
                 height: 4,
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   color: ModernTheme.mediumGray,
                   shape: BoxShape.circle,
                 ),
               ),
               const SizedBox(width: 20),
-              Icon(
+              const Icon(
                 Icons.verified,
                 color: ModernTheme.freshGreen,
                 size: 18,
               ),
               const SizedBox(width: 6),
-              Text(
+              const Text(
                 'Verified',
                 style: TextStyle(
                   fontSize: 15,
@@ -250,8 +250,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
     );
   }
-
-
 
   Widget _buildStatsCards() {
     final user = AuthService.currentUser ?? {};
@@ -278,7 +276,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildStatCard(String title, String value, IconData icon, Color color) {
+  Widget _buildStatCard(
+      String title, String value, IconData icon, Color color) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -305,7 +304,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           const SizedBox(height: 8),
           Text(
             value,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
               color: ModernTheme.navy,
@@ -314,7 +313,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           const SizedBox(height: 2),
           Text(
             title,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 12,
               color: ModernTheme.mediumGray,
             ),
@@ -341,7 +340,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          const Text(
             'Profile Information',
             style: TextStyle(
               fontSize: 20,
@@ -405,19 +404,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
         prefixIcon: Icon(icon, color: ModernTheme.electricBlue),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: ModernTheme.mediumGray.withOpacity(0.3)),
+          borderSide:
+              BorderSide(color: ModernTheme.mediumGray.withOpacity(0.3)),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: ModernTheme.mediumGray.withOpacity(0.3)),
+          borderSide:
+              BorderSide(color: ModernTheme.mediumGray.withOpacity(0.3)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: ModernTheme.electricBlue, width: 2),
+          borderSide:
+              const BorderSide(color: ModernTheme.electricBlue, width: 2),
         ),
         filled: true,
         fillColor: ModernTheme.lightGray.withOpacity(0.5),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       ),
     );
   }
@@ -428,7 +431,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         Expanded(
           child: ElevatedButton.icon(
             onPressed: _isSaving ? null : _saveProfile,
-            icon: _isSaving 
+            icon: _isSaving
                 ? const SizedBox(
                     width: 16,
                     height: 16,
@@ -481,14 +484,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
       };
 
       await AuthService.updateProfile(updateData);
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: const Text('Profile updated successfully!'),
             backgroundColor: ModernTheme.freshGreen,
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           ),
         );
       }
@@ -499,7 +503,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
             content: Text('Error: ${e.toString()}'),
             backgroundColor: ModernTheme.errorRed,
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           ),
         );
       }
@@ -530,7 +535,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
             print('Navigation error: $navError');
           }
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Logout completed but navigation failed')),
+            const SnackBar(
+                content: Text('Logout completed but navigation failed')),
           );
         }
       }

@@ -89,16 +89,19 @@ class _BusinessScreenState extends State<BusinessScreen>
     try {
       print('📊 Loading business plans from Firebase...');
       print('📊 Current user ID: ${FirebaseDataService.currentUserId}');
-      
+
       // Load business plans
-      final businessPlansData = await FirebaseDataService.getList('business_plans') ?? [];
-      print('📊 Retrieved ${businessPlansData.length} business plans from Firebase');
-      
+      final businessPlansData =
+          await FirebaseDataService.getList('business_plans') ?? [];
+      print(
+          '📊 Retrieved ${businessPlansData.length} business plans from Firebase');
+
       _businessPlanHistory.clear();
       for (final planData in businessPlansData) {
         if (planData is Map<String, dynamic>) {
           _businessPlanHistory.add(BusinessPlanHistory(
-            id: planData['id'] ?? DateTime.now().millisecondsSinceEpoch.toString(),
+            id: planData['id'] ??
+                DateTime.now().millisecondsSinceEpoch.toString(),
             companyName: planData['companyName'] ?? '',
             industry: planData['industry'] ?? '',
             businessPlan: planData['businessPlan'] ?? '',
@@ -108,23 +111,28 @@ class _BusinessScreenState extends State<BusinessScreen>
           ));
         }
       }
-      
+
       print('📊 Parsed ${_businessPlanHistory.length} business plans');
 
       // Load market research
-      final marketResearchData = await FirebaseDataService.getList('market_research') ?? [];
+      final marketResearchData =
+          await FirebaseDataService.getList('market_research') ?? [];
       _marketResearchHistory.clear();
-      _marketResearchHistory.addAll(marketResearchData.map((item) => item as Map<String, dynamic>));
+      _marketResearchHistory.addAll(
+          marketResearchData.map((item) => item as Map<String, dynamic>));
 
       // Load SWOT analysis
       final swotData = await FirebaseDataService.getList('swot_analysis') ?? [];
       _swotAnalysisHistory.clear();
-      _swotAnalysisHistory.addAll(swotData.map((item) => item as Map<String, dynamic>));
+      _swotAnalysisHistory
+          .addAll(swotData.map((item) => item as Map<String, dynamic>));
 
       // Load business model canvas
-      final canvasData = await FirebaseDataService.getList('business_model_canvas') ?? [];
+      final canvasData =
+          await FirebaseDataService.getList('business_model_canvas') ?? [];
       _businessModelCanvasHistory.clear();
-      _businessModelCanvasHistory.addAll(canvasData.map((item) => item as Map<String, dynamic>));
+      _businessModelCanvasHistory
+          .addAll(canvasData.map((item) => item as Map<String, dynamic>));
 
       if (mounted) {
         setState(() {
@@ -281,7 +289,8 @@ class _BusinessScreenState extends State<BusinessScreen>
                 ),
                 const Spacer(),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
                     color: Colors.white.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(20),
@@ -346,22 +355,30 @@ class _BusinessScreenState extends State<BusinessScreen>
   }
 
   Widget _buildQuickStats() {
-    print('📊 Building QuickStats with _totalPlansCreated = $_totalPlansCreated');
+    print(
+        '📊 Building QuickStats with _totalPlansCreated = $_totalPlansCreated');
     return FadeTransition(
       opacity: _fadeAnimation,
       child: Row(
         children: [
-          Expanded(child: _buildStatCard(_totalPlansCreated.toString(), 'Plans Created', Icons.description, const Color(0xFF10B981))),
+          Expanded(
+              child: _buildStatCard(_totalPlansCreated.toString(),
+                  'Plans Created', Icons.description, const Color(0xFF10B981))),
           const SizedBox(width: 12),
-          Expanded(child: _buildStatCard('98%', 'Success Rate', Icons.trending_up, const Color(0xFF3B82F6))),
+          Expanded(
+              child: _buildStatCard('98%', 'Success Rate', Icons.trending_up,
+                  const Color(0xFF3B82F6))),
           const SizedBox(width: 12),
-          Expanded(child: _buildStatCard('24/7', 'Support', Icons.support_agent, const Color(0xFF8B5CF6))),
+          Expanded(
+              child: _buildStatCard('24/7', 'Support', Icons.support_agent,
+                  const Color(0xFF8B5CF6))),
         ],
       ),
     );
   }
 
-  Widget _buildStatCard(String value, String label, IconData icon, Color color) {
+  Widget _buildStatCard(
+      String value, String label, IconData icon, Color color) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -533,13 +550,16 @@ class _BusinessScreenState extends State<BusinessScreen>
             count: _businessPlanHistory.length,
             isEmpty: _businessPlanHistory.isEmpty,
             emptyTitle: 'No Business Plans Yet',
-            emptyDescription: 'Generate your first business plan using the AI Business Plan Generator!',
-            children: _businessPlanHistory.map((plan) =>
-              Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: _buildBusinessPlanHistoryCard(plan),
-              ),
-            ).toList(),
+            emptyDescription:
+                'Generate your first business plan using the AI Business Plan Generator!',
+            children: _businessPlanHistory
+                .map(
+                  (plan) => Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: _buildBusinessPlanHistoryCard(plan),
+                  ),
+                )
+                .toList(),
           ),
 
           const SizedBox(height: 32),
@@ -552,17 +572,20 @@ class _BusinessScreenState extends State<BusinessScreen>
             count: _marketResearchHistory.length,
             isEmpty: _marketResearchHistory.isEmpty,
             emptyTitle: 'No Market Research Yet',
-            emptyDescription: 'Analyze your market using the Market Research tool!',
-            children: _marketResearchHistory.map((research) => 
-              Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: _buildMarketResearchHistoryCard(research),
-              ),
-            ).toList(),
+            emptyDescription:
+                'Analyze your market using the Market Research tool!',
+            children: _marketResearchHistory
+                .map(
+                  (research) => Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: _buildMarketResearchHistoryCard(research),
+                  ),
+                )
+                .toList(),
           ),
-          
+
           const SizedBox(height: 32),
-          
+
           // SWOT Analysis History Section
           _buildHistorySection(
             title: 'SWOT Analysis History',
@@ -572,16 +595,18 @@ class _BusinessScreenState extends State<BusinessScreen>
             isEmpty: _swotAnalysisHistory.isEmpty,
             emptyTitle: 'No SWOT Analyses Yet',
             emptyDescription: 'Analyze your business strengths and weaknesses!',
-            children: _swotAnalysisHistory.map((swot) => 
-              Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: _buildSWOTHistoryCard(swot),
-              ),
-            ).toList(),
+            children: _swotAnalysisHistory
+                .map(
+                  (swot) => Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: _buildSWOTHistoryCard(swot),
+                  ),
+                )
+                .toList(),
           ),
-          
+
           const SizedBox(height: 32),
-          
+
           // Business Model Canvas History Section
           _buildHistorySection(
             title: 'Business Model Canvas History',
@@ -590,13 +615,16 @@ class _BusinessScreenState extends State<BusinessScreen>
             count: _businessModelCanvasHistory.length,
             isEmpty: _businessModelCanvasHistory.isEmpty,
             emptyTitle: 'No Business Model Canvases Yet',
-            emptyDescription: 'Create your business model using the Canvas Generator!',
-            children: _businessModelCanvasHistory.map((canvas) => 
-              Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: _buildBusinessModelCanvasHistoryCard(canvas),
-              ),
-            ).toList(),
+            emptyDescription:
+                'Create your business model using the Canvas Generator!',
+            children: _businessModelCanvasHistory
+                .map(
+                  (canvas) => Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: _buildBusinessModelCanvasHistoryCard(canvas),
+                  ),
+                )
+                .toList(),
           ),
         ],
       ),
@@ -699,7 +727,8 @@ class _BusinessScreenState extends State<BusinessScreen>
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Delete Business Plan'),
-        content: const Text('Are you sure you want to delete this business plan? This action cannot be undone.'),
+        content: const Text(
+            'Are you sure you want to delete this business plan? This action cannot be undone.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -714,16 +743,19 @@ class _BusinessScreenState extends State<BusinessScreen>
 
               // Update Firebase
               try {
-                final plansData = _businessPlanHistory.map((plan) => {
-                  'id': plan.id,
-                  'companyName': plan.companyName,
-                  'industry': plan.industry,
-                  'businessPlan': plan.businessPlan,
-                  'createdAt': plan.createdAt.toIso8601String(),
-                }).toList();
+                final plansData = _businessPlanHistory
+                    .map((plan) => {
+                          'id': plan.id,
+                          'companyName': plan.companyName,
+                          'industry': plan.industry,
+                          'businessPlan': plan.businessPlan,
+                          'createdAt': plan.createdAt.toIso8601String(),
+                        })
+                    .toList();
                 await FirebaseDataService.setList('business_plans', plansData);
               } catch (e) {
-                print('Error updating Firebase after business plan deletion: $e');
+                print(
+                    'Error updating Firebase after business plan deletion: $e');
               }
 
               Navigator.pop(context);
@@ -747,7 +779,8 @@ class _BusinessScreenState extends State<BusinessScreen>
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Delete Market Research'),
-        content: const Text('Are you sure you want to delete this market research? This action cannot be undone.'),
+        content: const Text(
+            'Are you sure you want to delete this market research? This action cannot be undone.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -757,14 +790,17 @@ class _BusinessScreenState extends State<BusinessScreen>
             onPressed: () async {
               // Remove from local state
               setState(() {
-                _marketResearchHistory.removeWhere((research) => research['id'] == id);
+                _marketResearchHistory
+                    .removeWhere((research) => research['id'] == id);
               });
 
               // Update Firebase
               try {
-                await FirebaseDataService.setList('market_research', _marketResearchHistory);
+                await FirebaseDataService.setList(
+                    'market_research', _marketResearchHistory);
               } catch (e) {
-                print('Error updating Firebase after market research deletion: $e');
+                print(
+                    'Error updating Firebase after market research deletion: $e');
               }
 
               Navigator.pop(context);
@@ -788,7 +824,8 @@ class _BusinessScreenState extends State<BusinessScreen>
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Delete SWOT Analysis'),
-        content: const Text('Are you sure you want to delete this SWOT analysis? This action cannot be undone.'),
+        content: const Text(
+            'Are you sure you want to delete this SWOT analysis? This action cannot be undone.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -803,9 +840,11 @@ class _BusinessScreenState extends State<BusinessScreen>
 
               // Update Firebase
               try {
-                await FirebaseDataService.setList('swot_analysis', _swotAnalysisHistory);
+                await FirebaseDataService.setList(
+                    'swot_analysis', _swotAnalysisHistory);
               } catch (e) {
-                print('Error updating Firebase after SWOT analysis deletion: $e');
+                print(
+                    'Error updating Firebase after SWOT analysis deletion: $e');
               }
 
               Navigator.pop(context);
@@ -829,7 +868,8 @@ class _BusinessScreenState extends State<BusinessScreen>
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Delete Business Model Canvas'),
-        content: const Text('Are you sure you want to delete this business model canvas? This action cannot be undone.'),
+        content: const Text(
+            'Are you sure you want to delete this business model canvas? This action cannot be undone.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -839,14 +879,17 @@ class _BusinessScreenState extends State<BusinessScreen>
             onPressed: () async {
               // Remove from local state
               setState(() {
-                _businessModelCanvasHistory.removeWhere((canvas) => canvas['id'] == id);
+                _businessModelCanvasHistory
+                    .removeWhere((canvas) => canvas['id'] == id);
               });
 
               // Update Firebase
               try {
-                await FirebaseDataService.setList('business_model_canvas', _businessModelCanvasHistory);
+                await FirebaseDataService.setList(
+                    'business_model_canvas', _businessModelCanvasHistory);
               } catch (e) {
-                print('Error updating Firebase after business model canvas deletion: $e');
+                print(
+                    'Error updating Firebase after business model canvas deletion: $e');
               }
 
               Navigator.pop(context);
@@ -895,13 +938,15 @@ class _BusinessScreenState extends State<BusinessScreen>
 
     // Then save to Firebase
     try {
-      final plansData = _businessPlanHistory.map((plan) => {
-        'id': plan.id,
-        'companyName': plan.companyName,
-        'industry': plan.industry,
-        'businessPlan': plan.businessPlan,
-        'createdAt': plan.createdAt.toIso8601String(),
-      }).toList();
+      final plansData = _businessPlanHistory
+          .map((plan) => {
+                'id': plan.id,
+                'companyName': plan.companyName,
+                'industry': plan.industry,
+                'businessPlan': plan.businessPlan,
+                'createdAt': plan.createdAt.toIso8601String(),
+              })
+          .toList();
 
       print('   💾 Saving ${plansData.length} plans to Firebase...');
       await FirebaseDataService.setList('business_plans', plansData);
@@ -910,7 +955,6 @@ class _BusinessScreenState extends State<BusinessScreen>
       print('   ❌ Error saving business plan to Firebase: $e');
       // Don't revert UI state even if Firebase save fails
     }
-
   }
 
   void _addToMarketResearchHistory({
@@ -943,18 +987,20 @@ class _BusinessScreenState extends State<BusinessScreen>
     }
 
     setState(() {
-      _marketResearchHistory.insert(0, marketResearch); // Add to beginning of list
+      _marketResearchHistory.insert(
+          0, marketResearch); // Add to beginning of list
     });
 
     print('   Created new Market Research with ID: ${marketResearch['id']}');
-    print('   Added to history. Total analyses: ${_marketResearchHistory.length}');
+    print(
+        '   Added to history. Total analyses: ${_marketResearchHistory.length}');
     print('✅ Market research saved successfully');
   }
 
   void _showMarketAnalysisResult(String analysis) {
     print('🎯 _showMarketAnalysisResult called');
     print('   Analysis length: ${analysis.length} characters');
-    
+
     showDialog(
       context: context,
       builder: (context) => Dialog(
@@ -970,7 +1016,8 @@ class _BusinessScreenState extends State<BusinessScreen>
                       color: const Color(0xFF8B5CF6).withOpacity(0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: const Icon(Icons.analytics_rounded, color: Color(0xFF8B5CF6)),
+                    child: const Icon(Icons.analytics_rounded,
+                        color: Color(0xFF8B5CF6)),
                   ),
                   const SizedBox(width: 12),
                   const Text(
@@ -1018,7 +1065,9 @@ class _BusinessScreenState extends State<BusinessScreen>
                       onPressed: () {
                         // TODO: Implement share functionality
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Share functionality coming soon!')),
+                          const SnackBar(
+                              content:
+                                  Text('Share functionality coming soon!')),
                         );
                       },
                       icon: const Icon(Icons.share),
@@ -1030,7 +1079,10 @@ class _BusinessScreenState extends State<BusinessScreen>
                     child: ElevatedButton.icon(
                       onPressed: () async {
                         // Save market analysis to file
-                        final industry = _marketResearchHistory.isNotEmpty ? _marketResearchHistory.first['industry'] ?? 'Market_Analysis' : 'Market_Analysis';
+                        final industry = _marketResearchHistory.isNotEmpty
+                            ? _marketResearchHistory.first['industry'] ??
+                                'Market_Analysis'
+                            : 'Market_Analysis';
                         await _saveMarketAnalysis(analysis, industry);
                         Navigator.pop(context);
                       },
@@ -1049,7 +1101,7 @@ class _BusinessScreenState extends State<BusinessScreen>
         ),
       ),
     );
-    
+
     print('✅ Market analysis result dialog shown');
   }
 
@@ -1087,14 +1139,15 @@ class _BusinessScreenState extends State<BusinessScreen>
     });
 
     print('   Created new SWOT Analysis with ID: ${swotAnalysis['id']}');
-    print('   Added to history. Total analyses: ${_swotAnalysisHistory.length}');
+    print(
+        '   Added to history. Total analyses: ${_swotAnalysisHistory.length}');
     print('✅ SWOT analysis saved successfully');
   }
 
   void _showSWOTAnalysisResult(Map<String, String> swotData) {
     print('🎯 _showSWOTAnalysisResult called');
     print('   SWOT data keys: ${swotData.keys.join(', ')}');
-    
+
     showDialog(
       context: context,
       builder: (context) => Dialog(
@@ -1110,7 +1163,8 @@ class _BusinessScreenState extends State<BusinessScreen>
                       color: const Color(0xFF10B981).withOpacity(0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: const Icon(Icons.assessment_rounded, color: Color(0xFF10B981)),
+                    child: const Icon(Icons.assessment_rounded,
+                        color: Color(0xFF10B981)),
                   ),
                   const SizedBox(width: 12),
                   const Text(
@@ -1176,7 +1230,9 @@ class _BusinessScreenState extends State<BusinessScreen>
                       onPressed: () {
                         // TODO: Implement share functionality
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Share functionality coming soon!')),
+                          const SnackBar(
+                              content:
+                                  Text('Share functionality coming soon!')),
                         );
                       },
                       icon: const Icon(Icons.share),
@@ -1188,7 +1244,10 @@ class _BusinessScreenState extends State<BusinessScreen>
                     child: ElevatedButton.icon(
                       onPressed: () async {
                         // Save SWOT analysis to file
-                        final businessName = _swotAnalysisHistory.isNotEmpty ? _swotAnalysisHistory.first['businessName'] ?? 'SWOT_Analysis' : 'SWOT_Analysis';
+                        final businessName = _swotAnalysisHistory.isNotEmpty
+                            ? _swotAnalysisHistory.first['businessName'] ??
+                                'SWOT_Analysis'
+                            : 'SWOT_Analysis';
                         await _saveSWOTAnalysis(swotData, businessName);
                         Navigator.pop(context);
                       },
@@ -1207,7 +1266,7 @@ class _BusinessScreenState extends State<BusinessScreen>
         ),
       ),
     );
-    
+
     print('✅ SWOT analysis result dialog shown');
   }
 
@@ -1233,26 +1292,33 @@ class _BusinessScreenState extends State<BusinessScreen>
 
     // Save to Firebase
     try {
-      final canvasDataList = [..._businessModelCanvasHistory, businessModelCanvas];
-      await FirebaseDataService.setList('business_model_canvas', canvasDataList);
+      final canvasDataList = [
+        ..._businessModelCanvasHistory,
+        businessModelCanvas
+      ];
+      await FirebaseDataService.setList(
+          'business_model_canvas', canvasDataList);
       print('   ✅ Business Model Canvas saved to Firebase');
     } catch (e) {
       print('   ❌ Error saving Business Model Canvas to Firebase: $e');
     }
 
     setState(() {
-      _businessModelCanvasHistory.insert(0, businessModelCanvas); // Add to beginning of list
+      _businessModelCanvasHistory.insert(
+          0, businessModelCanvas); // Add to beginning of list
     });
 
-    print('   Created new Business Model Canvas with ID: ${businessModelCanvas['id']}');
-    print('   Added to history. Total canvases: ${_businessModelCanvasHistory.length}');
+    print(
+        '   Created new Business Model Canvas with ID: ${businessModelCanvas['id']}');
+    print(
+        '   Added to history. Total canvases: ${_businessModelCanvasHistory.length}');
     print('✅ Business Model Canvas saved successfully');
   }
 
   void _showBusinessModelCanvasResult(Map<String, String> canvasData) {
     print('🎯 _showBusinessModelCanvasResult called');
     print('   Canvas data keys: ${canvasData.keys.join(', ')}');
-    
+
     showDialog(
       context: context,
       builder: (context) => Dialog(
@@ -1272,7 +1338,8 @@ class _BusinessScreenState extends State<BusinessScreen>
                       color: const Color(0xFF8B5CF6).withOpacity(0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: const Icon(Icons.view_module_rounded, color: Color(0xFF8B5CF6)),
+                    child: const Icon(Icons.view_module_rounded,
+                        color: Color(0xFF8B5CF6)),
                   ),
                   const SizedBox(width: 12),
                   const Expanded(
@@ -1320,7 +1387,7 @@ class _BusinessScreenState extends State<BusinessScreen>
                         ],
                       ),
                       const SizedBox(height: 16),
-                      
+
                       // Distribution & Value Section: Key Resources & Channels
                       Row(
                         children: [
@@ -1344,7 +1411,7 @@ class _BusinessScreenState extends State<BusinessScreen>
                         ],
                       ),
                       const SizedBox(height: 16),
-                      
+
                       // Value Proposition Section (Full Width for Emphasis)
                       _buildCanvasCard(
                         'Value Propositions',
@@ -1353,7 +1420,7 @@ class _BusinessScreenState extends State<BusinessScreen>
                         Icons.star,
                       ),
                       const SizedBox(height: 16),
-                      
+
                       // Customer Section: Customer Relationships & Customer Segments
                       Row(
                         children: [
@@ -1377,7 +1444,7 @@ class _BusinessScreenState extends State<BusinessScreen>
                         ],
                       ),
                       const SizedBox(height: 16),
-                      
+
                       // Financial Section: Cost Structure & Revenue Streams
                       Row(
                         children: [
@@ -1412,7 +1479,9 @@ class _BusinessScreenState extends State<BusinessScreen>
                       onPressed: () {
                         // TODO: Implement share functionality
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Share functionality coming soon!')),
+                          const SnackBar(
+                              content:
+                                  Text('Share functionality coming soon!')),
                         );
                       },
                       icon: const Icon(Icons.share),
@@ -1424,8 +1493,14 @@ class _BusinessScreenState extends State<BusinessScreen>
                     child: ElevatedButton.icon(
                       onPressed: () async {
                         // Save Business Model Canvas to file
-                        final businessName = _businessModelCanvasHistory.isNotEmpty ? _businessModelCanvasHistory.first['businessName'] ?? 'Business_Model_Canvas' : 'Business_Model_Canvas';
-                        await _saveBusinessModelCanvas(canvasData, businessName);
+                        final businessName =
+                            _businessModelCanvasHistory.isNotEmpty
+                                ? _businessModelCanvasHistory
+                                        .first['businessName'] ??
+                                    'Business_Model_Canvas'
+                                : 'Business_Model_Canvas';
+                        await _saveBusinessModelCanvas(
+                            canvasData, businessName);
                         Navigator.pop(context);
                       },
                       icon: const Icon(Icons.save),
@@ -1443,11 +1518,12 @@ class _BusinessScreenState extends State<BusinessScreen>
         ),
       ),
     );
-    
+
     print('✅ Business Model Canvas result dialog shown');
   }
 
-  Widget _buildCanvasCard(String title, String content, Color color, IconData icon) {
+  Widget _buildCanvasCard(
+      String title, String content, Color color, IconData icon) {
     return Container(
       constraints: const BoxConstraints(
         minHeight: 180,
@@ -1504,7 +1580,8 @@ class _BusinessScreenState extends State<BusinessScreen>
     );
   }
 
-  Widget _buildSWOTCard(String title, String content, Color color, IconData icon) {
+  Widget _buildSWOTCard(
+      String title, String content, Color color, IconData icon) {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
@@ -1598,10 +1675,10 @@ class _BusinessScreenState extends State<BusinessScreen>
             industry: industry,
             businessPlan: businessPlan,
           );
-          
+
           // Close modal first, then show result dialog after a delay
           Navigator.of(context).pop();
-          
+
           // Use Future.delayed to ensure modal is fully closed before showing result
           Future.delayed(const Duration(milliseconds: 300), () {
             if (mounted) {
@@ -1619,17 +1696,18 @@ class _BusinessScreenState extends State<BusinessScreen>
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => MarketResearchTool(
-        onMarketAnalysisGenerated: (industry, targetMarket, location, analysis) {
+        onMarketAnalysisGenerated:
+            (industry, targetMarket, location, analysis) {
           _addToMarketResearchHistory(
             industry: industry,
             targetMarket: targetMarket,
             location: location,
             analysis: analysis,
           );
-          
+
           // Close modal first, then show result dialog after a delay
           Navigator.of(context).pop();
-          
+
           // Use Future.delayed to ensure modal is fully closed before showing result
           Future.delayed(const Duration(milliseconds: 300), () {
             if (mounted) {
@@ -1647,17 +1725,18 @@ class _BusinessScreenState extends State<BusinessScreen>
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => SWOTAnalysisTool(
-        onSWOTAnalysisGenerated: (businessName, industry, businessModel, swotData) {
+        onSWOTAnalysisGenerated:
+            (businessName, industry, businessModel, swotData) {
           _addToSWOTAnalysisHistory(
             businessName: businessName,
             industry: industry,
             businessModel: businessModel,
             swotData: swotData,
           );
-          
+
           // Close modal first, then show result dialog after a delay
           Navigator.of(context).pop();
-          
+
           // Use Future.delayed to ensure modal is fully closed before showing result
           Future.delayed(const Duration(milliseconds: 300), () {
             if (mounted) {
@@ -1675,17 +1754,18 @@ class _BusinessScreenState extends State<BusinessScreen>
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => BusinessModelCanvasTool(
-        onBusinessModelCanvasGenerated: (businessName, industry, businessModel, canvasData) {
+        onBusinessModelCanvasGenerated:
+            (businessName, industry, businessModel, canvasData) {
           _addToBusinessModelCanvasHistory(
             businessName: businessName,
             industry: industry,
             businessModel: businessModel,
             canvasData: canvasData,
           );
-          
+
           // Close modal first, then show result dialog after a delay
           Navigator.of(context).pop();
-          
+
           // Use Future.delayed to ensure modal is fully closed before showing result
           Future.delayed(const Duration(milliseconds: 300), () {
             if (mounted) {
@@ -1727,8 +1807,9 @@ class _BusinessScreenState extends State<BusinessScreen>
   void _showBusinessPlanResult(String businessPlan, [String? companyName]) {
     print('🎯 _showBusinessPlanResult called');
     print('   Business plan length: ${businessPlan.length} characters');
-    print('   First 100 characters: ${businessPlan.length > 100 ? "${businessPlan.substring(0, 100)}..." : businessPlan}');
-    
+    print(
+        '   First 100 characters: ${businessPlan.length > 100 ? "${businessPlan.substring(0, 100)}..." : businessPlan}');
+
     showDialog(
       context: context,
       builder: (context) {
@@ -1781,7 +1862,9 @@ class _BusinessScreenState extends State<BusinessScreen>
                         onPressed: () {
                           // TODO: Implement share functionality
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Share functionality coming soon!')),
+                            const SnackBar(
+                                content:
+                                    Text('Share functionality coming soon!')),
                           );
                         },
                         icon: const Icon(Icons.share, size: 16),
@@ -1791,7 +1874,8 @@ class _BusinessScreenState extends State<BusinessScreen>
                           style: TextStyle(fontSize: 14),
                         ),
                         style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 12),
                         ),
                       ),
                     ),
@@ -1800,7 +1884,8 @@ class _BusinessScreenState extends State<BusinessScreen>
                       child: ElevatedButton.icon(
                         onPressed: () async {
                           // Save business plan to file
-                          await _saveBusinessPlan(businessPlan, companyName ?? 'Business_Plan');
+                          await _saveBusinessPlan(
+                              businessPlan, companyName ?? 'Business_Plan');
                         },
                         icon: const Icon(Icons.save, size: 16),
                         label: const Text(
@@ -1811,7 +1896,8 @@ class _BusinessScreenState extends State<BusinessScreen>
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF2563EB),
                           foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 12),
                         ),
                       ),
                     ),
@@ -1969,19 +2055,26 @@ class _BusinessScreenState extends State<BusinessScreen>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (research['industry'] != null && research['industry'].toString().isNotEmpty) ...[
-                    _buildResearchDetailRow('Industry', research['industry'].toString()),
+                  if (research['industry'] != null &&
+                      research['industry'].toString().isNotEmpty) ...[
+                    _buildResearchDetailRow(
+                        'Industry', research['industry'].toString()),
                     const SizedBox(height: 8),
                   ],
-                  if (research['targetMarket'] != null && research['targetMarket'].toString().isNotEmpty) ...[
-                    _buildResearchDetailRow('Target Market', research['targetMarket'].toString()),
+                  if (research['targetMarket'] != null &&
+                      research['targetMarket'].toString().isNotEmpty) ...[
+                    _buildResearchDetailRow(
+                        'Target Market', research['targetMarket'].toString()),
                     const SizedBox(height: 8),
                   ],
-                  if (research['location'] != null && research['location'].toString().isNotEmpty) ...[
-                    _buildResearchDetailRow('Location', research['location'].toString()),
+                  if (research['location'] != null &&
+                      research['location'].toString().isNotEmpty) ...[
+                    _buildResearchDetailRow(
+                        'Location', research['location'].toString()),
                     const SizedBox(height: 8),
                   ],
-                  if (research['analysis'] != null && research['analysis'].toString().isNotEmpty) ...[
+                  if (research['analysis'] != null &&
+                      research['analysis'].toString().isNotEmpty) ...[
                     const Text(
                       'Analysis:',
                       style: TextStyle(
@@ -2020,7 +2113,7 @@ class _BusinessScreenState extends State<BusinessScreen>
 
   Widget _buildSWOTHistoryCard(Map<String, dynamic> swot) {
     final swotData = swot['swotData'] as Map<String, dynamic>? ?? {};
-    
+
     return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -2069,12 +2162,16 @@ class _BusinessScreenState extends State<BusinessScreen>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (swot['industry'] != null && swot['industry'].toString().isNotEmpty) ...[
-                    _buildResearchDetailRow('Industry', swot['industry'].toString()),
+                  if (swot['industry'] != null &&
+                      swot['industry'].toString().isNotEmpty) ...[
+                    _buildResearchDetailRow(
+                        'Industry', swot['industry'].toString()),
                     const SizedBox(height: 8),
                   ],
-                  if (swot['businessModel'] != null && swot['businessModel'].toString().isNotEmpty) ...[
-                    _buildResearchDetailRow('Business Model', swot['businessModel'].toString()),
+                  if (swot['businessModel'] != null &&
+                      swot['businessModel'].toString().isNotEmpty) ...[
+                    _buildResearchDetailRow(
+                        'Business Model', swot['businessModel'].toString()),
                     const SizedBox(height: 16),
                   ],
                   const Text(
@@ -2189,12 +2286,16 @@ class _BusinessScreenState extends State<BusinessScreen>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (canvas['industry'] != null && canvas['industry'].toString().isNotEmpty) ...[
-                    _buildResearchDetailRow('Industry', canvas['industry'].toString()),
+                  if (canvas['industry'] != null &&
+                      canvas['industry'].toString().isNotEmpty) ...[
+                    _buildResearchDetailRow(
+                        'Industry', canvas['industry'].toString()),
                     const SizedBox(height: 8),
                   ],
-                  if (canvas['businessModel'] != null && canvas['businessModel'].toString().isNotEmpty) ...[
-                    _buildResearchDetailRow('Business Model', canvas['businessModel'].toString()),
+                  if (canvas['businessModel'] != null &&
+                      canvas['businessModel'].toString().isNotEmpty) ...[
+                    _buildResearchDetailRow(
+                        'Business Model', canvas['businessModel'].toString()),
                     const SizedBox(height: 16),
                   ],
                   const Text(
@@ -2239,7 +2340,8 @@ class _BusinessScreenState extends State<BusinessScreen>
                       Expanded(
                         child: _buildCanvasQuadrant(
                           'Customer Relationships',
-                          canvasData['customerRelationships'] ?? 'Not available',
+                          canvasData['customerRelationships'] ??
+                              'Not available',
                           Colors.orange,
                         ),
                       ),
@@ -2316,7 +2418,8 @@ class _BusinessScreenState extends State<BusinessScreen>
     }
   }
 
-  Future<void> _saveBusinessPlan(String businessPlan, String companyName) async {
+  Future<void> _saveBusinessPlan(
+      String businessPlan, String companyName) async {
     try {
       // Get the downloads directory
       final directory = await getExternalStorageDirectory();
@@ -2329,7 +2432,8 @@ class _BusinessScreenState extends State<BusinessScreen>
 
       // Create a unique filename
       final timestamp = DateTime.now().millisecondsSinceEpoch;
-      final fileName = '${companyName.replaceAll(' ', '_')}_business_plan_$timestamp.txt';
+      final fileName =
+          '${companyName.replaceAll(' ', '_')}_business_plan_$timestamp.txt';
       final file = File('${directory.path}/$fileName');
 
       // Write the business plan to the file
@@ -2372,7 +2476,8 @@ class _BusinessScreenState extends State<BusinessScreen>
     }
   }
 
-  Future<void> _saveSWOTAnalysis(Map<String, String> swotData, String businessName) async {
+  Future<void> _saveSWOTAnalysis(
+      Map<String, String> swotData, String businessName) async {
     try {
       final directory = await getExternalStorageDirectory();
       if (directory == null) {
@@ -2418,7 +2523,8 @@ Generated on: ${DateTime.now().toString()}
     }
   }
 
-  Future<void> _saveBusinessModelCanvas(Map<String, String> canvasData, String businessName) async {
+  Future<void> _saveBusinessModelCanvas(
+      Map<String, String> canvasData, String businessName) async {
     try {
       final directory = await getExternalStorageDirectory();
       if (directory == null) {
@@ -2511,7 +2617,8 @@ Generated on: ${DateTime.now().toString()}
     );
   }
 
-  Widget _buildSWOTQuadrant(String title, String content, Color color, IconData icon) {
+  Widget _buildSWOTQuadrant(
+      String title, String content, Color color, IconData icon) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -2621,8 +2728,9 @@ class BusinessPlanHistory {
 
 // Business Plan Generator Tool
 class BusinessPlanGenerator extends StatefulWidget {
-  final Function(String companyName, String industry, String businessPlan)? onBusinessPlanGenerated;
-  
+  final Function(String companyName, String industry, String businessPlan)?
+      onBusinessPlanGenerated;
+
   const BusinessPlanGenerator({
     super.key,
     this.onBusinessPlanGenerated,
@@ -2641,10 +2749,10 @@ class _BusinessPlanGeneratorState extends State<BusinessPlanGenerator> {
   final _fundingGoalController = TextEditingController();
   final _revenueProjectionController = TextEditingController();
   final _timelineController = TextEditingController();
-  
+
   int _currentStep = 0;
   bool _isGenerating = false;
-  
+
   final List<String> _steps = [
     'Company Info',
     'Market Analysis',
@@ -2693,7 +2801,8 @@ class _BusinessPlanGeneratorState extends State<BusinessPlanGenerator> {
               color: const Color(0xFF2563EB).withOpacity(0.1),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: const Icon(Icons.auto_awesome_rounded, color: Color(0xFF2563EB)),
+            child: const Icon(Icons.auto_awesome_rounded,
+                color: Color(0xFF2563EB)),
           ),
           const SizedBox(width: 12),
           const Text(
@@ -2728,14 +2837,17 @@ class _BusinessPlanGeneratorState extends State<BusinessPlanGenerator> {
                   width: 24,
                   height: 24,
                   decoration: BoxDecoration(
-                    color: isActive ? const Color(0xFF2563EB) : const Color(0xFFE2E8F0),
+                    color: isActive
+                        ? const Color(0xFF2563EB)
+                        : const Color(0xFFE2E8F0),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Center(
                     child: Text(
                       '${index + 1}',
                       style: TextStyle(
-                        color: isActive ? Colors.white : const Color(0xFF64748B),
+                        color:
+                            isActive ? Colors.white : const Color(0xFF64748B),
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
                       ),
@@ -2746,7 +2858,9 @@ class _BusinessPlanGeneratorState extends State<BusinessPlanGenerator> {
                   Expanded(
                     child: Container(
                       height: 2,
-                      color: _currentStep > index ? const Color(0xFF2563EB) : const Color(0xFFE2E8F0),
+                      color: _currentStep > index
+                          ? const Color(0xFF2563EB)
+                          : const Color(0xFFE2E8F0),
                     ),
                   ),
               ],
@@ -2802,7 +2916,8 @@ class _BusinessPlanGeneratorState extends State<BusinessPlanGenerator> {
               prefixIcon: Icon(Icons.business),
               border: OutlineInputBorder(),
             ),
-            validator: (value) => value?.isEmpty ?? true ? 'Please enter company name' : null,
+            validator: (value) =>
+                value?.isEmpty ?? true ? 'Please enter company name' : null,
           ),
           const SizedBox(height: 16),
           TextFormField(
@@ -2813,7 +2928,8 @@ class _BusinessPlanGeneratorState extends State<BusinessPlanGenerator> {
               prefixIcon: Icon(Icons.category),
               border: OutlineInputBorder(),
             ),
-            validator: (value) => value?.isEmpty ?? true ? 'Please enter industry' : null,
+            validator: (value) =>
+                value?.isEmpty ?? true ? 'Please enter industry' : null,
           ),
           const SizedBox(height: 16),
           TextFormField(
@@ -2826,7 +2942,8 @@ class _BusinessPlanGeneratorState extends State<BusinessPlanGenerator> {
               border: OutlineInputBorder(),
               alignLabelWithHint: true,
             ),
-            validator: (value) => value?.isEmpty ?? true ? 'Please enter description' : null,
+            validator: (value) =>
+                value?.isEmpty ?? true ? 'Please enter description' : null,
           ),
         ],
       ),
@@ -2855,7 +2972,8 @@ class _BusinessPlanGeneratorState extends State<BusinessPlanGenerator> {
               prefixIcon: Icon(Icons.people),
               border: OutlineInputBorder(),
             ),
-            validator: (value) => value?.isEmpty ?? true ? 'Please describe target market' : null,
+            validator: (value) =>
+                value?.isEmpty ?? true ? 'Please describe target market' : null,
           ),
         ],
       ),
@@ -2894,7 +3012,8 @@ class _BusinessPlanGeneratorState extends State<BusinessPlanGenerator> {
               prefixText: '\$ ',
               border: OutlineInputBorder(),
             ),
-            validator: (value) => value?.isEmpty ?? true ? 'Please enter funding goal' : null,
+            validator: (value) =>
+                value?.isEmpty ?? true ? 'Please enter funding goal' : null,
           ),
           const SizedBox(height: 16),
           TextFormField(
@@ -2907,7 +3026,9 @@ class _BusinessPlanGeneratorState extends State<BusinessPlanGenerator> {
               prefixText: '\$ ',
               border: OutlineInputBorder(),
             ),
-            validator: (value) => value?.isEmpty ?? true ? 'Please enter revenue projection' : null,
+            validator: (value) => value?.isEmpty ?? true
+                ? 'Please enter revenue projection'
+                : null,
           ),
           const SizedBox(height: 16),
           TextFormField(
@@ -2918,7 +3039,8 @@ class _BusinessPlanGeneratorState extends State<BusinessPlanGenerator> {
               prefixIcon: Icon(Icons.schedule),
               border: OutlineInputBorder(),
             ),
-            validator: (value) => value?.isEmpty ?? true ? 'Please enter timeline' : null,
+            validator: (value) =>
+                value?.isEmpty ?? true ? 'Please enter timeline' : null,
           ),
           const SizedBox(height: 16),
           Container(
@@ -2926,7 +3048,8 @@ class _BusinessPlanGeneratorState extends State<BusinessPlanGenerator> {
             decoration: BoxDecoration(
               color: const Color(0xFF2563EB).withOpacity(0.1),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFF2563EB).withOpacity(0.2)),
+              border:
+                  Border.all(color: const Color(0xFF2563EB).withOpacity(0.2)),
             ),
             child: const Row(
               children: [
@@ -2982,7 +3105,8 @@ class _BusinessPlanGeneratorState extends State<BusinessPlanGenerator> {
               ),
               child: Column(
                 children: [
-                  const Icon(Icons.check_circle, color: Color(0xFF2563EB), size: 48),
+                  const Icon(Icons.check_circle,
+                      color: Color(0xFF2563EB), size: 48),
                   const SizedBox(height: 16),
                   const Text(
                     'Ready to Generate',
@@ -3029,7 +3153,8 @@ class _BusinessPlanGeneratorState extends State<BusinessPlanGenerator> {
                 backgroundColor: const Color(0xFF2563EB),
                 foregroundColor: Colors.white,
               ),
-              child: Text(_currentStep == _steps.length - 1 ? 'Generate' : 'Next'),
+              child:
+                  Text(_currentStep == _steps.length - 1 ? 'Generate' : 'Next'),
             ),
           ),
         ],
@@ -3049,22 +3174,22 @@ class _BusinessPlanGeneratorState extends State<BusinessPlanGenerator> {
 
   void _generatePlan() async {
     print('🔄 _generatePlan called - Starting generation process...');
-    
+
     if (!mounted) {
       print('❌ Widget not mounted, aborting...');
       return;
     }
-    
+
     setState(() {
       _isGenerating = true;
       print('✅ Set _isGenerating = true');
     });
-    
+
     try {
       print('📝 Validating form data...');
       print('   Company Name: "${_companyNameController.text.trim()}"');
       print('   Industry: "${_industryController.text.trim()}"');
-      
+
       // Validate form data
       if (_companyNameController.text.trim().isEmpty) {
         throw Exception('Company name is required');
@@ -3072,30 +3197,30 @@ class _BusinessPlanGeneratorState extends State<BusinessPlanGenerator> {
       if (_industryController.text.trim().isEmpty) {
         throw Exception('Industry is required');
       }
-      
+
       print('✅ Form validation passed. Preparing API call...');
-      
+
       final requestData = {
         'businessName': _companyNameController.text.trim(),
         'businessType': 'Startup',
         'industry': _industryController.text.trim(),
-        'targetMarket': _targetMarketController.text.trim().isEmpty 
-            ? 'General market' 
+        'targetMarket': _targetMarketController.text.trim().isEmpty
+            ? 'General market'
             : _targetMarketController.text.trim(),
         'businessModel': 'B2B/B2C',
-        'fundingGoal': _fundingGoalController.text.trim().isEmpty 
-            ? '100000' 
+        'fundingGoal': _fundingGoalController.text.trim().isEmpty
+            ? '100000'
             : _fundingGoalController.text.trim(),
-        'timeline': _timelineController.text.trim().isEmpty 
-            ? '12 months' 
+        'timeline': _timelineController.text.trim().isEmpty
+            ? '12 months'
             : _timelineController.text.trim(),
-        'description': _descriptionController.text.trim().isEmpty 
-            ? 'A startup in the ${_industryController.text.trim()} industry' 
+        'description': _descriptionController.text.trim().isEmpty
+            ? 'A startup in the ${_industryController.text.trim()} industry'
             : _descriptionController.text.trim(),
       };
-      
+
       print('🚀 Calling OpenRouter AI with data: $requestData');
-      
+
       // Generate business plan using OpenRouter AI
       final businessPlan = await OpenRouterAIService.generateBusinessPlan(
         businessName: requestData['businessName']!,
@@ -3107,35 +3232,36 @@ class _BusinessPlanGeneratorState extends State<BusinessPlanGenerator> {
         timeline: requestData['timeline']!,
         description: requestData['description']!,
       );
-      
+
       print('✅ AI service returned successfully!');
       print('   Business plan length: ${businessPlan.length} characters');
-      print('   First 100 chars: ${businessPlan.length > 100 ? "${businessPlan.substring(0, 100)}..." : businessPlan}');
-      
+      print(
+          '   First 100 chars: ${businessPlan.length > 100 ? "${businessPlan.substring(0, 100)}..." : businessPlan}');
+
       if (!mounted) {
         print('❌ Widget unmounted after API call, aborting...');
         return;
       }
-      
+
       print('🔄 Setting _isGenerating = false and closing dialog...');
       setState(() => _isGenerating = false);
-      
+
       // Note: Dialog will be closed by parent callback
       print('🔍 Calling parent callback to save business plan...');
-      
+
       // Use the callback to notify parent
       if (widget.onBusinessPlanGenerated != null) {
         print('✅ Found callback, calling with business plan data...');
-        
+
         widget.onBusinessPlanGenerated!(
           _companyNameController.text.trim(),
           _industryController.text.trim(),
           businessPlan,
         );
-        
+
         print('✅ Callback executed successfully!');
         print('🎉 Business plan generation completed successfully!');
-        
+
         // Note: Modal will be closed by parent callback
         print('🔚 Business plan modal will be closed by parent...');
       } else {
@@ -3146,14 +3272,14 @@ class _BusinessPlanGeneratorState extends State<BusinessPlanGenerator> {
       print('❌ Error during business plan generation:');
       print('   Error: $e');
       print('   Stack trace: $stackTrace');
-      
+
       if (!mounted) {
         print('❌ Widget unmounted during error handling');
         return;
       }
-      
+
       setState(() => _isGenerating = false);
-      
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Error generating business plan: $e'),
@@ -3180,8 +3306,9 @@ class _BusinessPlanGeneratorState extends State<BusinessPlanGenerator> {
 
 // Market Research Tool
 class MarketResearchTool extends StatefulWidget {
-  final Function(String industry, String targetMarket, String location, String analysis)? onMarketAnalysisGenerated;
-  
+  final Function(String industry, String targetMarket, String location,
+      String analysis)? onMarketAnalysisGenerated;
+
   const MarketResearchTool({
     super.key,
     this.onMarketAnalysisGenerated,
@@ -3221,7 +3348,8 @@ class _MarketResearchToolState extends State<MarketResearchTool> {
                     color: const Color(0xFF8B5CF6).withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Icon(Icons.analytics_rounded, color: Color(0xFF8B5CF6)),
+                  child: const Icon(Icons.analytics_rounded,
+                      color: Color(0xFF8B5CF6)),
                 ),
                 const SizedBox(width: 12),
                 const Text(
@@ -3273,7 +3401,9 @@ class _MarketResearchToolState extends State<MarketResearchTool> {
                         prefixIcon: Icon(Icons.category),
                         border: OutlineInputBorder(),
                       ),
-                      validator: (value) => value?.isEmpty ?? true ? 'Please enter industry' : null,
+                      validator: (value) => value?.isEmpty ?? true
+                          ? 'Please enter industry'
+                          : null,
                     ),
                     const SizedBox(height: 16),
                     TextFormField(
@@ -3284,7 +3414,9 @@ class _MarketResearchToolState extends State<MarketResearchTool> {
                         prefixIcon: Icon(Icons.people),
                         border: OutlineInputBorder(),
                       ),
-                      validator: (value) => value?.isEmpty ?? true ? 'Please describe target market' : null,
+                      validator: (value) => value?.isEmpty ?? true
+                          ? 'Please describe target market'
+                          : null,
                     ),
                     const SizedBox(height: 16),
                     TextFormField(
@@ -3295,13 +3427,16 @@ class _MarketResearchToolState extends State<MarketResearchTool> {
                         prefixIcon: Icon(Icons.location_on),
                         border: OutlineInputBorder(),
                       ),
-                      validator: (value) => value?.isEmpty ?? true ? 'Please enter location' : null,
+                      validator: (value) => value?.isEmpty ?? true
+                          ? 'Please enter location'
+                          : null,
                     ),
                     const Spacer(),
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
-                        onPressed: _isGenerating ? null : _generateMarketAnalysis,
+                        onPressed:
+                            _isGenerating ? null : _generateMarketAnalysis,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF8B5CF6),
                           foregroundColor: Colors.white,
@@ -3313,7 +3448,8 @@ class _MarketResearchToolState extends State<MarketResearchTool> {
                                 height: 20,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2,
-                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.white),
                                 ),
                               )
                             : const Text(
@@ -3337,53 +3473,54 @@ class _MarketResearchToolState extends State<MarketResearchTool> {
 
   void _generateMarketAnalysis() async {
     print('🔄 _generateMarketAnalysis called - Starting generation process...');
-    
+
     if (!(_formKey.currentState?.validate() ?? false)) {
       print('❌ Form validation failed');
       return;
     }
-    
+
     print('✅ Form validation passed');
     setState(() => _isGenerating = true);
     print('✅ Set _isGenerating = true');
-    
+
     try {
       print('🚀 Calling OpenRouter AI for Market Analysis...');
       print('   Industry: ${_industryController.text}');
       print('   Target Market: ${_targetMarketController.text}');
       print('   Location: ${_locationController.text}');
-      
+
       final analysis = await OpenRouterAIService.generateMarketAnalysis(
         industry: _industryController.text,
         targetMarket: _targetMarketController.text,
         location: _locationController.text,
       );
-      
+
       print('✅ AI service returned successfully!');
       print('   Analysis length: ${analysis.length} characters');
-      print('   First 100 chars: ${analysis.substring(0, analysis.length > 100 ? 100 : analysis.length)}...');
-      
+      print(
+          '   First 100 chars: ${analysis.substring(0, analysis.length > 100 ? 100 : analysis.length)}...');
+
       if (mounted) {
         print('🔄 Setting _isGenerating = false and closing dialog...');
         setState(() => _isGenerating = false);
         print('✅ Dialog closed');
-        
+
         print('🔍 Calling parent callback to save market analysis...');
-        
+
         // Use the callback to notify parent
         if (widget.onMarketAnalysisGenerated != null) {
           print('✅ Found callback, calling with market analysis data...');
-          
+
           widget.onMarketAnalysisGenerated!(
             _industryController.text.trim(),
             _targetMarketController.text.trim(),
             _locationController.text.trim(),
             analysis,
           );
-          
+
           print('✅ Callback executed successfully!');
           print('🎉 Market analysis generation completed successfully!');
-          
+
           // Note: Modal will be closed by parent callback
           print('🔚 Market research modal will be closed by parent...');
         } else {
@@ -3394,7 +3531,7 @@ class _MarketResearchToolState extends State<MarketResearchTool> {
     } catch (e) {
       print('❌ Error during market analysis generation:');
       print('   Error: $e');
-      
+
       if (mounted) {
         setState(() => _isGenerating = false);
         ScaffoldMessenger.of(context).showSnackBar(
@@ -3418,8 +3555,9 @@ class _MarketResearchToolState extends State<MarketResearchTool> {
 
 // SWOT Analysis Tool
 class SWOTAnalysisTool extends StatefulWidget {
-  final Function(String businessName, String industry, String businessModel, Map<String, String> swotData)? onSWOTAnalysisGenerated;
-  
+  final Function(String businessName, String industry, String businessModel,
+      Map<String, String> swotData)? onSWOTAnalysisGenerated;
+
   const SWOTAnalysisTool({
     super.key,
     this.onSWOTAnalysisGenerated,
@@ -3459,7 +3597,8 @@ class _SWOTAnalysisToolState extends State<SWOTAnalysisTool> {
                     color: const Color(0xFF10B981).withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Icon(Icons.assessment_rounded, color: Color(0xFF10B981)),
+                  child: const Icon(Icons.assessment_rounded,
+                      color: Color(0xFF10B981)),
                 ),
                 const SizedBox(width: 12),
                 const Text(
@@ -3511,7 +3650,9 @@ class _SWOTAnalysisToolState extends State<SWOTAnalysisTool> {
                         prefixIcon: Icon(Icons.business),
                         border: OutlineInputBorder(),
                       ),
-                      validator: (value) => value?.isEmpty ?? true ? 'Please enter business name' : null,
+                      validator: (value) => value?.isEmpty ?? true
+                          ? 'Please enter business name'
+                          : null,
                     ),
                     const SizedBox(height: 16),
                     TextFormField(
@@ -3522,7 +3663,9 @@ class _SWOTAnalysisToolState extends State<SWOTAnalysisTool> {
                         prefixIcon: Icon(Icons.category),
                         border: OutlineInputBorder(),
                       ),
-                      validator: (value) => value?.isEmpty ?? true ? 'Please enter industry' : null,
+                      validator: (value) => value?.isEmpty ?? true
+                          ? 'Please enter industry'
+                          : null,
                     ),
                     const SizedBox(height: 16),
                     TextFormField(
@@ -3533,7 +3676,9 @@ class _SWOTAnalysisToolState extends State<SWOTAnalysisTool> {
                         prefixIcon: Icon(Icons.business_center),
                         border: OutlineInputBorder(),
                       ),
-                      validator: (value) => value?.isEmpty ?? true ? 'Please enter business model' : null,
+                      validator: (value) => value?.isEmpty ?? true
+                          ? 'Please enter business model'
+                          : null,
                     ),
                     const Spacer(),
                     SizedBox(
@@ -3551,7 +3696,8 @@ class _SWOTAnalysisToolState extends State<SWOTAnalysisTool> {
                                 height: 20,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2,
-                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.white),
                                 ),
                               )
                             : const Text(
@@ -3575,52 +3721,52 @@ class _SWOTAnalysisToolState extends State<SWOTAnalysisTool> {
 
   void _generateSWOTAnalysis() async {
     print('🔄 _generateSWOTAnalysis called - Starting generation process...');
-    
+
     if (!(_formKey.currentState?.validate() ?? false)) {
       print('❌ Form validation failed');
       return;
     }
-    
+
     print('✅ Form validation passed');
     setState(() => _isGenerating = true);
     print('✅ Set _isGenerating = true');
-    
+
     try {
       print('🚀 Calling OpenRouter AI for SWOT Analysis...');
       print('   Business Name: ${_businessNameController.text}');
       print('   Industry: ${_industryController.text}');
       print('   Business Model: ${_businessModelController.text}');
-      
+
       final swotData = await OpenRouterAIService.generateSWOTAnalysis(
         businessName: _businessNameController.text,
         industry: _industryController.text,
         businessModel: _businessModelController.text,
       );
-      
+
       print('✅ AI service returned successfully!');
       print('   SWOT data keys: ${swotData.keys.join(', ')}');
-      
+
       if (mounted) {
         print('🔄 Setting _isGenerating = false and closing dialog...');
         setState(() => _isGenerating = false);
         print('✅ Dialog closed');
-        
+
         print('🔍 Calling parent callback to save SWOT analysis...');
-        
+
         // Use the callback to notify parent
         if (widget.onSWOTAnalysisGenerated != null) {
           print('✅ Found callback, calling with SWOT analysis data...');
-          
+
           widget.onSWOTAnalysisGenerated!(
             _businessNameController.text.trim(),
             _industryController.text.trim(),
             _businessModelController.text.trim(),
             swotData,
           );
-          
+
           print('✅ Callback executed successfully!');
           print('🎉 SWOT analysis generation completed successfully!');
-          
+
           // Note: Modal will be closed by parent callback
           print('🔚 SWOT analysis modal will be closed by parent...');
         } else {
@@ -3631,7 +3777,7 @@ class _SWOTAnalysisToolState extends State<SWOTAnalysisTool> {
     } catch (e) {
       print('❌ Error during SWOT analysis generation:');
       print('   Error: $e');
-      
+
       if (mounted) {
         setState(() => _isGenerating = false);
         ScaffoldMessenger.of(context).showSnackBar(
@@ -3655,7 +3801,8 @@ class _SWOTAnalysisToolState extends State<SWOTAnalysisTool> {
 
 // Business Model Canvas Tool
 class BusinessModelCanvasTool extends StatefulWidget {
-  final Function(String businessName, String industry, String businessModel, Map<String, String> canvasData) onBusinessModelCanvasGenerated;
+  final Function(String businessName, String industry, String businessModel,
+      Map<String, String> canvasData) onBusinessModelCanvasGenerated;
 
   const BusinessModelCanvasTool({
     super.key,
@@ -3663,7 +3810,8 @@ class BusinessModelCanvasTool extends StatefulWidget {
   });
 
   @override
-  State<BusinessModelCanvasTool> createState() => _BusinessModelCanvasToolState();
+  State<BusinessModelCanvasTool> createState() =>
+      _BusinessModelCanvasToolState();
 }
 
 class _BusinessModelCanvasToolState extends State<BusinessModelCanvasTool> {
@@ -3688,9 +3836,10 @@ class _BusinessModelCanvasToolState extends State<BusinessModelCanvasTool> {
   }
 
   Future<void> _generateBusinessModelCanvas() async {
-    print('🔄 _generateBusinessModelCanvas called - Starting generation process...');
+    print(
+        '🔄 _generateBusinessModelCanvas called - Starting generation process...');
     print('✅ Set _isGenerating = true');
-    
+
     if (!_formKey.currentState!.validate()) {
       print('❌ Form validation failed');
       return;
@@ -3720,7 +3869,8 @@ class _BusinessModelCanvasToolState extends State<BusinessModelCanvasTool> {
       print('🚀 Calling OpenRouter AI with data: $requestData');
 
       // Generate the business model canvas using AI
-      final canvasResponse = await OpenRouterAIService.generateBusinessModelCanvas(
+      final canvasResponse =
+          await OpenRouterAIService.generateBusinessModelCanvas(
         businessName: _businessNameController.text,
         industry: _industryController.text,
         businessModel: _businessModelController.text,
@@ -3730,8 +3880,10 @@ class _BusinessModelCanvasToolState extends State<BusinessModelCanvasTool> {
       );
 
       print('✅ AI service returned successfully!');
-      print('   Business Model Canvas length: ${canvasResponse.length} characters');
-      print('   First 100 chars: ${canvasResponse.length > 100 ? "${canvasResponse.substring(0, 100)}..." : canvasResponse}');
+      print(
+          '   Business Model Canvas length: ${canvasResponse.length} characters');
+      print(
+          '   First 100 chars: ${canvasResponse.length > 100 ? "${canvasResponse.substring(0, 100)}..." : canvasResponse}');
 
       // Parse the canvas response into structured data
       final canvasData = _parseCanvasResponse(canvasResponse);
@@ -3744,7 +3896,7 @@ class _BusinessModelCanvasToolState extends State<BusinessModelCanvasTool> {
       print('✅ Dialog closed');
       print('🔍 Calling parent callback to save business model canvas...');
       print('✅ Found callback, calling with canvas data...');
-      
+
       // Call the callback with the generated data
       widget.onBusinessModelCanvasGenerated(
         _businessNameController.text,
@@ -3761,7 +3913,7 @@ class _BusinessModelCanvasToolState extends State<BusinessModelCanvasTool> {
       setState(() {
         _isGenerating = false;
       });
-      
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Error generating Business Model Canvas: $e'),
@@ -3778,7 +3930,8 @@ class _BusinessModelCanvasToolState extends State<BusinessModelCanvasTool> {
       'keyActivities': _extractSection(response, 'Key Activities'),
       'keyResources': _extractSection(response, 'Key Resources'),
       'valuePropositions': _extractSection(response, 'Value Propositions'),
-      'customerRelationships': _extractSection(response, 'Customer Relationships'),
+      'customerRelationships':
+          _extractSection(response, 'Customer Relationships'),
       'channels': _extractSection(response, 'Channels'),
       'customerSegments': _extractSection(response, 'Customer Segments'),
       'costStructure': _extractSection(response, 'Cost Structure'),
@@ -3790,7 +3943,9 @@ class _BusinessModelCanvasToolState extends State<BusinessModelCanvasTool> {
 
   String _extractSection(String response, String sectionName) {
     // Look for **Section Name** followed by content until the next ** or end
-    final pattern = RegExp('\\*\\*$sectionName\\*\\*[:\\s]*([\\s\\S]*?)(?=\\*\\*|\$)', caseSensitive: false);
+    final pattern = RegExp(
+        '\\*\\*$sectionName\\*\\*[:\\s]*([\\s\\S]*?)(?=\\*\\*|\$)',
+        caseSensitive: false);
     final match = pattern.firstMatch(response);
 
     final result = match?.group(1)?.trim() ?? 'Not specified';
@@ -3821,7 +3976,8 @@ class _BusinessModelCanvasToolState extends State<BusinessModelCanvasTool> {
                     color: const Color(0xFF8B5CF6).withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Icon(Icons.view_module_rounded, color: Color(0xFF8B5CF6)),
+                  child: const Icon(Icons.view_module_rounded,
+                      color: Color(0xFF8B5CF6)),
                 ),
                 const SizedBox(width: 12),
                 const Text(
@@ -4012,7 +4168,8 @@ class _BusinessModelCanvasToolState extends State<BusinessModelCanvasTool> {
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
-                        onPressed: _isGenerating ? null : _generateBusinessModelCanvas,
+                        onPressed:
+                            _isGenerating ? null : _generateBusinessModelCanvas,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF8B5CF6),
                           foregroundColor: Colors.white,
@@ -4030,7 +4187,8 @@ class _BusinessModelCanvasToolState extends State<BusinessModelCanvasTool> {
                                     height: 20,
                                     child: CircularProgressIndicator(
                                       strokeWidth: 2,
-                                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                          Colors.white),
                                     ),
                                   ),
                                   SizedBox(width: 12),
@@ -4073,7 +4231,7 @@ class SmartChecklistsTool extends StatefulWidget {
 
 class _SmartChecklistsToolState extends State<SmartChecklistsTool> {
   bool _isLoading = true;
-  
+
   // Define checklist categories
   final Map<String, List<ChecklistItem>> _checklists = {
     'Pre-Launch': [
@@ -4088,7 +4246,8 @@ class _SmartChecklistsToolState extends State<SmartChecklistsTool> {
     ],
     'Legal & Compliance': [
       ChecklistItem(title: 'Register business entity', completed: false),
-      ChecklistItem(title: 'Obtain necessary licenses and permits', completed: false),
+      ChecklistItem(
+          title: 'Obtain necessary licenses and permits', completed: false),
       ChecklistItem(title: 'Get business insurance', completed: false),
       ChecklistItem(title: 'Trademark your brand', completed: false),
       ChecklistItem(title: 'Create terms of service', completed: false),
@@ -4104,10 +4263,12 @@ class _SmartChecklistsToolState extends State<SmartChecklistsTool> {
       ChecklistItem(title: 'Hire an accountant/CPA', completed: false),
     ],
     'Product/Service Development': [
-      ChecklistItem(title: 'Develop MVP (Minimum Viable Product)', completed: false),
+      ChecklistItem(
+          title: 'Develop MVP (Minimum Viable Product)', completed: false),
       ChecklistItem(title: 'Test product with beta users', completed: false),
       ChecklistItem(title: 'Gather and implement feedback', completed: false),
-      ChecklistItem(title: 'Finalize product/service offering', completed: false),
+      ChecklistItem(
+          title: 'Finalize product/service offering', completed: false),
       ChecklistItem(title: 'Create product documentation', completed: false),
       ChecklistItem(title: 'Set up customer support system', completed: false),
     ],
@@ -4117,13 +4278,16 @@ class _SmartChecklistsToolState extends State<SmartChecklistsTool> {
       ChecklistItem(title: 'Set up social media accounts', completed: false),
       ChecklistItem(title: 'Create marketing strategy', completed: false),
       ChecklistItem(title: 'Develop content marketing plan', completed: false),
-      ChecklistItem(title: 'Launch email marketing campaigns', completed: false),
+      ChecklistItem(
+          title: 'Launch email marketing campaigns', completed: false),
       ChecklistItem(title: 'Set up analytics and tracking', completed: false),
     ],
     'Operations': [
-      ChecklistItem(title: 'Find office space or set up home office', completed: false),
+      ChecklistItem(
+          title: 'Find office space or set up home office', completed: false),
       ChecklistItem(title: 'Purchase equipment and supplies', completed: false),
-      ChecklistItem(title: 'Set up technology infrastructure', completed: false),
+      ChecklistItem(
+          title: 'Set up technology infrastructure', completed: false),
       ChecklistItem(title: 'Establish vendor relationships', completed: false),
       ChecklistItem(title: 'Create operational procedures', completed: false),
       ChecklistItem(title: 'Build your team (if applicable)', completed: false),
@@ -4146,9 +4310,12 @@ class _SmartChecklistsToolState extends State<SmartChecklistsTool> {
           // Load saved checklist states
           savedData.forEach((category, items) {
             if (_checklists.containsKey(category) && items is List) {
-              for (int i = 0; i < items.length && i < _checklists[category]!.length; i++) {
+              for (int i = 0;
+                  i < items.length && i < _checklists[category]!.length;
+                  i++) {
                 if (items[i] is Map && items[i]['completed'] != null) {
-                  _checklists[category]![i].completed = items[i]['completed'] as bool;
+                  _checklists[category]![i].completed =
+                      items[i]['completed'] as bool;
                 }
               }
             }
@@ -4172,12 +4339,14 @@ class _SmartChecklistsToolState extends State<SmartChecklistsTool> {
     try {
       final dataToSave = <String, dynamic>{};
       _checklists.forEach((category, items) {
-        dataToSave[category] = items.map((item) => {
-          'title': item.title,
-          'completed': item.completed,
-        }).toList();
+        dataToSave[category] = items
+            .map((item) => {
+                  'title': item.title,
+                  'completed': item.completed,
+                })
+            .toList();
       });
-      
+
       await FirebaseDataService.setJson('smart_checklists', dataToSave);
       print('✅ Checklists saved to Firebase');
     } catch (e) {
@@ -4204,7 +4373,6 @@ class _SmartChecklistsToolState extends State<SmartChecklistsTool> {
         ),
       );
     }
-    
 
     return Container(
       height: MediaQuery.of(context).size.height * 0.85,
@@ -4220,11 +4388,11 @@ class _SmartChecklistsToolState extends State<SmartChecklistsTool> {
           // Header
           Container(
             padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
                 colors: [Color(0xFF06B6D4), Color(0xFF22D3EE)],
               ),
-              borderRadius: const BorderRadius.only(
+              borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(24),
                 topRight: Radius.circular(24),
               ),
@@ -4287,15 +4455,18 @@ class _SmartChecklistsToolState extends State<SmartChecklistsTool> {
               padding: const EdgeInsets.symmetric(horizontal: 20),
               children: _checklists.keys.map((category) {
                 final isSelected = category == _selectedCategory;
-                final completedCount = _checklists[category]!.where((item) => item.completed).length;
+                final completedCount = _checklists[category]!
+                    .where((item) => item.completed)
+                    .length;
                 final totalCount = _checklists[category]!.length;
-                
+
                 return Padding(
                   padding: const EdgeInsets.only(right: 8),
                   child: GestureDetector(
                     onTap: () => setState(() => _selectedCategory = category),
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
                       decoration: BoxDecoration(
                         gradient: isSelected
                             ? const LinearGradient(
@@ -4312,14 +4483,19 @@ class _SmartChecklistsToolState extends State<SmartChecklistsTool> {
                             style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
-                              color: isSelected ? Colors.white : const Color(0xFF64748B),
+                              color: isSelected
+                                  ? Colors.white
+                                  : const Color(0xFF64748B),
                             ),
                           ),
                           const SizedBox(width: 6),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 6, vertical: 2),
                             decoration: BoxDecoration(
-                              color: isSelected ? Colors.white.withOpacity(0.3) : const Color(0xFFE2E8F0),
+                              color: isSelected
+                                  ? Colors.white.withOpacity(0.3)
+                                  : const Color(0xFFE2E8F0),
                               borderRadius: BorderRadius.circular(10),
                             ),
                             child: Text(
@@ -4327,7 +4503,9 @@ class _SmartChecklistsToolState extends State<SmartChecklistsTool> {
                               style: TextStyle(
                                 fontSize: 10,
                                 fontWeight: FontWeight.w700,
-                                color: isSelected ? Colors.white : const Color(0xFF64748B),
+                                color: isSelected
+                                    ? Colors.white
+                                    : const Color(0xFF64748B),
                               ),
                             ),
                           ),
@@ -4407,7 +4585,8 @@ class _SmartChecklistsToolState extends State<SmartChecklistsTool> {
   }
 
   Widget _buildProgressBar() {
-    final completedCount = _checklists[_selectedCategory]!.where((item) => item.completed).length;
+    final completedCount =
+        _checklists[_selectedCategory]!.where((item) => item.completed).length;
     final totalCount = _checklists[_selectedCategory]!.length;
     final progress = totalCount > 0 ? completedCount / totalCount : 0.0;
 
@@ -4456,7 +4635,9 @@ class _SmartChecklistsToolState extends State<SmartChecklistsTool> {
         color: item.completed ? const Color(0xFFF0FDF4) : Colors.white,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: item.completed ? const Color(0xFF10B981).withOpacity(0.2) : const Color(0xFFE2E8F0),
+          color: item.completed
+              ? const Color(0xFF10B981).withOpacity(0.2)
+              : const Color(0xFFE2E8F0),
         ),
         boxShadow: [
           BoxShadow(
@@ -4479,7 +4660,9 @@ class _SmartChecklistsToolState extends State<SmartChecklistsTool> {
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
-            color: item.completed ? const Color(0xFF10B981) : const Color(0xFF1E293B),
+            color: item.completed
+                ? const Color(0xFF10B981)
+                : const Color(0xFF1E293B),
             decoration: item.completed ? TextDecoration.lineThrough : null,
           ),
         ),
@@ -4520,4 +4703,3 @@ class ChecklistItem {
     required this.completed,
   });
 }
-

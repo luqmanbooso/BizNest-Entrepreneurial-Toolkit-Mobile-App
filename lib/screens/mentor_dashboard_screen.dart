@@ -30,7 +30,7 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen>
   bool _isLoading = true;
   final ScrollController _scrollController = ScrollController();
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  int _selectedIndex = 0;
+  final int _selectedIndex = 0;
 
   @override
   void initState() {
@@ -113,7 +113,7 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen>
       await _loadUpcomingSessions();
       await _loadMenteesCount();
       await _loadSessionsCount();
-      
+
       if (mounted) {
         setState(() {
           _isLoading = false;
@@ -133,7 +133,7 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen>
           .collection('sessions')
           .where('mentor_id', isEqualTo: FirebaseAuth.instance.currentUser?.uid)
           .get();
-      
+
       // Filter for completed sessions and get unique mentee IDs
       final uniqueMentees = <String>{};
       for (var doc in querySnapshot.docs) {
@@ -145,7 +145,7 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen>
           }
         }
       }
-      
+
       _menteesHelpedCount = uniqueMentees.length;
       print('✅ Mentees helped count: $_menteesHelpedCount');
     } catch (e) {
@@ -161,12 +161,12 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen>
           .collection('sessions')
           .where('mentor_id', isEqualTo: FirebaseAuth.instance.currentUser?.uid)
           .get();
-      
+
       // Count only completed sessions
       _totalSessionsCount = querySnapshot.docs.where((doc) {
         return doc.data()['status'] == 'completed';
       }).length;
-      
+
       print('✅ Total sessions count: $_totalSessionsCount');
     } catch (e) {
       print('❌ Error loading sessions count: $e');
@@ -200,19 +200,21 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen>
           .orderBy('created_at', descending: true)
           .limit(4)
           .get();
-      
-      print('📊 Found ${querySnapshot.docs.length} mentorship requests');
-      
+
       _recentRequests = querySnapshot.docs.map((doc) {
         final data = doc.data();
         print('📋 Request ${doc.id}: ${data['mentee_info']?['name']} - ${data['status']}');
         return {
           'id': doc.id,
+          'mentee_name': data['mentee_info']?['mentee_name'] ?? 'Unknown',
+          'mentee_avatar':
+              'https://ui-avatars.com/api/?name=${data['mentee_info']?['mentee_name']?.replaceAll(' ', '+') ?? 'User'}&background=random',
           'mentee_name': data['mentee_info']?['name'] ?? 'Unknown',
           'mentee_avatar': 'https://ui-avatars.com/api/?name=${data['mentee_info']?['name']?.replaceAll(' ', '+') ?? 'User'}&background=random',
           'business_name': data['mentee_info']?['business_name'] ?? '',
           'request_type': data['request_type'] ?? 'Mentorship',
-          'timestamp': (data['created_at'] as Timestamp?)?.toDate() ?? DateTime.now(),
+          'timestamp':
+              (data['created_at'] as Timestamp?)?.toDate() ?? DateTime.now(),
           'status': data['status'] ?? 'pending',
         };
       }).toList();
@@ -286,7 +288,7 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen>
       canPop: false,
       onPopInvokedWithResult: (bool didPop, Object? result) async {
         if (didPop) return;
-        
+
         final bool? shouldPop = await _showExitConfirmation(context);
         if (shouldPop == true && context.mounted) {
           // For mentor dashboard as home screen, we exit the app
@@ -486,12 +488,16 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen>
           child: Padding(
             padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
             child: Row(
-                children: [
+              children: [
                 CircleAvatar(
                   radius: 20,
                   backgroundColor: Colors.white.withOpacity(0.3),
                   child: Text(
-                    AuthService.currentUser?['name']?.toString().substring(0, 1).toUpperCase() ?? 'M',
+                    AuthService.currentUser?['name']
+                            ?.toString()
+                            .substring(0, 1)
+                            .toUpperCase() ??
+                        'M',
                     style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
@@ -526,7 +532,8 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen>
                   },
                   icon: Stack(
                     children: [
-                      const Icon(Icons.notifications_outlined, color: Colors.white),
+                      const Icon(Icons.notifications_outlined,
+                          color: Colors.white),
                       Positioned(
                         right: 0,
                         top: 0,
@@ -640,7 +647,8 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen>
                   _resetStatusBar();
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (_) => const ScheduleSessionScreen()),
+                    MaterialPageRoute(
+                        builder: (_) => const ScheduleSessionScreen()),
                   ).then((_) => _setDashboardStatusBar());
                 },
               ),
@@ -655,7 +663,8 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen>
                   _resetStatusBar();
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (_) => MentorshipRequestsScreen()),
+                    MaterialPageRoute(
+                        builder: (_) => const MentorshipRequestsScreen()),
                   ).then((_) => _setDashboardStatusBar());
                 },
               ),
@@ -700,7 +709,8 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen>
     );
   }
 
-  Widget _buildActionButton(String title, IconData icon, Color color, VoidCallback onTap) {
+  Widget _buildActionButton(
+      String title, IconData icon, Color color, VoidCallback onTap) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -754,86 +764,93 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen>
             borderRadius: BorderRadius.circular(16),
             boxShadow: ModernTheme.modernShadow,
           ),
-          child: _recentRequests.isEmpty 
-            ? Padding(
-                padding: const EdgeInsets.all(32),
-                child: Column(
-                  children: [
-                    Icon(
-                      Icons.history,
-                      size: 48,
-                      color: ModernTheme.mediumGray,
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'No recent activity',
-                      style: ModernTheme.bodyLarge.copyWith(
+          child: _recentRequests.isEmpty
+              ? Padding(
+                  padding: const EdgeInsets.all(32),
+                  child: Column(
+                    children: [
+                      const Icon(
+                        Icons.history,
+                        size: 48,
                         color: ModernTheme.mediumGray,
                       ),
-                    ),
-                  ],
-                ),
-              )
-            : ListView.separated(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                padding: const EdgeInsets.all(16),
-                itemCount: _recentRequests.length > 4 ? 4 : _recentRequests.length,
-                separatorBuilder: (context, index) => const Divider(height: 1),
-                itemBuilder: (context, index) {
-                  final request = _recentRequests[index];
-                  String timeAgo = _getTimeAgo(request['timestamp']);
-                  IconData activityIcon = request['status'] == 'pending' 
-                    ? Icons.person_add 
-                    : Icons.check_circle;
-                  Color activityColor = request['status'] == 'pending' 
-                    ? ModernTheme.sunsetOrange 
-                    : ModernTheme.freshGreen;
-                  
-                  return ListTile(
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                    leading: Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: activityColor.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(12),
+                      const SizedBox(height: 16),
+                      Text(
+                        'No recent activity',
+                        style: ModernTheme.bodyLarge.copyWith(
+                          color: ModernTheme.mediumGray,
+                        ),
                       ),
-                      child: Icon(activityIcon, color: activityColor, size: 24),
-                    ),
-                    title: Text(
-                      request['mentee_name'],
-                      style: ModernTheme.bodyMedium.copyWith(
-                        color: ModernTheme.navy,
-                        fontWeight: FontWeight.w600,
+                    ],
+                  ),
+                )
+              : ListView.separated(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  padding: const EdgeInsets.all(16),
+                  itemCount:
+                      _recentRequests.length > 4 ? 4 : _recentRequests.length,
+                  separatorBuilder: (context, index) =>
+                      const Divider(height: 1),
+                  itemBuilder: (context, index) {
+                    final request = _recentRequests[index];
+                    String timeAgo = _getTimeAgo(request['timestamp']);
+                    IconData activityIcon = request['status'] == 'pending'
+                        ? Icons.person_add
+                        : Icons.check_circle;
+                    Color activityColor = request['status'] == 'pending'
+                        ? ModernTheme.sunsetOrange
+                        : ModernTheme.freshGreen;
+
+                    return ListTile(
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 8),
+                      leading: Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: activityColor.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child:
+                            Icon(activityIcon, color: activityColor, size: 24),
                       ),
-                    ),
-                    subtitle: Text(
-                      'New ${request['request_type']} • $timeAgo',
-                      style: ModernTheme.bodySmall.copyWith(
-                        color: ModernTheme.mediumGray,
-                      ),
-                    ),
-                    trailing: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: request['status'] == 'pending' 
-                          ? ModernTheme.sunsetOrange.withOpacity(0.1)
-                          : ModernTheme.freshGreen.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        request['status'] == 'pending' ? 'Pending' : 'Accepted',
-                        style: ModernTheme.bodySmall.copyWith(
-                          color: request['status'] == 'pending' 
-                            ? ModernTheme.sunsetOrange
-                            : ModernTheme.freshGreen,
+                      title: Text(
+                        request['mentee_name'],
+                        style: ModernTheme.bodyMedium.copyWith(
+                          color: ModernTheme.navy,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                    ),
-                  );
-                },
-              ),
+                      subtitle: Text(
+                        'New ${request['request_type']} • $timeAgo',
+                        style: ModernTheme.bodySmall.copyWith(
+                          color: ModernTheme.mediumGray,
+                        ),
+                      ),
+                      trailing: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: request['status'] == 'pending'
+                              ? ModernTheme.sunsetOrange.withOpacity(0.1)
+                              : ModernTheme.freshGreen.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          request['status'] == 'pending'
+                              ? 'Pending'
+                              : 'Accepted',
+                          style: ModernTheme.bodySmall.copyWith(
+                            color: request['status'] == 'pending'
+                                ? ModernTheme.sunsetOrange
+                                : ModernTheme.freshGreen,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
         ),
       ],
     );
@@ -842,7 +859,7 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen>
   String _getTimeAgo(DateTime timestamp) {
     final now = DateTime.now();
     final difference = now.difference(timestamp);
-    
+
     if (difference.inMinutes < 60) {
       return '${difference.inMinutes} minutes ago';
     } else if (difference.inHours < 24) {
@@ -871,14 +888,28 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen>
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final tomorrow = today.add(const Duration(days: 1));
-    final sessionDate = DateTime(scheduledDate.year, scheduledDate.month, scheduledDate.day);
-    
+    final sessionDate =
+        DateTime(scheduledDate.year, scheduledDate.month, scheduledDate.day);
+
     if (sessionDate == today) {
       return 'Today at $timeString';
     } else if (sessionDate == tomorrow) {
       return 'Tomorrow at $timeString';
     } else {
-      final months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      final months = [
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'May',
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dec'
+      ];
       return '${months[scheduledDate.month - 1]} ${scheduledDate.day} at $timeString';
     }
   }
@@ -903,53 +934,55 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen>
             boxShadow: ModernTheme.modernShadow,
           ),
           child: _upcomingSessions.isEmpty
-            ? Column(
-                children: [
-                  Icon(
-                    Icons.schedule,
-                    size: 48,
-                    color: ModernTheme.mediumGray,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'No upcoming sessions',
-                    style: ModernTheme.bodyLarge.copyWith(
+              ? Column(
+                  children: [
+                    const Icon(
+                      Icons.schedule,
+                      size: 48,
                       color: ModernTheme.mediumGray,
                     ),
-                  ),
-                ],
-              )
-            : Column(
-                children: _upcomingSessions.asMap().entries.map((entry) {
-                  int index = entry.key;
-                  Map<String, dynamic> session = entry.value;
-                  bool isLast = index == _upcomingSessions.length - 1;
-                  
-                  Color sessionColor = _getSessionColor(session['session_type']);
-                  String formattedTime = _formatSessionTime(
-                    session['scheduled_date'] as DateTime,
-                    session['scheduled_time'] as String,
-                  );
-                  
-                  return Column(
-                    children: [
-                      _buildSessionItem(
-                        session['session_type'] ?? 'Session',
-                        'with ${session['mentee_name'] ?? 'Unknown'}',
-                        formattedTime,
-                        sessionColor,
+                    const SizedBox(height: 16),
+                    Text(
+                      'No upcoming sessions',
+                      style: ModernTheme.bodyLarge.copyWith(
+                        color: ModernTheme.mediumGray,
                       ),
-                      if (!isLast) const Divider(height: 24),
-                    ],
-                  );
-                }).toList(),
-              ),
+                    ),
+                  ],
+                )
+              : Column(
+                  children: _upcomingSessions.asMap().entries.map((entry) {
+                    int index = entry.key;
+                    Map<String, dynamic> session = entry.value;
+                    bool isLast = index == _upcomingSessions.length - 1;
+
+                    Color sessionColor =
+                        _getSessionColor(session['session_type']);
+                    String formattedTime = _formatSessionTime(
+                      session['scheduled_date'] as DateTime,
+                      session['scheduled_time'] as String,
+                    );
+
+                    return Column(
+                      children: [
+                        _buildSessionItem(
+                          session['session_type'] ?? 'Session',
+                          'with ${session['mentee_name'] ?? 'Unknown'}',
+                          formattedTime,
+                          sessionColor,
+                        ),
+                        if (!isLast) const Divider(height: 24),
+                      ],
+                    );
+                  }).toList(),
+                ),
         ),
       ],
     );
   }
 
-  Widget _buildSessionItem(String title, String subtitle, String time, Color color) {
+  Widget _buildSessionItem(
+      String title, String subtitle, String time, Color color) {
     return Row(
       children: [
         Container(
@@ -1039,7 +1072,7 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen>
           _resetStatusBar();
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (_) => MentorshipRequestsScreen()),
+            MaterialPageRoute(builder: (_) => const MentorshipRequestsScreen()),
           ).then((_) => _setDashboardStatusBar());
         } else if (index == 2) {
           // Navigate to Community
@@ -1057,7 +1090,9 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen>
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? ModernTheme.electricBlue.withOpacity(0.1) : Colors.transparent,
+          color: isSelected
+              ? ModernTheme.electricBlue.withOpacity(0.1)
+              : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Column(
@@ -1167,7 +1202,8 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen>
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => const ScheduleSessionScreen(),
+                                builder: (context) =>
+                                    const ScheduleSessionScreen(),
                               ),
                             ).then((_) {
                               _setDashboardStatusBar();
@@ -1202,7 +1238,8 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen>
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => const SessionsScreen(isMentor: true),
+                                builder: (context) =>
+                                    const SessionsScreen(isMentor: true),
                               ),
                             ).then((_) => _setDashboardStatusBar());
                           },
@@ -1282,9 +1319,7 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen>
                 ),
                 child: Icon(
                   icon,
-                  color: isDestructive
-                      ? Colors.red
-                      : ModernTheme.electricBlue,
+                  color: isDestructive ? Colors.red : ModernTheme.electricBlue,
                   size: 24,
                 ),
               ),
@@ -1298,15 +1333,13 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen>
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
-                        color: isDestructive
-                            ? Colors.red
-                            : ModernTheme.navy,
+                        color: isDestructive ? Colors.red : ModernTheme.navy,
                       ),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       subtitle,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 12,
                         color: ModernTheme.mediumGray,
                       ),
@@ -1314,7 +1347,7 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen>
                   ],
                 ),
               ),
-              Icon(
+              const Icon(
                 Icons.arrow_forward_ios,
                 size: 16,
                 color: ModernTheme.mediumGray,
@@ -1350,7 +1383,7 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen>
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
-              child: Text(
+              child: const Text(
                 'Cancel',
                 style: TextStyle(
                   color: ModernTheme.mediumGray,

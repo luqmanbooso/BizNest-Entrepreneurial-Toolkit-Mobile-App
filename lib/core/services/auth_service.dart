@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -18,7 +17,8 @@ class AuthService {
   static String? _currentToken;
 
   // Authentication state
-  static bool get isAuthenticated => _auth.currentUser != null && _currentToken != null;
+  static bool get isAuthenticated =>
+      _auth.currentUser != null && _currentToken != null;
   static Map<String, dynamic>? get currentUser => _currentUser;
   static String? get currentToken => _currentToken;
 
@@ -75,7 +75,10 @@ class AuthService {
     try {
       final user = _auth.currentUser;
       if (user != null) {
-        final userDoc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+        final userDoc = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .get();
         if (userDoc.exists) {
           final firestoreData = userDoc.data()!;
           _currentUser = {
@@ -112,16 +115,20 @@ class AuthService {
           fbResult.refreshToken ?? 'fb_refresh',
           fbResult.user ?? {},
         );
-        return AuthResult.success(message: 'Login successful', user: fbResult.user);
+        return AuthResult.success(
+            message: 'Login successful', user: fbResult.user);
       }
 
       // Fallback to mock ApiService
-      final response = await ApiService.post('/auth/login', {
-        'email': email,
-        'password': password,
-        'device_type': 'mobile',
-        'app_version': '1.0.0',
-      }, requiresAuth: false);
+      final response = await ApiService.post(
+          '/auth/login',
+          {
+            'email': email,
+            'password': password,
+            'device_type': 'mobile',
+            'app_version': '1.0.0',
+          },
+          requiresAuth: false);
 
       if (response['success']) {
         final token = response['data']['token'];
@@ -171,19 +178,23 @@ class AuthService {
           fbResult.refreshToken ?? 'fb_refresh',
           fbResult.user ?? {},
         );
-        return AuthResult.success(message: 'Registration successful', user: fbResult.user);
+        return AuthResult.success(
+            message: 'Registration successful', user: fbResult.user);
       }
 
       // Fallback to mock ApiService
-      final response = await ApiService.post('/auth/register', {
-        'name': name,
-        'email': email,
-        'password': password,
-        'company': company ?? '',
-        'role': role ?? 'entrepreneur',
-        'device_type': 'mobile',
-        'app_version': '1.0.0',
-      }, requiresAuth: false);
+      final response = await ApiService.post(
+          '/auth/register',
+          {
+            'name': name,
+            'email': email,
+            'password': password,
+            'company': company ?? '',
+            'role': role ?? 'entrepreneur',
+            'device_type': 'mobile',
+            'app_version': '1.0.0',
+          },
+          requiresAuth: false);
 
       if (response['success']) {
         final token = response['data']['token'];
@@ -240,14 +251,18 @@ class AuthService {
   // Refresh token
   static Future<AuthResult> refreshToken() async {
     try {
-      final refreshToken = await FirebaseDataService.getString(_refreshTokenKey);
+      final refreshToken =
+          await FirebaseDataService.getString(_refreshTokenKey);
       if (refreshToken == null) {
         return AuthResult.error(message: 'No refresh token available');
       }
 
-      final response = await ApiService.post('/auth/refresh', {
-        'refresh_token': refreshToken,
-      }, requiresAuth: false);
+      final response = await ApiService.post(
+          '/auth/refresh',
+          {
+            'refresh_token': refreshToken,
+          },
+          requiresAuth: false);
 
       if (response['success']) {
         final newToken = response['data']['token'];
@@ -280,9 +295,12 @@ class AuthService {
   // Forgot password
   static Future<AuthResult> forgotPassword(String email) async {
     try {
-      final response = await ApiService.post('/auth/forgot-password', {
-        'email': email,
-      }, requiresAuth: false);
+      final response = await ApiService.post(
+          '/auth/forgot-password',
+          {
+            'email': email,
+          },
+          requiresAuth: false);
 
       if (response['success']) {
         return AuthResult.success(
@@ -309,10 +327,13 @@ class AuthService {
     required String password,
   }) async {
     try {
-      final response = await ApiService.post('/auth/reset-password', {
-        'token': token,
-        'password': password,
-      }, requiresAuth: false);
+      final response = await ApiService.post(
+          '/auth/reset-password',
+          {
+            'token': token,
+            'password': password,
+          },
+          requiresAuth: false);
 
       if (response['success']) {
         return AuthResult.success(
@@ -336,9 +357,12 @@ class AuthService {
   // Verify email
   static Future<AuthResult> verifyEmail(String token) async {
     try {
-      final response = await ApiService.post('/auth/verify-email', {
-        'token': token,
-      }, requiresAuth: false);
+      final response = await ApiService.post(
+          '/auth/verify-email',
+          {
+            'token': token,
+          },
+          requiresAuth: false);
 
       if (response['success']) {
         return AuthResult.success(
@@ -388,7 +412,10 @@ class AuthService {
       });
 
       if (userUpdates.isNotEmpty) {
-        await FirebaseFirestore.instance.collection('users').doc(user.uid).set(userUpdates, SetOptions(merge: true));
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .set(userUpdates, SetOptions(merge: true));
       }
 
       // Update local user data
