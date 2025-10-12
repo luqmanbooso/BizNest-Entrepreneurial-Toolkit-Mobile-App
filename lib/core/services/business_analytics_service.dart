@@ -11,6 +11,7 @@ class BusinessAnalyticsService {
     String? businessId,
     DateTime? startDate,
     DateTime? endDate,
+    int? year,
   }) async {
     try {
       businessId ??=
@@ -22,8 +23,23 @@ class BusinessAnalyticsService {
 
       if (doc.exists && doc.data() != null) {
         final data = doc.data()!;
-        // Return enhanced analytics with real data only
-        return _enhanceAnalyticsData(data);
+
+        // If year is specified, extract data for that specific year
+        if (year != null) {
+          final yearData = _extractYearSpecificData(data, year);
+          if (yearData != null) {
+            return _enhanceAnalyticsData(yearData);
+          } else {
+            // No data for the specified year
+            if (kDebugMode) {
+              print('No business analytics data found for year $year');
+            }
+            return null;
+          }
+        } else {
+          // Return enhanced analytics with real data only
+          return _enhanceAnalyticsData(data);
+        }
       } else {
         // Return null when no real data exists - no mock fallback
         if (kDebugMode) {
@@ -37,6 +53,65 @@ class BusinessAnalyticsService {
       }
       return null;
     }
+  }
+
+  /// Extract data for a specific year from the year-based structure
+  static Map<String, dynamic>? _extractYearSpecificData(
+      Map<String, dynamic> data, int year) {
+    final String yearKey = year.toString();
+    final revenueByYear = data['revenueByYear'] as Map<String, dynamic>?;
+    final customersByYear = data['customersByYear'] as Map<String, dynamic>?;
+    final expensesByYear = data['expensesByYear'] as Map<String, dynamic>?;
+
+    // Check if we have data for the specified year
+    final yearRevenue = revenueByYear?[yearKey] as Map<String, dynamic>?;
+    final yearCustomers = customersByYear?[yearKey] as Map<String, dynamic>?;
+    final yearExpenses = expensesByYear?[yearKey] as Map<String, dynamic>?;
+
+    if (yearRevenue == null && yearCustomers == null && yearExpenses == null) {
+      return null; // No data for this year
+    }
+
+    // Build year-specific data structure
+    Map<String, dynamic> yearData = {};
+
+    if (yearRevenue != null) {
+      yearData['revenue'] = yearRevenue;
+    } else {
+      yearData['revenue'] = {
+        'monthly': List.filled(12, 0.0),
+        'yearly': 0.0,
+      };
+    }
+
+    if (yearCustomers != null) {
+      yearData['customers'] = yearCustomers;
+    } else {
+      yearData['customers'] = {
+        'monthly': List.filled(12, 0),
+        'total': 0,
+      };
+    }
+
+    if (yearExpenses != null) {
+      yearData['expenses'] = yearExpenses;
+    } else {
+      yearData['expenses'] = {
+        'monthly': List.filled(12, 0.0),
+        'categories': <String, double>{},
+      };
+    }
+
+    // Copy any other non-year-specific data
+    data.forEach((key, value) {
+      if (key != 'revenueByYear' &&
+          key != 'customersByYear' &&
+          key != 'expensesByYear') {
+        yearData[key] = value;
+      }
+    });
+
+    return yearData;
   }
 
   /// Enhance analytics data with calculated metrics
@@ -121,42 +196,67 @@ class BusinessAnalyticsService {
       final doc = await docRef.get();
 
       Map<String, dynamic> data = doc.exists ? doc.data()! : {};
-      Map<String, dynamic> revenue = Map.from(data['revenue'] ?? {});
-      Map<String, dynamic> customers = Map.from(data['customers'] ?? {});
 
-      List<dynamic> monthly = List.from(revenue['monthly'] ?? []);
-      while (monthly.length < 12) {
-        monthly.add(0.0);
+      // Initialize year-based structure
+      Map<String, dynamic> revenueByYear =
+          Map.from(data['revenueByYear'] ?? {});
+      Map<String, dynamic> customersByYear =
+          Map.from(data['customersByYear'] ?? {});
+
+      String yearKey = year.toString();
+
+      // Initialize yearly data structure if it doesn't exist
+      if (!revenueByYear.containsKey(yearKey)) {
+        revenueByYear[yearKey] = {
+          'monthly': List.filled(12, 0.0),
+          'yearly': 0.0,
+          'lastUpdated': DateTime.now().toIso8601String(),
+        };
       }
+
+      if (!customersByYear.containsKey(yearKey)) {
+        customersByYear[yearKey] = {
+          'monthly': List.filled(12, 0),
+          'total': 0,
+          'lastUpdated': DateTime.now().toIso8601String(),
+        };
+      }
+
+      // Update revenue for the specific year
+      Map<String, dynamic> yearRevenue = Map.from(revenueByYear[yearKey]);
+      List<dynamic> monthly = List.from(yearRevenue['monthly']);
 
       if (month >= 1 && month <= 12) {
         monthly[month - 1] = amount;
+        yearRevenue['monthly'] = monthly;
+        yearRevenue['yearly'] =
+            monthly.fold(0.0, (sum, val) => sum + (val as num).toDouble());
+        yearRevenue['lastUpdated'] = DateTime.now().toIso8601String();
 
-        // Update customer count for this month if provided
+        revenueByYear[yearKey] = yearRevenue;
+
+        // Update customer count for this month and year if provided
         if (customerCount != null) {
-          List<dynamic> monthlyCustomers =
-              List.from(customers['monthly'] ?? []);
-          while (monthlyCustomers.length < 12) {
-            monthlyCustomers.add(0);
-          }
-          monthlyCustomers[month - 1] = customerCount;
-          customers['monthly'] = monthlyCustomers;
+          Map<String, dynamic> yearCustomers =
+              Map.from(customersByYear[yearKey]);
+          List<dynamic> monthlyCustomers = List.from(yearCustomers['monthly']);
 
-          // Update total customers to be the highest monthly count
+          monthlyCustomers[month - 1] = customerCount;
+          yearCustomers['monthly'] = monthlyCustomers;
+
+          // Update total customers to be the highest monthly count for this year
           int maxCustomers =
               monthlyCustomers.fold(0, (max, val) => val > max ? val : max);
-          customers['total'] = maxCustomers;
-          customers['lastUpdated'] = DateTime.now().toIso8601String();
+          yearCustomers['total'] = maxCustomers;
+          yearCustomers['lastUpdated'] = DateTime.now().toIso8601String();
+
+          customersByYear[yearKey] = yearCustomers;
         }
       }
 
-      revenue['monthly'] = monthly;
-      revenue['yearly'] =
-          monthly.fold(0.0, (sum, val) => sum + (val as num).toDouble());
-      revenue['lastUpdated'] = DateTime.now().toIso8601String();
-
-      data['revenue'] = revenue;
-      data['customers'] = customers;
+      // Store the updated data
+      data['revenueByYear'] = revenueByYear;
+      data['customersByYear'] = customersByYear;
       data['lastUpdated'] = DateTime.now().toIso8601String();
 
       await docRef.set(data, SetOptions(merge: true));
@@ -185,38 +285,54 @@ class BusinessAnalyticsService {
       final doc = await docRef.get();
 
       Map<String, dynamic> data = doc.exists ? doc.data()! : {};
-      Map<String, dynamic> expenses = Map.from(data['expenses'] ?? {});
 
-      // Update category expenses
-      Map<String, dynamic> categories = Map.from(expenses['categories'] ?? {});
+      // Use current year if not specified
+      year ??= DateTime.now().year;
+      String yearKey = year.toString();
+
+      // Initialize year-based structure for expenses
+      Map<String, dynamic> expensesByYear =
+          Map.from(data['expensesByYear'] ?? {});
+
+      if (!expensesByYear.containsKey(yearKey)) {
+        expensesByYear[yearKey] = {
+          'monthly': List.filled(12, 0.0),
+          'categories': <String, double>{},
+          'lastUpdated': DateTime.now().toIso8601String(),
+        };
+      }
+
+      Map<String, dynamic> yearExpenses = Map.from(expensesByYear[yearKey]);
+
+      // Update category expenses for the year
+      Map<String, dynamic> categories =
+          Map.from(yearExpenses['categories'] ?? {});
       categoryExpenses.forEach((category, amount) {
         categories[category] = amount;
       });
-
-      expenses['categories'] = categories;
+      yearExpenses['categories'] = categories;
 
       // Update monthly expenses if month specified
       if (month != null && month >= 1 && month <= 12) {
-        List<dynamic> monthly = List.from(expenses['monthly'] ?? []);
-        while (monthly.length < 12) {
-          monthly.add(0.0);
-        }
+        List<dynamic> monthly = List.from(yearExpenses['monthly']);
 
         double totalMonthlyExpense =
             categoryExpenses.values.fold(0.0, (sum, val) => sum + val);
         monthly[month - 1] = totalMonthlyExpense;
-        expenses['monthly'] = monthly;
+        yearExpenses['monthly'] = monthly;
       }
 
-      expenses['lastUpdated'] = DateTime.now().toIso8601String();
-      data['expenses'] = expenses;
+      yearExpenses['lastUpdated'] = DateTime.now().toIso8601String();
+      expensesByYear[yearKey] = yearExpenses;
+
+      data['expensesByYear'] = expensesByYear;
       data['lastUpdated'] = DateTime.now().toIso8601String();
 
       await docRef.set(data, SetOptions(merge: true));
 
       if (kDebugMode) {
         print(
-            '✅ Added expense data for categories: ${categoryExpenses.keys.join(", ")}');
+            '✅ Added expense data for year $year, categories: ${categoryExpenses.keys.join(", ")}');
       }
     } catch (e) {
       if (kDebugMode) {
@@ -378,21 +494,29 @@ class BusinessAnalyticsService {
   /// Get performance data for chart visualization
   /// Fetches revenue and expense data from separate collections and combines them
   static Future<List<Map<String, dynamic>>> getPerformanceData(
-      String businessId) async {
+      String businessId,
+      {int? year}) async {
     try {
-      // Fetch revenue data from businesses/{businessId}/revenues collection
-      final revenueSnapshot = await _firestore
+      // Create query constraints based on year filter
+      Query revenueQuery = _firestore
           .collection('businesses')
           .doc(businessId)
-          .collection('revenues')
-          .get();
+          .collection('revenues');
 
-      // Fetch expense data from businesses/{businessId}/expenses collection
-      final expenseSnapshot = await _firestore
+      Query expenseQuery = _firestore
           .collection('businesses')
           .doc(businessId)
-          .collection('expenses')
-          .get();
+          .collection('expenses');
+
+      // Add year filter if specified
+      if (year != null) {
+        revenueQuery = revenueQuery.where('year', isEqualTo: year);
+        expenseQuery = expenseQuery.where('year', isEqualTo: year);
+      }
+
+      // Fetch filtered data
+      final revenueSnapshot = await revenueQuery.get();
+      final expenseSnapshot = await expenseQuery.get();
 
       // Create maps for easy lookup by month/year key
       final Map<String, double> revenueMap = {};
@@ -400,44 +524,50 @@ class BusinessAnalyticsService {
 
       // Process revenue data
       for (var doc in revenueSnapshot.docs) {
-        final data = doc.data();
-        final month = data['month'] as int?;
-        final year = data['year'] as int?;
-        final amount = (data['amount'] as num?)?.toDouble() ?? 0.0;
+        final docData = doc.data();
+        if (docData != null) {
+          final data = docData as Map<String, dynamic>;
+          final month = data['month'] as int?;
+          final year = data['year'] as int?;
+          final amount = (data['amount'] as num?)?.toDouble() ?? 0.0;
 
-        if (month != null && year != null) {
-          final key = '$year-${month.toString().padLeft(2, '0')}';
-          revenueMap[key] = (revenueMap[key] ?? 0.0) + amount;
+          if (month != null && year != null) {
+            final key = '$year-${month.toString().padLeft(2, '0')}';
+            revenueMap[key] = (revenueMap[key] ?? 0.0) + amount;
+          }
         }
       }
 
       // Process expense data
       for (var doc in expenseSnapshot.docs) {
-        final data = doc.data();
-        final month = data['month'] as int?;
-        final year = data['year'] as int?;
+        final docData = doc.data();
+        if (docData != null) {
+          final data = docData as Map<String, dynamic>;
+          final month = data['month'] as int?;
+          final year = data['year'] as int?;
 
-        if (month != null && year != null) {
-          final key = '$year-${month.toString().padLeft(2, '0')}';
+          if (month != null && year != null) {
+            final key = '$year-${month.toString().padLeft(2, '0')}';
 
-          // Handle different expense data structures
-          double totalExpenses = 0.0;
+            // Handle different expense data structures
+            double totalExpenses = 0.0;
 
-          // If individual expense amount
-          if (data['amount'] != null) {
-            totalExpenses = (data['amount'] as num).toDouble();
-          }
-
-          // If category expenses map
-          if (data['categoryExpenses'] != null) {
-            final categoryExpenses =
-                data['categoryExpenses'] as Map<String, dynamic>;
-            for (var expense in categoryExpenses.values) {
-              totalExpenses += (expense as num?)?.toDouble() ?? 0.0;
+            // If individual expense amount
+            if (data['amount'] != null) {
+              totalExpenses = (data['amount'] as num).toDouble();
             }
-          }
 
-          expenseMap[key] = (expenseMap[key] ?? 0.0) + totalExpenses;
+            // If category expenses map
+            if (data['categoryExpenses'] != null) {
+              final categoryExpenses =
+                  data['categoryExpenses'] as Map<String, dynamic>;
+              for (var expense in categoryExpenses.values) {
+                totalExpenses += (expense as num?)?.toDouble() ?? 0.0;
+              }
+            }
+
+            expenseMap[key] = (expenseMap[key] ?? 0.0) + totalExpenses;
+          }
         }
       }
 

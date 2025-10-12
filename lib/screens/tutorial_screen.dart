@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:shimmer/shimmer.dart';
 import '../core/theme/modern_theme.dart';
-import '../core/widgets/biznest_logo.dart';
 import '../core/services/learning_engine.dart';
-import '../core/services/quiz_service.dart';
 
 class TutorialScreen extends StatefulWidget {
   final Map<String, dynamic> tutorial;

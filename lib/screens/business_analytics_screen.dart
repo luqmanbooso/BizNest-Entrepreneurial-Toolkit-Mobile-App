@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import '../core/services/business_analytics_service.dart';
 import '../core/theme/modern_theme.dart';
+import '../core/services/business_analytics_service.dart';
 import 'business_data_entry_screen.dart';
 
 class BusinessAnalyticsScreen extends StatefulWidget {
@@ -20,14 +20,27 @@ class _BusinessAnalyticsScreenState extends State<BusinessAnalyticsScreen>
   Map<String, dynamic>? _analyticsData;
   bool _isLoading = true;
   String _selectedTimeframe = 'Quarterly';
+  int _selectedYear = DateTime.now().year;
   int _selectedTabIndex = 0;
+  int _selectedMonth = DateTime.now().month;
 
   final List<String> _timeframes = ['Quarterly', 'Yearly'];
-  final List<String> _tabTitles = [
-    'Overview',
-    'Revenue',
-    'Customers',
-    'Performance'
+  final List<int> _availableYears =
+      List.generate(5, (index) => DateTime.now().year - index);
+  final List<String> _tabTitles = ['Overview', 'Revenue', 'Customers'];
+  final List<String> _monthNames = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December'
   ];
 
   @override
@@ -58,9 +71,16 @@ class _BusinessAnalyticsScreenState extends State<BusinessAnalyticsScreen>
     setState(() => _isLoading = true);
 
     try {
-      final data = await BusinessAnalyticsService.generateBusinessAnalytics();
+      // Use Firebase service with year-specific filtering
+      final data = await BusinessAnalyticsService.generateBusinessAnalytics(
+        year: _selectedYear,
+      );
+
+      // Use real data if available, otherwise fall back to year-specific mock data
+      final finalData = data ?? _getDefaultAnalyticsData();
+
       setState(() {
-        _analyticsData = data ?? _getDefaultAnalyticsData();
+        _analyticsData = finalData;
         _isLoading = false;
       });
     } catch (e) {
@@ -68,7 +88,7 @@ class _BusinessAnalyticsScreenState extends State<BusinessAnalyticsScreen>
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to load analytics: $e'),
+            content: Text('Failed to load analytics for $_selectedYear: $e'),
             backgroundColor: Colors.red,
           ),
         );
@@ -76,105 +96,161 @@ class _BusinessAnalyticsScreenState extends State<BusinessAnalyticsScreen>
     }
   }
 
-  // Provide default analytics data when no real data exists
+  // Provide year-specific analytics data when no real data exists
   Map<String, dynamic> _getDefaultAnalyticsData() {
+    // Check if this is the current year or has sample data
+    final currentYear = DateTime.now().year;
+    final isCurrentYear = _selectedYear == currentYear;
+    final isRecentYear = _selectedYear >=
+        currentYear - 2; // Show sample data for current and last 2 years
+
+    if (!isRecentYear) {
+      // Return zero data for older years
+      return _getZeroAnalyticsData();
+    }
+
+    // Adjust sample data based on year
+    final yearDiff = currentYear - _selectedYear;
+    final multiplier = isCurrentYear
+        ? 1.0
+        : (1.0 - (yearDiff * 0.15)); // Reduce by 15% per year back
+
     return {
       'revenue': {
         'monthly': [
-          8500,
-          9200,
-          8800,
-          11200,
-          12800,
-          15600,
-          16800,
-          18200,
-          16500,
-          17800,
-          19200,
-          21500
-        ], // Sample revenue progression
-        'yearly': 196100.0,
-        'growth_rate': 15.2,
-        'projected_next_6_months': [
-          22800,
-          24100,
-          25500,
-          26900,
-          28400,
-          30000
-        ], // Forecast data
+          (8500 * multiplier).roundToDouble(),
+          (9200 * multiplier).roundToDouble(),
+          (8800 * multiplier).roundToDouble(),
+          (11200 * multiplier).roundToDouble(),
+          (12800 * multiplier).roundToDouble(),
+          (15600 * multiplier).roundToDouble(),
+          (16800 * multiplier).roundToDouble(),
+          (18200 * multiplier).roundToDouble(),
+          (16500 * multiplier).roundToDouble(),
+          (17800 * multiplier).roundToDouble(),
+          (19200 * multiplier).roundToDouble(),
+          (21500 * multiplier).roundToDouble()
+        ],
+        'yearly': (196100.0 * multiplier),
+        'growth_rate': isCurrentYear ? 15.2 : (15.2 * multiplier),
+        'projected_next_6_months': isCurrentYear
+            ? [22800.0, 24100.0, 25500.0, 26900.0, 28400.0, 30000.0]
+            : [], // Only show projections for current year
       },
       'expenses': {
         'monthly': [
-          6200,
-          6800,
-          6400,
-          8100,
-          9200,
-          11000,
-          11800,
-          12600,
-          11900,
-          12400,
-          13100,
-          14200
+          (6200 * multiplier).roundToDouble(),
+          (6800 * multiplier).roundToDouble(),
+          (6400 * multiplier).roundToDouble(),
+          (8100 * multiplier).roundToDouble(),
+          (9200 * multiplier).roundToDouble(),
+          (11000 * multiplier).roundToDouble(),
+          (11800 * multiplier).roundToDouble(),
+          (12600 * multiplier).roundToDouble(),
+          (11900 * multiplier).roundToDouble(),
+          (12400 * multiplier).roundToDouble(),
+          (13100 * multiplier).roundToDouble(),
+          (14200 * multiplier).roundToDouble()
         ],
         'categories': {
-          'Marketing': 45000,
-          'Operations': 38000,
-          'Salaries': 95000,
-          'Rent': 24000,
-          'Utilities': 8100,
+          'Marketing': (45000 * multiplier).roundToDouble(),
+          'Operations': (38000 * multiplier).roundToDouble(),
+          'Salaries': (95000 * multiplier).roundToDouble(),
+          'Rent': (24000 * multiplier).roundToDouble(),
+          'Utilities': (8100 * multiplier).roundToDouble(),
         },
       },
       'customers': {
         'monthly': [
-          45,
-          52,
-          48,
-          63,
-          71,
-          89,
-          95,
-          102,
-          87,
-          93,
-          108,
-          115
-        ], // Sample customer data
-        'total': 968,
-        'retention_rate': 85.5,
-        'acquisition_cost': 89.50,
+          (45 * multiplier).round(),
+          (52 * multiplier).round(),
+          (48 * multiplier).round(),
+          (63 * multiplier).round(),
+          (71 * multiplier).round(),
+          (89 * multiplier).round(),
+          (95 * multiplier).round(),
+          (102 * multiplier).round(),
+          (87 * multiplier).round(),
+          (93 * multiplier).round(),
+          (108 * multiplier).round(),
+          (115 * multiplier).round()
+        ],
+        'total': (968 * multiplier).round(),
+        'retention_rate': isCurrentYear ? 85.5 : (85.5 * multiplier),
+        'acquisition_cost': isCurrentYear ? 89.50 : (89.50 / multiplier),
       },
       'performance': {
-        'profit_margin': 25.8,
-        'roi': 135.2,
+        'profit_margin': isCurrentYear ? 25.8 : (25.8 * multiplier),
+        'roi': isCurrentYear ? 135.2 : (135.2 * multiplier),
         'monthly_growth': [
-          12.5,
-          8.7,
-          -4.3,
-          27.3,
-          14.3,
-          21.9,
-          7.7,
-          8.3,
-          -9.3,
-          7.9,
-          7.9,
-          12.0
+          12.5 * (isCurrentYear ? 1.0 : multiplier),
+          8.7 * (isCurrentYear ? 1.0 : multiplier),
+          -4.3 * (isCurrentYear ? 1.0 : multiplier),
+          27.3 * (isCurrentYear ? 1.0 : multiplier),
+          14.3 * (isCurrentYear ? 1.0 : multiplier),
+          21.9 * (isCurrentYear ? 1.0 : multiplier),
+          7.7 * (isCurrentYear ? 1.0 : multiplier),
+          8.3 * (isCurrentYear ? 1.0 : multiplier),
+          -9.3 * (isCurrentYear ? 1.0 : multiplier),
+          7.9 * (isCurrentYear ? 1.0 : multiplier),
+          7.9 * (isCurrentYear ? 1.0 : multiplier),
+          12.0 * (isCurrentYear ? 1.0 : multiplier)
         ],
-        'cash_flow_trend': 'positive',
-        'burn_rate': 8500.0,
-        'runway_months': 18,
+        'cash_flow_trend': isRecentYear ? 'positive' : 'neutral',
+        'burn_rate': (8500.0 * multiplier),
+        'runway_months': isCurrentYear ? 18 : (18 * multiplier).round(),
       },
       'health': {
         'score': 0.0,
       },
       'business_info': {
-        'name': 'Your Business',
+        'name': 'Your Business ($_selectedYear)',
         'industry': 'General',
         'type': 'Startup',
+      },
+    };
+  }
+
+  // Provide zero analytics data for years without data
+  Map<String, dynamic> _getZeroAnalyticsData() {
+    return {
+      'revenue': {
+        'monthly': List.filled(12, 0),
+        'yearly': 0.0,
+        'growth_rate': 0.0,
+        'projected_next_6_months': [],
+      },
+      'expenses': {
+        'monthly': List.filled(12, 0),
+        'categories': {
+          'Marketing': 0,
+          'Operations': 0,
+          'Salaries': 0,
+          'Rent': 0,
+          'Utilities': 0,
+        },
+      },
+      'customers': {
+        'monthly': List.filled(12, 0),
+        'total': 0,
+        'retention_rate': 0.0,
+        'acquisition_cost': 0.0,
+      },
+      'performance': {
+        'profit_margin': 0.0,
+        'roi': 0.0,
+        'monthly_growth': List.filled(12, 0.0),
+        'cash_flow_trend': 'neutral',
+        'burn_rate': 0.0,
+        'runway_months': 0,
+      },
+      'health': {
+        'score': 0.0,
+      },
+      'business_info': {
+        'name': 'No Data ($_selectedYear)',
+        'industry': 'General',
+        'type': 'No Data',
       },
     };
   }
@@ -208,6 +284,40 @@ class _BusinessAnalyticsScreenState extends State<BusinessAnalyticsScreen>
       ),
       actions: [
         Container(
+          margin: const EdgeInsets.only(right: 12),
+          decoration: BoxDecoration(
+            color: ModernTheme.surfaceLight,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: ModernTheme.modernShadow,
+          ),
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton<int>(
+              value: _selectedYear,
+              icon: const Icon(Icons.calendar_today,
+                  color: ModernTheme.primaryColor, size: 18),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              items: _availableYears.map((year) {
+                return DropdownMenuItem(
+                  value: year,
+                  child: Text(
+                    year.toString(),
+                    style: ModernTheme.body1.copyWith(
+                      color: ModernTheme.primaryColor,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                );
+              }).toList(),
+              onChanged: (value) {
+                setState(() {
+                  _selectedYear = value!;
+                });
+                _loadAnalyticsData();
+              },
+            ),
+          ),
+        ),
+        Container(
           margin: const EdgeInsets.only(right: 16),
           decoration: BoxDecoration(
             color: ModernTheme.surfaceLight,
@@ -236,6 +346,7 @@ class _BusinessAnalyticsScreenState extends State<BusinessAnalyticsScreen>
                 setState(() {
                   _selectedTimeframe = value!;
                 });
+                _loadAnalyticsData();
               },
             ),
           ),
@@ -544,8 +655,6 @@ class _BusinessAnalyticsScreenState extends State<BusinessAnalyticsScreen>
         return _buildRevenueTab();
       case 2:
         return _buildCustomersTab();
-      case 3:
-        return _buildPerformanceTab();
       default:
         return _buildOverviewTab();
     }
@@ -591,11 +700,11 @@ class _BusinessAnalyticsScreenState extends State<BusinessAnalyticsScreen>
             'Annual revenue',
           ),
           _buildMetricCard(
-            'Performance',
-            'Active',
+            'Monthly Growth',
+            '${((_analyticsData!['revenue'] ?? {})['growth_rate'] ?? 0.0).toStringAsFixed(1)}%',
             Icons.trending_up,
             ModernTheme.freshGreen,
-            'Business metrics',
+            'Growth rate',
           ),
         ]),
 
@@ -618,11 +727,62 @@ class _BusinessAnalyticsScreenState extends State<BusinessAnalyticsScreen>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionTitle('Revenue Analysis'),
+        _buildSectionTitle('Revenue vs Expenses Analysis'),
+        const SizedBox(height: 20),
+        _buildFinancialMetrics(),
         const SizedBox(height: 20),
         _buildRevenueChart(),
         const SizedBox(height: 24),
         _buildExpenseBreakdown(),
+      ],
+    );
+  }
+
+  Widget _buildFinancialMetrics() {
+    final revenue = _analyticsData!['revenue'] ?? {};
+    final expenses = _analyticsData!['expenses'] ?? {};
+
+    // Calculate totals
+    final revenueMonthly = List<double>.from(revenue['monthly'] ?? []);
+    final expenseMonthly = List<double>.from(expenses['monthly'] ?? []);
+
+    final totalRevenue = revenueMonthly.fold(0.0, (sum, val) => sum + val);
+    final totalExpenses = expenseMonthly.fold(0.0, (sum, val) => sum + val);
+    final netProfit = totalRevenue - totalExpenses;
+    final profitMargin =
+        totalRevenue > 0 ? (netProfit / totalRevenue * 100) : 0.0;
+
+    return Row(
+      children: [
+        Expanded(
+          child: _buildMetricCard(
+            'Total Revenue',
+            '\$${totalRevenue.toStringAsFixed(0)}',
+            Icons.trending_up,
+            ModernTheme.primaryColor,
+            'Income earned',
+          ),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: _buildMetricCard(
+            'Total Expenses',
+            '\$${totalExpenses.toStringAsFixed(0)}',
+            Icons.trending_down,
+            ModernTheme.sunsetOrange,
+            'Money spent',
+          ),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: _buildMetricCard(
+            'Net Profit',
+            '\$${netProfit.toStringAsFixed(0)}',
+            netProfit >= 0 ? Icons.add_circle : Icons.remove_circle,
+            netProfit >= 0 ? ModernTheme.freshGreen : Colors.red,
+            '${profitMargin.toStringAsFixed(1)}% margin',
+          ),
+        ),
       ],
     );
   }
@@ -671,717 +831,11 @@ class _BusinessAnalyticsScreenState extends State<BusinessAnalyticsScreen>
     );
   }
 
-  Widget _buildPerformanceTab() {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final isWide = constraints.maxWidth > 600;
-
-        return SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildSectionTitle('Business Performance Overview'),
-              const SizedBox(height: 20),
-
-              // Performance Summary Cards
-              _buildPerformanceSummarySection(isWide),
-              const SizedBox(height: 24),
-
-              // Business Trajectory Chart
-              _buildTrajectoryChart(),
-              const SizedBox(height: 24),
-
-              // Forecast Section
-              _buildForecastSection(),
-              const SizedBox(height: 16),
-
-              // Export Button
-              _buildExportButton(),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  /// Performance Summary Section with key metrics and color-coded indicators
-  Widget _buildPerformanceSummarySection(bool isWide) {
-    final revenue = _analyticsData!['revenue'] ?? {};
-    final performance = _analyticsData!['performance'] ?? {};
-    final customers = _analyticsData!['customers'] ?? {};
-
-    // Calculate metrics with trend indicators
-    final totalRevenue = (revenue['yearly'] as num?)?.toDouble() ?? 0.0;
-    final profitMargin =
-        (performance['profit_margin'] as num?)?.toDouble() ?? 0.0;
-    final monthlyGrowth = (revenue['growth_rate'] as num?)?.toDouble() ?? 0.0;
-    final totalCustomers = (customers['total'] as num?)?.toInt() ?? 0;
-
-    final summaryCards = [
-      _buildSummaryCard(
-        'Total Revenue',
-        '\$${_formatNumber(totalRevenue)}',
-        Icons.trending_up,
-        monthlyGrowth > 0 ? ModernTheme.freshGreen : ModernTheme.sunsetOrange,
-        '+${monthlyGrowth.toStringAsFixed(1)}%',
-        monthlyGrowth > 0,
-      ),
-      _buildSummaryCard(
-        'Profit Margin',
-        '${profitMargin.toStringAsFixed(1)}%',
-        Icons.account_balance_wallet,
-        profitMargin > 20
-            ? ModernTheme.freshGreen
-            : profitMargin > 10
-                ? ModernTheme.goldenYellow
-                : ModernTheme.sunsetOrange,
-        profitMargin > 20
-            ? 'Excellent'
-            : profitMargin > 10
-                ? 'Good'
-                : 'Needs Improvement',
-        profitMargin > 15,
-      ),
-      _buildSummaryCard(
-        'Monthly Growth',
-        '${monthlyGrowth > 0 ? '+' : ''}${monthlyGrowth.toStringAsFixed(1)}%',
-        monthlyGrowth > 0 ? Icons.arrow_upward : Icons.arrow_downward,
-        monthlyGrowth > 0 ? ModernTheme.freshGreen : ModernTheme.sunsetOrange,
-        monthlyGrowth > 0 ? 'Growing' : 'Declining',
-        monthlyGrowth > 0,
-      ),
-      _buildSummaryCard(
-        'Active Customers',
-        _formatNumber(totalCustomers.toDouble()),
-        Icons.people,
-        ModernTheme.primaryColor,
-        '${customers['retention_rate']?.toStringAsFixed(1)}% retention',
-        (customers['retention_rate'] ?? 0) > 80,
-      ),
-    ];
-
-    return isWide
-        ? Row(
-            children: summaryCards
-                .map((card) => Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 4),
-                        child: card,
-                      ),
-                    ))
-                .toList(),
-          )
-        : GridView.count(
-            crossAxisCount: 2,
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 12,
-            childAspectRatio: 1.2,
-            children: summaryCards,
-          );
-  }
-
-  /// Enhanced summary card with trend indicators
-  Widget _buildSummaryCard(
-    String title,
-    String value,
-    IconData icon,
-    Color color,
-    String subtitle,
-    bool isPositive,
-  ) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: ModernTheme.surfaceLight,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: ModernTheme.modernShadow,
-        border: const Border(
-          left: BorderSide(
-            width: 4,
-            color: Colors.blue,
-          ),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Icon(icon, color: color, size: 20),
-              ),
-              const Spacer(),
-              Icon(
-                isPositive ? Icons.trending_up : Icons.trending_down,
-                color: isPositive
-                    ? ModernTheme.freshGreen
-                    : ModernTheme.sunsetOrange,
-                size: 16,
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Text(
-            value,
-            style: ModernTheme.h4.copyWith(
-              fontSize: 20,
-              fontWeight: FontWeight.w700,
-              color: ModernTheme.textPrimary,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            title,
-            style: ModernTheme.body2.copyWith(
-              fontSize: 12,
-              color: ModernTheme.textSecondary,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          const SizedBox(height: 6),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-            decoration: BoxDecoration(
-              color: isPositive
-                  ? ModernTheme.freshGreen.withOpacity(0.1)
-                  : ModernTheme.sunsetOrange.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Text(
-              subtitle,
-              style: TextStyle(
-                fontSize: 10,
-                color: isPositive
-                    ? ModernTheme.freshGreen
-                    : ModernTheme.sunsetOrange,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   /// Business trajectory chart showing revenue and expense trends
-  Widget _buildTrajectoryChart() {
-    final revenue = _analyticsData!['revenue'] ?? {};
-    final expenses = _analyticsData!['expenses'] ?? {};
-
-    final revenueData = (revenue['monthly'] as List<dynamic>?) ?? [];
-    final expenseData = (expenses['monthly'] as List<dynamic>?) ?? [];
-
-    if (revenueData.isEmpty || expenseData.isEmpty) {
-      return const Center(child: Text('No trajectory data available'));
-    }
-
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: ModernTheme.surfaceLight,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: ModernTheme.modernShadow,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Icon(Icons.trending_up,
-                  color: ModernTheme.primaryColor, size: 24),
-              const SizedBox(width: 8),
-              Text(
-                'Business Trajectory',
-                style: ModernTheme.h4.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: ModernTheme.textPrimary,
-                ),
-              ),
-              const Spacer(),
-              _buildChartLegend(),
-            ],
-          ),
-          const SizedBox(height: 20),
-          SizedBox(
-            height: 300,
-            child: LineChart(
-              LineChartData(
-                gridData: FlGridData(
-                  show: true,
-                  drawHorizontalLine: true,
-                  drawVerticalLine: true,
-                  horizontalInterval: 5000,
-                  getDrawingHorizontalLine: (value) => FlLine(
-                    color: ModernTheme.textSecondary.withOpacity(0.1),
-                    strokeWidth: 1,
-                  ),
-                  getDrawingVerticalLine: (value) => FlLine(
-                    color: ModernTheme.textSecondary.withOpacity(0.1),
-                    strokeWidth: 1,
-                  ),
-                ),
-                titlesData: FlTitlesData(
-                  leftTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      reservedSize: 60,
-                      getTitlesWidget: (value, meta) => Text(
-                        '\$${_formatNumber(value)}',
-                        style: ModernTheme.caption.copyWith(fontSize: 10),
-                      ),
-                    ),
-                  ),
-                  bottomTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      reservedSize: 30,
-                      getTitlesWidget: (value, meta) {
-                        final months = [
-                          'Jan',
-                          'Feb',
-                          'Mar',
-                          'Apr',
-                          'May',
-                          'Jun',
-                          'Jul',
-                          'Aug',
-                          'Sep',
-                          'Oct',
-                          'Nov',
-                          'Dec'
-                        ];
-                        if (value.toInt() >= 0 &&
-                            value.toInt() < months.length) {
-                          return Text(
-                            months[value.toInt()],
-                            style: ModernTheme.caption.copyWith(fontSize: 10),
-                          );
-                        }
-                        return const Text('');
-                      },
-                    ),
-                  ),
-                  rightTitles: const AxisTitles(
-                      sideTitles: SideTitles(showTitles: false)),
-                  topTitles: const AxisTitles(
-                      sideTitles: SideTitles(showTitles: false)),
-                ),
-                borderData: FlBorderData(
-                  show: true,
-                  border: Border.all(
-                    color: ModernTheme.textSecondary.withOpacity(0.1),
-                    width: 1,
-                  ),
-                ),
-                lineBarsData: [
-                  // Revenue Line
-                  LineChartBarData(
-                    spots: revenueData.asMap().entries.map((entry) {
-                      return FlSpot(
-                          entry.key.toDouble(), entry.value.toDouble());
-                    }).toList(),
-                    isCurved: true,
-                    color: ModernTheme.freshGreen,
-                    barWidth: 3,
-                    isStrokeCapRound: true,
-                    dotData: const FlDotData(show: true),
-                    belowBarData: BarAreaData(
-                      show: true,
-                      color: ModernTheme.freshGreen.withOpacity(0.1),
-                    ),
-                  ),
-                  // Expense Line
-                  LineChartBarData(
-                    spots: expenseData.asMap().entries.map((entry) {
-                      return FlSpot(
-                          entry.key.toDouble(), entry.value.toDouble());
-                    }).toList(),
-                    isCurved: true,
-                    color: ModernTheme.sunsetOrange,
-                    barWidth: 3,
-                    isStrokeCapRound: true,
-                    dotData: const FlDotData(show: true),
-                    belowBarData: BarAreaData(
-                      show: true,
-                      color: ModernTheme.sunsetOrange.withOpacity(0.1),
-                    ),
-                  ),
-                ],
-                lineTouchData: LineTouchData(
-                  enabled: true,
-                  touchTooltipData: LineTouchTooltipData(
-                    getTooltipItems: (touchedSpots) {
-                      return touchedSpots.map((spot) {
-                        final isRevenue = spot.barIndex == 0;
-                        return LineTooltipItem(
-                          '${isRevenue ? 'Revenue' : 'Expenses'}\n\$${_formatNumber(spot.y)}',
-                          TextStyle(
-                            color: isRevenue
-                                ? ModernTheme.freshGreen
-                                : ModernTheme.sunsetOrange,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 12,
-                          ),
-                        );
-                      }).toList();
-                    },
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// Chart legend for trajectory chart
-  Widget _buildChartLegend() {
-    return Row(
-      children: [
-        _buildLegendItem('Revenue', ModernTheme.freshGreen),
-        const SizedBox(width: 16),
-        _buildLegendItem('Expenses', ModernTheme.sunsetOrange),
-      ],
-    );
-  }
-
-  /// Individual legend item
-  Widget _buildLegendItem(String label, Color color) {
-    return Row(
-      children: [
-        Container(
-          width: 12,
-          height: 12,
-          decoration: BoxDecoration(
-            color: color,
-            borderRadius: BorderRadius.circular(2),
-          ),
-        ),
-        const SizedBox(width: 4),
-        Text(
-          label,
-          style: ModernTheme.caption.copyWith(
-            fontSize: 10,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-      ],
-    );
-  }
 
   /// Forecast section with 6-month projections
-  Widget _buildForecastSection() {
-    final revenue = _analyticsData!['revenue'] ?? {};
-    final forecast = revenue['forecast'] as List<dynamic>? ?? [];
-
-    if (forecast.isEmpty) {
-      return const Center(child: Text('No forecast data available'));
-    }
-
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: ModernTheme.surfaceLight,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: ModernTheme.modernShadow,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Icon(Icons.insights,
-                  color: ModernTheme.primaryColor, size: 24),
-              const SizedBox(width: 8),
-              Text(
-                '6-Month Revenue Forecast',
-                style: ModernTheme.h4.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: ModernTheme.textPrimary,
-                ),
-              ),
-              const Spacer(),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: ModernTheme.freshGreen.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Text(
-                  'AI Predicted',
-                  style: TextStyle(
-                    fontSize: 10,
-                    color: ModernTheme.freshGreen,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-
-          // Forecast chart
-          SizedBox(
-            height: 200,
-            child: LineChart(
-              LineChartData(
-                gridData: FlGridData(
-                  show: true,
-                  drawHorizontalLine: true,
-                  horizontalInterval: 2000,
-                  getDrawingHorizontalLine: (value) => FlLine(
-                    color: ModernTheme.textSecondary.withOpacity(0.1),
-                    strokeWidth: 1,
-                  ),
-                ),
-                titlesData: FlTitlesData(
-                  leftTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      reservedSize: 60,
-                      getTitlesWidget: (value, meta) => Text(
-                        '\$${_formatNumber(value)}',
-                        style: ModernTheme.caption.copyWith(fontSize: 10),
-                      ),
-                    ),
-                  ),
-                  bottomTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      reservedSize: 30,
-                      getTitlesWidget: (value, meta) {
-                        final months = [
-                          'Jan',
-                          'Feb',
-                          'Mar',
-                          'Apr',
-                          'May',
-                          'Jun'
-                        ];
-                        if (value.toInt() >= 0 &&
-                            value.toInt() < months.length) {
-                          return Text(
-                            months[value.toInt()],
-                            style: ModernTheme.caption.copyWith(fontSize: 10),
-                          );
-                        }
-                        return const Text('');
-                      },
-                    ),
-                  ),
-                  rightTitles: const AxisTitles(
-                      sideTitles: SideTitles(showTitles: false)),
-                  topTitles: const AxisTitles(
-                      sideTitles: SideTitles(showTitles: false)),
-                ),
-                borderData: FlBorderData(
-                  show: true,
-                  border: Border.all(
-                    color: ModernTheme.textSecondary.withOpacity(0.1),
-                    width: 1,
-                  ),
-                ),
-                lineBarsData: [
-                  LineChartBarData(
-                    spots: forecast.asMap().entries.map((entry) {
-                      return FlSpot(
-                          entry.key.toDouble(), entry.value.toDouble());
-                    }).toList(),
-                    isCurved: true,
-                    color: ModernTheme.primaryColor,
-                    barWidth: 3,
-                    isStrokeCapRound: true,
-                    dotData: const FlDotData(show: true),
-                    dashArray: [5, 5], // Dashed line for forecast
-                    belowBarData: BarAreaData(
-                      show: true,
-                      color: ModernTheme.primaryColor.withOpacity(0.1),
-                    ),
-                  ),
-                ],
-                lineTouchData: LineTouchData(
-                  enabled: true,
-                  touchTooltipData: LineTouchTooltipData(
-                    getTooltipItems: (touchedSpots) {
-                      return touchedSpots.map((spot) {
-                        return LineTooltipItem(
-                          'Forecast\n\$${_formatNumber(spot.y)}',
-                          const TextStyle(
-                            color: ModernTheme.primaryColor,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 12,
-                          ),
-                        );
-                      }).toList();
-                    },
-                  ),
-                ),
-              ),
-            ),
-          ),
-
-          const SizedBox(height: 16),
-
-          // Forecast summary
-          _buildForecastSummary(forecast),
-        ],
-      ),
-    );
-  }
-
-  /// Forecast summary with key insights
-  Widget _buildForecastSummary(List<dynamic> forecast) {
-    if (forecast.isEmpty) return const SizedBox();
-
-    final firstMonth = (forecast.first as num?)?.toDouble() ?? 0.0;
-    final lastMonth = (forecast.last as num?)?.toDouble() ?? 0.0;
-    final totalProjected = forecast.fold<double>(
-        0.0, (sum, value) => sum + ((value as num?)?.toDouble() ?? 0.0));
-    final averageGrowth =
-        firstMonth != 0 ? ((lastMonth - firstMonth) / firstMonth * 100) : 0.0;
-
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: ModernTheme.primaryColor.withOpacity(0.05),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: ModernTheme.primaryColor.withOpacity(0.2),
-          width: 1,
-        ),
-      ),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: _buildForecastMetric(
-                  'Projected 6-Month Total',
-                  '\$${_formatNumber(totalProjected)}',
-                  Icons.attach_money,
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: _buildForecastMetric(
-                  'Expected Growth',
-                  '${averageGrowth > 0 ? '+' : ''}${averageGrowth.toStringAsFixed(1)}%',
-                  averageGrowth > 0 ? Icons.trending_up : Icons.trending_down,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: ModernTheme.freshGreen.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Row(
-              children: [
-                const Icon(Icons.lightbulb,
-                    color: ModernTheme.freshGreen, size: 16),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    'Based on current trends, your business is projected to maintain steady growth over the next 6 months.',
-                    style: ModernTheme.caption.copyWith(
-                      fontSize: 11,
-                      color: ModernTheme.freshGreen,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// Individual forecast metric widget
-  Widget _buildForecastMetric(String title, String value, IconData icon) {
-    return Row(
-      children: [
-        Icon(icon, color: ModernTheme.primaryColor, size: 16),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                value,
-                style: ModernTheme.h4.copyWith(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                  color: ModernTheme.textPrimary,
-                ),
-              ),
-              Text(
-                title,
-                style: ModernTheme.caption.copyWith(
-                  fontSize: 10,
-                  color: ModernTheme.textSecondary,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
 
   /// Export button for analytics data
-  Widget _buildExportButton() {
-    return Center(
-      child: ElevatedButton.icon(
-        onPressed: () {
-          // TODO: Implement export functionality
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Export functionality coming soon!'),
-              duration: Duration(seconds: 2),
-            ),
-          );
-        },
-        icon: const Icon(Icons.download, size: 18),
-        label: const Text('Export Performance Report'),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: ModernTheme.primaryColor,
-          foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          elevation: 2,
-        ),
-      ),
-    );
-  }
-
-  /// Helper method to format numbers for display
-  String _formatNumber(double? number) {
-    if (number == null) return '0';
-
-    if (number >= 1000000) {
-      return '${(number / 1000000).toStringAsFixed(1)}M';
-    } else if (number >= 1000) {
-      return '${(number / 1000).toStringAsFixed(1)}K';
-    } else {
-      return number.toStringAsFixed(0);
-    }
-  }
 
   Widget _buildMetricsGrid(List<Widget> metrics) {
     return GridView.count(
@@ -1473,22 +927,32 @@ class _BusinessAnalyticsScreenState extends State<BusinessAnalyticsScreen>
   }
 
   Widget _buildRevenueChart() {
-    // Safely get revenue data with fallback to empty list
+    // Safely get revenue and expense data with fallback to empty list
     final revenueData = _analyticsData != null &&
             _analyticsData!['revenue'] != null &&
             _analyticsData!['revenue']['monthly'] != null
         ? List<double>.from(_analyticsData!['revenue']['monthly'])
         : List.filled(12, 0.0);
 
+    final expenseData = _analyticsData != null &&
+            _analyticsData!['expenses'] != null &&
+            _analyticsData!['expenses']['monthly'] != null
+        ? List<double>.from(_analyticsData!['expenses']['monthly'])
+        : List.filled(12, 0.0);
+
     // Get data based on selected timeframe
-    final List<double> displayData;
+    final List<double> displayRevenueData;
+    final List<double> displayExpenseData;
     final List<String> monthLabels;
 
     if (_selectedTimeframe == 'Yearly') {
       // Show all 12 months
-      displayData = revenueData.length >= 12
+      displayRevenueData = revenueData.length >= 12
           ? revenueData.take(12).toList()
           : revenueData;
+      displayExpenseData = expenseData.length >= 12
+          ? expenseData.take(12).toList()
+          : expenseData;
       monthLabels = [
         'Jan',
         'Feb',
@@ -1507,9 +971,12 @@ class _BusinessAnalyticsScreenState extends State<BusinessAnalyticsScreen>
       // Quarterly - show only 3 months (current quarter)
       final currentMonth = DateTime.now().month;
       final quarterStart = ((currentMonth - 1) ~/ 3) * 3;
-      displayData = revenueData.length > quarterStart + 2
+      displayRevenueData = revenueData.length > quarterStart + 2
           ? revenueData.skip(quarterStart).take(3).toList()
           : revenueData.take(3).toList();
+      displayExpenseData = expenseData.length > quarterStart + 2
+          ? expenseData.skip(quarterStart).take(3).toList()
+          : expenseData.take(3).toList();
 
       final quarterMonths = [
         ['Jan', 'Feb', 'Mar'],
@@ -1520,10 +987,15 @@ class _BusinessAnalyticsScreenState extends State<BusinessAnalyticsScreen>
       monthLabels = quarterMonths[quarterStart ~/ 3];
     }
 
-    // Calculate dynamic Y-axis maximum
-    final maxValue = displayData.isEmpty
+    // Calculate dynamic Y-axis maximum from both revenue and expense data
+    final maxRevenue = displayRevenueData.isEmpty
         ? 100.0
-        : displayData.reduce((a, b) => a > b ? a : b);
+        : displayRevenueData.reduce((a, b) => a > b ? a : b);
+    final maxExpense = displayExpenseData.isEmpty
+        ? 100.0
+        : displayExpenseData.reduce((a, b) => a > b ? a : b);
+    final maxValue = maxRevenue > maxExpense ? maxRevenue : maxExpense;
+
     // Ensure minimum value to prevent zero intervals
     final safeMaxValue = maxValue <= 0 ? 100.0 : maxValue;
     final dynamicMaxY = safeMaxValue * 1.2; // Add 20% padding at top
@@ -1532,12 +1004,13 @@ class _BusinessAnalyticsScreenState extends State<BusinessAnalyticsScreen>
     final yInterval = dynamicMaxY / 5; // Show 5 intervals
 
     // Debug output
-    print('🔍 Chart Debug: displayData: $displayData');
+    print('🔍 Chart Debug: displayRevenueData: $displayRevenueData');
+    print('🔍 Chart Debug: displayExpenseData: $displayExpenseData');
     print('🔍 Chart Debug: maxValue: $maxValue, safeMaxValue: $safeMaxValue');
     print('🔍 Chart Debug: dynamicMaxY: $dynamicMaxY, yInterval: $yInterval');
 
     return Container(
-      height: 250,
+      height: 300, // Increased height for dual line chart
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: ModernTheme.surfaceLight,
@@ -1550,7 +1023,7 @@ class _BusinessAnalyticsScreenState extends State<BusinessAnalyticsScreen>
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Revenue Trends',
+                'Revenue vs Expenses',
                 style: ModernTheme.h4.copyWith(
                   color: ModernTheme.textPrimary,
                   fontSize: 16,
@@ -1563,6 +1036,16 @@ class _BusinessAnalyticsScreenState extends State<BusinessAnalyticsScreen>
                   fontSize: 12,
                 ),
               ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          // Legend
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _buildLegendItem('Revenue', ModernTheme.primaryColor),
+              const SizedBox(width: 20),
+              _buildLegendItem('Expenses', ModernTheme.sunsetOrange),
             ],
           ),
           const SizedBox(height: 16),
@@ -1673,12 +1156,13 @@ class _BusinessAnalyticsScreenState extends State<BusinessAnalyticsScreen>
                   ),
                 ),
                 minX: 0,
-                maxX: (displayData.length - 1).toDouble(),
+                maxX: (displayRevenueData.length - 1).toDouble(),
                 minY: 0,
                 maxY: dynamicMaxY,
                 lineBarsData: [
+                  // Revenue line
                   LineChartBarData(
-                    spots: displayData.asMap().entries.map((entry) {
+                    spots: displayRevenueData.asMap().entries.map((entry) {
                       return FlSpot(entry.key.toDouble(), entry.value);
                     }).toList(),
                     isCurved: true,
@@ -1708,10 +1192,41 @@ class _BusinessAnalyticsScreenState extends State<BusinessAnalyticsScreen>
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
                         colors: [
-                          ModernTheme.primaryColor.withOpacity(0.3),
+                          ModernTheme.primaryColor.withOpacity(0.2),
                           ModernTheme.primaryColor.withOpacity(0.05),
                         ],
                       ),
+                    ),
+                  ),
+                  // Expenses line
+                  LineChartBarData(
+                    spots: displayExpenseData.asMap().entries.map((entry) {
+                      return FlSpot(entry.key.toDouble(), entry.value);
+                    }).toList(),
+                    isCurved: true,
+                    curveSmoothness: 0.3,
+                    gradient: LinearGradient(
+                      colors: [
+                        ModernTheme.sunsetOrange,
+                        ModernTheme.sunsetOrange.withOpacity(0.8),
+                      ],
+                    ),
+                    barWidth: 4,
+                    isStrokeCapRound: true,
+                    dotData: FlDotData(
+                      show: true,
+                      getDotPainter: (spot, percent, barData, index) {
+                        return FlDotCirclePainter(
+                          radius: 6,
+                          color: ModernTheme.sunsetOrange,
+                          strokeWidth: 2,
+                          strokeColor: Colors.white,
+                        );
+                      },
+                    ),
+                    belowBarData: BarAreaData(
+                      show:
+                          false, // Don't show area under expenses line to avoid overlap
                     ),
                   ),
                 ],
@@ -1919,13 +1434,6 @@ class _BusinessAnalyticsScreenState extends State<BusinessAnalyticsScreen>
   }
 
   Widget _buildExpenseBreakdown() {
-    // Safely get expenses categories with fallback to empty map
-    final expenses = _analyticsData != null &&
-            _analyticsData!['expenses'] != null &&
-            _analyticsData!['expenses']['categories'] != null
-        ? _analyticsData!['expenses']['categories'] as Map<String, dynamic>
-        : <String, dynamic>{};
-
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -1936,73 +1444,230 @@ class _BusinessAnalyticsScreenState extends State<BusinessAnalyticsScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Expense Breakdown',
-            style: ModernTheme.h4.copyWith(
-              fontSize: 16,
-              color: ModernTheme.textPrimary,
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Monthly Expense Breakdown',
+                style: ModernTheme.h4.copyWith(
+                  fontSize: 16,
+                  color: ModernTheme.textPrimary,
+                ),
+              ),
+              _buildMonthSelector(),
+            ],
           ),
           const SizedBox(height: 16),
-          ...expenses.entries.map((entry) {
-            final total =
-                expenses.values.fold(0.0, (sum, value) => sum + value);
-            final percentage = total > 0 ? (entry.value / total * 100) : 0.0;
+          _buildMonthlyExpenseData(),
+        ],
+      ),
+    );
+  }
 
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: Row(
-                children: [
-                  Expanded(
-                    flex: 3,
-                    child: Text(
-                      entry.key.toString().toUpperCase(),
-                      style: ModernTheme.body2.copyWith(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                        color: ModernTheme.textPrimary,
+  Widget _buildMonthSelector() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      decoration: BoxDecoration(
+        color: ModernTheme.primaryColor.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: ModernTheme.primaryColor.withOpacity(0.3),
+          width: 1,
+        ),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<int>(
+          value: _selectedMonth,
+          icon: Icon(
+            Icons.keyboard_arrow_down,
+            color: ModernTheme.primaryColor,
+            size: 18,
+          ),
+          style: ModernTheme.body2.copyWith(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: ModernTheme.primaryColor,
+          ),
+          items: List.generate(12, (index) {
+            final monthIndex = index + 1;
+            return DropdownMenuItem<int>(
+              value: monthIndex,
+              child: Text(
+                _monthNames[index],
+                style: ModernTheme.body2.copyWith(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            );
+          }),
+          onChanged: (int? newValue) {
+            if (newValue != null) {
+              setState(() {
+                _selectedMonth = newValue;
+              });
+            }
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMonthlyExpenseData() {
+    // Get monthly expense data for the selected month
+    final monthlyExpenses = _getMonthlyExpenseData(_selectedMonth);
+
+    if (monthlyExpenses.isEmpty) {
+      return Container(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          children: [
+            Icon(
+              Icons.receipt_long_outlined,
+              size: 48,
+              color: ModernTheme.textSecondary.withOpacity(0.5),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'No expense data for ${_monthNames[_selectedMonth - 1]}',
+              style: ModernTheme.body2.copyWith(
+                color: ModernTheme.textSecondary,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    final totalMonthlyExpenses =
+        monthlyExpenses.values.fold(0.0, (sum, value) => sum + value);
+
+    return Column(
+      children: [
+        // Monthly total
+        Container(
+          padding: const EdgeInsets.all(12),
+          margin: const EdgeInsets.only(bottom: 16),
+          decoration: BoxDecoration(
+            color: ModernTheme.primaryColor.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: ModernTheme.primaryColor.withOpacity(0.2),
+              width: 1,
+            ),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                '${_monthNames[_selectedMonth - 1]} $_selectedYear Total:',
+                style: ModernTheme.body1.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: ModernTheme.textPrimary,
+                ),
+              ),
+              Text(
+                '\$${totalMonthlyExpenses.toStringAsFixed(2)}',
+                style: ModernTheme.body1.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: ModernTheme.primaryColor,
+                  fontSize: 16,
+                ),
+              ),
+            ],
+          ),
+        ),
+        // Expense categories
+        ...monthlyExpenses.entries.map((entry) {
+          final percentage = totalMonthlyExpenses > 0
+              ? (entry.value / totalMonthlyExpenses * 100)
+              : 0.0;
+          final categoryColor = _getCategoryColor(entry.key);
+
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: Row(
+              children: [
+                // Category icon and name
+                Expanded(
+                  flex: 3,
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 12,
+                        height: 12,
+                        decoration: BoxDecoration(
+                          color: categoryColor,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
                       ),
-                    ),
-                  ),
-                  Expanded(
-                    flex: 4,
-                    child: Container(
-                      height: 8,
-                      decoration: BoxDecoration(
-                        color: ModernTheme.textSecondary.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: FractionallySizedBox(
-                        alignment: Alignment.centerLeft,
-                        widthFactor: percentage / 100,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: ModernTheme.primaryColor,
-                            borderRadius: BorderRadius.circular(4),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          entry.key.toString().toUpperCase(),
+                          style: ModernTheme.body2.copyWith(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: ModernTheme.textPrimary,
                           ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                // Progress bar
+                Expanded(
+                  flex: 4,
+                  child: Container(
+                    height: 8,
+                    decoration: BoxDecoration(
+                      color: ModernTheme.textSecondary.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: FractionallySizedBox(
+                      alignment: Alignment.centerLeft,
+                      widthFactor: percentage / 100,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: categoryColor,
+                          borderRadius: BorderRadius.circular(4),
                         ),
                       ),
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    flex: 2,
-                    child: Text(
-                      '${percentage.toStringAsFixed(1)}%',
-                      style: ModernTheme.body2.copyWith(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: ModernTheme.textSecondary,
+                ),
+                const SizedBox(width: 8),
+                // Amount and percentage
+                Expanded(
+                  flex: 3,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        '\$${entry.value.toStringAsFixed(2)}',
+                        style: ModernTheme.body2.copyWith(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: ModernTheme.textPrimary,
+                        ),
                       ),
-                      textAlign: TextAlign.end,
-                    ),
+                      Text(
+                        '${percentage.toStringAsFixed(1)}%',
+                        style: ModernTheme.body2.copyWith(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w500,
+                          color: ModernTheme.textSecondary,
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            );
-          }),
-        ],
-      ),
+                ),
+              ],
+            ),
+          );
+        }),
+      ],
     );
   }
 
@@ -2393,79 +2058,89 @@ class _BusinessAnalyticsScreenState extends State<BusinessAnalyticsScreen>
     return 'Stable';
   }
 
-  /// Performance insights with actionable recommendations
-  Widget _buildPerformanceInsights() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: ModernTheme.surfaceLight,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: ModernTheme.modernShadow,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Icon(Icons.analytics,
-                  color: ModernTheme.primaryColor, size: 24),
-              const SizedBox(width: 8),
-              Text(
-                'Business Insights',
-                style: ModernTheme.h4.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: ModernTheme.textPrimary,
-                ),
-              ),
-            ],
+  Widget _buildLegendItem(String label, Color color) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 12,
+          height: 12,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(6),
           ),
-          const SizedBox(height: 16),
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: ModernTheme.primaryColor.withOpacity(0.2),
-                width: 1,
-              ),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    const Icon(
-                      Icons.lightbulb_outline,
-                      color: ModernTheme.primaryColor,
-                      size: 20,
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      'Performance Overview',
-                      style: ModernTheme.h4.copyWith(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: ModernTheme.textPrimary,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  'Review your business metrics above to gain insights into your financial performance, revenue trends, and growth opportunities.',
-                  style: ModernTheme.body2.copyWith(
-                    color: ModernTheme.textSecondary,
-                    height: 1.4,
-                  ),
-                ),
-              ],
-            ),
+        ),
+        const SizedBox(width: 6),
+        Text(
+          label,
+          style: ModernTheme.body2.copyWith(
+            color: ModernTheme.textSecondary,
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
-  /// Overall performance score widget
+  Map<String, double> _getMonthlyExpenseData(int month) {
+    // Get real user expense data from analytics data
+    if (_analyticsData == null || _analyticsData!['expenses'] == null) {
+      // No real data exists - return empty map
+      return {};
+    }
+
+    final Map<String, dynamic> expensesData =
+        _analyticsData!['expenses'] as Map<String, dynamic>;
+    final Map<String, dynamic> categories =
+        expensesData['categories'] as Map<String, dynamic>? ?? {};
+    final List<dynamic> monthlyTotals =
+        expensesData['monthly'] as List<dynamic>? ?? [];
+
+    // Check if there's data for the selected month
+    if (monthlyTotals.isEmpty || month > monthlyTotals.length) {
+      return {};
+    }
+
+    final double monthlyTotal = (monthlyTotals[month - 1] ?? 0.0).toDouble();
+
+    // If no expenses for this month, return empty
+    if (monthlyTotal <= 0 || categories.isEmpty) {
+      return {};
+    }
+
+    // Convert categories to the expected format
+    final Map<String, double> monthlyExpenses = {};
+    categories.forEach((category, amount) {
+      final double expenseAmount = (amount ?? 0.0).toDouble();
+      if (expenseAmount > 0) {
+        monthlyExpenses[category.toString()] = expenseAmount;
+      }
+    });
+
+    return monthlyExpenses;
+  }
+
+  Color _getCategoryColor(String category) {
+    // Generate consistent colors for user-entered category names
+    final List<Color> categoryColors = [
+      const Color(0xFF2196F3), // Blue
+      const Color(0xFF4CAF50), // Green
+      const Color(0xFFFF9800), // Orange
+      const Color(0xFF9C27B0), // Purple
+      const Color(0xFFE91E63), // Pink
+      const Color(0xFF00BCD4), // Cyan
+      const Color(0xFFFF5722), // Deep Orange
+      const Color(0xFF795548), // Brown
+      const Color(0xFF607D8B), // Blue Grey
+      const Color(0xFF8BC34A), // Light Green
+      const Color(0xFFFFC107), // Amber
+      const Color(0xFF673AB7), // Deep Purple
+    ];
+
+    // Use hash code to consistently assign colors to categories
+    final colorIndex =
+        category.toLowerCase().hashCode.abs() % categoryColors.length;
+    return categoryColors[colorIndex];
+  }
 }

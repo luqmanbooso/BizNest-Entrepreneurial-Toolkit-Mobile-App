@@ -17,6 +17,7 @@ import 'inbox_screen.dart';
 import 'sessions_screen.dart';
 import 'business_analytics_screen.dart';
 import 'business_data_entry_screen.dart';
+import 'collab_investment_screen.dart';
 
 class ProfessionalDashboardScreen extends StatefulWidget {
   const ProfessionalDashboardScreen({super.key});
@@ -1007,7 +1008,8 @@ class _ProfessionalDashboardScreenState
       ),
       child: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
+          padding:
+              const EdgeInsets.symmetric(horizontal: 12), // Reduced for 6 items
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
@@ -1046,9 +1048,19 @@ class _ProfessionalDashboardScreenState
                 ),
               ),
               _buildNavItem(
+                Icons.account_balance,
+                'Finance',
+                4,
+                () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) => const CollabInvestmentScreen()),
+                ),
+              ),
+              _buildNavItem(
                 Icons.menu,
                 'More',
-                4,
+                5,
                 () => _showSideMenu(context),
               ),
             ],
@@ -1067,7 +1079,8 @@ class _ProfessionalDashboardScreenState
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
         padding: const EdgeInsets.symmetric(
-            horizontal: 12, vertical: 2), // Reduced from 8 to 2
+            horizontal: 8,
+            vertical: 2), // Reduced horizontal padding for 6 items
         decoration: BoxDecoration(
           gradient: isActive
               ? const LinearGradient(
