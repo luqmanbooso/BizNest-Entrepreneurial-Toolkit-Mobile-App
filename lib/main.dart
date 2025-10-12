@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'core/theme/modern_theme.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 import 'core/services/firebase_data_service.dart';
 import 'core/services/auth_service.dart';
 import 'screens/splash/splash_screen.dart';
@@ -15,7 +16,9 @@ void main() async {
 
   // Initialize Firebase with error handling
   try {
-    await Firebase.initializeApp();
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
     print('Firebase initialized successfully');
   } catch (e) {
     print('Firebase initialization failed: $e');
