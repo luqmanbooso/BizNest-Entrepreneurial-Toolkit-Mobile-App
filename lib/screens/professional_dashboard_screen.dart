@@ -991,7 +991,7 @@ class _ProfessionalDashboardScreenState
 
   Widget _buildModernNavigationBar() {
     return Container(
-      height: 75,
+      height: 90, // Increased from 75 to accommodate larger icons/text
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: const BorderRadius.only(
@@ -1009,7 +1009,7 @@ class _ProfessionalDashboardScreenState
       child: SafeArea(
         child: Padding(
           padding:
-              const EdgeInsets.symmetric(horizontal: 12), // Reduced for 6 items
+              const EdgeInsets.symmetric(horizontal: 16), // Adjusted for 5 items
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
@@ -1038,19 +1038,9 @@ class _ProfessionalDashboardScreenState
                 ),
               ),
               _buildNavItem(
-                Icons.analytics,
-                'Analytics',
-                3,
-                () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (_) => const BusinessAnalyticsScreen()),
-                ),
-              ),
-              _buildNavItem(
                 Icons.account_balance,
                 'Finance',
-                4,
+                3,
                 () => Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -1060,7 +1050,7 @@ class _ProfessionalDashboardScreenState
               _buildNavItem(
                 Icons.menu,
                 'More',
-                5,
+                4,
                 () => _showSideMenu(context),
               ),
             ],
@@ -1079,8 +1069,8 @@ class _ProfessionalDashboardScreenState
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
         padding: const EdgeInsets.symmetric(
-            horizontal: 8,
-            vertical: 2), // Reduced horizontal padding for 6 items
+            horizontal: 12,
+            vertical: 4), // Increased padding for larger icons/text
         decoration: BoxDecoration(
           gradient: isActive
               ? const LinearGradient(
@@ -1105,13 +1095,13 @@ class _ProfessionalDashboardScreenState
             Icon(
               icon,
               color: isActive ? Colors.white : const Color(0xFF64748B),
-              size: 12, // Reduced further from 14
+              size: 20, // Increased from 12
             ),
             Text(
               label,
               style: TextStyle(
                 color: isActive ? Colors.white : const Color(0xFF64748B),
-                fontSize: 6, // Reduced from 7
+                fontSize: 10, // Increased from 6
                 fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
                 height: 1.0,
               ),
@@ -1239,6 +1229,20 @@ class _ProfessionalDashboardScreenState
                         context,
                         MaterialPageRoute(
                             builder: (_) => const BusinessDataEntryScreen()),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  _buildMenuItem(
+                    Icons.analytics,
+                    'Analytics',
+                    'View business insights and reports',
+                    () {
+                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => const BusinessAnalyticsScreen()),
                       );
                     },
                   ),
