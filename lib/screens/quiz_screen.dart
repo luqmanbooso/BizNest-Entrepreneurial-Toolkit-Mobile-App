@@ -644,9 +644,8 @@ class _QuizScreenState extends State<QuizScreen> {
   Widget _buildResultsScreen() {
     if (_quizResult == null) return const SizedBox();
 
-    // Check if user reached expert level
-    bool reachedExpert =
-        _quizResult!.level == 'expert' && _userLevel != 'expert';
+    // Check if user reached expert level (is already at expert and completed quiz)
+    bool reachedExpert = _userLevel == 'expert';
 
     return SingleChildScrollView(
       child: Padding(
@@ -901,9 +900,8 @@ class _QuizScreenState extends State<QuizScreen> {
   Widget _buildActionButtons() {
     if (_quizResult == null) return const SizedBox();
 
-    // Check if user reached expert level
-    bool reachedExpert =
-        _quizResult!.level == 'expert' && _userLevel != 'expert';
+    // Check if user reached expert level (is already at expert and completed quiz)
+    bool reachedExpert = _userLevel == 'expert';
 
     return Column(
       children: [
