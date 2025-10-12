@@ -1008,8 +1008,8 @@ class _ProfessionalDashboardScreenState
       ),
       child: SafeArea(
         child: Padding(
-          padding:
-              const EdgeInsets.symmetric(horizontal: 16), // Adjusted for 5 items
+          padding: const EdgeInsets.symmetric(
+              horizontal: 16), // Adjusted for 5 items
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
