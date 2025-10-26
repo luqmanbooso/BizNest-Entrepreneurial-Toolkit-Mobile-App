@@ -5,6 +5,7 @@ import '../core/services/learning_engine.dart';
 import '../core/services/quiz_service.dart';
 import 'quiz_screen.dart';
 import 'tutorial_screen.dart';
+import 'learning_level_selection_screen.dart';
 
 class LearningScreen extends StatefulWidget {
   const LearningScreen({super.key});
@@ -28,7 +29,32 @@ class _LearningScreenState extends State<LearningScreen>
     super.initState();
     _setupAnimations();
     _staggerController.forward(); // Start animation immediately
-    _loadLearningData();
+    _checkInitialAssessment();
+  }
+
+  Future<void> _checkInitialAssessment() async {
+    // Check if user has completed initial assessment
+    final hasCompleted = await QuizService.hasCompletedInitialAssessment();
+    
+    if (!hasCompleted && mounted) {
+      // Show level selection screen
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        final result = await Navigator.push<bool>(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const LearningLevelSelectionScreen(),
+          ),
+        );
+        
+        // Reload data after returning from selection
+        if (result == true && mounted) {
+          _loadLearningData();
+        }
+      });
+    } else {
+      // User has already completed assessment, load data normally
+      _loadLearningData();
+    }
   }
 
   void _setupAnimations() {
@@ -73,9 +99,22 @@ class _LearningScreenState extends State<LearningScreen>
       if (kDebugMode) {
         print('🎯 Learning Screen: Current level is $level');
         print('🎯 Learning Screen: ${tutorials.length} tutorials loaded');
+        
+        // Group tutorials by difficulty for clear visibility
+        final tutorialsByLevel = <String, List<String>>{};
         for (var tutorial in tutorials) {
-          print('  📚 ${tutorial['title']} (${tutorial['difficulty']})');
+          final difficulty = tutorial['difficulty'] as String;
+          final title = tutorial['title'] as String;
+          tutorialsByLevel.putIfAbsent(difficulty, () => []).add(title);
         }
+        
+        // Print tutorials grouped by level
+        tutorialsByLevel.forEach((level, titles) {
+          print('  📚 $level tutorials (${titles.length}):');
+          for (var title in titles) {
+            print('     - $title');
+          }
+        });
       }
 
       if (kDebugMode) {
@@ -702,24 +741,43 @@ class _LearningScreenState extends State<LearningScreen>
                 Row(
                   children: [
                     Expanded(
-                      child: FutureBuilder<Map<String, dynamic>>(
-                        future: QuizService.getQuizEligibilityInfo(),
-                        builder: (context, snapshot) {
-                          final canTakeQuiz =
-                              snapshot.data?['canTakeQuiz'] ?? false;
-                          final remainingTutorials =
-                              snapshot.data?['remainingTutorials'] ?? 0;
+                      child: FutureBuilder<bool>(
+                        future: LearningEngine.hasCompletedAllExpertTutorials(),
+                        builder: (context, completedSnapshot) {
+                          final hasCompletedAll = completedSnapshot.data ?? false;
+                          
+                          if (hasCompletedAll) {
+                            // Show completion button
+                            return _buildQuickActionButton(
+                              'Journey Complete',
+                              Icons.emoji_events,
+                              ModernTheme.accentGreen,
+                              _takeQuiz,
+                              subtitle: 'View Achievement',
+                            );
+                          }
+                          
+                          // Normal quiz button logic
+                          return FutureBuilder<Map<String, dynamic>>(
+                            future: QuizService.getQuizEligibilityInfo(),
+                            builder: (context, snapshot) {
+                              final canTakeQuiz =
+                                  snapshot.data?['canTakeQuiz'] ?? false;
+                              final remainingTutorials =
+                                  snapshot.data?['remainingTutorials'] ?? 0;
 
-                          return _buildQuickActionButton(
-                            canTakeQuiz ? 'Take Quiz' : 'Quiz Locked',
-                            canTakeQuiz ? Icons.quiz : Icons.lock,
-                            canTakeQuiz
-                                ? ModernTheme.primaryBlue
-                                : Colors.orange,
-                            _takeQuiz,
-                            subtitle: canTakeQuiz
-                                ? null
-                                : '$remainingTutorials tutorials left',
+                              return _buildQuickActionButton(
+                                canTakeQuiz ? 'Take Quiz' : 'Quiz Locked',
+                                canTakeQuiz ? Icons.quiz : Icons.lock,
+                                canTakeQuiz
+                                    ? ModernTheme.primaryBlue
+                                    : Colors.orange,
+                                _takeQuiz,
+                                subtitle: canTakeQuiz
+                                    ? null
+                                    : '$remainingTutorials tutorials left',
+                              );
+                            },
                           );
                         },
                       ),
@@ -837,6 +895,151 @@ class _LearningScreenState extends State<LearningScreen>
   }
 
   void _takeQuiz() async {
+    // Check if user has completed all expert tutorials
+    final hasCompletedAllExpert = await LearningEngine.hasCompletedAllExpertTutorials();
+    
+    if (hasCompletedAllExpert) {
+      // Show congratulations dialog for completing everything
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          title: Column(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      ModernTheme.accentGreen.withOpacity(0.2),
+                      ModernTheme.primaryBlue.withOpacity(0.2),
+                    ],
+                  ),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.emoji_events,
+                  size: 64,
+                  color: ModernTheme.accentGreen,
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                '🎉 Congratulations! 🎉',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'You have completed the entire',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 16),
+              ),
+              const SizedBox(height: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [ModernTheme.primaryBlue, ModernTheme.teal],
+                  ),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: const Text(
+                  'Entrepreneurship Learning Journey',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'You\'ve mastered all levels from Novice to Expert. You\'re now equipped with comprehensive entrepreneurial knowledge and skills!',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 14,
+                  height: 1.5,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: ModernTheme.accentGreen.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: ModernTheme.accentGreen.withOpacity(0.3),
+                    width: 2,
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    const Icon(
+                      Icons.star,
+                      color: ModernTheme.accentGreen,
+                      size: 32,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Expert Level',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: ModernTheme.accentGreen,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    const Text(
+                      'All Tutorials Completed',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: ModernTheme.mediumGray,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                '💡 Continue building your business and apply what you\'ve learned!',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontStyle: FontStyle.italic,
+                  color: ModernTheme.mediumGray,
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () => Navigator.pop(context),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: ModernTheme.accentGreen,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: const Text('Awesome!'),
+              ),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
+
     // Check if user can take quiz (completed current level tutorials)
     final eligibilityInfo = await QuizService.getQuizEligibilityInfo();
     final canTakeQuiz = eligibilityInfo['canTakeQuiz'] as bool;
