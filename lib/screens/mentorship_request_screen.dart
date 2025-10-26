@@ -356,7 +356,7 @@ class _MentorshipRequestScreenState extends State<MentorshipRequestScreen>
                         color: ModernTheme.navy,
                       ),
                       decoration: InputDecoration(
-                        hintText: 'e.g. New York, Remote',
+                        hintText: 'e.g. Colombo, Galle, Remote',
                         hintStyle: ModernTheme.bodyMedium.copyWith(
                           color: ModernTheme.mediumGray,
                         ),

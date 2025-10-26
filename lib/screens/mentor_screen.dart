@@ -51,10 +51,14 @@ class _MentorScreenState extends State<MentorScreen>
   final List<String> _locations = [
     'All',
     'Remote',
-    'New York',
-    'San Francisco',
-    'London',
-    'Singapore',
+    'Colombo',
+    'Galle',
+    'Kandy',
+    'Jaffna',
+    'Negombo',
+    'Matara',
+    'Trincomalee',
+    'Batticaloa',
     'Other',
   ];
 
