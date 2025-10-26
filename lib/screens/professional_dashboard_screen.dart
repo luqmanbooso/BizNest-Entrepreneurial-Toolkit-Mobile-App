@@ -80,8 +80,9 @@ class _ProfessionalDashboardScreenState
       // Load business insights
       print('💡 [ProfessionalDashboard] Generating business insights...');
       _businessInsights = await BusinessIntelligenceService.generateInsights();
-      print('✅ [ProfessionalDashboard] Business insights loaded: ${_businessInsights?.keys.toList()}');
-      
+      print(
+          '✅ [ProfessionalDashboard] Business insights loaded: ${_businessInsights?.keys.toList()}');
+
       await _checkAcceptedRequests();
       await _loadRecentActivities();
       if (mounted) {
@@ -114,7 +115,7 @@ class _ProfessionalDashboardScreenState
       print('🔍 [ProfessionalDashboard] Fetching entrepreneur sessions...');
       final sessions = await SessionService.getEntrpreneurSessions();
       print('📦 [ProfessionalDashboard] Found ${sessions.length} sessions');
-      
+
       for (var session in sessions.take(2)) {
         print('📅 [ProfessionalDashboard] Session: ${session['mentor_name']}');
         activities.add({
@@ -130,7 +131,7 @@ class _ProfessionalDashboardScreenState
       print('🔍 [ProfessionalDashboard] Fetching mentorship requests...');
       final requests = await MentorshipService.getMenteeRequests();
       print('📦 [ProfessionalDashboard] Found ${requests.length} requests');
-      
+
       for (var request in requests.take(2)) {
         final status = request['status'];
         print('📨 [ProfessionalDashboard] Request status: $status');
@@ -155,12 +156,13 @@ class _ProfessionalDashboardScreenState
           (b['timestamp'] as DateTime).compareTo(a['timestamp'] as DateTime));
 
       print('✅ [ProfessionalDashboard] Total activities: ${activities.length}');
-      
+
       if (mounted) {
         setState(() {
           _recentActivities = activities.take(3).toList();
         });
-        print('✅ [ProfessionalDashboard] Activities updated: ${_recentActivities.length}');
+        print(
+            '✅ [ProfessionalDashboard] Activities updated: ${_recentActivities.length}');
       }
     } catch (e) {
       print('❌ [ProfessionalDashboard] Error loading recent activities: $e');
@@ -504,27 +506,29 @@ class _ProfessionalDashboardScreenState
     print('📊 [ProfessionalDashboard] Building business metrics...');
     print('   _businessInsights is null: ${_businessInsights == null}');
     print('   Full insights data: $_businessInsights');
-    
+
     // Extract real data from business insights
     final overview = _businessInsights?['overview'] as Map<String, dynamic>?;
-    final businessHealth = _businessInsights?['business_health'] as Map<String, dynamic>?;
-    final financialForecast = _businessInsights?['financial_forecast'] as Map<String, dynamic>?;
-    
+    final businessHealth =
+        _businessInsights?['business_health'] as Map<String, dynamic>?;
+    final financialForecast =
+        _businessInsights?['financial_forecast'] as Map<String, dynamic>?;
+
     print('   overview: $overview');
     print('   businessHealth: $businessHealth');
     print('   financialForecast: $financialForecast');
-    
+
     final totalPlans = overview?['total_business_plans'] ?? 0;
     final healthScore = businessHealth?['health_score'] ?? 0;
     final revenue = financialForecast?['projected_revenue'] ?? 0;
     final growthRate = financialForecast?['growth_rate'] ?? 0;
-    
+
     print('📊 [ProfessionalDashboard] Business Metrics:');
     print('   Total Plans: $totalPlans');
     print('   Health Score: $healthScore');
     print('   Revenue: $revenue');
     print('   Growth Rate: $growthRate');
-    
+
     return AnimatedBuilder(
       animation: _fadeAnimation,
       builder: (context, child) {
@@ -551,8 +555,12 @@ class _ProfessionalDashboardScreenState
                       Expanded(
                         child: _buildMetricCard(
                           'Revenue',
-                          revenue > 0 ? '\$${revenue.toStringAsFixed(0)}' : '\$0',
-                          growthRate > 0 ? '+${growthRate.toStringAsFixed(1)}%' : '0%',
+                          revenue > 0
+                              ? '\$${revenue.toStringAsFixed(0)}'
+                              : '\$0',
+                          growthRate > 0
+                              ? '+${growthRate.toStringAsFixed(1)}%'
+                              : '0%',
                           Icons.trending_up,
                           const Color(0xFF10B981),
                           const Color(0xFFECFDF5),
@@ -563,7 +571,11 @@ class _ProfessionalDashboardScreenState
                         child: _buildMetricCard(
                           'Health Score',
                           '$healthScore',
-                          healthScore >= 70 ? 'Good' : healthScore >= 50 ? 'Fair' : 'Needs Work',
+                          healthScore >= 70
+                              ? 'Good'
+                              : healthScore >= 50
+                                  ? 'Fair'
+                                  : 'Needs Work',
                           Icons.analytics,
                           const Color(0xFF3B82F6),
                           const Color(0xFFEFF6FF),

@@ -35,7 +35,7 @@ class _CollabInvestmentScreenState extends State<CollabInvestmentScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 4, vsync: this);
+    _tabController = TabController(length: 5, vsync: this);
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 800),
       vsync: this,
@@ -142,6 +142,7 @@ class _CollabInvestmentScreenState extends State<CollabInvestmentScreen>
             Tab(text: 'Create Goal'),
             Tab(text: 'My Goals'),
             Tab(text: 'My Investments'),
+            Tab(text: 'Loans'),
           ],
         ),
       ),
@@ -154,6 +155,7 @@ class _CollabInvestmentScreenState extends State<CollabInvestmentScreen>
             _buildCreateGoalTab(),
             _buildMyGoalsTab(),
             _buildMyInvestmentsTab(),
+            _buildLoansTab(),
           ],
         ),
       ),
@@ -201,9 +203,7 @@ class _CollabInvestmentScreenState extends State<CollabInvestmentScreen>
 
     // Deadline handling
     final deadline = goal['deadline'] as Timestamp?;
-    final daysLeft = deadline != null
-        ? deadline.toDate().difference(DateTime.now()).inDays
-        : null;
+    final daysLeft = deadline?.toDate().difference(DateTime.now()).inDays;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -369,9 +369,9 @@ class _CollabInvestmentScreenState extends State<CollabInvestmentScreen>
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
+            const Text(
               'Progress',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
                 color: Color(0xFF1E293B),
@@ -379,7 +379,7 @@ class _CollabInvestmentScreenState extends State<CollabInvestmentScreen>
             ),
             Text(
               '${(progress * 100).toStringAsFixed(1)}%',
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
                 color: ModernTheme.primaryColor,
@@ -559,7 +559,7 @@ class _CollabInvestmentScreenState extends State<CollabInvestmentScreen>
             children: [
               Text(
                 'Remaining amount needed: \$${remainingAmount.toStringAsFixed(0)}',
-                style: TextStyle(
+                style: const TextStyle(
                   color: ModernTheme.primaryColor,
                   fontWeight: FontWeight.w500,
                 ),
@@ -764,6 +764,351 @@ class _CollabInvestmentScreenState extends State<CollabInvestmentScreen>
     }
 
     return _MyInvestmentsView(userId: user.uid);
+  }
+
+  /// Tab 5: Display business loan offers
+  Widget _buildLoansTab() {
+    final List<_LoanOffer> loanOffers = [
+      _LoanOffer(
+        bankName: 'FirstBank Business',
+        loanType: 'Small Business Loan',
+        minAmount: 5000,
+        maxAmount: 100000,
+        interestRate: 6.5,
+        tenure: '1-5 years',
+        features: [
+          'Quick approval',
+          'No collateral required',
+          'Flexible repayment'
+        ],
+        logoIcon: Icons.account_balance,
+        color: ModernTheme.primaryColor,
+      ),
+      _LoanOffer(
+        bankName: 'Capital Growth Bank',
+        loanType: 'Startup Financing',
+        minAmount: 10000,
+        maxAmount: 250000,
+        interestRate: 7.2,
+        tenure: '2-7 years',
+        features: ['Startup friendly', 'Business consultation', 'Grace period'],
+        logoIcon: Icons.trending_up,
+        color: const Color(0xFF10B981),
+      ),
+      _LoanOffer(
+        bankName: 'Enterprise Credit Union',
+        loanType: 'Equipment Financing',
+        minAmount: 15000,
+        maxAmount: 500000,
+        interestRate: 5.8,
+        tenure: '3-10 years',
+        features: ['Asset-backed', 'Tax benefits', 'Low interest'],
+        logoIcon: Icons.precision_manufacturing,
+        color: const Color(0xFF8B5CF6),
+      ),
+      _LoanOffer(
+        bankName: 'MicroFinance Plus',
+        loanType: 'Micro Business Loan',
+        minAmount: 1000,
+        maxAmount: 25000,
+        interestRate: 8.5,
+        tenure: '6 months-3 years',
+        features: [
+          'Fast processing',
+          'Minimal documentation',
+          'For micro enterprises'
+        ],
+        logoIcon: Icons.payments,
+        color: const Color(0xFF14B8A6),
+      ),
+      _LoanOffer(
+        bankName: 'Commercial Trust Bank',
+        loanType: 'Working Capital Loan',
+        minAmount: 20000,
+        maxAmount: 300000,
+        interestRate: 6.9,
+        tenure: '1-5 years',
+        features: [
+          'Cash flow management',
+          'Revolving credit',
+          'Seasonal support'
+        ],
+        logoIcon: Icons.sync_alt,
+        color: const Color(0xFFF59E0B),
+      ),
+    ];
+
+    return Column(
+      children: [
+        // Header Info
+        Container(
+          margin: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [
+                Color(0xFF14B8A6),
+                Color(0xFF0D9488),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF14B8A6).withOpacity(0.3),
+                blurRadius: 20,
+                offset: const Offset(0, 10),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(
+                  Icons.account_balance_rounded,
+                  color: Colors.white,
+                  size: 32,
+                ),
+              ),
+              const SizedBox(width: 16),
+              const Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Pre-Approved Loans',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    SizedBox(height: 4),
+                    Text(
+                      'Apply directly to partner banks',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        // Loan Offers List
+        Expanded(
+          child: ListView.builder(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            itemCount: loanOffers.length,
+            itemBuilder: (context, index) {
+              return _buildLoanCard(loanOffers[index]);
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Builds individual loan card
+  Widget _buildLoanCard(_LoanOffer loan) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+        border: Border.all(
+          color: loan.color.withOpacity(0.1),
+          width: 1,
+        ),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => _openLoanApplication(loan),
+          borderRadius: BorderRadius.circular(20),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: loan.color.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(
+                        loan.logoIcon,
+                        color: loan.color,
+                        size: 28,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            loan.bankName,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w700,
+                              color: Color(0xFF1E293B),
+                            ),
+                          ),
+                          Text(
+                            loan.loanType,
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: loan.color,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Icon(
+                      Icons.arrow_forward_ios_rounded,
+                      color: Colors.grey[400],
+                      size: 16,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: loan.color.withOpacity(0.05),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Amount Range',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey[600],
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              '\$${loan.minAmount.toStringAsFixed(0)} - \$${loan.maxAmount.toStringAsFixed(0)}',
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFF1E293B),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        width: 1,
+                        height: 40,
+                        color: Colors.grey[300],
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Interest Rate',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey[600],
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              '${loan.interestRate}% p.a.',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                                color: loan.color,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Icon(Icons.access_time, size: 16, color: Colors.grey[600]),
+                    const SizedBox(width: 6),
+                    Text(
+                      'Tenure: ${loan.tenure}',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Colors.grey[700],
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: loan.features.map((feature) {
+                    return Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 5),
+                      decoration: BoxDecoration(
+                        color: loan.color.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        feature,
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: loan.color,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Opens loan application dialog
+  void _openLoanApplication(_LoanOffer loan) {
+    showDialog(
+      context: context,
+      builder: (context) => _LoanApplicationDialog(loan: loan),
+    );
   }
 
   /// Builds empty state widget with icon and message
@@ -1191,7 +1536,8 @@ class _CreateGoalFormState extends State<_CreateGoalForm> {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: ModernTheme.primaryColor, width: 2),
+          borderSide:
+              const BorderSide(color: ModernTheme.primaryColor, width: 2),
         ),
       ),
     );
@@ -1199,7 +1545,7 @@ class _CreateGoalFormState extends State<_CreateGoalForm> {
 
   Widget _buildCategoryDropdown() {
     return DropdownButtonFormField<String>(
-      value: _selectedCategory,
+      initialValue: _selectedCategory,
       decoration: InputDecoration(
         labelText: 'Category',
         border: OutlineInputBorder(
@@ -1231,7 +1577,7 @@ class _CreateGoalFormState extends State<_CreateGoalForm> {
           builder: (context, child) {
             return Theme(
               data: Theme.of(context).copyWith(
-                colorScheme: ColorScheme.light(
+                colorScheme: const ColorScheme.light(
                   primary: ModernTheme.primaryColor,
                 ),
               ),
@@ -1253,7 +1599,7 @@ class _CreateGoalFormState extends State<_CreateGoalForm> {
         ),
         child: Row(
           children: [
-            Icon(
+            const Icon(
               Icons.calendar_today,
               color: ModernTheme.primaryColor,
               size: 20,
@@ -1433,7 +1779,7 @@ class _MyInvestmentsView extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Icon(
+                    const Icon(
                       Icons.attach_money,
                       color: ModernTheme.primaryColor,
                       size: 20,
@@ -1627,9 +1973,9 @@ class _MyGoalsView extends StatelessWidget {
                   color: Colors.red.shade400,
                 ),
                 const SizedBox(height: 16),
-                Text(
+                const Text(
                   'Error loading your goals',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
                   ),
@@ -1755,9 +2101,7 @@ class _MyGoalsView extends StatelessWidget {
 
     // Deadline handling
     final deadline = goal['deadline'] as Timestamp?;
-    final daysLeft = deadline != null
-        ? deadline.toDate().difference(DateTime.now()).inDays
-        : null;
+    final daysLeft = deadline?.toDate().difference(DateTime.now()).inDays;
     final isExpired = daysLeft != null && daysLeft <= 0 && !isCompleted;
 
     // Goal status
@@ -1966,7 +2310,7 @@ class _MyGoalsView extends StatelessWidget {
             ),
             Text(
               '${(progress * 100).toStringAsFixed(1)}%',
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
                 color: ModernTheme.primaryColor,
@@ -2292,7 +2636,7 @@ class _MyGoalsView extends StatelessWidget {
                           const SizedBox(height: 4),
                           Text(
                             'Invested: \$${amount.toStringAsFixed(0)}',
-                            style: TextStyle(
+                            style: const TextStyle(
                               color: ModernTheme.primaryColor,
                               fontWeight: FontWeight.w600,
                               fontSize: 12,
@@ -2331,6 +2675,471 @@ class _MyGoalsView extends StatelessWidget {
       onGoalDeleted();
     } catch (e) {
       onError('Error deleting goal: ${e.toString()}');
+    }
+  }
+}
+
+/// Loan Offer Model
+class _LoanOffer {
+  final String bankName;
+  final String loanType;
+  final double minAmount;
+  final double maxAmount;
+  final double interestRate;
+  final String tenure;
+  final List<String> features;
+  final IconData logoIcon;
+  final Color color;
+
+  _LoanOffer({
+    required this.bankName,
+    required this.loanType,
+    required this.minAmount,
+    required this.maxAmount,
+    required this.interestRate,
+    required this.tenure,
+    required this.features,
+    required this.logoIcon,
+    required this.color,
+  });
+}
+
+/// Loan Application Dialog
+class _LoanApplicationDialog extends StatefulWidget {
+  final _LoanOffer loan;
+
+  const _LoanApplicationDialog({required this.loan});
+
+  @override
+  State<_LoanApplicationDialog> createState() => _LoanApplicationDialogState();
+}
+
+class _LoanApplicationDialogState extends State<_LoanApplicationDialog> {
+  final _formKey = GlobalKey<FormState>();
+  final _businessNameController = TextEditingController();
+  final _applicantNameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _phoneController = TextEditingController();
+  final _loanAmountController = TextEditingController();
+  final _purposeController = TextEditingController();
+
+  String _selectedTenure = '1 year';
+  bool _isSubmitting = false;
+
+  @override
+  void dispose() {
+    _businessNameController.dispose();
+    _applicantNameController.dispose();
+    _emailController.dispose();
+    _phoneController.dispose();
+    _loanAmountController.dispose();
+    _purposeController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 500, maxHeight: 600),
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Header
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: widget.loan.color.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(
+                    widget.loan.logoIcon,
+                    color: widget.loan.color,
+                    size: 24,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Apply for Loan',
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF1E293B),
+                        ),
+                      ),
+                      Text(
+                        widget.loan.bankName,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: widget.loan.color,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                IconButton(
+                  onPressed: () => Navigator.pop(context),
+                  icon: const Icon(Icons.close),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+
+            // Form
+            Expanded(
+              child: Form(
+                key: _formKey,
+                child: ListView(
+                  children: [
+                    TextFormField(
+                      controller: _businessNameController,
+                      decoration: const InputDecoration(
+                        labelText: 'Business Name',
+                        prefixIcon: Icon(Icons.business),
+                        border: OutlineInputBorder(),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter business name';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _applicantNameController,
+                      decoration: const InputDecoration(
+                        labelText: 'Your Name',
+                        prefixIcon: Icon(Icons.person),
+                        border: OutlineInputBorder(),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your name';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _emailController,
+                      decoration: const InputDecoration(
+                        labelText: 'Email',
+                        prefixIcon: Icon(Icons.email),
+                        border: OutlineInputBorder(),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter email';
+                        }
+                        if (!value.contains('@')) {
+                          return 'Please enter valid email';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _phoneController,
+                      decoration: const InputDecoration(
+                        labelText: 'Phone Number',
+                        prefixIcon: Icon(Icons.phone),
+                        border: OutlineInputBorder(),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter phone number';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _loanAmountController,
+                      decoration: InputDecoration(
+                        labelText:
+                            'Loan Amount (\$${widget.loan.minAmount.toStringAsFixed(0)} - \$${widget.loan.maxAmount.toStringAsFixed(0)})',
+                        prefixIcon: const Icon(Icons.attach_money),
+                        border: const OutlineInputBorder(),
+                      ),
+                      keyboardType: TextInputType.number,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter loan amount';
+                        }
+                        final amount = double.tryParse(value);
+                        if (amount == null) {
+                          return 'Please enter valid amount';
+                        }
+                        if (amount < widget.loan.minAmount ||
+                            amount > widget.loan.maxAmount) {
+                          return 'Amount must be between \$${widget.loan.minAmount.toStringAsFixed(0)} and \$${widget.loan.maxAmount.toStringAsFixed(0)}';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _purposeController,
+                      decoration: const InputDecoration(
+                        labelText: 'Loan Purpose',
+                        prefixIcon: Icon(Icons.description),
+                        border: OutlineInputBorder(),
+                      ),
+                      maxLines: 3,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter loan purpose';
+                        }
+                        return null;
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Submit Button
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: _isSubmitting ? null : _submitApplication,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: widget.loan.color,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: _isSubmitting
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2,
+                        ),
+                      )
+                    : const Text(
+                        'Submit Application',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _submitApplication() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() => _isSubmitting = true);
+
+    try {
+      // Get current user
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        throw Exception('User not authenticated');
+      }
+
+      // Save loan application to Firestore
+      await FirebaseFirestore.instance.collection('loan_applications').add({
+        'userId': user.uid,
+        'userEmail': user.email,
+        'businessName': _businessNameController.text.trim(),
+        'applicantName': _applicantNameController.text.trim(),
+        'email': _emailController.text.trim(),
+        'phone': _phoneController.text.trim(),
+        'loanAmount': double.parse(_loanAmountController.text),
+        'purpose': _purposeController.text.trim(),
+        'bankName': widget.loan.bankName,
+        'loanType': widget.loan.loanType,
+        'interestRate': widget.loan.interestRate,
+        'tenure': widget.loan.tenure,
+        'status': 'pending',
+        'appliedAt': FieldValue.serverTimestamp(),
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+
+      if (!mounted) return;
+
+      setState(() => _isSubmitting = false);
+
+      Navigator.pop(context);
+
+      // Show success dialog
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF10B981).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(
+                  Icons.check_circle,
+                  color: Color(0xFF10B981),
+                  size: 32,
+                ),
+              ),
+              const SizedBox(width: 12),
+              const Expanded(
+                child: Text(
+                  'Application Submitted!',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Your loan application has been successfully submitted to:',
+                style: TextStyle(fontSize: 14),
+              ),
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: widget.loan.color.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  children: [
+                    Icon(widget.loan.logoIcon, color: widget.loan.color),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            widget.loan.bankName,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w700,
+                              fontSize: 16,
+                            ),
+                          ),
+                          Text(
+                            widget.loan.loanType,
+                            style: TextStyle(
+                              color: widget.loan.color,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFEF3C7),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: const Color(0xFFF59E0B), width: 1),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.pending_actions,
+                      color: Color(0xFFF59E0B),
+                      size: 20,
+                    ),
+                    const SizedBox(width: 8),
+                    const Expanded(
+                      child: Text(
+                        'Status: Pending Review',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Color(0xFFF59E0B),
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 12),
+              const Text(
+                'The bank will contact you within 2-3 business days.',
+                style: TextStyle(
+                  fontSize: 13,
+                  color: Color(0xFF64748B),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Close'),
+            ),
+          ],
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() => _isSubmitting = false);
+      Navigator.pop(context);
+
+      // Show error dialog
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: const Row(
+            children: [
+              Icon(Icons.error, color: Colors.red, size: 32),
+              SizedBox(width: 12),
+              Text('Submission Failed'),
+            ],
+          ),
+          content: Text(
+            'Failed to submit your application. Please try again.\n\nError: $e',
+            style: const TextStyle(fontSize: 14),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Close'),
+            ),
+          ],
+        ),
+      );
     }
   }
 }
