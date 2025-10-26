@@ -419,41 +419,6 @@ class _InboxScreenState extends State<InboxScreen>
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      const SizedBox(height: 4),
-                      Row(
-                        children: [
-                          const Icon(
-                            Icons.business_outlined,
-                            size: 12,
-                            color: ModernTheme.mediumGray,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            conversation['industry'],
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: ModernTheme.mediumGray,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          const Icon(
-                            Icons.location_on_outlined,
-                            size: 12,
-                            color: ModernTheme.mediumGray,
-                          ),
-                          const SizedBox(width: 4),
-                          Expanded(
-                            child: Text(
-                              conversation['location'],
-                              style: const TextStyle(
-                                fontSize: 12,
-                                color: ModernTheme.mediumGray,
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
-                      ),
                     ],
                   ),
                 ),

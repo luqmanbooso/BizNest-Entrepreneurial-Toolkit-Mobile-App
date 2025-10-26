@@ -536,30 +536,6 @@ class _MentorshipRequestsScreenState extends State<MentorshipRequestsScreen>
                             _buildStatusBadge(request['status']),
                           ],
                         ),
-                        const SizedBox(height: 6),
-                        Row(
-                          children: [
-                            const Icon(
-                              Icons.business_outlined,
-                              size: 14,
-                              color: ModernTheme.mediumGray,
-                            ),
-                            const SizedBox(width: 4),
-                            Expanded(
-                              child: Text(
-                                menteeInfo['business_name'] ??
-                                    'Business not specified',
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                  color: ModernTheme.mediumGray,
-                                ),
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
-                              ),
-                            ),
-                          ],
-                        ),
                         const SizedBox(height: 4),
                         Row(
                           children: [
