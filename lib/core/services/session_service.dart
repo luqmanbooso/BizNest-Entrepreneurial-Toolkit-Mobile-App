@@ -131,6 +131,7 @@ class SessionService {
       if (userId == null) return [];
 
       final now = DateTime.now();
+      final today = DateTime(now.year, now.month, now.day);
 
       final field = isMentor ? 'mentor_id' : 'mentee_id';
 
@@ -151,8 +152,9 @@ class SessionService {
         
         if (status != 'scheduled' || scheduledDate == null) return false;
         
-        final date = scheduledDate.toDate();
-        return date.isAfter(now); // Show all future sessions, not just next 7 days
+        final sessionDate = scheduledDate.toDate();
+        final sessionDay = DateTime(sessionDate.year, sessionDate.month, sessionDate.day);
+        return !sessionDay.isBefore(today); // Include today and future sessions
       }).toList();
 
       sessions.sort((a, b) {

@@ -3708,6 +3708,53 @@ Most startups fail not because they can't get customers, but because they can't 
     }
   }
 
+  // Complete tutorial quiz (for tutorial-embedded quizzes with AI generation)
+  static Future<void> completeTutorialQuiz(
+      String tutorialId, Map<String, dynamic> quizData) async {
+    try {
+      final progress = await getLearningProgress();
+      
+      // Store quiz results
+      final quizResults = progress['tutorial_quiz_results'] as Map<String, dynamic>? ?? {};
+      quizResults[tutorialId] = {
+        ...quizData,
+        'completed_at': DateTime.now().toIso8601String(),
+      };
+      progress['tutorial_quiz_results'] = quizResults;
+      
+      // Update streak if this is a good score
+      if (quizData['score'] >= 60) {
+        final now = DateTime.now();
+        final lastCompletionDate = progress['last_completion_date'] != null
+            ? DateTime.parse(progress['last_completion_date'])
+            : null;
+
+        if (lastCompletionDate == null ||
+            now.difference(lastCompletionDate).inDays == 1) {
+          progress['current_streak'] = (progress['current_streak'] ?? 0) + 1;
+          if (progress['current_streak'] > (progress['longest_streak'] ?? 0)) {
+            progress['longest_streak'] = progress['current_streak'];
+          }
+        } else if (now.difference(lastCompletionDate).inDays > 1) {
+          progress['current_streak'] = 1;
+        }
+        progress['last_completion_date'] = now.toIso8601String();
+      }
+      
+      await _saveLearningProgress(progress);
+      await updateLeaderboardEntry();
+      
+      if (kDebugMode) {
+        print('✅ Tutorial quiz completed: $tutorialId with score ${quizData['score']}%');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('❌ Error completing tutorial quiz: $e');
+      }
+      throw Exception('Failed to save quiz results');
+    }
+  }
+
   // Get user's badges
   static Future<List<String>> getUserBadges() async {
     try {

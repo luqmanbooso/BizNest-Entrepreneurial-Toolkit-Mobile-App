@@ -53,19 +53,31 @@ class _SessionsScreenState extends State<SessionsScreen> {
 
   List<Map<String, dynamic>> get _filteredSessions {
     final now = DateTime.now();
-    return _sessions.where((session) {
+    final today = DateTime(now.year, now.month, now.day);
+    print('🔍 [SessionsScreen] Filtering sessions. Total: ${_sessions.length}, Filter: $_selectedFilter, Current time: $now');
+    
+    final filtered = _sessions.where((session) {
       final sessionDate = (session['scheduled_date'] as Timestamp).toDate();
+      final sessionDay = DateTime(sessionDate.year, sessionDate.month, sessionDate.day);
       final status = session['status'];
+      
+      print('   Session: ${session['session_title']}, Date: $sessionDate, Status: $status, IsAfter: ${sessionDate.isAfter(now)}');
 
       switch (_selectedFilter) {
         case 'upcoming':
-          return status == 'scheduled' && sessionDate.isAfter(now);
+          // Check if session is today or in the future
+          final isUpcoming = status == 'scheduled' && !sessionDay.isBefore(today);
+          print('   -> Upcoming filter: status=$status, scheduled=${status == 'scheduled'}, notBeforeToday=${!sessionDay.isBefore(today)}, result=$isUpcoming');
+          return isUpcoming;
         case 'completed':
           return status == 'completed';
         default:
           return true;
       }
     }).toList();
+    
+    print('✅ [SessionsScreen] Filtered sessions count: ${filtered.length}');
+    return filtered;
   }
 
   Future<void> _launchMeetingLink(String url) async {
@@ -296,8 +308,11 @@ class _SessionsScreenState extends State<SessionsScreen> {
 
   Widget _buildSessionCard(Map<String, dynamic> session) {
     final sessionDate = (session['scheduled_date'] as Timestamp).toDate();
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final sessionDay = DateTime(sessionDate.year, sessionDate.month, sessionDate.day);
     final status = session['status'];
-    final isUpcoming = status == 'scheduled' && sessionDate.isAfter(DateTime.now());
+    final isUpcoming = status == 'scheduled' && !sessionDay.isBefore(today);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),

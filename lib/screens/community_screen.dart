@@ -22,8 +22,10 @@ class _CommunityScreenState extends State<CommunityScreen>
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final TextEditingController _replyController = TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
 
   String _selectedCategory = 'All';
+  String _searchQuery = '';
   int _unreadNotifications = 0;
   final Map<String, bool> _threadSubscriptions =
       {}; // Cache for subscription status
@@ -112,7 +114,53 @@ class _CommunityScreenState extends State<CommunityScreen>
     _animationController.dispose();
     _cardController.dispose();
     _replyController.dispose();
+    _searchController.dispose();
     super.dispose();
+  }
+
+  void _showSearchDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Search Threads'),
+        content: TextField(
+          controller: _searchController,
+          autofocus: true,
+          decoration: const InputDecoration(
+            hintText: 'Enter keywords...',
+            prefixIcon: Icon(Icons.search_rounded),
+            border: OutlineInputBorder(),
+          ),
+          onSubmitted: (value) {
+            setState(() {
+              _searchQuery = value.trim();
+            });
+            Navigator.pop(context);
+          },
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              _searchController.clear();
+              setState(() {
+                _searchQuery = '';
+              });
+              Navigator.pop(context);
+            },
+            child: const Text('Clear'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              setState(() {
+                _searchQuery = _searchController.text.trim();
+              });
+              Navigator.pop(context);
+            },
+            child: const Text('Search'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -229,16 +277,19 @@ class _CommunityScreenState extends State<CommunityScreen>
                           ),
                       ],
                     ),
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Icon(
-                      Icons.search_rounded,
-                      color: Colors.white,
-                      size: 20,
+                  GestureDetector(
+                    onTap: _showSearchDialog,
+                    child: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Icon(
+                        Icons.search_rounded,
+                        color: Colors.white,
+                        size: 20,
+                      ),
                     ),
                   ),
                 ],
@@ -255,7 +306,9 @@ class _CommunityScreenState extends State<CommunityScreen>
           ),
           const SizedBox(height: 4),
           Text(
-            'Discuss, share, and learn together',
+            _searchQuery.isEmpty 
+                ? 'Discuss, share, and learn together'
+                : 'Search results for: "$_searchQuery"',
             style: ModernTheme.bodyLarge.copyWith(
               color: Colors.white.withOpacity(0.8),
             ),
@@ -371,12 +424,28 @@ class _CommunityScreenState extends State<CommunityScreen>
         }
 
         final allThreads = snapshot.data?.docs ?? [];
-        final threads = _selectedCategory == 'All'
+        
+        // Apply category filter
+        var threads = _selectedCategory == 'All'
             ? allThreads
             : allThreads.where((doc) {
                 final data = doc.data() as Map<String, dynamic>;
                 return data['category'] == _selectedCategory;
               }).toList();
+
+        // Apply search filter
+        if (_searchQuery.isNotEmpty) {
+          threads = threads.where((doc) {
+            final data = doc.data() as Map<String, dynamic>;
+            final title = (data['title'] ?? '').toString().toLowerCase();
+            final content = (data['content'] ?? '').toString().toLowerCase();
+            final author = (data['authorName'] ?? '').toString().toLowerCase();
+            final query = _searchQuery.toLowerCase();
+            return title.contains(query) || 
+                   content.contains(query) || 
+                   author.contains(query);
+          }).toList();
+        }
 
         // Load subscriptions for visible threads only once
         if (AuthService.isAuthenticated &&

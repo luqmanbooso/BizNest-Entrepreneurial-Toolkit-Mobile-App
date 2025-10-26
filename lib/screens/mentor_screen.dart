@@ -238,6 +238,7 @@ class _MentorScreenState extends State<MentorScreen>
       padding: const EdgeInsets.fromLTRB(20, 1, 20, 0),
       child: Column(
         children: [
+          const SizedBox(height: 20),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -256,47 +257,22 @@ class _MentorScreenState extends State<MentorScreen>
                   ),
                 ),
               ),
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Icon(
-                      Icons.notifications_outlined,
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 16),
+                  child: Text(
+                    '     Find Your Perfect Mentor',
+                    style: ModernTheme.headingLarge.copyWith(
                       color: Colors.white,
-                      size: 20,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 24,
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Icon(
-                      Icons.search_rounded,
-                      color: Colors.white,
-                      size: 20,
-                    ),
-                  ),
-                ],
+                ),
               ),
             ],
           ),
-          const SizedBox(height: 28),
-          Text(
-            'Find Your Perfect Mentor',
-            style: ModernTheme.headingLarge.copyWith(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: 28,
-            ),
-          ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 16),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
@@ -316,7 +292,7 @@ class _MentorScreenState extends State<MentorScreen>
               textAlign: TextAlign.center,
             ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 0),
         ],
       ),
     );

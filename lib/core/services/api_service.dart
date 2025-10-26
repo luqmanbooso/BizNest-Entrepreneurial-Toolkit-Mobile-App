@@ -386,14 +386,75 @@ class ApiService {
             {
               'id': '1',
               'title': 'E-commerce Platform',
-              'status': 'draft',
+              'status': 'in_progress',
               'created_at': '2024-01-15T10:30:00Z',
+              'industry': 'Technology',
             },
             {
               'id': '2',
               'title': 'Mobile App',
-              'status': 'in_progress',
+              'status': 'completed',
               'created_at': '2024-01-20T14:45:00Z',
+              'industry': 'Technology',
+            },
+            {
+              'id': '3',
+              'title': 'SaaS Product',
+              'status': 'in_progress',
+              'created_at': '2024-02-01T09:15:00Z',
+              'industry': 'Technology',
+            },
+          ],
+        };
+      case '/financial/calculations':
+        return {
+          'success': true,
+          'data': {
+            'current_revenue': 24580,
+            'monthly_revenue': 24580,
+            'growth_rate': 0.284, // 28.4% growth
+            'expenses': 15200,
+            'profit': 9380,
+            'profit_margin': 0.38,
+            'burn_rate': 8500,
+            'runway_months': 14,
+          },
+        };
+      case '/networking/contacts':
+        return {
+          'success': true,
+          'data': [
+            {
+              'id': '1',
+              'name': 'John Smith',
+              'company': 'Tech Corp',
+              'role': 'CEO',
+              'industry': 'Technology',
+            },
+            {
+              'id': '2',
+              'name': 'Sarah Johnson',
+              'company': 'Innovation Labs',
+              'role': 'CTO',
+              'industry': 'Technology',
+            },
+          ],
+        };
+      case '/learning/resources':
+        return {
+          'success': true,
+          'data': [
+            {
+              'id': '1',
+              'title': 'Business Planning 101',
+              'type': 'course',
+              'progress': 75,
+            },
+            {
+              'id': '2',
+              'title': 'Financial Management',
+              'type': 'course',
+              'progress': 50,
             },
           ],
         };

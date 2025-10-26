@@ -37,6 +37,7 @@ class _ProfessionalDashboardScreenState
   bool _hasAcceptedRequests = false;
   final ScrollController _scrollController = ScrollController();
   List<Map<String, dynamic>> _recentActivities = [];
+  Map<String, dynamic>? _businessInsights;
 
   @override
   void initState() {
@@ -72,18 +73,25 @@ class _ProfessionalDashboardScreenState
   }
 
   Future<void> _loadDashboardData() async {
+    print('📊 [ProfessionalDashboard] Loading dashboard data...');
     setState(() => _isLoading = true);
 
     try {
-      await BusinessIntelligenceService.generateInsights();
+      // Load business insights
+      print('💡 [ProfessionalDashboard] Generating business insights...');
+      _businessInsights = await BusinessIntelligenceService.generateInsights();
+      print('✅ [ProfessionalDashboard] Business insights loaded: ${_businessInsights?.keys.toList()}');
+      
       await _checkAcceptedRequests();
       await _loadRecentActivities();
       if (mounted) {
         setState(() {
           _isLoading = false;
         });
+        print('✅ [ProfessionalDashboard] Dashboard data loaded successfully');
       }
     } catch (e) {
+      print('❌ [ProfessionalDashboard] Error loading dashboard data: $e');
       if (mounted) {
         setState(() => _isLoading = false);
       }
@@ -91,15 +99,24 @@ class _ProfessionalDashboardScreenState
   }
 
   Future<void> _loadRecentActivities() async {
+    print('📊 [ProfessionalDashboard] Loading recent activities...');
     try {
       final userId = FirebaseAuth.instance.currentUser?.uid;
-      if (userId == null) return;
+      if (userId == null) {
+        print('❌ [ProfessionalDashboard] No userId found');
+        return;
+      }
+      print('✅ [ProfessionalDashboard] UserId: $userId');
 
       List<Map<String, dynamic>> activities = [];
 
       // Get recent sessions
+      print('🔍 [ProfessionalDashboard] Fetching entrepreneur sessions...');
       final sessions = await SessionService.getEntrpreneurSessions();
+      print('📦 [ProfessionalDashboard] Found ${sessions.length} sessions');
+      
       for (var session in sessions.take(2)) {
+        print('📅 [ProfessionalDashboard] Session: ${session['mentor_name']}');
         activities.add({
           'title': 'Session with ${session['mentor_name']}',
           'subtitle': session['session_title'] ?? 'Mentorship Session',
@@ -110,9 +127,13 @@ class _ProfessionalDashboardScreenState
       }
 
       // Get recent mentorship requests
+      print('🔍 [ProfessionalDashboard] Fetching mentorship requests...');
       final requests = await MentorshipService.getMenteeRequests();
+      print('📦 [ProfessionalDashboard] Found ${requests.length} requests');
+      
       for (var request in requests.take(2)) {
         final status = request['status'];
+        print('📨 [ProfessionalDashboard] Request status: $status');
         activities.add({
           'title': status == 'accepted'
               ? 'Request Accepted'
@@ -133,14 +154,21 @@ class _ProfessionalDashboardScreenState
       activities.sort((a, b) =>
           (b['timestamp'] as DateTime).compareTo(a['timestamp'] as DateTime));
 
+      print('✅ [ProfessionalDashboard] Total activities: ${activities.length}');
+      
       if (mounted) {
         setState(() {
           _recentActivities = activities.take(3).toList();
         });
+        print('✅ [ProfessionalDashboard] Activities updated: ${_recentActivities.length}');
       }
     } catch (e) {
-      print('Error loading recent activities: $e');
-      _recentActivities = [];
+      print('❌ [ProfessionalDashboard] Error loading recent activities: $e');
+      if (mounted) {
+        setState(() {
+          _recentActivities = [];
+        });
+      }
     }
   }
 
@@ -473,6 +501,30 @@ class _ProfessionalDashboardScreenState
   }
 
   Widget _buildBusinessMetrics() {
+    print('📊 [ProfessionalDashboard] Building business metrics...');
+    print('   _businessInsights is null: ${_businessInsights == null}');
+    print('   Full insights data: $_businessInsights');
+    
+    // Extract real data from business insights
+    final overview = _businessInsights?['overview'] as Map<String, dynamic>?;
+    final businessHealth = _businessInsights?['business_health'] as Map<String, dynamic>?;
+    final financialForecast = _businessInsights?['financial_forecast'] as Map<String, dynamic>?;
+    
+    print('   overview: $overview');
+    print('   businessHealth: $businessHealth');
+    print('   financialForecast: $financialForecast');
+    
+    final totalPlans = overview?['total_business_plans'] ?? 0;
+    final healthScore = businessHealth?['health_score'] ?? 0;
+    final revenue = financialForecast?['projected_revenue'] ?? 0;
+    final growthRate = financialForecast?['growth_rate'] ?? 0;
+    
+    print('📊 [ProfessionalDashboard] Business Metrics:');
+    print('   Total Plans: $totalPlans');
+    print('   Health Score: $healthScore');
+    print('   Revenue: $revenue');
+    print('   Growth Rate: $growthRate');
+    
     return AnimatedBuilder(
       animation: _fadeAnimation,
       builder: (context, child) {
@@ -499,8 +551,8 @@ class _ProfessionalDashboardScreenState
                       Expanded(
                         child: _buildMetricCard(
                           'Revenue',
-                          '\$24,580',
-                          '+12.5%',
+                          revenue > 0 ? '\$${revenue.toStringAsFixed(0)}' : '\$0',
+                          growthRate > 0 ? '+${growthRate.toStringAsFixed(1)}%' : '0%',
                           Icons.trending_up,
                           const Color(0xFF10B981),
                           const Color(0xFFECFDF5),
@@ -509,9 +561,9 @@ class _ProfessionalDashboardScreenState
                       const SizedBox(width: 12),
                       Expanded(
                         child: _buildMetricCard(
-                          'Growth',
-                          '28.4%',
-                          '+5.2%',
+                          'Health Score',
+                          '$healthScore',
+                          healthScore >= 70 ? 'Good' : healthScore >= 50 ? 'Fair' : 'Needs Work',
                           Icons.analytics,
                           const Color(0xFF3B82F6),
                           const Color(0xFFEFF6FF),
@@ -524,10 +576,10 @@ class _ProfessionalDashboardScreenState
                     children: [
                       Expanded(
                         child: _buildMetricCard(
-                          'Customers',
-                          '1,247',
-                          '+18.3%',
-                          Icons.people,
+                          'Business Plans',
+                          '$totalPlans',
+                          totalPlans > 0 ? 'Created' : 'Get started',
+                          Icons.description,
                           const Color(0xFF8B5CF6),
                           const Color(0xFFF3E8FF),
                         ),
@@ -535,10 +587,10 @@ class _ProfessionalDashboardScreenState
                       const SizedBox(width: 12),
                       Expanded(
                         child: _buildMetricCard(
-                          'Plans Active',
-                          '6',
-                          'This month',
-                          Icons.description,
+                          'Completion',
+                          '${overview?['completion_rate'] ?? 0}%',
+                          overview?['business_stage'] ?? 'Starting',
+                          Icons.check_circle,
                           const Color(0xFFF59E0B),
                           const Color(0xFFFEF3C7),
                         ),
@@ -991,7 +1043,7 @@ class _ProfessionalDashboardScreenState
 
   Widget _buildModernNavigationBar() {
     return Container(
-      height: 90, // Increased from 75 to accommodate larger icons/text
+      height: 75,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: const BorderRadius.only(
@@ -1008,8 +1060,7 @@ class _ProfessionalDashboardScreenState
       ),
       child: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(
-              horizontal: 16), // Adjusted for 5 items
+          padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
@@ -1038,19 +1089,9 @@ class _ProfessionalDashboardScreenState
                 ),
               ),
               _buildNavItem(
-                Icons.account_balance,
-                'Finance',
-                3,
-                () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (_) => const CollabInvestmentScreen()),
-                ),
-              ),
-              _buildNavItem(
                 Icons.menu,
                 'More',
-                4,
+                3,
                 () => _showSideMenu(context),
               ),
             ],
@@ -1068,9 +1109,7 @@ class _ProfessionalDashboardScreenState
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
-        padding: const EdgeInsets.symmetric(
-            horizontal: 12,
-            vertical: 4), // Increased padding for larger icons/text
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
           gradient: isActive
               ? const LinearGradient(
@@ -1090,20 +1129,19 @@ class _ProfessionalDashboardScreenState
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
               icon,
               color: isActive ? Colors.white : const Color(0xFF64748B),
-              size: 20, // Increased from 12
+              size: 24,
             ),
+            const SizedBox(height: 4),
             Text(
               label,
               style: TextStyle(
                 color: isActive ? Colors.white : const Color(0xFF64748B),
-                fontSize: 10, // Increased from 6
+                fontSize: 12,
                 fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
-                height: 1.0,
               ),
             ),
           ],
@@ -1215,6 +1253,20 @@ class _ProfessionalDashboardScreenState
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (_) => const MentorScreen()),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  _buildMenuItem(
+                    Icons.account_balance,
+                    'Finance',
+                    'Collaboration and investment',
+                    () {
+                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => const CollabInvestmentScreen()),
                       );
                     },
                   ),

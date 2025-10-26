@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../core/theme/modern_theme.dart';
 import '../core/services/learning_engine.dart';
+import 'tutorial_quiz_screen.dart';
 
 class TutorialScreen extends StatefulWidget {
   final Map<String, dynamic> tutorial;
@@ -295,8 +296,6 @@ class _TutorialScreenState extends State<TutorialScreen>
   }
 
   Widget _buildQuizSection(Map<String, dynamic> section) {
-    final questions = List<Map<String, dynamic>>.from(section['questions']);
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -307,82 +306,215 @@ class _TutorialScreenState extends State<TutorialScreen>
             color: Colors.grey[800],
           ),
         ),
-        const SizedBox(height: 20),
-        ...questions.map((question) => _buildQuizQuestion(question)),
+        const SizedBox(height: 24),
+        FutureBuilder<Map<String, dynamic>>(
+          future: LearningEngine.getLearningProgress(),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            final progress = snapshot.data!;
+            final quizResults = progress['tutorial_quiz_results'] as Map<String, dynamic>? ?? {};
+            final tutorialQuizResult = quizResults[widget.tutorial['id']] as Map<String, dynamic>?;
+            final hasCompletedQuiz = tutorialQuizResult != null;
+
+            return Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    ModernTheme.primaryBlue.withOpacity(0.1),
+                    ModernTheme.teal.withOpacity(0.1),
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: ModernTheme.primaryBlue.withOpacity(0.3),
+                  width: 2,
+                ),
+              ),
+              child: Column(
+                children: [
+                  Icon(
+                    hasCompletedQuiz ? Icons.emoji_events : Icons.quiz,
+                    size: 48,
+                    color: hasCompletedQuiz ? Colors.amber : ModernTheme.primaryBlue,
+                  ),
+                  const SizedBox(height: 16),
+                  if (hasCompletedQuiz) ...[
+                    Text(
+                      'Quiz Completed!',
+                      style: ModernTheme.headingMedium.copyWith(
+                        color: ModernTheme.primaryBlue,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 16),
+                    // Score Display
+                    Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        children: [
+                          Text(
+                            '${tutorialQuizResult['score']}%',
+                            style: const TextStyle(
+                              fontSize: 48,
+                              fontWeight: FontWeight.bold,
+                              color: ModernTheme.primaryBlue,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            '${tutorialQuizResult['correct_answers']} out of ${tutorialQuizResult['total_questions']} correct',
+                            style: ModernTheme.bodyMedium.copyWith(
+                              color: Colors.grey[700],
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            _getPerformanceMessage(tutorialQuizResult['score']),
+                            style: ModernTheme.bodySmall.copyWith(
+                              color: Colors.grey[600],
+                              fontStyle: FontStyle.italic,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    ElevatedButton(
+                      onPressed: () async {
+                        final result = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => TutorialQuizScreen(
+                              tutorial: widget.tutorial,
+                            ),
+                          ),
+                        );
+                        if (result == true) {
+                          setState(() {}); // Refresh to show new results
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: ModernTheme.primaryBlue,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 32,
+                          vertical: 16,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: const [
+                          Icon(Icons.refresh, size: 20),
+                          SizedBox(width: 8),
+                          Text(
+                            'Take Another Quiz',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ] else ...[
+                    Text(
+                      'Ready to test your knowledge?',
+                      style: ModernTheme.headingMedium.copyWith(
+                        color: ModernTheme.primaryBlue,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Take the quiz to reinforce what you\'ve learned',
+                      style: ModernTheme.bodyMedium.copyWith(
+                        color: Colors.grey[700],
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 20),
+                    ElevatedButton(
+                      onPressed: () async {
+                        final result = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => TutorialQuizScreen(
+                              tutorial: widget.tutorial,
+                            ),
+                          ),
+                        );
+                        if (result == true) {
+                          setState(() {}); // Refresh to show results
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: ModernTheme.primaryBlue,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 32,
+                          vertical: 16,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: const [
+                          Icon(Icons.play_arrow, size: 20),
+                          SizedBox(width: 8),
+                          Text(
+                            'Take Quiz',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            );
+          },
+        ),
       ],
     );
   }
 
-  Widget _buildQuizQuestion(Map<String, dynamic> question) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 20),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.grey[50],
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey[200]!),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            question['question'],
-            style: ModernTheme.bodyLarge.copyWith(
-              fontWeight: FontWeight.w600,
-              color: Colors.grey[800],
-            ),
-          ),
-          const SizedBox(height: 12),
-          ...List.generate(
-            question['options'].length,
-            (index) => Container(
-              margin: const EdgeInsets.only(bottom: 8),
-              child: ElevatedButton(
-                onPressed: () => _answerQuestion(question, index),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: Colors.grey[700],
-                  elevation: 0,
-                  padding: const EdgeInsets.all(12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    side: BorderSide(color: Colors.grey[300]!),
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 24,
-                      height: 24,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(color: Colors.grey[400]!),
-                      ),
-                      child: Center(
-                        child: Text(
-                          String.fromCharCode(65 + index), // A, B, C, D
-                          style: ModernTheme.bodySmall.copyWith(
-                            color: Colors.grey[600],
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        question['options'][index],
-                        style: ModernTheme.bodyMedium,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
+  String _getPerformanceMessage(int score) {
+    if (score >= 80) {
+      return 'Outstanding work! You\'ve mastered this tutorial.';
+    } else if (score >= 60) {
+      return 'Good job! You\'re on the right track.';
+    } else {
+      return 'Keep practicing! Review the tutorial and try again.';
+    }
   }
 
   Widget _buildInteractiveSection(Map<String, dynamic> section) {
@@ -523,40 +655,6 @@ class _TutorialScreenState extends State<TutorialScreen>
         ),
       );
     }
-  }
-
-  void _answerQuestion(Map<String, dynamic> question, int selectedIndex) {
-    final isCorrect = selectedIndex == question['correct'];
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(isCorrect ? 'Correct!' : 'Incorrect'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              isCorrect ? Icons.check_circle : Icons.cancel,
-              size: 64,
-              color: isCorrect ? Colors.green : Colors.red,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              isCorrect
-                  ? 'Great job! You selected the correct answer.'
-                  : 'The correct answer is: ${question['options'][question['correct']]}',
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-        actions: [
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Continue'),
-          ),
-        ],
-      ),
-    );
   }
 
   Future<void> _saveProgress() async {

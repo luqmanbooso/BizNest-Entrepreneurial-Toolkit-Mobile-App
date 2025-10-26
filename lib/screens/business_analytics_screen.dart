@@ -842,9 +842,9 @@ class _BusinessAnalyticsScreenState extends State<BusinessAnalyticsScreen>
       crossAxisCount: 2,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      crossAxisSpacing: 16,
-      mainAxisSpacing: 16,
-      childAspectRatio: 2.8, // Increased from 2.4 to give even more height
+      crossAxisSpacing: 12,
+      mainAxisSpacing: 12,
+      childAspectRatio: 1.2, // Further reduced to give even more height
       children: metrics,
     );
   }
@@ -857,7 +857,7 @@ class _BusinessAnalyticsScreenState extends State<BusinessAnalyticsScreen>
     String subtitle,
   ) {
     return Container(
-      padding: const EdgeInsets.all(8), // Reduced from 10
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: ModernTheme.surfaceLight,
         borderRadius: BorderRadius.circular(16),
@@ -865,49 +865,63 @@ class _BusinessAnalyticsScreenState extends State<BusinessAnalyticsScreen>
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min, // Added to minimize height
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(
+          // Icon at top
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(icon, color: color, size: 20),
+          ),
+          // Value and title grouped together
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                padding: const EdgeInsets.all(4), // Reduced from 5
-                decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
+              Text(
+                value,
+                style: ModernTheme.h4.copyWith(
+                  fontSize: 22,
+                  color: ModernTheme.textPrimary,
+                  fontWeight: FontWeight.w700,
+                  height: 1.2,
                 ),
-                child: Icon(icon, color: color, size: 16), // Reduced from 18
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
-              const Spacer(),
+              const SizedBox(height: 4),
+              Text(
+                title,
+                style: ModernTheme.body2.copyWith(
+                  fontSize: 12,
+                  color: ModernTheme.textSecondary,
+                  fontWeight: FontWeight.w500,
+                  height: 1.3,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
             ],
           ),
-          const SizedBox(height: 4), // Reduced from 6
-          Text(
-            value,
-            style: ModernTheme.h4.copyWith(
-              fontSize: 15, // Reduced from 16
-              color: ModernTheme.textPrimary,
-              fontWeight: FontWeight.w700,
-              height: 1.0, // Added to reduce line height
+          // Subtitle at bottom
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
             ),
-          ),
-          const SizedBox(height: 1), // Reduced from 2
-          Text(
-            title,
-            style: ModernTheme.body2.copyWith(
-              fontSize: 10, // Reduced from 11
-              color: ModernTheme.textSecondary,
-              fontWeight: FontWeight.w500,
-              height: 1.0, // Added to reduce line height
-            ),
-          ),
-          const SizedBox(height: 1), // Kept at 1
-          Text(
-            subtitle,
-            style: ModernTheme.body2.copyWith(
-              fontSize: 8, // Reduced from 9
-              color: color,
-              fontWeight: FontWeight.w500,
-              height: 1.0, // Added to reduce line height
+            child: Text(
+              subtitle,
+              style: ModernTheme.body2.copyWith(
+                fontSize: 10,
+                color: color,
+                fontWeight: FontWeight.w600,
+                height: 1.2,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],

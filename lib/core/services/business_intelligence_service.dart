@@ -50,13 +50,17 @@ class BusinessIntelligenceService {
     Map<String, dynamic> userData,
     List<Map<String, dynamic>> businessPlans,
   ) {
+    print('📋 [BusinessIntelligence] Generating overview insights...');
+    print('   Business Plans Count: ${businessPlans.length}');
+    print('   Business Plans: $businessPlans');
+    
     final totalPlans = businessPlans.length;
     final completedPlans =
         businessPlans.where((plan) => plan['status'] == 'completed').length;
     final inProgressPlans =
         businessPlans.where((plan) => plan['status'] == 'in_progress').length;
 
-    return {
+    final result = {
       'total_business_plans': totalPlans,
       'completed_plans': completedPlans,
       'in_progress_plans': inProgressPlans,
@@ -70,6 +74,10 @@ class BusinessIntelligenceService {
         'most_active_industry': _getMostActiveIndustry(businessPlans),
       },
     };
+    
+    print('   Generated overview: $result');
+    
+    return result;
   }
 
   // Generate business health insights
@@ -77,12 +85,15 @@ class BusinessIntelligenceService {
     List<Map<String, dynamic>> businessPlans,
     Map<String, dynamic> financialData,
   ) {
+    print('🏥 [BusinessIntelligence] Generating business health insights...');
+    print('   Financial Data: $financialData');
+    
     final healthScore =
         _calculateBusinessHealthScore(businessPlans, financialData);
     final strengths = _identifyStrengths(businessPlans, financialData);
     final weaknesses = _identifyWeaknesses(businessPlans, financialData);
 
-    return {
+    final result = {
       'health_score': healthScore,
       'health_level': _getHealthLevel(healthScore),
       'strengths': strengths,
@@ -91,6 +102,10 @@ class BusinessIntelligenceService {
       'financial_health': _assessFinancialHealth(financialData),
       'plan_quality': _assessPlanQuality(businessPlans),
     };
+    
+    print('   Generated health insights: $result');
+    
+    return result;
   }
 
   // Generate growth opportunities
@@ -196,30 +211,43 @@ class BusinessIntelligenceService {
   // Generate financial forecast
   static Map<String, dynamic> _generateFinancialForecast(
       Map<String, dynamic> financialData) {
-    final currentRevenue = financialData['current_revenue'] ?? 0;
-    final growthRate = financialData['growth_rate'] ?? 0.1;
+    print('💰 [BusinessIntelligence] Generating financial forecast...');
+    print('   Financial data: $financialData');
+    
+    final currentRevenue = (financialData['current_revenue'] ?? 
+                           financialData['monthly_revenue'] ?? 0).toDouble();
+    final growthRate = (financialData['growth_rate'] ?? 0.1).toDouble();
+    
+    print('   Current Revenue: $currentRevenue');
+    print('   Growth Rate: $growthRate');
+    
     const months = 12;
 
     final forecast = <Map<String, dynamic>>[];
-    double revenue = currentRevenue.toDouble();
+    double projectedRevenue = currentRevenue;
 
     for (int i = 1; i <= months; i++) {
-      revenue *= (1 + growthRate);
+      projectedRevenue *= (1 + growthRate);
       forecast.add({
         'month': i,
-        'revenue': revenue.round(),
+        'revenue': projectedRevenue.round(),
         'growth': (growthRate * 100).round(),
       });
     }
 
-    return {
+    final result = {
       'forecast': forecast,
-      'total_revenue_projection': revenue.round(),
+      'projected_revenue': currentRevenue.round(), // Current month revenue
+      'total_revenue_projection': projectedRevenue.round(), // 12 months from now
       'growth_rate': (growthRate * 100).round(),
       'break_even_point': _calculateBreakEvenPoint(financialData),
       'investment_requirements':
           _calculateInvestmentRequirements(financialData),
     };
+    
+    print('   Generated forecast: $result');
+    
+    return result;
   }
 
   // Generate competitor analysis
