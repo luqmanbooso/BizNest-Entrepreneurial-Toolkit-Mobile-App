@@ -323,7 +323,7 @@ class MentorshipService {
         'expertise': ['Tech Startups'],
         'experienceLevel': '5-10 years',
         'bio': 'Serial entrepreneur with 3 successful exits.',
-        'location': 'San Francisco, CA',
+        'location': 'Colombo',
         'hourlyRate': '150',
         'title': 'Senior Product Manager',
         'company': 'TechVentures Inc.',

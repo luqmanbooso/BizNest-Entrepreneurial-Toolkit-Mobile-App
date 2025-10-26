@@ -3490,6 +3490,42 @@ Most startups fail not because they can't get customers, but because they can't 
     }
   }
 
+  // Check if user has completed all expert level tutorials
+  static Future<bool> hasCompletedAllExpertTutorials() async {
+    try {
+      final userLevel = await QuizService.getUserLevel();
+      
+      // Must be at expert level
+      if (userLevel != 'expert') {
+        return false;
+      }
+
+      final progress = await getLearningProgress();
+      final completedTutorials =
+          progress['completed_tutorials'] as List<dynamic>;
+
+      final expertTutorials = _tutorials['expert'] ?? [];
+
+      // Check if all expert tutorials are completed
+      for (var tutorial in expertTutorials) {
+        if (!completedTutorials.contains(tutorial['id'])) {
+          return false;
+        }
+      }
+
+      if (kDebugMode) {
+        print('🎉 User has completed all expert level tutorials!');
+      }
+
+      return expertTutorials.isNotEmpty;
+    } catch (e) {
+      if (kDebugMode) {
+        print('❌ Error checking expert completion: $e');
+      }
+      return false;
+    }
+  }
+
   // Get personalized tutorials for user
   static Future<List<Map<String, dynamic>>> getPersonalizedTutorials() async {
     try {
@@ -4100,6 +4136,73 @@ Most startups fail not because they can't get customers, but because they can't 
         print('❌ Error resetting learning progress: $e');
       }
       throw e;
+    }
+  }
+
+  // Apply initial assessment level: mark lower-level tutorials as completed so
+  // users who start at a higher level via onboarding can access appropriate
+  // tutorials. Only marks tutorials BELOW the assigned level, not the current level.
+  static Future<void> applyInitialAssessmentLevel(String level) async {
+    try {
+      final progress = await getLearningProgress();
+      final completed = (progress['completed_tutorials'] as List<dynamic>?)
+              ?.cast<String>() ??
+          [];
+
+      if (kDebugMode) {
+        print('🎓 === APPLYING INITIAL ASSESSMENT LEVEL ===');
+        print('   Target level: $level');
+        print('   Currently completed: ${completed.length} tutorials');
+      }
+
+      // Define level order and gather all tutorials BELOW the target level
+      final levelOrder = ['novice', 'intermediate', 'advanced', 'expert'];
+      final targetIndex = levelOrder.indexOf(level);
+      if (targetIndex < 0) {
+        if (kDebugMode) print('   ❌ Unknown level: $level');
+        return; // unknown level
+      }
+
+      // Mark tutorials from levels BELOW the assigned level as completed
+      // This satisfies prerequisites without hiding the user's actual level tutorials
+      int markedCount = 0;
+      for (int i = 0; i < targetIndex; i++) {
+        final lvl = levelOrder[i];
+        final levelTutorials = _tutorials[lvl] ?? [];
+        if (kDebugMode) {
+          print('   📝 Marking $lvl tutorials (${levelTutorials.length} total)');
+        }
+        for (var t in levelTutorials) {
+          final tid = t['id'] as String?;
+          final title = t['title'] as String?;
+          if (tid != null && !completed.contains(tid)) {
+            completed.add(tid);
+            markedCount++;
+            if (kDebugMode) {
+              print('      ✓ Marked: $tid - $title');
+            }
+          }
+        }
+      }
+
+      progress['completed_tutorials'] = completed;
+      // Also set current_level in progress to keep things consistent
+      progress['current_level'] = level;
+
+      await _saveLearningProgress(progress);
+      await updateLeaderboardEntry();
+
+      if (kDebugMode) {
+        print('   ✅ Applied initial assessment level: $level');
+        print('   📊 Total marked as completed: $markedCount tutorials');
+        print('   🎯 $level level tutorials remain available for the user');
+        print('   📋 Final completed count: ${completed.length}');
+        print('🎓 === END INITIAL ASSESSMENT ===');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('❌ Error applying initial assessment level: $e');
+      }
     }
   }
 }

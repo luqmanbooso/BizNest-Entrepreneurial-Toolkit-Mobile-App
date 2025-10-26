@@ -1029,6 +1029,42 @@ class QuizService {
       };
     }
   }
+
+  // Check if user has completed initial assessment
+  static Future<bool> hasCompletedInitialAssessment() async {
+    try {
+      final completed = await FirebaseDataService.getString('initial_assessment_completed');
+      return completed == 'true';
+    } catch (e) {
+      if (kDebugMode) {
+        print('❌ Error checking initial assessment: $e');
+      }
+      return false;
+    }
+  }
+
+  // Mark initial assessment as completed
+  static Future<void> markAssessmentCompleted() async {
+    try {
+      await FirebaseDataService.setString('initial_assessment_completed', 'true');
+      if (kDebugMode) {
+        print('✅ Initial assessment marked as completed');
+      }
+      // Ensure learning progress is updated to reflect the assigned user level
+      // so the user can access tutorials appropriate for their assessed level.
+      try {
+        final currentLevel = await getUserLevel();
+        await LearningEngine.applyInitialAssessmentLevel(currentLevel);
+      } catch (e) {
+        if (kDebugMode) print('❌ Failed to apply initial assessment level: $e');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('❌ Error marking assessment completed: $e');
+      }
+      rethrow;
+    }
+  }
 }
 
 // Quiz result model
